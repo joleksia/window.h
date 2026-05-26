@@ -134,12 +134,9 @@ struct s_platform {
     } config;
 
     struct {
-        /* TODO:
-         *  Change from stack - array to vector...
-         * */
-        t_event arr[1024];
-        size_t  cnt;
-        size_t  cap;
+        t_event *arr;
+        size_t   cnt;
+        size_t   cap;
     } eventQueue;
 };
 
@@ -258,10 +255,9 @@ WININT int __win_init_x11(void) {
 
     /* set up event queue... */
     WINDOW->eventQueue.cnt = 0;
-    WINDOW->eventQueue.cap = 1024;
-    for (size_t i = 0; i < WINDOW->eventQueue.cap; i++) {
-        WINDOW->eventQueue.arr[i] = (t_event) { 0 };
-    }
+    WINDOW->eventQueue.cap = 16;
+    WINDOW->eventQueue.arr = calloc(WINDOW->eventQueue.cap, sizeof(t_event));
+    if (!WINDOW->eventQueue.arr) { return (0); }
 
     /* success */
     return (1);
@@ -271,7 +267,13 @@ WININT int __win_init_x11(void) {
 WININT int __win_quit_x11(void) {
     /* terminate `xlib`... */
     XCloseDisplay(WINDOW->xlib.dpy), WINDOW->xlib.dpy = 0;
-    
+   
+    /* deallocate eventQueue... */
+    free(WINDOW->eventQueue.arr);
+    WINDOW->eventQueue.arr = 0;
+    WINDOW->eventQueue.cnt = 0;
+    WINDOW->eventQueue.cap = 0;
+
     /* deallocate `WINDOW` object... */
     free(WINDOW), WINDOW = 0;
 
@@ -408,8 +410,12 @@ WININT int __win_pollEvents_x11(t_event *event) {
     /* no events in the queue...
      * ...it usually means we can break from a loop that iterates until there's no event in the queue left...
      * ...so returning `false` seems reasonable
+     * Also, it's wise to return `WINDOW_EVENT_NONE` event type
      * */
-    *event = (t_event) { 0 };
+    *event = (t_event) {
+        .type = WINDOW_EVENT_NONE
+    };
+
     return (0);
 }
 
@@ -448,7 +454,6 @@ WININT int __win_waitEvents_x11(t_event *event) {
     /* null-check... */
     if (!event) { return (0); }
 
-
     /* success */
     return (1);
 }
@@ -459,7 +464,11 @@ WININT int __win_pushEvents_x11(t_event *event) {
     if (!event) { return (0); }
 
     /* bounds-check... */
-    if (WINDOW->eventQueue.cnt >= WINDOW->eventQueue.cap) { return (0); }
+    if (WINDOW->eventQueue.cnt >= WINDOW->eventQueue.cap) {
+        WINDOW->eventQueue.cap *= 1.5;
+        WINDOW->eventQueue.arr = realloc(WINDOW->eventQueue.arr, WINDOW->eventQueue.cap * sizeof(t_event));
+        if (!WINDOW->eventQueue.arr) { return (0); }
+    }
 
     /* copy-assignment event object to event queue... */
     WINDOW->eventQueue.arr[WINDOW->eventQueue.cnt++] = *event;
