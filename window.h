@@ -137,7 +137,7 @@ struct s_platform {
         t_event *arr;
         size_t   cnt;
         size_t   cap;
-    } eventQueue;
+    } da_event;
 };
 
 static struct s_platform *WINDOW = 0; 
@@ -254,10 +254,10 @@ WININT int __win_init_x11(void) {
     WINDOW->config.class = TrueColor;
 
     /* set up event queue... */
-    WINDOW->eventQueue.cnt = 0;
-    WINDOW->eventQueue.cap = 16;
-    WINDOW->eventQueue.arr = calloc(WINDOW->eventQueue.cap, sizeof(t_event));
-    if (!WINDOW->eventQueue.arr) { return (0); }
+    WINDOW->da_event.cnt = 0;
+    WINDOW->da_event.cap = 16;
+    WINDOW->da_event.arr = calloc(WINDOW->da_event.cap, sizeof(t_event));
+    if (!WINDOW->da_event.arr) { return (0); }
 
     /* success */
     return (1);
@@ -268,11 +268,11 @@ WININT int __win_quit_x11(void) {
     /* terminate `xlib`... */
     XCloseDisplay(WINDOW->xlib.dpy), WINDOW->xlib.dpy = 0;
    
-    /* deallocate eventQueue... */
-    free(WINDOW->eventQueue.arr);
-    WINDOW->eventQueue.arr = 0;
-    WINDOW->eventQueue.cnt = 0;
-    WINDOW->eventQueue.cap = 0;
+    /* deallocate da_event... */
+    free(WINDOW->da_event.arr);
+    WINDOW->da_event.arr = 0;
+    WINDOW->da_event.cnt = 0;
+    WINDOW->da_event.cap = 0;
 
     /* deallocate `WINDOW` object... */
     free(WINDOW), WINDOW = 0;
@@ -349,8 +349,10 @@ WININT int __win_create_x11(t_window *win, const size_t w, const size_t h, const
     XSetWMProtocols(result->xlib.dpy, result->xlib.w_id, &result->xatom.wm_protocols, 1);
     XSetWMProtocols(result->xlib.dpy, result->xlib.w_id, &result->xatom.wm_delete_window, 1);
 
-    /* success */
+    /* set the `result` object as `win` return object... */
     *win = result;
+    
+    /* success */
     return (1);
 }
 
@@ -464,14 +466,14 @@ WININT int __win_pushEvents_x11(t_event *event) {
     if (!event) { return (0); }
 
     /* bounds-check... */
-    if (WINDOW->eventQueue.cnt >= WINDOW->eventQueue.cap) {
-        WINDOW->eventQueue.cap *= 1.5;
-        WINDOW->eventQueue.arr = realloc(WINDOW->eventQueue.arr, WINDOW->eventQueue.cap * sizeof(t_event));
-        if (!WINDOW->eventQueue.arr) { return (0); }
+    if (WINDOW->da_event.cnt >= WINDOW->da_event.cap) {
+        WINDOW->da_event.cap *= 1.5;
+        WINDOW->da_event.arr = realloc(WINDOW->da_event.arr, WINDOW->da_event.cap * sizeof(t_event));
+        if (!WINDOW->da_event.arr) { return (0); }
     }
 
     /* copy-assignment event object to event queue... */
-    WINDOW->eventQueue.arr[WINDOW->eventQueue.cnt++] = *event;
+    WINDOW->da_event.arr[WINDOW->da_event.cnt++] = *event;
 
     /* success */
     return (1);
@@ -483,22 +485,22 @@ WININT int __win_popEvents_x11(t_event *event) {
     if (!event) { return (0); }
 
     /* bounds-check... */
-    if (WINDOW->eventQueue.cnt == 0) { return (0); }
+    if (WINDOW->da_event.cnt == 0) { return (0); }
 
     /* copy to `event` pointer... */
-    *event = WINDOW->eventQueue.arr[0];
+    *event = WINDOW->da_event.arr[0];
 
     /* move all the event objects one place to the front... */
     size_t i = 0;
-    while (i < WINDOW->eventQueue.cnt - 1) {
-        WINDOW->eventQueue.arr[i] = WINDOW->eventQueue.arr[++i];
+    while (i < WINDOW->da_event.cnt - 1) {
+        WINDOW->da_event.arr[i] = WINDOW->da_event.arr[++i];
     }
 
     /* set last queue element to `zero`... */
-    WINDOW->eventQueue.arr[i] = (t_event) { 0 };
+    WINDOW->da_event.arr[i] = (t_event) { 0 };
 
     /* ...and decrement the size of the queue... */
-    WINDOW->eventQueue.cnt--;
+    WINDOW->da_event.cnt--;
 
     /* success */
     return (1);
