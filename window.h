@@ -69,14 +69,23 @@ enum e_eventType {
     WINDOW_EVENT_QUIT,
 # define WINDOW_EVENT_QUIT WINDOW_EVENT_QUIT
 
-    WINDOW_EVENT_MOTION,
-# define WINDOW_EVENT_MOTION WINDOW_EVENT_MOTION
+    WINDOW_EVENT_MOUSE_MOTION,
+# define WINDOW_EVENT_MOUSE_MOTION WINDOW_EVENT_MOUSE_MOTION
 
-    WINDOW_EVENT_BUTTON,
-# define WINDOW_EVENT_BUTTON WINDOW_EVENT_BUTTON
+    WINDOW_EVENT_MOUSE_BUTTON,
+# define WINDOW_EVENT_MOUSE_BUTTON WINDOW_EVENT_MOUSE_BUTTON
 
-    WINDOW_EVENT_SCROLL,
-# define WINDOW_EVENT_SCROLL_DOWN WINDOW_EVENT_SCROLL
+    WINDOW_EVENT_MOUSE_SCROLL,
+# define WINDOW_EVENT_MOUSE_SCROLL WINDOW_EVENT_MOUSE_SCROLL
+
+    WINDOW_EVENT_KEYBOARD_KEY,
+# define WINDOW_EVENT_KEYBOARD_KEY WINDOW_EVENT_KEYBOARD_KEY
+
+    WINDOW_EVENT_WINDOW_RESIZE,
+# define WINDOW_EVENT_WINDOW_RESIZE WINDOW_EVENT_WINDOW_RESIZE
+
+    WINDOW_EVENT_WINDOW_MOTION,
+# define WINDOW_EVENT_WINDOW_MOTION WINDOW_EVENT_WINDOW_MOTION
 
     /* ... */
 
@@ -86,58 +95,18 @@ enum e_eventType {
 };
 
 
-typedef struct s_eventQuit t_eventQuit;
+typedef struct s_event t_event;
 
-struct s_eventQuit {
-    t_eventType type;
-    size_t timestamp;
-};
+struct s_event {
+    uint32_t type;
+    uint64_t timestamp;
 
-
-typedef struct s_eventMotion t_eventMotion;
-
-struct s_eventMotion {
-    t_eventType type;
-    size_t timestamp;
-
-    uint64_t x, xrel;
-    uint64_t y, yrel;
-};
-
-
-typedef struct s_eventButton t_eventButton;
-
-struct s_eventButton {
-    t_eventType type;
-    size_t timestamp;
-
-    uint8_t btn;
-    uint8_t state;
-};
-
-
-typedef struct s_eventScroll t_eventScroll;
-
-struct s_eventScroll {
-    t_eventType type;
-    size_t timestamp;
-
-    int8_t value;
-};
-
-
-typedef union u_event t_event;
-
-union u_event {
-    t_eventType type;
-
-    t_eventQuit quit;
-
-    t_eventMotion motion;
-    
-    t_eventButton button;
-    
-    t_eventScroll scroll;
+    union {
+        int8_t  c[64 / sizeof(int8_t)];
+        int16_t s[64 / sizeof(int16_t)];
+        int32_t i[64 / sizeof(int32_t)];
+        int64_t l[64 / sizeof(int64_t)];
+    } data;
 };
 
 WINDEF int win_pollEvents(t_event *);
@@ -519,10 +488,7 @@ WININT int __win_eventLoop_x11(void) {
                     if (data == WINDOW->xatom.wm_delete_window) {
                         t_event event = (t_event) {
                             .type = WINDOW_EVENT_QUIT,
-                            .quit = (t_eventQuit) {
-                                .type = WINDOW_EVENT_QUIT,
-                                .timestamp = win_getTime() 
-                            }
+                            .timestamp = win_getTime()
                         };
 
                         win_pushEvents(&event);
@@ -532,14 +498,15 @@ WININT int __win_eventLoop_x11(void) {
 
             case (MotionNotify): {
                 t_event event = (t_event) {
-                    .type   = WINDOW_EVENT_MOTION,
-                    .motion = (t_eventMotion) {
-                        .type = WINDOW_EVENT_MOTION,
-                        .timestamp = win_getTime(),
-                        .x = xevent.xmotion.x,
-                        .xrel = xevent.xmotion.x_root,
-                        .y = xevent.xmotion.y,
-                        .yrel = xevent.xmotion.y_root,
+                    .type = WINDOW_EVENT_MOUSE_MOTION,
+                    .timestamp = win_getTime(),
+                    .data = {
+                        .l = {
+                            [0] = xevent.xmotion.x,
+                            [1] = xevent.xmotion.x_root,
+                            [2] = xevent.xmotion.y,
+                            [3] = xevent.xmotion.y_root,
+                        }
                     }
                 };
 
@@ -565,12 +532,13 @@ WININT int __win_eventLoop_x11(void) {
                     uint8_t state = (xevent.type == ButtonPress) ? 1 : 0;
 
                     t_event event = (t_event) {
-                        .type   = WINDOW_EVENT_BUTTON,
-                        .button = (t_eventButton) {
-                            .type = WINDOW_EVENT_BUTTON,
-                            .timestamp = win_getTime(),
-                            .btn = btn,
-                            .state = state
+                        .type = WINDOW_EVENT_MOUSE_BUTTON,
+                        .timestamp = win_getTime(),
+                        .data = {
+                            .c = {
+                                [0] = btn,
+                                [1] = state
+                            }
                         }
                     };
                     
@@ -582,16 +550,23 @@ WININT int __win_eventLoop_x11(void) {
                     if (xevent.type == ButtonRelease) { break; }
 
                     t_event event = (t_event) {
-                        .type   = WINDOW_EVENT_SCROLL,
-                        .scroll = (t_eventScroll) {
-                            .type = WINDOW_EVENT_SCROLL,
-                            .timestamp = win_getTime(),
-                            .value = (btn == 4) ? 1 : -1
+                        .type = WINDOW_EVENT_MOUSE_SCROLL,
+                        .timestamp = win_getTime(),
+                        .data = {
+                            .c = {
+                                [0] = (btn == 4) ? 1 : -1
+                            }
                         }
                     };
 
                     win_pushEvents(&event);
                 }
+            } break;
+
+            case (ConfigureNotify): {
+                /* TODO:
+                 *  Implement window events when you find a way to look-up window references
+                 * */
             } break;
         }
     }
@@ -641,9 +616,9 @@ WININT int __win_pushEvents_x11(t_event *event) {
 
 WININT int __win_isCoalescable_x11(t_eventType type) {
     const uint64_t coalescable = 
-        (1U << WINDOW_EVENT_MOTION) |
-        (1U << WINDOW_EVENT_BUTTON) |
-        (1U << WINDOW_EVENT_SCROLL);
+        (1U << WINDOW_EVENT_MOUSE_MOTION) |
+        (1U << WINDOW_EVENT_WINDOW_MOTION) |
+        (1U << WINDOW_EVENT_WINDOW_RESIZE);
 
     return ((coalescable >> type) & 1);
 }
