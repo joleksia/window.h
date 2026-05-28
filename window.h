@@ -660,6 +660,9 @@ WINDEF int win_setwinpos(t_window win, const size_t x, const size_t y) {
 WINDEF int win_setWindowMinimized(t_window win) {
     /* null-check... */
     if (!win) { return (0); }
+
+    /* ... */
+
     /* success */
 	return (1);
 }
@@ -668,6 +671,9 @@ WINDEF int win_setWindowMinimized(t_window win) {
 WINDEF int win_setWindowMaximized(t_window win) {
     /* null-check... */
     if (!win) { return (0); }
+
+    /* ... */
+
     /* success */
 	return (1);
 }
@@ -676,6 +682,9 @@ WINDEF int win_setWindowMaximized(t_window win) {
 WINDEF int win_setWindowFullscreen(t_window win) {
     /* null-check... */
     if (!win) { return (0); }
+
+    /* ... */
+
     /* success */
 	return (1);
 }
@@ -1026,5 +1035,521 @@ WINDEF int win_waitTime(uint64_t ms) {
 /* ... */
 
 #  endif /* WINDOW_PLATFORM_WIN32 */
+#
+#  /* window.h API definitions template */
+#  if (0)
+
+/* platform functions */
+
+struct s_platform {
+
+    /* ... */
+
+    struct {
+        t_event *arr;
+        size_t   cnt;
+        size_t   cap;
+    } da_event;
+
+    struct {
+        t_window *arr;
+        size_t    cap;
+    } da_window;
+};
+
+static struct s_platform *WINDOW = 0; 
+
+WINDEF int win_init(void) {
+    /* manage global platform object... */
+    if (WINDOW) { return (1); } /* check if `WINDOW` is not null. If so, return... */
+
+    WINDOW = malloc(sizeof(struct s_platform));
+    if (!WINDOW) {
+        return (0);
+    }
+
+    /* ... */
+
+    /* set up event queue... */
+    WINDOW->da_event.cnt = 0;
+    WINDOW->da_event.cap = 16;
+    WINDOW->da_event.arr = calloc(WINDOW->da_event.cap, sizeof(t_event));
+    if (!WINDOW->da_event.arr) { return (0); }
+
+    /* set up window array... */
+    WINDOW->da_window.cap = 16;
+    WINDOW->da_window.arr = calloc(WINDOW->da_window.cap, sizeof(t_window));
+    if (!WINDOW->da_window.arr) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int win_quit(void) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+
+    /* deallocate all the windows... */
+    for (size_t i = 0; i < WINDOW->da_window.cap; i++) {
+        if (!WINDOW->da_window.arr[i]) { continue; }
+
+        win_destroy(WINDOW->da_window.arr[i]);
+    }
+
+    free(WINDOW->da_window.arr);
+    WINDOW->da_window.arr = 0;
+    WINDOW->da_window.cap = 0;
+   
+    /* deallocate da_event... */
+    free(WINDOW->da_event.arr);
+    WINDOW->da_event.arr = 0;
+    WINDOW->da_event.cnt = 0;
+    WINDOW->da_event.cap = 0;
+
+    /* ... */
+
+    /* deallocate `WINDOW` object... */
+    free(WINDOW), WINDOW = 0;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int win_getsize(size_t *w_ptr, size_t *h_ptr) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+
+    /* ... */
+    
+    /* assign values */
+    if (w_ptr) { *w_ptr = /* ... */; }
+    if (h_ptr) { *h_ptr = /* ... */; }
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF void *win_getprop(const uint64_t prop) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+
+    switch (prop) {
+        case (WINDOW_PROP_PLATFORM_X11_DISPLAY):   { return (WINDOW->xlib.dpy); }
+        case (WINDOW_PROP_PLATFORM_X11_ROOT_ID):   { return (&WINDOW->xlib.r_id); }
+        case (WINDOW_PROP_PLATFORM_X11_SCREEN_ID): { return (&WINDOW->xlib.s_id); }
+
+        default: { } break;
+    }
+
+    /* return nothing... */
+    return (0);
+}
+
+/* windowing functions */
+
+struct s_window {
+
+    /* ... */
+
+    struct {
+        /* position attributes... */
+        size_t x, y;
+
+        /* dimension attributes... */
+        size_t w, h;
+    } attr;
+};
+
+WINDEF int win_create(t_window *win, const size_t w, const size_t h, const char *t, const uint64_t f) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* allocate `result` window... */
+    t_window result = malloc(sizeof(struct s_window));
+    if (!result) { return (0); }
+
+    /* ... */
+
+    /* configure windows attributes... */
+    result->attr.w = w;
+    result->attr.h = h;
+
+    /* append window to da_window... */
+    size_t i;
+    for (i = 0; i < WINDOW->da_window.cap; i++) {
+        /* set the first `null` window object to the current window... */
+        if (WINDOW->da_window.arr[i] == 0) {
+            WINDOW->da_window.arr[i]  = result;
+            break;
+        }
+    }
+
+    /* da_window is exhausted, we must resize it.
+     * After that we must append the window to newly - resized da_window.
+     * */
+    if (i == WINDOW->da_window.cap) {
+        WINDOW->da_window.cap *= 1.5;
+        WINDOW->da_window.arr  = realloc(WINDOW->da_window.arr, WINDOW->da_window.cap * sizeof(t_window));
+        if (!WINDOW->da_window.arr) { return (0); }
+
+        for ( ; i< WINDOW->da_window.cap; i++) {
+            /* set the first `null` window object to the current window... */
+            if (WINDOW->da_window.arr[i] == 0) {
+                WINDOW->da_window.arr[i]  = result;
+                break;
+            }
+        }
+    }
+
+    /* set the `result` object as `win` return object... */
+    *win = result;
+    
+    /* success */
+    return (1);
+}
+
+
+WINDEF int win_destroy(t_window win) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* erase window from da_window... */
+    for (size_t i = 0; i < WINDOW->da_window.cap; i++) {
+        if (win == WINDOW->da_window.arr[i]) {
+            WINDOW->da_window.arr[i] = 0;
+            break;
+        }
+    }
+
+    /* destroy window's components... */
+    XDestroyWindow(win->xlib.dpy, win->xlib.w_id);
+    
+    /* deallocate window object... */
+    free(win);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int win_map(t_window win) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+
+
+    XMapWindow(win->xlib.dpy, win->xlib.w_id);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int win_unmap(t_window win) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+
+
+    XUnmapWindow(win->xlib.dpy, win->xlib.w_id);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int win_getwinsize(t_window win, size_t *w_ptr, size_t *h_ptr) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+    
+    /* assign values */
+    if (w_ptr) { *w_ptr = /* ... */; }
+    if (h_ptr) { *h_ptr = /* ... */; }
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowSize(t_window win, const size_t w, const size_t h) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowMinSize(t_window win, const size_t w, const size_t h) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowMaxSize(t_window win, const size_t w, const size_t h) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+    
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_getwinpos(t_window win, size_t *x_ptr, size_t *y_ptr) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+    
+    /* assign values */
+    if (x_ptr) { *x_ptr = /* ... */; }
+    if (y_ptr) { *y_ptr = /* ... */; }
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setwinpos(t_window win, const size_t x, const size_t y) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowMinimized(t_window win) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowMaximized(t_window win) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowFullscreen(t_window win) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_getwintitle(t_window win, char **t_ptr) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+    if (!t_ptr)  { return (0); }
+
+    /* ... */
+
+    /* success */
+	return (1);
+
+}
+
+
+WINDEF int win_setwintitle(t_window win, const char *t) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+    if (!t)      { return (0); }
+
+    /* ... */
+
+    /* success */
+	return (1);
+
+}
+
+
+WINDEF void *win_getwinprop(t_window win, const uint64_t prop) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* ... */
+
+    /* return nothing... */
+    return (0);
+}
+
+/* event functions */
+
+WINDEF int win_eventpoll(t_event *event) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!event)  { return (0); }
+
+    /* poll events from platform queue... */
+    if (win_eventpop(event)) { return (1); }
+
+    /* ... */
+
+
+    /* handle platform events... */
+    __win_eventpoll_x11();
+
+    /* no events in the queue...
+     * ...it usually means we can break from a loop that iterates until there's no event in the queue left...
+     * ...so returning `false` seems reasonable
+     * Also, it's wise to return `WINDOW_EVENT_NONE` event type
+     * */
+    *event = (t_event) {
+        .type = WINDOW_EVENT_NONE
+    };
+
+    return (0);
+}
+
+
+WINDEF int win_eventwait(t_event *event) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!event)  { return (0); }
+
+    /* ... */
+
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int win_eventpush(t_event *event) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!event)  { return (0); }
+
+    /* bounds-check... */
+    if (WINDOW->da_event.cnt >= WINDOW->da_event.cap) {
+        WINDOW->da_event.cap *= 1.5;
+        WINDOW->da_event.arr = realloc(WINDOW->da_event.arr, WINDOW->da_event.cap * sizeof(t_event));
+        if (!WINDOW->da_event.arr) { return (0); }
+    }
+
+    /* tail-coalescing... */
+    if (WINDOW->da_event.cnt > 0) {
+        t_event *tail = &WINDOW->da_event.arr[WINDOW->da_event.cnt - 1];
+        if (tail->type == event->type && __win_coalescable_x11(event->type)) {
+            if (type == WINDOW_EVENT_MOUSE_MOTION  ||
+                type == WINDOW_EVENT_WINDOW_MOTION ||
+                type == WINDOW_EVENT_WINDOW_RESIZE
+            ) {
+                *tail = *event;
+                return (1);
+            }
+        }
+    }
+
+    /* copy-assignment event object to event queue... */
+    WINDOW->da_event.arr[WINDOW->da_event.cnt++] = *event;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int win_eventpop(t_event *event) {
+    /* null-check... */
+    if (!WINDOW) { return (0); }
+    if (!event)  { return (0); }
+
+    /* bounds-check... */
+    if (WINDOW->da_event.cnt == 0) { return (0); }
+
+    /* copy to `event` pointer... */
+    *event = WINDOW->da_event.arr[0];
+
+    /* move all the event objects one place to the front... */
+    size_t i = 0;
+    for ( ; i < WINDOW->da_event.cnt - 1; i++) {
+        WINDOW->da_event.arr[i] = WINDOW->da_event.arr[i + 1];
+    }
+
+    /* set last queue element to `zero`... */
+    WINDOW->da_event.arr[i] = (t_event) { 0 };
+
+    /* ...and decrement the size of the queue... */
+    WINDOW->da_event.cnt--;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int win_flush(void) {
+    if (!WINDOW) { return (0); }
+
+    /* ... */
+
+    /* success */
+    return (1);
+}
+
+/* timing functions */
+
+WINDEF uint64_t win_getTime(void) {
+
+    /* ... */
+
+}
+
+
+WINDEF int win_waitTime(uint64_t ms) {
+
+    /* ... */
+
+}
+
+#  endif /* */
 # endif /* WINDOW_IMPLEMENTATION */
 #endif /* _window_h_ */
