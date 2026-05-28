@@ -19,9 +19,9 @@ int main(void) {
     win_map(window);
 
     /* query properties */
-    Display *dpy = win_getWindowProperty(window, WINDOW_PROP_WINDOW_X11_DISPLAY);
-    XID w_id = *(XID *) win_getWindowProperty(window, WINDOW_PROP_WINDOW_X11_WINDOW_ID);
-    Visual *visual = win_getWindowProperty(window, WINDOW_PROP_WINDOW_X11_VISUAL);
+    Display *dpy = win_getwinprop(window, WINDOW_PROP_WINDOW_X11_DISPLAY);
+    XID w_id = *(XID *) win_getwinprop(window, WINDOW_PROP_WINDOW_X11_WINDOW_ID);
+    Visual *visual = win_getwinprop(window, WINDOW_PROP_WINDOW_X11_VISUAL);
 
     /* create buffer */
     uint32_t *buffer = malloc(800 * 600 * sizeof(uint32_t));
@@ -50,7 +50,7 @@ int main(void) {
 
         /* poll events */
         t_event event = { 0 };
-        while (win_pollEvents(&event)) {
+        while (win_eventpoll(&event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
                     printf("WINDOW_EVENT_QUIT\n");

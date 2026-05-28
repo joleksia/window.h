@@ -71,7 +71,7 @@ WINDEF int win_init(void);
 
 WINDEF int win_quit(void);
 
-WINDEF void *win_getPlatformProperty(const uint64_t);
+WINDEF void *win_getprop(const uint64_t);
 
 /* windowing functions */
 
@@ -109,7 +109,29 @@ WINDEF int win_map(t_window);
 
 WINDEF int win_unmap(t_window);
 
-WINDEF void *win_getWindowProperty(t_window, const uint64_t);
+WINDEF int win_getwinsize(t_window, size_t *, size_t *);
+
+WINDEF int win_setWindowSize(t_window, const size_t, const size_t);
+
+WINDEF int win_setWindowMinSize(t_window, const size_t, const size_t);
+
+WINDEF int win_setWindowMaxSize(t_window, const size_t, const size_t);
+
+WINDEF int win_getwinpos(t_window, size_t *, size_t *);
+
+WINDEF int win_setwinpos(t_window, const size_t, const size_t);
+
+WINDEF int win_setWindowMinimized(t_window);
+
+WINDEF int win_setWindowMaximized(t_window);
+
+WINDEF int win_setWindowFullscreen(t_window);
+
+WINDEF int win_getwintitle(t_window, char **);
+
+WINDEF int win_setwintitle(t_window, const char *);
+
+WINDEF void *win_getwinprop(t_window, const uint64_t);
 
 /* event functions */
 
@@ -161,13 +183,13 @@ struct s_event {
     } data;
 };
 
-WINDEF int win_pollEvents(t_event *);
+WINDEF int win_eventpoll(t_event *);
 
-WINDEF int win_waitEvents(t_event *);
+WINDEF int win_eventwait(t_event *);
 
-WINDEF int win_pushEvents(t_event *);
+WINDEF int win_eventpush(t_event *);
 
-WINDEF int win_popEvents(t_event *);
+WINDEF int win_eventpop(t_event *);
 
 WINDEF int win_flush(void);
 
@@ -309,7 +331,7 @@ WINDEF int win_quit(void) {
 }
 
 
-WINDEF void *win_getPlatformProperty(const uint64_t prop) {
+WINDEF void *win_getprop(const uint64_t prop) {
     switch (prop) {
         case (WINDOW_PROP_PLATFORM_X11_DISPLAY):   { return (WINDOW->xlib.dpy); }
         case (WINDOW_PROP_PLATFORM_X11_ROOT_ID):   { return (&WINDOW->xlib.r_id); }
@@ -502,7 +524,167 @@ WINDEF int win_unmap(t_window win) {
 }
 
 
-WINDEF void *win_getWindowProperty(t_window win, const uint64_t prop) {
+WINDEF int win_getwinsize(t_window win, size_t *w_ptr, size_t *h_ptr) {
+    /* null-check... */
+    if (!win) { return (0); }
+
+    /* query attributes */
+    XWindowAttributes attr;
+    if (!XGetWindowAttributes(win->xlib.dpy, win->xlib.w_id, &attr)) { return (0); }
+    
+    /* assign values */
+    if (w_ptr) { *w_ptr = attr.width; }
+    if (h_ptr) { *h_ptr = attr.height; }
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowSize(t_window win, const size_t w, const size_t h) {
+    /* null-check... */
+    if (!win) { return (0); }
+
+    /* resize */
+    if (!XResizeWindow(win->xlib.dpy, win->xlib.w_id, w, h)) { return (0); }
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowMinSize(t_window win, const size_t w, const size_t h) {
+    /* null-check... */
+    if (!win) { return (0); }
+
+    /* get WM normal hints */
+    XSizeHints hints;
+    int64_t supp;
+    XGetWMNormalHints(win->xlib.dpy, win->xlib.w_id, &hints, &supp);
+
+    /* set new WM normal hints with position changed */
+    hints.flags = PMinSize;
+    hints.min_width  = w;
+    hints.min_height = h;
+    XSetWMNormalHints(win->xlib.dpy, win->xlib.w_id, &hints);
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowMaxSize(t_window win, const size_t w, const size_t h) {
+    /* null-check... */
+    if (!win) { return (0); }
+
+    /* get WM normal hints */
+    XSizeHints hints;
+    int64_t supp;
+    XGetWMNormalHints(win->xlib.dpy, win->xlib.w_id, &hints, &supp);
+
+    /* set new WM normal hints with position changed */
+    hints.flags = PMaxSize;
+    hints.max_width  = w;
+    hints.max_height = h;
+    XSetWMNormalHints(win->xlib.dpy, win->xlib.w_id, &hints);
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_getwinpos(t_window win, size_t *x_ptr, size_t *y_ptr) {
+    /* null-check... */
+    if (!win) { return (0); }
+
+    /* query attributes */
+    XWindowAttributes attr;
+    if (!XGetWindowAttributes(win->xlib.dpy, win->xlib.w_id, &attr)) { return (0); }
+    
+    /* assign values */
+    if (x_ptr) { *x_ptr = attr.x; }
+    if (y_ptr) { *y_ptr = attr.y; }
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setwinpos(t_window win, const size_t x, const size_t y) {
+    /* null-check... */
+    if (!win) { return (0); }
+
+    /* get WM normal hints */
+    XSizeHints hints;
+    int64_t supp;
+    XGetWMNormalHints(win->xlib.dpy, win->xlib.w_id, &hints, &supp);
+
+    /* set new WM normal hints with position changed */
+    hints.flags = PPosition;
+    hints.x = x;
+    hints.y = y;
+    XSetWMNormalHints(win->xlib.dpy, win->xlib.w_id, &hints);
+
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowMinimized(t_window win) {
+    /* null-check... */
+    if (!win) { return (0); }
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowMaximized(t_window win) {
+    /* null-check... */
+    if (!win) { return (0); }
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_setWindowFullscreen(t_window win) {
+    /* null-check... */
+    if (!win) { return (0); }
+    /* success */
+	return (1);
+}
+
+
+WINDEF int win_getwintitle(t_window win, char **t_ptr) {
+    /* null-check... */
+    if (!win)   { return (0); }
+    if (!t_ptr) { return (0); }
+
+    /* fetch the title */
+    if (XFetchName(win->xlib.dpy, win->xlib.w_id, t_ptr)) {
+        return (0);
+    }
+
+    /* success */
+	return (1);
+
+}
+
+
+WINDEF int win_setwintitle(t_window win, const char *t) {
+    /* null-check... */
+    if (!win) { return (0); }
+    if (!t)   { return (0); }
+
+    /* store the title */
+    XStoreName(win->xlib.dpy, win->xlib.w_id, t);
+
+    /* success */
+	return (1);
+
+}
+
+
+WINDEF void *win_getwinprop(t_window win, const uint64_t prop) {
     switch (prop) {
         case (WINDOW_PROP_WINDOW_X11_DISPLAY):   { return (win->xlib.dpy); }
         case (WINDOW_PROP_WINDOW_X11_ROOT_ID):   { return (&win->xlib.r_id); }
@@ -519,17 +701,17 @@ WINDEF void *win_getWindowProperty(t_window win, const uint64_t prop) {
 
 /* event functions */
 
-WININT int __win_pollEvents_x11(void);
+WININT int __win_eventpoll_x11(void);
 
-WINDEF int win_pollEvents(t_event *event) {
+WINDEF int win_eventpoll(t_event *event) {
     /* null-check... */
     if (!event) { return (0); }
 
     /* poll events from platform queue... */
-    if (win_popEvents(event)) { return (1); }
+    if (win_eventpop(event)) { return (1); }
 
     /* handle platform events... */
-    __win_pollEvents_x11();
+    __win_eventpoll_x11();
 
     /* no events in the queue...
      * ...it usually means we can break from a loop that iterates until there's no event in the queue left...
@@ -543,7 +725,7 @@ WINDEF int win_pollEvents(t_event *event) {
     return (0);
 }
     
-WININT int __win_pollEvents_x11(void) {
+WININT int __win_eventpoll_x11(void) {
     XEvent xevent = { 0 };
     while (XPending(WINDOW->xlib.dpy)) {
         XNextEvent(WINDOW->xlib.dpy, &xevent);
@@ -559,7 +741,7 @@ WININT int __win_pollEvents_x11(void) {
                             .timestamp = win_getTime()
                         };
 
-                        win_pushEvents(&event);
+                        win_eventpush(&event);
                     }
                 }
             } break;
@@ -578,7 +760,7 @@ WININT int __win_pollEvents_x11(void) {
                     }
                 };
 
-                win_pushEvents(&event);
+                win_eventpush(&event);
             } break;
 
             case (ButtonPress):
@@ -610,7 +792,7 @@ WININT int __win_pollEvents_x11(void) {
                         }
                     };
                     
-                    win_pushEvents(&event);
+                    win_eventpush(&event);
                 }
 
                 /* scroll up / down... */
@@ -627,7 +809,7 @@ WININT int __win_pollEvents_x11(void) {
                         }
                     };
 
-                    win_pushEvents(&event);
+                    win_eventpush(&event);
                 }
             } break;
 
@@ -661,7 +843,7 @@ WININT int __win_pollEvents_x11(void) {
                         }
                     };
                     
-                    win_pushEvents(&event);
+                    win_eventpush(&event);
                 }
 
                 /* handle resize event... */
@@ -682,7 +864,7 @@ WININT int __win_pollEvents_x11(void) {
                         }
                     };
                     
-                    win_pushEvents(&event);
+                    win_eventpush(&event);
                 }
 
             } break;
@@ -694,7 +876,7 @@ WININT int __win_pollEvents_x11(void) {
 }
 
 
-WINDEF int win_waitEvents(t_event *event) {
+WINDEF int win_eventwait(t_event *event) {
     /* null-check... */
     if (!event) { return (0); }
 
@@ -703,9 +885,9 @@ WINDEF int win_waitEvents(t_event *event) {
 }
 
 
-WININT int __win_isCoalescable_x11(const uint64_t);
+WININT int __win_coalescable_x11(const uint64_t);
 
-WINDEF int win_pushEvents(t_event *event) {
+WINDEF int win_eventpush(t_event *event) {
     /* null-check... */
     if (!event) { return (0); }
 
@@ -719,7 +901,7 @@ WINDEF int win_pushEvents(t_event *event) {
     /* tail-coalescing... */
     if (WINDOW->da_event.cnt > 0) {
         t_event *tail = &WINDOW->da_event.arr[WINDOW->da_event.cnt - 1];
-        if (tail->type == event->type && __win_isCoalescable_x11(event->type)) {
+        if (tail->type == event->type && __win_coalescable_x11(event->type)) {
             *tail = *event;
             return (1);
         }
@@ -732,14 +914,14 @@ WINDEF int win_pushEvents(t_event *event) {
     return (1);
 }
 
-WININT int __win_isCoalescable_x11(const uint64_t type) {
+WININT int __win_coalescable_x11(const uint64_t type) {
     return (type == WINDOW_EVENT_MOUSE_MOTION ||
             type == WINDOW_EVENT_WINDOW_MOTION ||
             type == WINDOW_EVENT_WINDOW_RESIZE);
 }
 
 
-WINDEF int win_popEvents(t_event *event) {
+WINDEF int win_eventpop(t_event *event) {
     /* null-check... */
     if (!event) { return (0); }
 

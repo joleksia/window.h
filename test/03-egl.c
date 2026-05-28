@@ -41,7 +41,7 @@ int main(void) {
     win_map(window);
     
     /* query EGL display */
-    Display *dpy = win_getWindowProperty(window, WINDOW_PROP_WINDOW_X11_DISPLAY);
+    Display *dpy = win_getwinprop(window, WINDOW_PROP_WINDOW_X11_DISPLAY);
     egl.dpy = eglGetDisplay((EGLDisplay) dpy);
     if (egl.dpy == EGL_NO_DISPLAY) {
         return (1);
@@ -59,7 +59,7 @@ int main(void) {
     }
 
     /* create EGL surface */
-    XID w_id = *(XID *) win_getWindowProperty(window,WINDOW_PROP_WINDOW_X11_WINDOW_ID);
+    XID w_id = *(XID *) win_getwinprop(window,WINDOW_PROP_WINDOW_X11_WINDOW_ID);
     egl.surface = eglCreateWindowSurface(egl.dpy, egl.cfg, w_id, 0);
     if (egl.surface == EGL_NO_SURFACE) {
         return (1);
@@ -87,7 +87,7 @@ int main(void) {
 
         /* poll events */
         t_event event = { 0 };
-        while (win_pollEvents(&event)) {
+        while (win_eventpoll(&event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
                     printf("WINDOW_EVENT_QUIT\n");

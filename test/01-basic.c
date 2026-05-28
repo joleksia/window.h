@@ -31,7 +31,7 @@ int main(void) {
     while (!exit) {
         /* poll events */
         t_event event = { 0 };
-        while (win_pollEvents(&event)) {
+        while (win_eventpoll(&event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
                     printf("WINDOW_EVENT_QUIT\n");
