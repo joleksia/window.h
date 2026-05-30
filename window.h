@@ -171,18 +171,93 @@ enum {
 };
 
 
-typedef struct s_event t_event;
+typedef struct s_eventCommon t_eventCommon;
 
-struct s_event {
+struct s_eventCommon {
+    uint32_t type;
+    uint64_t timestamp;
+};
+
+
+typedef struct s_eventQuit t_eventQuit;
+
+struct s_eventQuit {
+    uint32_t type;
+    uint64_t timestamp;
+};
+
+
+typedef struct s_eventMouseMotion t_eventMouseMotion;
+
+struct s_eventMouseMotion {
     uint32_t type;
     uint64_t timestamp;
 
-    union {
-        int8_t  c[64 / sizeof(int8_t)];
-        int16_t s[64 / sizeof(int16_t)];
-        int32_t i[64 / sizeof(int32_t)];
-        int64_t l[64 / sizeof(int64_t)];
-    } data;
+    int32_t x, xrel;
+    int32_t y, yrel;
+};
+
+
+typedef struct s_eventMouseButton t_eventMouseButton;
+
+struct s_eventMouseButton {
+    uint32_t type;
+    uint64_t timestamp;
+
+    int8_t btn;
+    int8_t state;
+};
+
+
+typedef struct s_eventMouseScroll t_eventMouseScroll;
+
+struct s_eventMouseScroll {
+    uint32_t type;
+    uint64_t timestamp;
+
+    int8_t scroll;
+};
+
+
+typedef struct s_eventKeyboardKey t_eventKeyboardKey;
+
+struct s_eventKeyboardKey {
+    uint32_t type;
+    uint64_t timestamp;
+
+    int32_t key;
+    int8_t  state;
+};
+
+
+typedef struct s_eventWindow t_eventWindow;
+
+struct s_eventWindow {
+    uint32_t type;
+    uint64_t timestamp;
+
+    uint32_t x, y;
+    uint32_t w, h;
+};
+
+
+typedef union u_event t_event;
+
+union u_event {
+    uint32_t type;
+
+    /* common event... */
+    t_eventCommon common;
+
+    /* mouse event... */
+    t_eventMouseMotion motion;
+    t_eventMouseButton button;
+
+    /* keyboard event... */
+    t_eventKeyboardKey key;
+
+    /* window event... */
+    t_eventWindow window;
 };
 
 WINDEF int win_eventpoll(t_event *);
@@ -794,31 +869,25 @@ WININT int __win_eventpoll_x11(void) {
                     const Atom data = xevent.xclient.data.l[0];
 
                     if (data == WINDOW->xatom.wm_delete_window) {
-                        t_event event = (t_event) {
+                        t_eventQuit event = (t_eventQuit) {
                             .type = WINDOW_EVENT_QUIT,
                             .timestamp = win_timeget()
                         };
 
-                        win_eventpush(&event);
+                        win_eventpush((t_event *) &event);
                     }
                 }
             } break;
 
             case (MotionNotify): {
-                t_event event = (t_event) {
+                t_eventMouseMotion event = (t_eventMouseMotion) {
                     .type = WINDOW_EVENT_MOUSE_MOTION,
                     .timestamp = win_timeget(),
-                    .data = {
-                        .l = {
-                            [0] = xevent.xmotion.x,
-                            [1] = xevent.xmotion.x_root,
-                            [2] = xevent.xmotion.y,
-                            [3] = xevent.xmotion.y_root,
-                        }
-                    }
+                    .x = xevent.xmotion.x, .xrel = xevent.xmotion.x_root,
+                    .y = xevent.xmotion.y, .yrel = xevent.xmotion.y_root,
                 };
 
-                win_eventpush(&event);
+                win_eventpush((t_event *) &event);
             } break;
 
             case (ButtonPress):
@@ -839,35 +908,27 @@ WININT int __win_eventpoll_x11(void) {
                 else if (btn >= 1 && btn <= 3) {
                     uint8_t state = (xevent.type == ButtonPress) ? 1 : 0;
 
-                    t_event event = (t_event) {
+                    t_eventMouseButton event = (t_eventMouseButton) {
                         .type = WINDOW_EVENT_MOUSE_BUTTON,
                         .timestamp = win_timeget(),
-                        .data = {
-                            .c = {
-                                [0] = btn,
-                                [1] = state
-                            }
-                        }
+                        .btn = btn,
+                        .state = state
                     };
                     
-                    win_eventpush(&event);
+                    win_eventpush((t_event *) &event);
                 }
 
                 /* scroll up / down... */
                 else {
                     if (xevent.type == ButtonRelease) { break; }
 
-                    t_event event = (t_event) {
+                    t_eventMouseScroll event = (t_eventMouseScroll) {
                         .type = WINDOW_EVENT_MOUSE_SCROLL,
                         .timestamp = win_timeget(),
-                        .data = {
-                            .c = {
-                                [0] = (btn == 4) ? 1 : -1
-                            }
-                        }
+                        .scroll = (btn == 4) ? 1 : -1
                     };
 
-                    win_eventpush(&event);
+                    win_eventpush((t_event *) &event);
                 }
             } break;
 
@@ -883,47 +944,34 @@ WININT int __win_eventpoll_x11(void) {
                     }
                 }
 
+                uint32_t type = 0;
+
                 /* handle motion event... */
                 if (win->attr.x != (size_t) xevent.xconfigure.x ||
                     win->attr.y != (size_t) xevent.xconfigure.y
                 ) {
+                    type = WINDOW_EVENT_WINDOW_MOTION;
                     win->attr.x = xevent.xconfigure.x;
                     win->attr.y = xevent.xconfigure.y;
-
-                    t_event event = (t_event) {
-                        .type = WINDOW_EVENT_WINDOW_MOTION,
-                        .timestamp = win_timeget(),
-                        .data = {
-                            .l = {
-                                [0] = xevent.xconfigure.x,
-                                [1] = xevent.xconfigure.y,
-                            }
-                        }
-                    };
-                    
-                    win_eventpush(&event);
                 }
 
                 /* handle resize event... */
-                if (win->attr.w != (size_t) xevent.xconfigure.width ||
-                    win->attr.h != (size_t) xevent.xconfigure.height
+                else if (win->attr.w != (size_t) xevent.xconfigure.width ||
+                         win->attr.h != (size_t) xevent.xconfigure.height
                 ) {
+                    type = WINDOW_EVENT_WINDOW_RESIZE;
                     win->attr.w = xevent.xconfigure.width;
                     win->attr.h = xevent.xconfigure.height;
-
-                    t_event event = (t_event) {
-                        .type = WINDOW_EVENT_WINDOW_RESIZE,
-                        .timestamp = win_timeget(),
-                        .data = {
-                            .l = {
-                                [0] = xevent.xconfigure.width,
-                                [1] = xevent.xconfigure.height,
-                            }
-                        }
-                    };
-                    
-                    win_eventpush(&event);
                 }
+
+                t_eventWindow event = (t_eventWindow) {
+                    .type = type,
+                    .timestamp = win_timeget(),
+                    .x = xevent.xconfigure.x,     .y = xevent.xconfigure.y,
+                    .w = xevent.xconfigure.width, .h = xevent.xconfigure.height,
+                };
+                
+                win_eventpush((t_event *) &event);
 
             } break;
         }
