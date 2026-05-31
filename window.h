@@ -44,6 +44,12 @@
 #  error /* No valid platform found... */
 # endif
 #
+# /* Preprocessor configuration */
+#
+# if !defined (WINDOW_EVENT_QUEUE_CAPACITY)
+#  define WINDOW_EVENT_QUEUE_CAPACITY 1024
+# endif /* WINDOW_EVENT_QUEUE_CAPACITY */
+#
 # include <stddef.h>
 # include <stdint.h>
 
@@ -919,8 +925,10 @@ struct s_platform {
 
     struct {
         t_event *arr;
-        size_t   cnt;
+        t_event *arr_s;
+        t_event *arr_e;
         size_t   cap;
+        size_t   cnt;
     } da_event;
 
     struct {
@@ -971,11 +979,10 @@ WINDEF int win_init(void) {
     WINDOW->config.depth = 24;
     WINDOW->config.class = TrueColor;
 
-    /* set up event queue... */
-    WINDOW->da_event.cnt = 0;
-    WINDOW->da_event.cap = 16;
-    WINDOW->da_event.arr = calloc(WINDOW->da_event.cap, sizeof(t_event));
-    if (!WINDOW->da_event.arr) { return (0); }
+    /* set up window array... */
+    WINDOW->da_window.cap = 16;
+    WINDOW->da_window.arr = calloc(WINDOW->da_window.cap, sizeof(t_window));
+    if (!WINDOW->da_window.arr) { return (0); }
 
     /* set keyboard input repeating... */
     Bool supported;
@@ -983,11 +990,6 @@ WINDEF int win_init(void) {
     if (!supported) {
         return (0);
     }
-
-    /* set up window array... */
-    WINDOW->da_window.cap = 16;
-    WINDOW->da_window.arr = calloc(WINDOW->da_window.cap, sizeof(t_window));
-    if (!WINDOW->da_window.arr) { return (0); }
 
     /* success */
     return (1);
@@ -1010,10 +1012,14 @@ WINDEF int win_quit(void) {
     WINDOW->da_window.cap = 0;
    
     /* deallocate da_event... */
-    free(WINDOW->da_event.arr);
-    WINDOW->da_event.arr = 0;
-    WINDOW->da_event.cnt = 0;
-    WINDOW->da_event.cap = 0;
+    if (WINDOW->da_event.arr) {
+        free(WINDOW->da_event.arr);
+        WINDOW->da_event.arr   = 0;
+        WINDOW->da_event.arr_s = 0;
+        WINDOW->da_event.arr_e = 0;
+        WINDOW->da_event.cnt = 0;
+        WINDOW->da_event.cap = 0;
+    }
 
     /* terminate `xlib`... */
     XCloseDisplay(WINDOW->xlib.dpy), WINDOW->xlib.dpy = 0;
@@ -1634,30 +1640,39 @@ WINDEF int win_eventpush(t_event *event) {
     /* null-check... */
     if (!WINDOW) { return (0); }
     if (!event)  { return (0); }
+    
+    /* alloc new `arr` if needed... */
+    if (!WINDOW->da_event.arr) {
+        t_event *arr = malloc(WINDOW_EVENT_QUEUE_CAPACITY * sizeof(t_event));
+        if (!arr) { return (0); }
 
-    /* bounds-check... */
+        WINDOW->da_event.arr = WINDOW->da_event.arr_s = WINDOW->da_event.arr_e = arr;
+        WINDOW->da_event.cap = WINDOW_EVENT_QUEUE_CAPACITY;
+        WINDOW->da_event.cnt = 0;
+    }
+
+    /* bound check... */
     if (WINDOW->da_event.cnt >= WINDOW->da_event.cap) {
-        WINDOW->da_event.cap *= 1.5;
-        WINDOW->da_event.arr = realloc(WINDOW->da_event.arr, WINDOW->da_event.cap * sizeof(t_event));
-        if (!WINDOW->da_event.arr) { return (0); }
+        /* consider resizing...
+         * ...for now returning
+         * */
+        return (0);
     }
 
-    /* tail-coalescing... */
-    if (WINDOW->da_event.cnt > 0) {
-        t_event *tail = &WINDOW->da_event.arr[WINDOW->da_event.cnt - 1];
-        if (tail->type == event->type) {
-            if (tail->type == WINDOW_EVENT_MOUSE_MOTION  ||
-                tail->type == WINDOW_EVENT_WINDOW_MOTION ||
-                tail->type == WINDOW_EVENT_WINDOW_RESIZE
-            ) {
-                *tail = *event;
-                return (1);
-            }
-        }
+    /* assign the object to the last `arr` element */
+    *WINDOW->da_event.arr_e = *event;
+    /* move the last element by one */
+    WINDOW->da_event.arr_e++;
+    /* boundary check
+     * if exceeds the `arr`, return back to start
+     * */
+    size_t arr_e_idx = WINDOW->da_event.arr_e - WINDOW->da_event.arr;
+    if (arr_e_idx >= WINDOW->da_event.cnt) {
+        WINDOW->da_event.arr_e = WINDOW->da_event.arr;
     }
 
-    /* copy-assignment event object to event queue... */
-    WINDOW->da_event.arr[WINDOW->da_event.cnt++] = *event;
+    /* increment the count */
+    WINDOW->da_event.cnt++;
 
     /* success */
     return (1);
@@ -1669,22 +1684,27 @@ WINDEF int win_eventpop(t_event *event) {
     if (!WINDOW) { return (0); }
     if (!event)  { return (0); }
 
-    /* bounds-check... */
+    /* check if event queue exists */
+    if (!WINDOW->da_event.arr) { return (0); }
+
+    /* check if there's anything in the queue */
     if (WINDOW->da_event.cnt == 0) { return (0); }
 
-    /* copy to `event` pointer... */
-    *event = WINDOW->da_event.arr[0];
-
-    /* move all the event objects one place to the front... */
-    size_t i = 0;
-    for ( ; i < WINDOW->da_event.cnt - 1; i++) {
-        WINDOW->da_event.arr[i] = WINDOW->da_event.arr[i + 1];
+    /* assign the first element to the reference */
+    *event = *WINDOW->da_event.arr_s;
+    /* zero-down the first element (safety matter) */
+    *WINDOW->da_event.arr_s = (t_event) { 0 };
+    /* move the first element by one */
+    WINDOW->da_event.arr_s++;
+    /* boundary check
+     * if exceeds the `arr`, return back to start
+     * */
+    size_t arr_s_idx = WINDOW->da_event.arr_s - WINDOW->da_event.arr;
+    if (arr_s_idx >= WINDOW->da_event.cnt) {
+        WINDOW->da_event.arr_s = WINDOW->da_event.arr;
     }
 
-    /* set last queue element to `zero`... */
-    WINDOW->da_event.arr[i] = (t_event) { 0 };
-
-    /* ...and decrement the size of the queue... */
+    /* decrement the count */
     WINDOW->da_event.cnt--;
 
     /* success */
