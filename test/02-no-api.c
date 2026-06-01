@@ -10,17 +10,14 @@ int main(void) {
     win_init();
    
     /* create window */
-    t_window window = 0;
-    win_wincreate(&window, 800, 600, "02 - no API", 0);
-    if (!window) {
-        return (1);
-    }
-    win_winmap(window);
+    t_window win = 0;
+    win_wincreate(&win, 800, 600, "02 - no API", 0);
+    win_winmap(win);
 
     /* query properties */
-    Display *dpy = win_wingetprop(window, WINDOW_PROP_WINDOW_X11_DISPLAY);
-    XID w_id = *(XID *) win_wingetprop(window, WINDOW_PROP_WINDOW_X11_WINDOW_ID);
-    Visual *visual = win_wingetprop(window, WINDOW_PROP_WINDOW_X11_VISUAL);
+    Display *dpy = win_wingetprop(win, WINDOW_PROP_WINDOW_X11_DISPLAY);
+    Window window = *(XID *) win_wingetprop(win, WINDOW_PROP_WINDOW_X11_WINDOW_ID);
+    Visual *visual = win_wingetprop(win, WINDOW_PROP_WINDOW_X11_VISUAL);
 
     /* get monitor size */
     size_t width  = 0,
@@ -40,14 +37,14 @@ int main(void) {
     }
 
     /* create graphics context */
-    GC gc = XCreateGC(dpy, w_id, 0, 0);
+    GC gc = XCreateGC(dpy, window, 0, 0);
 
     int exit = 0;
     while (!exit) {
-        /* get window size */
+        /* get win size */
         size_t width  = 0,
                height = 0;
-        win_wingetsize(window, &width, &height);
+        win_wingetsize(win, &width, &height);
 
         /* set the background color */
         for (size_t i = 0; i < width * height; i++) {
@@ -55,7 +52,7 @@ int main(void) {
         }
 
         /* display */
-        XPutImage(dpy, w_id, gc, bitmap, 0, 0, 0, 0, width, height);
+        XPutImage(dpy, window, gc, bitmap, 0, 0, 0, 0, width, height);
 
         /* poll events */
         t_event event = { 0 };
@@ -72,7 +69,7 @@ int main(void) {
     /* quit */
     XFreeGC(dpy, gc), gc = 0;
     XDestroyImage(bitmap), bitmap = 0;
-    win_windestroy(window), window = 0;
+    win_windestroy(win), win = 0;
     win_quit();
     return (0);
 }
