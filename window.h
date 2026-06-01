@@ -943,18 +943,17 @@ WINDEF int win_init(void) {
     /* manage global platform object... */
     if (WINDOW) { return (1); } /* check if `WINDOW` is not null. If so, return... */
 
+    /* alloc global platfom object */
     WINDOW = malloc(sizeof(struct s_platform));
-    if (!WINDOW) {
-        return (0);
-    }
+    if (!WINDOW) { goto __win_init_failure; }
 
     /* connect to x11 server... */
     Display *dpy = XOpenDisplay(0);
-    if (!dpy) { return (0); }
+    if (!dpy) { goto __win_init_failure; }
 
     /* get the root window... */
     XID r_id = XDefaultRootWindow(dpy);
-    if (!r_id) { return (0); }
+    if (!r_id) { goto __win_init_failure; }
 
     /* get screen number... */
     XID s_id = XDefaultScreen(dpy);
@@ -966,10 +965,10 @@ WINDEF int win_init(void) {
    
     /* retrieve atoms from x11 session... */
     Atom wm_protocols = XInternAtom(dpy, "WM_PROTOCOLS", False);
-    if (!wm_protocols) { return (0); }
+    if (!wm_protocols) { goto __win_init_failure; }
     
     Atom wm_delete_window = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-    if (!wm_delete_window) { return (0); }
+    if (!wm_delete_window) { goto __win_init_failure; }
     
     /* assign data to `xatom` platform section... */
     WINDOW->xatom.wm_protocols     = wm_protocols;
@@ -979,20 +978,41 @@ WINDEF int win_init(void) {
     WINDOW->config.depth = 24;
     WINDOW->config.class = TrueColor;
 
+    /* initialize da_event */
+    WINDOW->da_event.arr = 0;
+    WINDOW->da_event.arr_s = 0;
+    WINDOW->da_event.arr_e = 0;
+    WINDOW->da_event.cap = 0;
+    WINDOW->da_event.cnt = 0;
+
     /* set up window array... */
     WINDOW->da_window.cap = 16;
     WINDOW->da_window.arr = calloc(WINDOW->da_window.cap, sizeof(t_window));
-    if (!WINDOW->da_window.arr) { return (0); }
+    if (!WINDOW->da_window.arr) { goto __win_init_failure; }
 
     /* set keyboard input repeating... */
     Bool supported;
     XkbSetDetectableAutoRepeat(dpy, True, &supported);
     if (!supported) {
-        return (0);
+        goto __win_init_failure;
     }
 
     /* success */
     return (1);
+
+__win_init_failure:
+
+    /* release other resources */
+    if (WINDOW->da_window.arr) { free(WINDOW->da_window.arr), WINDOW->da_window.arr = 0; }
+
+    /* release xlib resources */
+    if (WINDOW->xlib.dpy) { XCloseDisplay(WINDOW->xlib.dpy), WINDOW->xlib.dpy = 0; }
+
+    /* release WINDOW */
+    if (WINDOW) { free(WINDOW), WINDOW = 0; }
+
+    /* success */
+    return (0);
 }
 
 
@@ -1099,7 +1119,7 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
 
     /* allocate `result` window... */
     t_window result = malloc(sizeof(struct s_window));
-    if (!result) { return (0); }
+    if (!result) { goto __win_wincreate_failure; }
     
     /* NOTE:
      *  Temporarily disabled parameter
@@ -1107,10 +1127,10 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
     (void) f;
     
     /* assign references to X11 objects... */
-    if (!WINDOW->xlib.dpy) { return (0); }
+    if (!WINDOW->xlib.dpy) { goto __win_wincreate_failure; }
     result->xlib.dpy  = WINDOW->xlib.dpy;
     
-    if (!WINDOW->xlib.r_id) { return (0); }
+    if (!WINDOW->xlib.r_id) { goto __win_wincreate_failure; }
     result->xlib.r_id = WINDOW->xlib.r_id;
     result->xlib.s_id = WINDOW->xlib.s_id;
 
@@ -1125,17 +1145,17 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
                           WINDOW->config.class,
                           &result->xutil.visual)
     ) {
-        return (0);
+        goto __win_wincreate_failure;
     }
 
     /* colormap... */
     XID colormap = XCreateColormap(result->xlib.dpy, result->xlib.r_id, result->xutil.visual.visual, AllocNone);
     if (!colormap) {
-        return (0);
+        goto __win_wincreate_failure;
     }
 
     /* window attributes... */
-    XSetWindowAttributes attr = {
+    XSetWindowAttributes attr0 = {
         .background_pixmap     = 0,
         .background_pixel      = 0,
         .border_pixmap         = CopyFromParent,
@@ -1154,19 +1174,23 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
     };
 
     /* create window... */
-    XID w_id = XCreateWindow(result->xlib.dpy, result->xlib.r_id, 0, 0, w, h, 0, result->xutil.visual.depth, InputOutput, result->xutil.visual.visual, CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &attr);
-    if (!w_id) { return (0); }
+    XID w_id = XCreateWindow(result->xlib.dpy, result->xlib.r_id, 0, 0, w, h, 0, result->xutil.visual.depth, InputOutput, result->xutil.visual.visual, CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &attr0);
+    if (!w_id) { goto __win_wincreate_failure; }
 
     result->xlib.w_id = w_id;
-    XSelectInput(result->xlib.dpy, result->xlib.w_id, attr.event_mask);
+    XSelectInput(result->xlib.dpy, result->xlib.w_id, attr0.event_mask);
     XStoreName(result->xlib.dpy, result->xlib.w_id, t);
 
     XSetWMProtocols(result->xlib.dpy, result->xlib.w_id, &result->xatom.wm_protocols, 1);
     XSetWMProtocols(result->xlib.dpy, result->xlib.w_id, &result->xatom.wm_delete_window, 1);
    
     /* configure windows attributes... */
-    result->attr.w = w;
-    result->attr.h = h;
+    XWindowAttributes attr1 = { 0 };
+    XGetWindowAttributes(result->xlib.dpy, result->xlib.w_id, &attr1); 
+    result->attr.x = attr1.x;
+    result->attr.y = attr1.y;
+    result->attr.w = attr1.width;
+    result->attr.h = attr1.height;
 
     /* append window to da_window... */
     size_t i;
@@ -1184,7 +1208,7 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
     if (i == WINDOW->da_window.cap) {
         WINDOW->da_window.cap *= 1.5;
         WINDOW->da_window.arr  = realloc(WINDOW->da_window.arr, WINDOW->da_window.cap * sizeof(t_window));
-        if (!WINDOW->da_window.arr) { return (0); }
+        if (!WINDOW->da_window.arr) { goto __win_wincreate_failure; }
 
         for ( ; i< WINDOW->da_window.cap; i++) {
             /* set the first `null` window object to the current window... */
@@ -1197,9 +1221,23 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
 
     /* set the `result` object as `win` return object... */
     *win = result;
-    
+
     /* success */
     return (1);
+
+__win_wincreate_failure:
+
+    /* release xlib resources... */
+    if (w_id) { XDestroyWindow(WINDOW->xlib.dpy, w_id), w_id = 0; }
+
+    /* release result */
+    if (result) { free(result), result = 0; }
+
+    /* ensure we "return" null */
+    *win = 0;
+
+    /* failure */
+    return (0);
 }
 
 
@@ -1464,15 +1502,8 @@ WINDEF int win_eventpoll(t_event *event) {
     /* handle platform events... */
     __win_eventpoll_x11();
 
-    /* no events in the queue...
-     * ...it usually means we can break from a loop that iterates until there's no event in the queue left...
-     * ...so returning `false` seems reasonable
-     * Also, it's wise to return `WINDOW_EVENT_NONE` event type
-     * */
-    *event = (t_event) {
-        .type = WINDOW_EVENT_NONE
-    };
-
+    /* queue filled, return WINDOW_EVENT_NONE */
+    *event = (t_event) { 0 };
     return (0);
 }
     
