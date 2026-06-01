@@ -426,9 +426,6 @@ enum {
     WINDOW_PROP_WINDOW_X11_ROOT_ID,
 # define WINDOW_PROP_WINDOW_X11_ROOT_ID WINDOW_PROP_WINDOW_X11_ROOT_ID
 
-    WINDOW_PROP_WINDOW_X11_SCREEN_ID,
-# define WINDOW_PROP_WINDOW_X11_SCREEN_ID WINDOW_PROP_WINDOW_X11_SCREEN_ID
-
     WINDOW_PROP_WINDOW_X11_WINDOW_ID,
 # define WINDOW_PROP_WINDOW_X11_WINDOW_ID WINDOW_PROP_WINDOW_X11_WINDOW_ID
 
@@ -441,6 +438,8 @@ enum {
 typedef struct s_window *t_window;
 
 WINDEF int win_wincreate(t_window *, const size_t, const size_t, const char *, const uint64_t);
+
+WINDEF int win_wincreatenest(t_window *, t_window, const size_t, const size_t, const char *, const uint64_t);
 
 WINDEF int win_windestroy(t_window);
 
@@ -941,7 +940,6 @@ struct s_window {
         Display *dpy;
         Window   parent;
         Window   child;
-        XID      screen;
     } xlib;
     
     struct {
@@ -1104,50 +1102,128 @@ WINDEF void *win_getprop(const uint64_t prop) {
 
 /* windowing functions */
 
+WININT t_window __win_wincreate_x11(Display *, Window, const size_t, const size_t);
+
 WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const char *t, const uint64_t f) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
-
-    /* allocate `result` window */
-    t_window result = malloc(sizeof(struct s_window));
-    if (!result) { goto __win_wincreate_failure; }
     
     /* NOTE:
      *  Temporarily disabled parameter
      * */
     (void) f;
-    
-    /* assign references to X11 objects */
-    if (!WINDOW->xlib.dpy) { goto __win_wincreate_failure; }
-    result->xlib.dpy  = WINDOW->xlib.dpy;
-    
-    if (!WINDOW->xlib.root) { goto __win_wincreate_failure; }
-    result->xlib.parent = WINDOW->xlib.root;
-    result->xlib.screen = WINDOW->xlib.screen;
+   
+    t_window result = __win_wincreate_x11(WINDOW->xlib.dpy,
+                                          WINDOW->xlib.root,
+                                          w, h);
+    if (!result) { goto __win_wincreate_failure; }
+   
+    win_winsettitle(result, t);
+    win_wingetpos(result, &result->attr.x, &result->attr.y);
+    win_wingetsize(result, &result->attr.w, &result->attr.h);
 
-    /* assign references to X11 atoms */
-    result->xatom.wm_protocols = WINDOW->xatom.wm_protocols;
-    result->xatom.wm_delete_window = WINDOW->xatom.wm_delete_window;
+    /* append the window to platform's window linked list */
+    result->next = WINDOW->win_ll;
+    WINDOW->win_ll = result; 
+
+    /* and return the result */
+    *win = result;
+
+    /* success */
+    win_eventflush();
+    return (1);
+
+__win_wincreate_failure:
+
+    /* release result */
+    if (result) { free(result), result = 0; }
+
+    /* ensure we "return" null */
+    *win = 0;
+
+    /* failure */
+    return (0);
+}
+
+
+WINDEF int win_wincreatenest(t_window *win, t_window parent, const size_t w, const size_t h, const char *t, const uint64_t f) {
+    /* null-check */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+    if (!parent) { return (0); }
+
+    /* check if parent is valid */
+    if (!parent->xlib.child) { return (0); }
+    
+    /* NOTE:
+     *  Temporarily disabled parameter
+     * */
+    (void) f;
+   
+    t_window result = __win_wincreate_x11(parent->xlib.dpy,
+                                          parent->xlib.child,
+                                          w, h);
+    if (!result) { goto __win_wincreatenest_failure; }
+   
+    win_winsettitle(result, t);
+    win_wingetpos(result, &result->attr.x, &result->attr.y);
+    win_wingetsize(result, &result->attr.w, &result->attr.h);
+
+    /* append the window to platform's window linked list */
+    result->next = WINDOW->win_ll;
+    WINDOW->win_ll = result; 
+
+    /* and return the result */
+    *win = result;
+
+    /* success */
+    win_eventflush();
+    return (1);
+
+__win_wincreatenest_failure:
+
+    /* release result */
+    if (result) { free(result), result = 0; }
+
+    /* ensure we "return" null */
+    *win = 0;
+
+    /* failure */
+    return (0);
+}
+
+
+WININT t_window __win_wincreate_x11(Display *dpy, Window parent, const size_t w, const size_t h) {
+    /* alloc result */
+    t_window result = malloc(sizeof(struct s_window));
+    if (!result) { goto __win_wincreate_x11_failure; } 
+
+    /* assign references to X11 objects */
+    if (!dpy) { goto __win_wincreate_x11_failure; }
+    result->xlib.dpy = dpy; 
+    
+    if (!parent) { goto __win_wincreate_x11_failure; }
+    result->xlib.parent = parent;
 
     /* get visual info */
-    if (!XMatchVisualInfo(result->xlib.dpy,
-                          result->xlib.screen,
+    if (!XMatchVisualInfo(dpy,
+                          WINDOW->xlib.screen,
                           WINDOW->config.depth,
                           WINDOW->config.class,
                           &result->xutil.visual)
     ) {
-        goto __win_wincreate_failure;
+        goto __win_wincreate_x11_failure;
     }
 
     /* colormap */
-    XID colormap = XCreateColormap(result->xlib.dpy, result->xlib.parent, result->xutil.visual.visual, AllocNone);
+    XID colormap = XCreateColormap(dpy, parent, result->xutil.visual.visual, AllocNone);
     if (!colormap) {
-        goto __win_wincreate_failure;
+        goto __win_wincreate_x11_failure;
     }
 
     /* window attributes */
-    XSetWindowAttributes attr0 = {
+    XSetWindowAttributes attr  = {
         .background_pixmap     = 0,
         .background_pixel      = 0,
         .border_pixmap         = CopyFromParent,
@@ -1166,40 +1242,24 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
     };
 
     /* create window */
-    XID child = XCreateWindow(result->xlib.dpy, result->xlib.parent, 0, 0, w, h, 0, result->xutil.visual.depth, InputOutput, result->xutil.visual.visual, CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &attr0);
-    if (!child) { goto __win_wincreate_failure; }
-
+    XID child = XCreateWindow(dpy, parent, 0, 0, w, h, 0, result->xutil.visual.depth, InputOutput, result->xutil.visual.visual, CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &attr);
+    if (!child) { goto __win_wincreate_x11_failure; }
     result->xlib.child = child;
-    XSelectInput(result->xlib.dpy, result->xlib.child, attr0.event_mask);
+    
+    result->xatom.wm_protocols = WINDOW->xatom.wm_protocols;
     XSetWMProtocols(result->xlib.dpy, result->xlib.child, &result->xatom.wm_protocols, 1);
+    
+    result->xatom.wm_delete_window = WINDOW->xatom.wm_delete_window;
     XSetWMProtocols(result->xlib.dpy, result->xlib.child, &result->xatom.wm_delete_window, 1);
-   
-    win_winsettitle(result, t);
-    win_wingetpos(result, &result->attr.x, &result->attr.y);
-    win_wingetsize(result, &result->attr.w, &result->attr.h);
+    
+    XSelectInput(result->xlib.dpy, result->xlib.child, attr.event_mask);
 
-    /* append the window to platform's window linked list */
-    result->next   = WINDOW->win_ll;
-    WINDOW->win_ll = result; 
-    /* and return the result */
-    *win = result;
+    return (result);
 
-    /* success */
-    win_eventflush();
-    return (1);
+__win_wincreate_x11_failure:
 
-__win_wincreate_failure:
-
-    /* release xlib resources */
-    if (child) { XDestroyWindow(WINDOW->xlib.dpy, child), child = 0; }
-
-    /* release result */
     if (result) { free(result), result = 0; }
 
-    /* ensure we "return" null */
-    *win = 0;
-
-    /* failure */
     return (0);
 }
 
@@ -1463,7 +1523,6 @@ WINDEF void *win_wingetprop(t_window win, const uint64_t prop) {
     switch (prop) {
         case (WINDOW_PROP_WINDOW_X11_DISPLAY):   { return (win->xlib.dpy); }
         case (WINDOW_PROP_WINDOW_X11_ROOT_ID):   { return (&win->xlib.parent); }
-        case (WINDOW_PROP_WINDOW_X11_SCREEN_ID): { return (&win->xlib.screen); }
         case (WINDOW_PROP_WINDOW_X11_WINDOW_ID): { return (&win->xlib.child); }
         case (WINDOW_PROP_WINDOW_X11_VISUAL):    { return (win->xutil.visual.visual); }
 
