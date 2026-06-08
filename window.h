@@ -965,6 +965,7 @@ struct s_platform {
 		Atom _net_wm_state_hidden;
 		Atom _net_wm_state_maximized_horz;
 		Atom _net_wm_state_maximized_vert;
+        Atom _net_wm_window_opacity;
     } xatom;
 
     struct {
@@ -1073,6 +1074,10 @@ WINDEF int win_init(void) {
     Atom _net_wm_state_maximized_vert = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
 	if (!_net_wm_state_maximized_vert) { goto __win_init_failure; }
     WINDOW->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
+
+    Atom _net_wm_window_opacity = XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False);
+	if (!_net_wm_window_opacity) { goto __win_init_failure; }
+    WINDOW->xatom._net_wm_window_opacity = _net_wm_window_opacity;
 
     /* set default config values */
     WINDOW->config.depth = 24;
@@ -1573,12 +1578,17 @@ WININT int __win_updatecfg_map_x11(t_window win) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
+
+    /* references */
+    Display  *dpy = win->xlib.dpy;
+    Window   root = win->xlib.parent;
+    Window client = win->xlib.client;
     
     /* prepare events */
-    XClientMessageEvent client= { 
+    XClientMessageEvent xclient = { 
         .type = ClientMessage,
-        .display = win->xlib.dpy,
-        .window = win->xlib.client,
+        .display = dpy,
+        .window = client,
         .message_type = WINDOW->xatom._net_wm_state,
         .format = 32,
         .data = {
@@ -1587,41 +1597,53 @@ WININT int __win_updatecfg_map_x11(t_window win) {
     };
     
     if (win->attr.f & WINDOW_FLAG_FULLSCREEN) {
-        XClientMessageEvent fullscr = client;
+        XClientMessageEvent fullscr = xclient;
         fullscr.data.l[0] = _NET_WM_STATE_ADD; 
         fullscr.data.l[1] = WINDOW->xatom._net_wm_state_fullscreen;
-        XSendEvent(win->xlib.dpy, WINDOW->xlib.root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
+        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
     } else {
-        XClientMessageEvent fullscr = client;
+        XClientMessageEvent fullscr = xclient;
         fullscr.data.l[0] = _NET_WM_STATE_REMOVE; 
         fullscr.data.l[1] = WINDOW->xatom._net_wm_state_fullscreen;
-        XSendEvent(win->xlib.dpy, WINDOW->xlib.root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
+        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
     }
 
     if (win->attr.f & WINDOW_FLAG_MINIMIZED) {
-        XClientMessageEvent minim = client;
+        XClientMessageEvent minim = xclient;
         minim.data.l[0] = _NET_WM_STATE_ADD;
         minim.data.l[1] = WINDOW->xatom._net_wm_state_hidden;
-        XSendEvent(win->xlib.dpy, WINDOW->xlib.root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
+        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
     } else {
-        XClientMessageEvent minim = client;
+        XClientMessageEvent minim = xclient;
         minim.data.l[0] = _NET_WM_STATE_REMOVE;
         minim.data.l[1] = WINDOW->xatom._net_wm_state_hidden;
-        XSendEvent(win->xlib.dpy, WINDOW->xlib.root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
+        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
 	}
 
     if (win->attr.f & WINDOW_FLAG_MAXIMIZED) {
-        XClientMessageEvent maxim = client;
+        XClientMessageEvent maxim = xclient;
         maxim.data.l[0] = _NET_WM_STATE_ADD;
         maxim.data.l[1] = WINDOW->xatom._net_wm_state_maximized_horz;
         maxim.data.l[2] = WINDOW->xatom._net_wm_state_maximized_vert;
-        XSendEvent(win->xlib.dpy, WINDOW->xlib.root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
+        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
     } else {
-        XClientMessageEvent maxim = client;
+        XClientMessageEvent maxim = xclient;
         maxim.data.l[0] = _NET_WM_STATE_REMOVE;
         maxim.data.l[1] = WINDOW->xatom._net_wm_state_maximized_horz;
         maxim.data.l[2] = WINDOW->xatom._net_wm_state_maximized_vert;
-        XSendEvent(win->xlib.dpy, WINDOW->xlib.root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
+        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
+	}
+
+    if (win->attr.f & WINDOW_FLAG_TOPMOST) {
+        XClientMessageEvent topmost = xclient;
+        topmost.data.l[0] = _NET_WM_STATE_ADD;
+        topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
+        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
+    } else {
+        XClientMessageEvent topmost = xclient;
+        topmost.data.l[0] = _NET_WM_STATE_REMOVE;
+        topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
+        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
 	}
 
     if (win->attr.f & WINDOW_FLAG_RESIZABLE) {
@@ -1635,24 +1657,23 @@ WININT int __win_updatecfg_map_x11(t_window win) {
         win_winsetsizemax(win, w, h);
     }
 
-    if (win->attr.f & WINDOW_FLAG_TOPMOST) {
-        XClientMessageEvent topmost = client;
-        topmost.data.l[0] = _NET_WM_STATE_ADD;
-        topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
-        XSendEvent(win->xlib.dpy, WINDOW->xlib.root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
-    } else {
-        XClientMessageEvent topmost = client;
-        topmost.data.l[0] = _NET_WM_STATE_REMOVE;
-        topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
-        XSendEvent(win->xlib.dpy, WINDOW->xlib.root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
-	}
-
     if (win->attr.f & WINDOW_FLAG_TRANSPARENT) {
+        uint64_t opacity = 0x00000000UL;
+        XChangeProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity, XA_CARDINAL, 32, PropModeReplace, (uint8_t *) &opacity, 1);
     } else {
+        XDeleteProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity);
 	}
 
     if (win->attr.f & WINDOW_FLAG_UNDECORATED) {
+        uint64_t mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = _NET_WM_STATE_REMOVE;
+        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, XA_ATOM, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
     } else {
+        uint64_t mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = _NET_WM_STATE_ADD;
+        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, XA_ATOM, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
 	}
 
     return (1);
@@ -1662,33 +1683,35 @@ WININT int __win_updatecfg_unmap_x11(t_window win) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
-  
+
+    /* references */
+    Display  *dpy = win->xlib.dpy;
+    Window client = win->xlib.client;
+ 
+    /* property atoms */
+    Atom   props[16] = { 0 };
+    size_t p_cnt     =   0;
+
     if (win->attr.f & WINDOW_FLAG_FULLSCREEN) {
-        Atom state = WINDOW->xatom._net_wm_state_fullscreen;
-        XChangeProperty(win->xlib.dpy, win->xlib.client,
-                        WINDOW->xatom._net_wm_state, XA_ATOM,
-                        32, PropModeReplace,
-                        (uint8_t *) &state, 1);
+        props[p_cnt++] = WINDOW->xatom._net_wm_state_fullscreen;
 	} else { /* ... */ }
     
     if (win->attr.f & WINDOW_FLAG_MINIMIZED) {
-        Atom state = WINDOW->xatom._net_wm_state_hidden;
-        XChangeProperty(win->xlib.dpy, win->xlib.client,
-                        WINDOW->xatom._net_wm_state, XA_ATOM,
-                        32, PropModeReplace,
-                        (uint8_t *) &state, 1);
+        props[p_cnt++] = WINDOW->xatom._net_wm_state_hidden;
 	} else { /* ... */ }
 
     if (win->attr.f & WINDOW_FLAG_MAXIMIZED) {
-        Atom states[2] = {
-            WINDOW->xatom._net_wm_state_maximized_horz,
-            WINDOW->xatom._net_wm_state_maximized_vert
-        };
-        XChangeProperty(win->xlib.dpy, win->xlib.client,
-                        WINDOW->xatom._net_wm_state, XA_ATOM,
-                        32, PropModeReplace,
-                        (uint8_t *) states, 2);
+        props[p_cnt++] = WINDOW->xatom._net_wm_state_maximized_horz;
+        props[p_cnt++] = WINDOW->xatom._net_wm_state_maximized_vert;
 	} else { /* ... */ }
+
+    if (win->attr.f & WINDOW_FLAG_TOPMOST) {
+        props[p_cnt++] = WINDOW->xatom._net_wm_state_above;
+    } else {
+	}
+    
+    /* apply new properties */    
+    XChangeProperty(dpy, client, WINDOW->xatom._net_wm_state, XA_ATOM, 32, PropModeReplace, (uint8_t *) props, p_cnt);
 
     if (win->attr.f & WINDOW_FLAG_RESIZABLE) {
         win_winsetsizemin(win, 1, 1);
@@ -1701,16 +1724,23 @@ WININT int __win_updatecfg_unmap_x11(t_window win) {
         win_winsetsizemax(win, w, h);
     }
 
-    if (win->attr.f & WINDOW_FLAG_TOPMOST) {
-    } else {
-	}
-
     if (win->attr.f & WINDOW_FLAG_TRANSPARENT) {
+        uint64_t opacity = 0x00000000UL;
+        XChangeProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity, XA_CARDINAL, 32, PropModeReplace, (uint8_t *) &opacity, 1);
     } else {
+        XDeleteProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity);
 	}
 
     if (win->attr.f & WINDOW_FLAG_UNDECORATED) {
+        uint64_t mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = _NET_WM_STATE_REMOVE;
+        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, XA_ATOM, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
     } else {
+        uint64_t mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = _NET_WM_STATE_ADD;
+        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, XA_ATOM, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
 	}
 
     return (1);
