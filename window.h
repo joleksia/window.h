@@ -599,6 +599,10 @@ WINDEF int win_wincreatenest(t_window *, t_window, const size_t, const size_t, c
 
 WINDEF int win_windestroy(t_window);
 
+WINDEF int win_winsetflag(t_window, const uint32_t);
+
+WINDEF void *win_wingetprop(t_window, const uint32_t);
+
 WINDEF int win_winmap(t_window);
 
 WINDEF int win_winunmap(t_window);
@@ -618,10 +622,6 @@ WINDEF int win_winsetpos(t_window, const size_t, const size_t);
 WINDEF int win_wingettitle(t_window, char **);
 
 WINDEF int win_winsettitle(t_window, const char *);
-
-WINDEF int win_winsetflag(t_window, const uint32_t);
-
-WINDEF void *win_wingetprop(t_window, const uint64_t);
 
 /* event functions */
 
@@ -660,9 +660,9 @@ WINDEF int win_timewait(uint64_t);
 #   include <X11/keysym.h>
 #   include <X11/keysymdef.h>
 #
-#   define _NET_WM_STATE_REMOVE	0
-#   define _NET_WM_STATE_ADD	1
-#   define _NET_WM_STATE_TOGGLE	2
+#   define _NET_WM_STATE_REMOVE 0
+#   define _NET_WM_STATE_ADD    1
+#   define _NET_WM_STATE_TOGGLE 2
 
 
 struct s_keymap {
@@ -955,16 +955,16 @@ struct s_platform {
         Atom wm_protocols;
         Atom wm_delete_window;
 
-		/* Atoms: MOTIF */
-		Atom _motif_wm_hints;
+        /* Atoms: MOTIF */
+        Atom _motif_wm_hints;
 
-		/* Atoms: EWMH */
-		Atom _net_wm_state;
-		Atom _net_wm_state_above;
-		Atom _net_wm_state_fullscreen;
-		Atom _net_wm_state_hidden;
-		Atom _net_wm_state_maximized_horz;
-		Atom _net_wm_state_maximized_vert;
+        /* Atoms: EWMH */
+        Atom _net_wm_state;
+        Atom _net_wm_state_above;
+        Atom _net_wm_state_fullscreen;
+        Atom _net_wm_state_hidden;
+        Atom _net_wm_state_maximized_horz;
+        Atom _net_wm_state_maximized_vert;
         Atom _net_wm_window_opacity;
     } xatom;
 
@@ -1048,35 +1048,35 @@ WINDEF int win_init(void) {
     WINDOW->xatom.wm_delete_window = wm_delete_window;
     
     Atom _motif_wm_hints = XInternAtom(dpy, "_MOTIF_WM_HINTS", False);
-	if (!_motif_wm_hints) { goto __win_init_failure; }
+    if (!_motif_wm_hints) { goto __win_init_failure; }
     WINDOW->xatom._motif_wm_hints = _motif_wm_hints;
 
     Atom _net_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
-	if (!_net_wm_state) { goto __win_init_failure; }
+    if (!_net_wm_state) { goto __win_init_failure; }
     WINDOW->xatom._net_wm_state = _net_wm_state;
 
     Atom _net_wm_state_above = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", False);
-	if (!_net_wm_state_above) { goto __win_init_failure; }
+    if (!_net_wm_state_above) { goto __win_init_failure; }
     WINDOW->xatom._net_wm_state_above = _net_wm_state_above;
 
     Atom _net_wm_state_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
-	if (!_net_wm_state_fullscreen) { goto __win_init_failure; }
+    if (!_net_wm_state_fullscreen) { goto __win_init_failure; }
     WINDOW->xatom._net_wm_state_fullscreen = _net_wm_state_fullscreen;
 
     Atom _net_wm_state_hidden = XInternAtom(dpy, "_NET_WM_STATE_HIDDEN", False);
-	if (!_net_wm_state_hidden) { goto __win_init_failure; }
+    if (!_net_wm_state_hidden) { goto __win_init_failure; }
     WINDOW->xatom._net_wm_state_hidden = _net_wm_state_hidden;
 
     Atom _net_wm_state_maximized_horz = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
-	if (!_net_wm_state_maximized_horz) { goto __win_init_failure; }
+    if (!_net_wm_state_maximized_horz) { goto __win_init_failure; }
     WINDOW->xatom._net_wm_state_maximized_horz = _net_wm_state_maximized_horz;
 
     Atom _net_wm_state_maximized_vert = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
-	if (!_net_wm_state_maximized_vert) { goto __win_init_failure; }
+    if (!_net_wm_state_maximized_vert) { goto __win_init_failure; }
     WINDOW->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
 
     Atom _net_wm_window_opacity = XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False);
-	if (!_net_wm_window_opacity) { goto __win_init_failure; }
+    if (!_net_wm_window_opacity) { goto __win_init_failure; }
     WINDOW->xatom._net_wm_window_opacity = _net_wm_window_opacity;
 
     /* set default config values */
@@ -1161,7 +1161,7 @@ WINDEF int win_getsize(size_t *w_ptr, size_t *h_ptr) {
     if (h_ptr) { *h_ptr = attr.height; }
 
     /* success */
-	return (1);
+    return (1);
 }
 
 
@@ -1370,16 +1370,186 @@ WINDEF int win_windestroy(t_window win) {
 }
 
 
+WININT int __win_winupdateflag_x11(t_window);
+
+WINDEF int win_winsetflag(t_window win, const uint32_t f) {
+    /* null-check */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* toggle window attirbutes */
+    win->attr.f ^= f;
+
+    /* update window properties */
+    if (!__win_winupdateflag_x11(win)) {
+        return (0);
+    }
+
+    /* success */
+    win_eventflush();
+    return (1);
+}
+
+WININT int __win_winupdateflag_x11(t_window win) {
+    /* null-check */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* references */
+    Display  *dpy = win->xlib.dpy;
+    Window   root = WINDOW->xlib.root; 
+    Window client = win->xlib.client;
+   
+    /* properties that requires the window to be mapped */
+    if (win->attr.mapped) {
+        /* client message we'll use to update window properties */
+        XClientMessageEvent xclient = { 
+            .type = ClientMessage,
+            .display = dpy,
+            .window = client,
+            .message_type = WINDOW->xatom._net_wm_state,
+            .format = 32,
+            .data = { .l = { 0 } }
+        };
+    
+        /* WINDOW_FLAG_FULLSCREEN */
+        if (win->attr.f & WINDOW_FLAG_FULLSCREEN) {
+            XClientMessageEvent fullscr = xclient;
+            fullscr.data.l[0] = _NET_WM_STATE_ADD; 
+            fullscr.data.l[1] = WINDOW->xatom._net_wm_state_fullscreen;
+            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
+        } else {
+            XClientMessageEvent fullscr = xclient;
+            fullscr.data.l[0] = _NET_WM_STATE_REMOVE; 
+            fullscr.data.l[1] = WINDOW->xatom._net_wm_state_fullscreen;
+            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
+        }
+
+        /* WINDOW_FLAG_MINIMIZED */
+        if (win->attr.f & WINDOW_FLAG_MINIMIZED) {
+            XClientMessageEvent minim = xclient;
+            minim.data.l[0] = _NET_WM_STATE_ADD;
+            minim.data.l[1] = WINDOW->xatom._net_wm_state_hidden;
+            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
+        } else {
+            XClientMessageEvent minim = xclient;
+            minim.data.l[0] = _NET_WM_STATE_REMOVE;
+            minim.data.l[1] = WINDOW->xatom._net_wm_state_hidden;
+            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
+        }
+
+        /* WINDOW_FLAG_MAXIMIZED */
+        if (win->attr.f & WINDOW_FLAG_MAXIMIZED) {
+            XClientMessageEvent maxim = xclient;
+            maxim.data.l[0] = _NET_WM_STATE_ADD;
+            maxim.data.l[1] = WINDOW->xatom._net_wm_state_maximized_horz;
+            maxim.data.l[2] = WINDOW->xatom._net_wm_state_maximized_vert;
+            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
+        } else {
+            XClientMessageEvent maxim = xclient;
+            maxim.data.l[0] = _NET_WM_STATE_REMOVE;
+            maxim.data.l[1] = WINDOW->xatom._net_wm_state_maximized_horz;
+            maxim.data.l[2] = WINDOW->xatom._net_wm_state_maximized_vert;
+            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
+        }
+
+        /* WINDOW_FLAG_TOPMOST */
+        if (win->attr.f & WINDOW_FLAG_TOPMOST) {
+            XClientMessageEvent topmost = xclient;
+            topmost.data.l[0] = _NET_WM_STATE_ADD;
+            topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
+            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
+        } else {
+            XClientMessageEvent topmost = xclient;
+            topmost.data.l[0] = _NET_WM_STATE_REMOVE;
+            topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
+            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
+        }
+    }
+
+    /* properties that doesn't require the window to be mapped */
+
+    /* WINDOW_FLAG_RESIZABLE */
+    if (win->attr.f & WINDOW_FLAG_RESIZABLE) {
+        win_winsetsizemin(win, 1, 1);
+        win_winsetsizemax(win, 0x10000000, 0x10000000);
+    } else {
+        size_t w = 0,
+               h = 0;
+        win_wingetsize(win, &w, &h);
+        win_winsetsizemin(win, w, h);
+        win_winsetsizemax(win, w, h);
+    }
+
+    /* WINDOW_FLAG_TRANSPARENT */
+    if (win->attr.f & WINDOW_FLAG_TRANSPARENT) {
+        long opacity = 0x00000000UL;
+        XChangeProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity, XA_CARDINAL, 32, PropModeReplace, (uint8_t *) &opacity, 1);
+    } else {
+        XDeleteProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity);
+    }
+
+    /* WINDOW_FLAG_UNDECORATED*/
+    if (win->attr.f & WINDOW_FLAG_UNDECORATED) {
+        long mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = _NET_WM_STATE_REMOVE;
+        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, WINDOW->xatom._motif_wm_hints, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
+    } else {
+        long mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = _NET_WM_STATE_ADD;
+        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, WINDOW->xatom._motif_wm_hints, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
+    }
+
+    return (1);
+}
+
+
+WINDEF void *win_wingetprop(t_window win, const uint32_t prop) {
+    /* null-check */
+    if (!WINDOW)  { return (0); }
+    if (!win)     { return (0); }
+    switch (prop) {
+        case (WINDOW_PROP_WINDOW_X11_DISPLAY):   { return (win->xlib.dpy); }
+        case (WINDOW_PROP_WINDOW_X11_ROOT_ID):   { return (&win->xlib.parent); }
+        case (WINDOW_PROP_WINDOW_X11_WINDOW_ID): { return (&win->xlib.client); }
+        case (WINDOW_PROP_WINDOW_X11_VISUAL):    { return (win->xutil.visual.visual); }
+
+        default: { } break;
+    }
+
+    /* return nothing */
+    return (0);
+}
+
+
 WINDEF int win_winmap(t_window win) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
 
+    /* map window... */
     XMapWindow(win->xlib.dpy, win->xlib.client);
-    XSync(win->xlib.dpy, 0);
+    win_eventflush();
+
+    /* wait until MapNotify event */
+    XEvent event = { 0 };
+    do {
+        XWindowEvent(win->xlib.dpy,
+                     win->xlib.client,
+                     StructureNotifyMask,
+                     &event);
+    } while (event.type != MapNotify);
     win->attr.mapped = 1;
 
+    /* update window properties */
+    if (!__win_winupdateflag_x11(win)) {
+        return (0);
+    }
+
     /* success */
+    win_eventflush();
     return (1);
 }
 
@@ -1389,8 +1559,18 @@ WINDEF int win_winunmap(t_window win) {
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
 
+    /* unmap window... */
     XUnmapWindow(win->xlib.dpy, win->xlib.client);
-    XSync(win->xlib.dpy, 0);
+    win_eventflush();
+
+    /* wait until MapNotify event */
+    XEvent event = { 0 };
+    do {
+        XWindowEvent(win->xlib.dpy,
+                     win->xlib.client,
+                     StructureNotifyMask,
+                     &event);
+    } while (event.type != MapNotify);
     win->attr.mapped = 0;
 
     /* success */
@@ -1414,7 +1594,7 @@ WINDEF int win_wingetsize(t_window win, size_t *w_ptr, size_t *h_ptr) {
 
     /* success */
     win_eventflush();
-	return (1);
+    return (1);
 }
 
 
@@ -1428,7 +1608,7 @@ WINDEF int win_winsetsize(t_window win, const size_t w, const size_t h) {
 
     /* success */
     win_eventflush();
-	return (1);
+    return (1);
 }
 
 
@@ -1450,7 +1630,7 @@ WINDEF int win_winsetsizemin(t_window win, const size_t w, const size_t h) {
 
     /* success */
     win_eventflush();
-	return (1);
+    return (1);
 }
 
 
@@ -1472,7 +1652,7 @@ WINDEF int win_winsetsizemax(t_window win, const size_t w, const size_t h) {
 
     /* success */
     win_eventflush();
-	return (1);
+    return (1);
 }
 
 
@@ -1491,7 +1671,7 @@ WINDEF int win_wingetpos(t_window win, size_t *x_ptr, size_t *y_ptr) {
 
     /* success */
     win_eventflush();
-	return (1);
+    return (1);
 }
 
 
@@ -1505,7 +1685,7 @@ WINDEF int win_winsetpos(t_window win, const size_t x, const size_t y) {
 
     /* success */
     win_eventflush();
-	return (1);
+    return (1);
 }
 
 
@@ -1522,7 +1702,7 @@ WINDEF int win_wingettitle(t_window win, char **t_ptr) {
 
     /* success */
     win_eventflush();
-	return (1);
+    return (1);
 
 }
 
@@ -1538,230 +1718,7 @@ WINDEF int win_winsettitle(t_window win, const char *t) {
 
     /* success */
     win_eventflush();
-	return (1);
-}
-
-
-WININT int __win_updatecfg_x11(t_window);
-
-WININT int __win_updatecfg_map_x11(t_window);
-
-WININT int __win_updatecfg_unmap_x11(t_window);
-
-WINDEF int win_winsetflag(t_window win, const uint32_t f) {
-    /* null-check */
-    if (!WINDOW) { return (0); }
-    if (!win)    { return (0); }
-
-    win->attr.f ^= f;
-    __win_updatecfg_x11(win);
-    win_eventflush();
-	return (1);
-}
-
-WININT int __win_updatecfg_x11(t_window win) {
-    /* null-check */
-    if (!WINDOW) { return (0); }
-    if (!win)    { return (0); }
-
-    if (win->attr.mapped) {
-        __win_updatecfg_map_x11(win);
-    } else {
-        __win_updatecfg_unmap_x11(win);
-    }
-
-    win_eventflush();
     return (1);
-}
-
-WININT int __win_updatecfg_map_x11(t_window win) {
-    /* null-check */
-    if (!WINDOW) { return (0); }
-    if (!win)    { return (0); }
-
-    /* references */
-    Display  *dpy = win->xlib.dpy;
-    Window   root = win->xlib.parent;
-    Window client = win->xlib.client;
-    
-    /* prepare events */
-    XClientMessageEvent xclient = { 
-        .type = ClientMessage,
-        .display = dpy,
-        .window = client,
-        .message_type = WINDOW->xatom._net_wm_state,
-        .format = 32,
-        .data = {
-            .l = { 0 }
-        }
-    };
-    
-    if (win->attr.f & WINDOW_FLAG_FULLSCREEN) {
-        XClientMessageEvent fullscr = xclient;
-        fullscr.data.l[0] = _NET_WM_STATE_ADD; 
-        fullscr.data.l[1] = WINDOW->xatom._net_wm_state_fullscreen;
-        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
-    } else {
-        XClientMessageEvent fullscr = xclient;
-        fullscr.data.l[0] = _NET_WM_STATE_REMOVE; 
-        fullscr.data.l[1] = WINDOW->xatom._net_wm_state_fullscreen;
-        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
-    }
-
-    if (win->attr.f & WINDOW_FLAG_MINIMIZED) {
-        XClientMessageEvent minim = xclient;
-        minim.data.l[0] = _NET_WM_STATE_ADD;
-        minim.data.l[1] = WINDOW->xatom._net_wm_state_hidden;
-        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
-    } else {
-        XClientMessageEvent minim = xclient;
-        minim.data.l[0] = _NET_WM_STATE_REMOVE;
-        minim.data.l[1] = WINDOW->xatom._net_wm_state_hidden;
-        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
-	}
-
-    if (win->attr.f & WINDOW_FLAG_MAXIMIZED) {
-        XClientMessageEvent maxim = xclient;
-        maxim.data.l[0] = _NET_WM_STATE_ADD;
-        maxim.data.l[1] = WINDOW->xatom._net_wm_state_maximized_horz;
-        maxim.data.l[2] = WINDOW->xatom._net_wm_state_maximized_vert;
-        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
-    } else {
-        XClientMessageEvent maxim = xclient;
-        maxim.data.l[0] = _NET_WM_STATE_REMOVE;
-        maxim.data.l[1] = WINDOW->xatom._net_wm_state_maximized_horz;
-        maxim.data.l[2] = WINDOW->xatom._net_wm_state_maximized_vert;
-        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
-	}
-
-    if (win->attr.f & WINDOW_FLAG_TOPMOST) {
-        XClientMessageEvent topmost = xclient;
-        topmost.data.l[0] = _NET_WM_STATE_ADD;
-        topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
-        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
-    } else {
-        XClientMessageEvent topmost = xclient;
-        topmost.data.l[0] = _NET_WM_STATE_REMOVE;
-        topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
-        XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
-	}
-
-    if (win->attr.f & WINDOW_FLAG_RESIZABLE) {
-        win_winsetsizemin(win, 1, 1);
-        win_winsetsizemax(win, 0x10000000, 0x10000000);
-    } else {
-        size_t w = 0,
-               h = 0;
-        win_wingetsize(win, &w, &h);
-        win_winsetsizemin(win, w, h);
-        win_winsetsizemax(win, w, h);
-    }
-
-    if (win->attr.f & WINDOW_FLAG_TRANSPARENT) {
-        long opacity = 0x00000000UL;
-        XChangeProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity, XA_CARDINAL, 32, PropModeReplace, (uint8_t *) &opacity, 1);
-    } else {
-        XDeleteProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity);
-	}
-
-    if (win->attr.f & WINDOW_FLAG_UNDECORATED) {
-        long mwmhints[8] = { 0 };
-        mwmhints[0] = (1L << 1);
-        mwmhints[2] = _NET_WM_STATE_REMOVE;
-        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, XA_ATOM, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
-    } else {
-        long mwmhints[8] = { 0 };
-        mwmhints[0] = (1L << 1);
-        mwmhints[2] = _NET_WM_STATE_ADD;
-        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, XA_ATOM, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
-	}
-
-    return (1);
-}
-
-WININT int __win_updatecfg_unmap_x11(t_window win) {
-    /* null-check */
-    if (!WINDOW) { return (0); }
-    if (!win)    { return (0); }
-
-    /* references */
-    Display  *dpy = win->xlib.dpy;
-    Window client = win->xlib.client;
- 
-    /* property atoms */
-    Atom   props[16] = { 0 };
-    size_t p_cnt     =   0;
-
-    if (win->attr.f & WINDOW_FLAG_FULLSCREEN) {
-        props[p_cnt++] = WINDOW->xatom._net_wm_state_fullscreen;
-	} else { /* ... */ }
-    
-    if (win->attr.f & WINDOW_FLAG_MINIMIZED) {
-        props[p_cnt++] = WINDOW->xatom._net_wm_state_hidden;
-	} else { /* ... */ }
-
-    if (win->attr.f & WINDOW_FLAG_MAXIMIZED) {
-        props[p_cnt++] = WINDOW->xatom._net_wm_state_maximized_horz;
-        props[p_cnt++] = WINDOW->xatom._net_wm_state_maximized_vert;
-	} else { /* ... */ }
-
-    if (win->attr.f & WINDOW_FLAG_TOPMOST) {
-        props[p_cnt++] = WINDOW->xatom._net_wm_state_above;
-    } else {
-	}
-    
-    /* apply new properties */    
-    XChangeProperty(dpy, client, WINDOW->xatom._net_wm_state, XA_ATOM, 32, PropModeReplace, (uint8_t *) props, p_cnt);
-
-    if (win->attr.f & WINDOW_FLAG_RESIZABLE) {
-        win_winsetsizemin(win, 1, 1);
-        win_winsetsizemax(win, 0x10000000, 0x10000000);
-    } else {
-        size_t w = 0,
-               h = 0;
-        win_wingetsize(win, &w, &h);
-        win_winsetsizemin(win, w, h);
-        win_winsetsizemax(win, w, h);
-    }
-
-    if (win->attr.f & WINDOW_FLAG_TRANSPARENT) {
-        long opacity = 0x00000000UL;
-        XChangeProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity, XA_CARDINAL, 32, PropModeReplace, (uint8_t *) &opacity, 1);
-    } else {
-        XDeleteProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity);
-	}
-
-    if (win->attr.f & WINDOW_FLAG_UNDECORATED) {
-        long mwmhints[8] = { 0 };
-        mwmhints[0] = (1L << 1);
-        mwmhints[2] = _NET_WM_STATE_REMOVE;
-        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, XA_ATOM, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
-    } else {
-        long mwmhints[8] = { 0 };
-        mwmhints[0] = (1L << 1);
-        mwmhints[2] = _NET_WM_STATE_ADD;
-        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, XA_ATOM, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
-	}
-
-    return (1);
-}
-
-
-WINDEF void *win_wingetprop(t_window win, const uint64_t prop) {
-    /* null-check */
-    if (!WINDOW)  { return (0); }
-    if (!win)     { return (0); }
-    switch (prop) {
-        case (WINDOW_PROP_WINDOW_X11_DISPLAY):   { return (win->xlib.dpy); }
-        case (WINDOW_PROP_WINDOW_X11_ROOT_ID):   { return (&win->xlib.parent); }
-        case (WINDOW_PROP_WINDOW_X11_WINDOW_ID): { return (&win->xlib.client); }
-        case (WINDOW_PROP_WINDOW_X11_VISUAL):    { return (win->xutil.visual.visual); }
-
-        default: { } break;
-    }
-
-    /* return nothing */
-    return (0);
 }
 
 /* event functions */
@@ -2197,7 +2154,7 @@ WINDEF int win_getsize(size_t *w_ptr, size_t *h_ptr) {
     if (h_ptr) { *h_ptr = /* ... */; }
 
     /* success */
-	return (1);
+    return (1);
 }
 
 
@@ -2317,7 +2274,7 @@ WINDEF int win_wingetsize(t_window win, size_t *w_ptr, size_t *h_ptr) {
     if (h_ptr) { *h_ptr = /* ... */; }
 
     /* success */
-	return (1);
+    return (1);
 }
 
 
@@ -2329,7 +2286,7 @@ WINDEF int win_winsetsize(t_window win, const size_t w, const size_t h) {
     /* ... */
 
     /* success */
-	return (1);
+    return (1);
 }
 
 
@@ -2341,7 +2298,7 @@ WINDEF int win_winsetsizemin(t_window win, const size_t w, const size_t h) {
     /* ... */
 
     /* success */
-	return (1);
+    return (1);
 }
 
 
@@ -2353,7 +2310,7 @@ WINDEF int win_winsetsizemax(t_window win, const size_t w, const size_t h) {
     /* ... */
     
     /* success */
-	return (1);
+    return (1);
 }
 
 
@@ -2369,7 +2326,7 @@ WINDEF int win_wingetpos(t_window win, size_t *x_ptr, size_t *y_ptr) {
     if (y_ptr) { *y_ptr = /* ... */; }
 
     /* success */
-	return (1);
+    return (1);
 }
 
 
@@ -2381,7 +2338,7 @@ WINDEF int win_winsetpos(t_window win, const size_t x, const size_t y) {
     /* ... */
 
     /* success */
-	return (1);
+    return (1);
 }
 
 
@@ -2394,7 +2351,7 @@ WINDEF int win_wingettitle(t_window win, char **t_ptr) {
     /* ... */
 
     /* success */
-	return (1);
+    return (1);
 
 }
 
@@ -2408,7 +2365,7 @@ WINDEF int win_winsettitle(t_window win, const char *t) {
     /* ... */
 
     /* success */
-	return (1);
+    return (1);
 
 }
 
