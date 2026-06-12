@@ -542,6 +542,9 @@ enum {
 typedef struct s_window *t_window;
 
 
+typedef struct s_glcontext *t_glcontext;
+
+
 typedef struct s_eventCommon t_eventCommon;
 
 struct s_eventCommon {
@@ -631,6 +634,7 @@ union u_event {
     t_eventWindow window;
 };
 
+
 /* library functions */
 
 WINDEF int win_init(void);
@@ -675,8 +679,17 @@ WINDEF int win_wingettitle(t_window, char **);
 
 WINDEF int win_winsettitle(t_window, const char *);
 
-/* event functions */
+/* opengl context functions */
 
+WINDEF int win_glcreate(t_glcontext *, t_window);
+
+WINDEF int win_gldestroy(t_glcontext);
+
+WINDEF int win_glmakecurrent(t_glcontext, t_window);
+
+WINDEF int win_glswapbuffers(t_glcontext, t_window);
+
+/* event functions */
 
 WINDEF int win_eventpoll(t_event *);
 

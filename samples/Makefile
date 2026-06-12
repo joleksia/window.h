@@ -18,11 +18,13 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -ggdb3
 all :
 	-$(CC) $(CFLAGS) -o $(MK_ROOT)00-compile.out $(MK_ROOT)00-compile.c -lX11 -lGLX
 	-$(CC) $(CFLAGS) -o $(MK_ROOT)01-basic.out 	 $(MK_ROOT)01-basic.c	-lX11 -lGLX
+	-$(CC) $(CFLAGS) -o $(MK_ROOT)02-opengl.out  $(MK_ROOT)02-opengl.c	-lX11 -lGLX -lGL
 
 .PHONY : clean
 
 clean :
 	rm -f $(MK_ROOT)00-compile.out
 	rm -f $(MK_ROOT)01-basic.out
+	rm -f $(MK_ROOT)02-opengl.out
 
 # ========
