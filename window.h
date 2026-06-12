@@ -424,6 +424,20 @@ enum {
 
 
 enum {
+    WINDOW_API_NONE = 0,
+# define WINDOW_API_NONE WINDOW_API_NONE
+
+    WINDOW_API_OPENGL,
+# define WINDOW_API_OPENGL WINDOW_API_OPENGL
+
+    WINDOW_API_VULKAN,
+# define WINDOW_API_VULKAN WINDOW_API_VULKAN
+
+    /* */
+};
+
+
+enum {
     WINDOW_PROP_PLATFORM_NONE = 0,
 # define WINDOW_PROP_PLATFORM_NONE WINDOW_PROP_PLATFORM_NONE
 
@@ -625,7 +639,9 @@ WINDEF int win_quit(void);
 
 WINDEF int win_getsize(size_t *, size_t *);
 
-WINDEF void *win_getprop(const uint64_t);
+WINDEF int win_setapi(const uint32_t);
+
+WINDEF void *win_getprop(const uint32_t);
 
 /* windowing functions */
 
@@ -1005,9 +1021,10 @@ struct s_platform {
     } xatom;
 
     struct {
+        int api;
         int depth;
         int class;
-    } config;
+    } attr;
 
     struct {
         t_event *arr;
@@ -1068,63 +1085,37 @@ WINDEF int win_init(void) {
 
     /* get screen number */
     XID screen = XDefaultScreen(dpy);
-
-    /* assign data to `xlib` platform section */
-    WINDOW->xlib.dpy  = dpy;
-    WINDOW->xlib.root = root;
-    WINDOW->xlib.screen = screen;
    
     /* retrieve atoms from x11 session */
     Atom wm_protocols = XInternAtom(dpy, "WM_PROTOCOLS", False);
     if (!wm_protocols) { goto __win_init_failure; }
-    WINDOW->xatom.wm_protocols = wm_protocols;
     
     Atom wm_delete_window = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
     if (!wm_delete_window) { goto __win_init_failure; }
-    WINDOW->xatom.wm_delete_window = wm_delete_window;
     
     Atom _motif_wm_hints = XInternAtom(dpy, "_MOTIF_WM_HINTS", False);
     if (!_motif_wm_hints) { goto __win_init_failure; }
-    WINDOW->xatom._motif_wm_hints = _motif_wm_hints;
 
     Atom _net_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
     if (!_net_wm_state) { goto __win_init_failure; }
-    WINDOW->xatom._net_wm_state = _net_wm_state;
 
     Atom _net_wm_state_above = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", False);
     if (!_net_wm_state_above) { goto __win_init_failure; }
-    WINDOW->xatom._net_wm_state_above = _net_wm_state_above;
 
     Atom _net_wm_state_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
     if (!_net_wm_state_fullscreen) { goto __win_init_failure; }
-    WINDOW->xatom._net_wm_state_fullscreen = _net_wm_state_fullscreen;
 
     Atom _net_wm_state_hidden = XInternAtom(dpy, "_NET_WM_STATE_HIDDEN", False);
     if (!_net_wm_state_hidden) { goto __win_init_failure; }
-    WINDOW->xatom._net_wm_state_hidden = _net_wm_state_hidden;
 
     Atom _net_wm_state_maximized_horz = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
     if (!_net_wm_state_maximized_horz) { goto __win_init_failure; }
-    WINDOW->xatom._net_wm_state_maximized_horz = _net_wm_state_maximized_horz;
 
     Atom _net_wm_state_maximized_vert = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
     if (!_net_wm_state_maximized_vert) { goto __win_init_failure; }
-    WINDOW->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
 
     Atom _net_wm_window_opacity = XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False);
     if (!_net_wm_window_opacity) { goto __win_init_failure; }
-    WINDOW->xatom._net_wm_window_opacity = _net_wm_window_opacity;
-
-    /* set default config values */
-    WINDOW->config.depth = 24;
-    WINDOW->config.class = TrueColor;
-
-    /* initialize da_event */
-    WINDOW->da_event.arr = 0;
-    WINDOW->da_event.arr_s = 0;
-    WINDOW->da_event.arr_e = 0;
-    WINDOW->da_event.cap = 0;
-    WINDOW->da_event.cnt = 0;
 
     /* set keyboard input repeating */
     Bool supported;
@@ -1132,6 +1123,35 @@ WINDEF int win_init(void) {
     if (!supported) {
         goto __win_init_failure;
     }
+
+    /* set 'xlib' field */ 
+    WINDOW->xlib.dpy  = dpy;
+    WINDOW->xlib.root = root;
+    WINDOW->xlib.screen = screen;
+    
+    /* set 'xatom' field */
+    WINDOW->xatom.wm_protocols = wm_protocols;
+    WINDOW->xatom.wm_delete_window = wm_delete_window;
+    WINDOW->xatom._motif_wm_hints = _motif_wm_hints;
+    WINDOW->xatom._net_wm_state = _net_wm_state;
+    WINDOW->xatom._net_wm_state_above = _net_wm_state_above;
+    WINDOW->xatom._net_wm_state_fullscreen = _net_wm_state_fullscreen;
+    WINDOW->xatom._net_wm_state_hidden = _net_wm_state_hidden;
+    WINDOW->xatom._net_wm_state_maximized_horz = _net_wm_state_maximized_horz;
+    WINDOW->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
+    WINDOW->xatom._net_wm_window_opacity = _net_wm_window_opacity;
+
+    /* set 'attr' field  */
+    WINDOW->attr.api   = WINDOW_API_NONE;
+    WINDOW->attr.depth = 24;
+    WINDOW->attr.class = TrueColor;
+
+    /* set 'da_event' field  */
+    WINDOW->da_event.arr = 0;
+    WINDOW->da_event.arr_s = 0;
+    WINDOW->da_event.arr_e = 0;
+    WINDOW->da_event.cap = 0;
+    WINDOW->da_event.cnt = 0;
 
     /* success */
     win_eventflush();
@@ -1201,7 +1221,19 @@ WINDEF int win_getsize(size_t *w_ptr, size_t *h_ptr) {
 }
 
 
-WINDEF void *win_getprop(const uint64_t prop) {
+WINDEF int win_setapi(const uint32_t api) {
+    /* null-check */
+    if (!WINDOW) { return (0); }
+
+    /* set the API the next created windows will use */
+    WINDOW->attr.api = api;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF void *win_getprop(const uint32_t prop) {
     /* null-check */
     if (!WINDOW) { return (0); }
     switch (prop) {
@@ -1234,7 +1266,6 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
     win_winsettitle(result, t);
     win_wingetpos(result, &result->attr.x, &result->attr.y);
     win_wingetsize(result, &result->attr.w, &result->attr.h);
-
 
     /* append the window to platform's window linked list */
     result->next = WINDOW->win_ll;
@@ -1315,14 +1346,32 @@ WININT t_window __win_wincreate(Display *dpy, Window parent, const size_t w, con
     result->xlib.parent = parent;
 
     /* get visual info */
-    if (!XMatchVisualInfo(dpy,
-                          WINDOW->xlib.screen,
-                          WINDOW->config.depth,
-                          WINDOW->config.class,
-                          &result->xutil.visual)
-    ) {
-        goto __win_wincreate_failure;
+    XVisualInfo visual = { 0 };
+    switch (WINDOW->attr.api) {
+        case (WINDOW_API_NONE): {
+            if (!XMatchVisualInfo(dpy,
+                              WINDOW->xlib.screen,
+                              WINDOW->attr.depth,
+                              WINDOW->attr.class,
+                              &visual)
+            ) {
+                goto __win_wincreate_failure;
+            }
+        } break;
+
+        case (WINDOW_API_OPENGL): {
+            /* ... */ 
+        } break;
+        
+        case (WINDOW_API_VULKAN): {
+            /* ... */ 
+        } break;
+
+        default: { } break;
     }
+
+    /* set visual info */
+    result->xutil.visual = visual;
 
     /* colormap */
     XID colormap = XCreateColormap(dpy, parent, result->xutil.visual.visual, AllocNone);
