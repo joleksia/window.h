@@ -712,6 +712,8 @@ WINDEF int win_timewait(uint64_t);
 #   include <X11/keysym.h>
 #   include <X11/keysymdef.h>
 #
+#   include <GL/glx.h>
+#
 #   define _NET_WM_STATE_REMOVE 0
 #   define _NET_WM_STATE_ADD    1
 #   define _NET_WM_STATE_TOGGLE 2
@@ -1021,9 +1023,17 @@ struct s_platform {
     } xatom;
 
     struct {
+        /* current windowing api */
         int api;
+
+        /* depth buffer size */
         int depth;
+
+        /* class of the window */
         int class;
+
+        /* gl config opts */
+        int gl[64];
     } attr;
 
     struct {
@@ -1250,17 +1260,17 @@ WINDEF void *win_getprop(const uint32_t prop) {
 
 /* windowing functions */
 
-WININT t_window __win_wincreate(Display *, Window, const size_t, const size_t);
+WININT t_window __win_create(Display *, Window, const size_t, const size_t);
 
 WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const char *t, const uint32_t f) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
     
-    t_window result = __win_wincreate(WINDOW->xlib.dpy,
+    t_window result = __win_create(WINDOW->xlib.dpy,
                                           WINDOW->xlib.root,
                                           w, h);
-    if (!result) { goto __win_wincreate_failure; }
+    if (!result) { goto __win_create_failure; }
    
     win_winsetflag(result, f);
     win_winsettitle(result, t);
@@ -1278,7 +1288,7 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
     win_eventflush();
     return (1);
 
-__win_wincreate_failure:
+__win_create_failure:
 
     /* release result */
     if (result) { free(result), result = 0; }
@@ -1300,10 +1310,10 @@ WINDEF int win_wincreatenest(t_window *win, t_window parent, const size_t w, con
     /* check if parent is valid */
     if (!parent->xlib.client) { return (0); }
     
-    t_window result = __win_wincreate(parent->xlib.dpy,
+    t_window result = __win_create(parent->xlib.dpy,
                                           parent->xlib.client,
                                           w, h);
-    if (!result) { goto __win_wincreatenest_failure; }
+    if (!result) { goto __win_createnest_failure; }
    
     win_winsetflag(result, f);
     win_winsettitle(result, t);
@@ -1321,7 +1331,7 @@ WINDEF int win_wincreatenest(t_window *win, t_window parent, const size_t w, con
     win_eventflush();
     return (1);
 
-__win_wincreatenest_failure:
+__win_createnest_failure:
 
     /* release result */
     if (result) { free(result), result = 0; }
@@ -1333,34 +1343,41 @@ __win_wincreatenest_failure:
     return (0);
 }
 
-WININT t_window __win_wincreate(Display *dpy, Window parent, const size_t w, const size_t h) {
+WININT int __win_create_visual_gl(Display *, int, int *, XVisualInfo *);
+
+WININT t_window __win_create(Display *dpy, Window parent, const size_t w, const size_t h) {
     /* alloc result */
     t_window result = calloc(1, sizeof(struct s_window));
-    if (!result) { goto __win_wincreate_failure; } 
+    if (!result) { goto __win_create_failure; } 
 
     /* assign references to X11 objects */
-    if (!dpy) { goto __win_wincreate_failure; }
+    if (!dpy) { goto __win_create_failure; }
     result->xlib.dpy = dpy; 
     
-    if (!parent) { goto __win_wincreate_failure; }
+    if (!parent) { goto __win_create_failure; }
     result->xlib.parent = parent;
 
     /* get visual info */
     XVisualInfo visual = { 0 };
     switch (WINDOW->attr.api) {
+        /* default option */
         case (WINDOW_API_NONE): {
+/* label to pivot to when other API fails */
+__win_create_visual_noapi:
             if (!XMatchVisualInfo(dpy,
                               WINDOW->xlib.screen,
                               WINDOW->attr.depth,
                               WINDOW->attr.class,
                               &visual)
             ) {
-                goto __win_wincreate_failure;
+                goto __win_create_failure;
             }
         } break;
 
         case (WINDOW_API_OPENGL): {
-            /* ... */ 
+            if (!__win_create_visual_gl(dpy, WINDOW->xlib.screen, WINDOW->attr.gl, &visual)) {
+                goto __win_create_visual_noapi;
+            }
         } break;
         
         case (WINDOW_API_VULKAN): {
@@ -1376,7 +1393,7 @@ WININT t_window __win_wincreate(Display *dpy, Window parent, const size_t w, con
     /* colormap */
     XID colormap = XCreateColormap(dpy, parent, result->xutil.visual.visual, AllocNone);
     if (!colormap) {
-        goto __win_wincreate_failure;
+        goto __win_create_failure;
     }
 
     /* window attributes */
@@ -1400,7 +1417,7 @@ WININT t_window __win_wincreate(Display *dpy, Window parent, const size_t w, con
 
     /* create window */
     XID client = XCreateWindow(dpy, parent, 0, 0, w, h, 0, result->xutil.visual.depth, InputOutput, result->xutil.visual.visual, CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &attr);
-    if (!client) { goto __win_wincreate_failure; }
+    if (!client) { goto __win_create_failure; }
     result->xlib.client = client;
     
     XSetWMProtocols(result->xlib.dpy, result->xlib.client, &WINDOW->xatom.wm_protocols, 1);
@@ -1410,9 +1427,73 @@ WININT t_window __win_wincreate(Display *dpy, Window parent, const size_t w, con
 
     return (result);
 
-__win_wincreate_failure:
+__win_create_failure:
 
     if (result) { free(result), result = 0; }
+
+    return (0);
+}
+
+WININT int __win_create_visual_gl(Display *dpy, int screen, int *conf, XVisualInfo *info) {
+    /* null-check */
+    if (!dpy)  { return (0); }
+    if (!conf) { return (0); }
+    if (!info) { return (0); }
+
+    GLXFBConfig *fbconf_arr = 0;
+    int fbconf_cnt = 0,
+        fbconf_best = -1,
+        fbconf_samples = 0,
+        fbconf_sample_buff = 0;
+
+    /* get the list of available framebuffer configurations */
+    fbconf_arr = glXChooseFBConfig(dpy, screen, conf, &fbconf_cnt);
+    if (!fbconf_arr) { goto __win_create_visual_gl_failure; }
+    if (!fbconf_cnt) { goto __win_create_visual_gl_failure; }
+
+    /* iterate over framebuffer configurations and get the best matching one */
+    for (size_t i = 0; i < (size_t) fbconf_cnt; i++) {
+        /* check if it's possible to create a visual from this config */
+        XVisualInfo *vi = glXGetVisualFromFBConfig(dpy, fbconf_arr[i]);
+        if (!vi) { continue; }
+
+        /* release the visual */
+        free(vi), vi = 0;
+
+        /* get samples and sample buffers from config */
+		glXGetFBConfigAttrib(dpy, fbconf_arr[i], GLX_SAMPLES, &fbconf_samples);
+        glXGetFBConfigAttrib(dpy, fbconf_arr[i], GLX_SAMPLE_BUFFERS, &fbconf_sample_buff);
+
+        /* check if this config suits our needs */
+        if ((fbconf_best < 0 || fbconf_sample_buff) && (!fbconf_samples && fbconf_best == -1)) {
+			fbconf_best = (int) i;
+            /* NOTE:
+             *   We could theoretically save ourselves some time and break from this loop right here.
+             *   I should check that possibility... If so, then there's no need of releasing this loops 'vi'!
+             * */
+		}
+    }
+
+    /* check if we've found any suiting framebuffer configuration */
+    if (fbconf_best == -1) { goto __win_create_visual_gl_failure; }
+
+    /* create 'info' from the best config */
+    XVisualInfo *visual = glXGetVisualFromFBConfig(dpy, fbconf_arr[fbconf_best]);
+    if (!visual) { goto __win_create_visual_gl_failure; }
+
+    /* copy 'visual' to 'info' */
+    *info = *visual;
+
+    /* release resources */
+    free(visual), visual = 0; 
+    free(fbconf_arr), fbconf_arr = 0;
+
+    /* success */
+    return (1);
+
+__win_create_visual_gl_failure:
+
+    if (fbconf_arr) { free(fbconf_arr), fbconf_arr = 0; }
 
     return (0);
 }
@@ -2268,15 +2349,15 @@ WINDEF void *win_getprop(const uint64_t prop) {
 
 /* windowing functions */
 
-WININT t_window __win_wincreate(...);
+WININT t_window __win_create(...);
 
 WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const char *t, const uint64_t f) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
     
-    t_window result = __win_wincreate(...);
-    if (!result) { goto __win_wincreate_failure; }
+    t_window result = __win_create(...);
+    if (!result) { goto __win_create_failure; }
    
     win_winsetflag(result, f);
     win_winsettitle(result, t);
@@ -2295,7 +2376,7 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
     win_eventflush();
     return (1);
 
-__win_wincreate_failure:
+__win_create_failure:
 
     /* release result */
     if (result) { free(result), result = 0; }
@@ -2317,8 +2398,8 @@ WINDEF int win_wincreatenest(t_window *win, t_window parent, const size_t w, con
     /* check if parent is valid */
     if (!parent->xlib.client) { return (0); }
     
-    t_window result = __win_wincreate(...);
-    if (!result) { goto __win_wincreate_failure; }
+    t_window result = __win_create(...);
+    if (!result) { goto __win_create_failure; }
    
    
     win_winsetflag(result, f);
@@ -2337,7 +2418,7 @@ WINDEF int win_wincreatenest(t_window *win, t_window parent, const size_t w, con
     win_eventflush();
     return (1);
 
-__win_wincreatenest_failure:
+__win_createnest_failure:
 
     /* release result */
     if (result) { free(result), result = 0; }
@@ -2349,16 +2430,16 @@ __win_wincreatenest_failure:
     return (0);
 }
 
-WININT t_window __win_wincreate(Display *dpy, Window parent, const size_t w, const size_t h) {
+WININT t_window __win_create(...) {
     /* alloc result */
     t_window result = calloc(1, sizeof(struct s_window));
-    if (!result) { goto __win_wincreate_failure; } 
+    if (!result) { goto __win_create_failure; } 
 
     /* ... */
 
     return (result);
 
-__win_wincreate_failure:
+__win_create_failure:
 
     if (result) { free(result), result = 0; }
 
