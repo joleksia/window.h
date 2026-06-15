@@ -451,11 +451,11 @@ enum {
     WINDOW_PROP_WINDOW_X11_DISPLAY,
 # define WINDOW_PROP_WINDOW_X11_DISPLAY WINDOW_PROP_WINDOW_X11_DISPLAY
 
-    WINDOW_PROP_WINDOW_X11_ROOT_ID,
-# define WINDOW_PROP_WINDOW_X11_ROOT_ID WINDOW_PROP_WINDOW_X11_ROOT_ID
+    WINDOW_PROP_WINDOW_X11_PARENT_ID,
+# define WINDOW_PROP_WINDOW_X11_PARENT_ID WINDOW_PROP_WINDOW_X11_PARENT_ID
 
-    WINDOW_PROP_WINDOW_X11_WINDOW_ID,
-# define WINDOW_PROP_WINDOW_X11_WINDOW_ID WINDOW_PROP_WINDOW_X11_WINDOW_ID
+    WINDOW_PROP_WINDOW_X11_CLIENT_ID,
+# define WINDOW_PROP_WINDOW_X11_CLIENT_ID WINDOW_PROP_WINDOW_X11_CLIENT_ID
 
     WINDOW_PROP_WINDOW_X11_VISUAL,
 # define WINDOW_PROP_WINDOW_X11_VISUAL WINDOW_PROP_WINDOW_X11_VISUAL
@@ -1010,7 +1010,6 @@ struct s_platform {
     struct {
         Display *dpy;
         Window   root;
-        XID      screen;
     } xlib;
 
     struct {
@@ -1032,14 +1031,8 @@ struct s_platform {
     } xatom;
 
     struct {
-        /* current windowing api */
-        int api;
-
         /* depth buffer size */
         int depth;
-
-        /* gl config opts */
-        int gl[64];
     } attr;
 
     struct {
@@ -1056,6 +1049,7 @@ struct s_window {
 
     struct {
         Display *dpy;
+        Window   root;
         Window   parent;
         Window   client;
     } xlib;
@@ -1098,9 +1092,6 @@ WINDEF int win_init(void) {
     /* get the root window */
     XID root = XDefaultRootWindow(dpy);
     if (!root) { goto __win_init_failure; }
-
-    /* get screen number */
-    XID screen = XDefaultScreen(dpy);
    
     /* retrieve atoms from x11 session */
     Atom wm_protocols = XInternAtom(dpy, "WM_PROTOCOLS", False);
@@ -1143,7 +1134,6 @@ WINDEF int win_init(void) {
     /* set 'xlib' field */ 
     WINDOW->xlib.dpy  = dpy;
     WINDOW->xlib.root = root;
-    WINDOW->xlib.screen = screen;
     
     /* set 'xatom' field */
     WINDOW->xatom.wm_protocols = wm_protocols;
@@ -1241,7 +1231,6 @@ WINDEF void *win_getprop(const uint32_t prop) {
     switch (prop) {
         case (WINDOW_PROP_PLATFORM_X11_DISPLAY):   { return (WINDOW->xlib.dpy); }
         case (WINDOW_PROP_PLATFORM_X11_ROOT_ID):   { return (&WINDOW->xlib.root); }
-        case (WINDOW_PROP_PLATFORM_X11_SCREEN_ID): { return (&WINDOW->xlib.screen); }
 
         default: { } break;
     }
@@ -1252,7 +1241,7 @@ WINDEF void *win_getprop(const uint32_t prop) {
 
 /* windowing functions */
 
-WININT int __win_wincreate_x11(t_window *, Display *, Window, const size_t, const size_t, const uint32_t);
+WININT int __win_wincreate_x11(t_window *, Display *, Window, Window, const size_t, const size_t, const uint32_t);
 
 WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const char *t, const uint32_t f) {
     /* null-check */
@@ -1264,7 +1253,7 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
     if (!result) { goto __win_wincreate_failure; }
  
     /* create new window */
-    if (!__win_wincreate_x11(&result, WINDOW->xlib.dpy, WINDOW->xlib.root, w, h, f)) {
+    if (!__win_wincreate_x11(&result, WINDOW->xlib.dpy, WINDOW->xlib.root, WINDOW->xlib.root, w, h, f)) {
         goto __win_wincreate_failure;
     }
   
@@ -1316,7 +1305,7 @@ WINDEF int win_wincreatenest(t_window *win, t_window parent, const size_t w, con
     if (!result) { goto __win_wincreatenest_failure; }
  
     /* create new window */
-    if (!__win_wincreate_x11(&result, WINDOW->xlib.dpy, parent->xlib.client, w, h, f)) {
+    if (!__win_wincreate_x11(&result, WINDOW->xlib.dpy, WINDOW->xlib.root, parent->xlib.client, w, h, f)) {
         goto __win_wincreatenest_failure;
     }
   
@@ -1353,7 +1342,7 @@ __win_wincreatenest_failure:
     return (0);
 }
 
-WININT int __win_wincreate_x11(t_window *result, Display *dpy, Window parent, const size_t w, const size_t h, const uint32_t f) {
+WININT int __win_wincreate_x11(t_window *result, Display *dpy, Window root, Window parent, const size_t w, const size_t h, const uint32_t f) {
     /* null-check */
     if (!WINDOW)  { return (0); }
     if (!result)  { return (0); }
@@ -1361,10 +1350,16 @@ WININT int __win_wincreate_x11(t_window *result, Display *dpy, Window parent, co
 
     /* window reference */
     t_window win = *result;
+    
+    /* get the screen number */
+    XID screen = XDefaultScreen(dpy);
 
     /* assign references to X11 objects */
     if (!dpy) { goto __win_wincreate_x11_failure; }
     win->xlib.dpy = dpy; 
+    
+    if (!root) { goto __win_wincreate_x11_failure; }
+    win->xlib.root = root;
     
     if (!parent) { goto __win_wincreate_x11_failure; }
     win->xlib.parent = parent;
@@ -1373,8 +1368,7 @@ WININT int __win_wincreate_x11(t_window *result, Display *dpy, Window parent, co
     XVisualInfo visual = { 0 };
     if (!f || f & WINDOW_FLAG_API_NONE) {
         
-        if (!XMatchVisualInfo(dpy,
-                          WINDOW->xlib.screen,
+        if (!XMatchVisualInfo(dpy, screen,
                           WINDOW->attr.depth,
                           TrueColor,
                           &visual)
@@ -1385,11 +1379,11 @@ WININT int __win_wincreate_x11(t_window *result, Display *dpy, Window parent, co
     } else if (f & WINDOW_FLAG_API_OPENGL) {
         
         GLXFBConfig *fbconf = 0;
-        int fbconf_best = 0,
-            fbconf_cnt  = 0;
+        int fbconf_best = -1,
+            fbconf_cnt  =  0;
 
         /* get the list of available framebuffer configurations */
-        fbconf = glXChooseFBConfig(dpy, WINDOW->xlib.screen, WINDOW->attr.gl, &fbconf_cnt);
+        fbconf = glXChooseFBConfig(dpy, screen, 0, &fbconf_cnt);
         if (!fbconf) { goto __win_wincreate_x11_failure; }
         if (!fbconf_cnt) { goto __win_wincreate_x11_failure; }
 
@@ -1416,6 +1410,9 @@ WININT int __win_wincreate_x11(t_window *result, Display *dpy, Window parent, co
             }
         }
 
+        /* check if we've found any fitting fbconfig */
+        if (fbconf_best == -1) { goto __win_wincreate_x11_failure; }
+
         /* get visual from the best fbconfig */
         vi = glXGetVisualFromFBConfig(dpy, fbconf[fbconf_best]);
         if (!vi) { goto __win_wincreate_x11_failure; }
@@ -1434,9 +1431,7 @@ WININT int __win_wincreate_x11(t_window *result, Display *dpy, Window parent, co
 
     /* colormap */
     XID colormap = XCreateColormap(dpy, parent, visual.visual, AllocNone);
-    if (!colormap) {
-        goto __win_wincreate_x11_failure;
-    }
+    if (!colormap) { goto __win_wincreate_x11_failure; }
 
     /* window attributes */
     XSetWindowAttributes attr  = {
@@ -1652,8 +1647,8 @@ WINDEF void *win_wingetprop(t_window win, const uint32_t prop) {
     if (!win)     { return (0); }
     switch (prop) {
         case (WINDOW_PROP_WINDOW_X11_DISPLAY):   { return (win->xlib.dpy); }
-        case (WINDOW_PROP_WINDOW_X11_ROOT_ID):   { return (&win->xlib.parent); }
-        case (WINDOW_PROP_WINDOW_X11_WINDOW_ID): { return (&win->xlib.client); }
+        case (WINDOW_PROP_WINDOW_X11_PARENT_ID): { return (&win->xlib.parent); }
+        case (WINDOW_PROP_WINDOW_X11_CLIENT_ID): { return (&win->xlib.client); }
         case (WINDOW_PROP_WINDOW_X11_VISUAL):    { return (win->xutil.visual.visual); }
 
         default: { } break;
