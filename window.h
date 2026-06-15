@@ -424,20 +424,6 @@ enum {
 
 
 enum {
-    WINDOW_API_NONE = 0,
-# define WINDOW_API_NONE WINDOW_API_NONE
-
-    WINDOW_API_OPENGL,
-# define WINDOW_API_OPENGL WINDOW_API_OPENGL
-
-    WINDOW_API_VULKAN,
-# define WINDOW_API_VULKAN WINDOW_API_VULKAN
-
-    /* */
-};
-
-
-enum {
     WINDOW_PROP_PLATFORM_NONE = 0,
 # define WINDOW_PROP_PLATFORM_NONE WINDOW_PROP_PLATFORM_NONE
 
@@ -513,26 +499,38 @@ enum {
     
     WINDOW_FLAG_NONE = 0x00000000,
 # define WINDOW_FLAG_NONE WINDOW_FLAG_NONE
+
+    WINDOW_FLAG_API_NONE = 0x00000001,
+# define WINDOW_FLAG_API_NONE WINDOW_FLAG_API_NONE
+
+    WINDOW_FLAG_API_OPENGL = 0x00000002,
+# define WINDOW_FLAG_API_OPENGL WINDOW_FLAG_API_OPENGL
+
+    WINDOW_FLAG_API_VULKAN = 0x00000004,
+# define WINDOW_FLAG_API_VULKAN WINDOW_FLAG_API_VULKAN
+
+    WINDOW_FLAG_API_METAL = 0x00000008,
+# define WINDOW_FLAG_API_METAL WINDOW_FLAG_API_METAL
     
-    WINDOW_FLAG_FULLSCREEN = 0x00000001,
+    WINDOW_FLAG_FULLSCREEN = 0x00000010,
 # define WINDOW_FLAG_FULLSCREEN WINDOW_FLAG_FULLSCREEN
     
-    WINDOW_FLAG_MINIMIZED = 0x00000002,
+    WINDOW_FLAG_MINIMIZED = 0x00000020,
 # define WINDOW_FLAG_MINIMIZED WINDOW_FLAG_MINIMIZED
     
-    WINDOW_FLAG_MAXIMIZED = 0x00000004,
+    WINDOW_FLAG_MAXIMIZED = 0x00000040,
 # define WINDOW_FLAG_MAXIMIZED WINDOW_FLAG_MAXIMIZED
     
-    WINDOW_FLAG_RESIZABLE = 0x00000008,
+    WINDOW_FLAG_RESIZABLE = 0x00000080,
 # define WINDOW_FLAG_RESIZABLE WINDOW_FLAG_RESIZABLE
     
-    WINDOW_FLAG_TOPMOST = 0x00000010,
+    WINDOW_FLAG_TOPMOST = 0x00000100,
 # define WINDOW_FLAG_TOPMOST WINDOW_FLAG_TOPMOST
     
-    WINDOW_FLAG_TRANSPARENT = 0x00000020,
+    WINDOW_FLAG_TRANSPARENT = 0x00000200,
 # define WINDOW_FLAG_TRANSPARENT WINDOW_FLAG_TRANSPARENT
     
-    WINDOW_FLAG_UNDECORATED = 0x00000040,
+    WINDOW_FLAG_UNDECORATED = 0x00000400,
 # define WINDOW_FLAG_UNDECORATED WINDOW_FLAG_UNDECORATED
 
     /* ... */
@@ -642,8 +640,6 @@ WINDEF int win_init(void);
 WINDEF int win_quit(void);
 
 WINDEF int win_getsize(size_t *, size_t *);
-
-WINDEF int win_setapi(const uint32_t);
 
 WINDEF void *win_getprop(const uint32_t);
 
@@ -1042,9 +1038,6 @@ struct s_platform {
         /* depth buffer size */
         int depth;
 
-        /* class of the window */
-        int class;
-
         /* gl config opts */
         int gl[64];
     } attr;
@@ -1078,8 +1071,8 @@ struct s_window {
         /* dimension attributes */
         size_t w, h;
 
-        /* flag attributes */
-        uint32_t f;
+        /* window flags bitfield */
+        uint32_t flags;
 
         /* is window mapped? */
         uint8_t mapped;
@@ -1165,9 +1158,7 @@ WINDEF int win_init(void) {
     WINDOW->xatom._net_wm_window_opacity = _net_wm_window_opacity;
 
     /* set 'attr' field  */
-    WINDOW->attr.api   = WINDOW_API_NONE;
     WINDOW->attr.depth = 24;
-    WINDOW->attr.class = TrueColor;
 
     /* set 'da_event' field  */
     WINDOW->da_event.arr = 0;
@@ -1244,18 +1235,6 @@ WINDEF int win_getsize(size_t *w_ptr, size_t *h_ptr) {
 }
 
 
-WINDEF int win_setapi(const uint32_t api) {
-    /* null-check */
-    if (!WINDOW) { return (0); }
-
-    /* set the API the next created windows will use */
-    WINDOW->attr.api = api;
-
-    /* success */
-    return (1);
-}
-
-
 WINDEF void *win_getprop(const uint32_t prop) {
     /* null-check */
     if (!WINDOW) { return (0); }
@@ -1273,20 +1252,29 @@ WINDEF void *win_getprop(const uint32_t prop) {
 
 /* windowing functions */
 
-WININT t_window __win_create(Display *, Window, const size_t, const size_t);
+WININT int __win_wincreate_x11(t_window *, Display *, Window, const size_t, const size_t, const uint32_t);
 
 WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const char *t, const uint32_t f) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
-    
-    t_window result = __win_create(WINDOW->xlib.dpy,
-                                          WINDOW->xlib.root,
-                                          w, h);
-    if (!result) { goto __win_create_failure; }
-   
+
+    /* allocate new window object */
+    t_window result = calloc(1, sizeof(struct s_window));
+    if (!result) { goto __win_wincreate_failure; }
+ 
+    /* create new window */
+    if (!__win_wincreate_x11(&result, WINDOW->xlib.dpy, WINDOW->xlib.root, w, h, f)) {
+        goto __win_wincreate_failure;
+    }
+  
+    /* update window flags */
     win_winsetflag(result, f);
+   
+    /* set window title */ 
     win_winsettitle(result, t);
+
+    /* update window dimension properites */
     win_wingetpos(result, &result->attr.x, &result->attr.y);
     win_wingetsize(result, &result->attr.w, &result->attr.h);
 
@@ -1301,7 +1289,7 @@ WINDEF int win_wincreate(t_window *win, const size_t w, const size_t h, const ch
     win_eventflush();
     return (1);
 
-__win_create_failure:
+__win_wincreate_failure:
 
     /* release result */
     if (result) { free(result), result = 0; }
@@ -1322,14 +1310,23 @@ WINDEF int win_wincreatenest(t_window *win, t_window parent, const size_t w, con
 
     /* check if parent is valid */
     if (!parent->xlib.client) { return (0); }
-    
-    t_window result = __win_create(parent->xlib.dpy,
-                                          parent->xlib.client,
-                                          w, h);
-    if (!result) { goto __win_createnest_failure; }
-   
-    win_winsetflag(result, f);
+
+    /* allocate new window object */
+    t_window result = calloc(1, sizeof(struct s_window));
+    if (!result) { goto __win_wincreatenest_failure; }
+ 
+    /* create new window */
+    if (!__win_wincreate_x11(&result, WINDOW->xlib.dpy, parent->xlib.client, w, h, f)) {
+        goto __win_wincreatenest_failure;
+    }
+  
+    /* update window flags */
+    win_winsetflag(result, 0); /* by passing flag '0' we're effectively not toggling anything and going straight into updating... */
+
+    /* set window title */ 
     win_winsettitle(result, t);
+
+    /* update window dimension properites */
     win_wingetpos(result, &result->attr.x, &result->attr.y);
     win_wingetsize(result, &result->attr.w, &result->attr.h);
 
@@ -1344,7 +1341,7 @@ WINDEF int win_wincreatenest(t_window *win, t_window parent, const size_t w, con
     win_eventflush();
     return (1);
 
-__win_createnest_failure:
+__win_wincreatenest_failure:
 
     /* release result */
     if (result) { free(result), result = 0; }
@@ -1356,57 +1353,89 @@ __win_createnest_failure:
     return (0);
 }
 
-WININT int __win_create_visual_gl(Display *, int, int *, XVisualInfo *);
+WININT int __win_wincreate_x11(t_window *result, Display *dpy, Window parent, const size_t w, const size_t h, const uint32_t f) {
+    /* null-check */
+    if (!WINDOW)  { return (0); }
+    if (!result)  { return (0); }
+    if (!*result) { return (0); }
 
-WININT t_window __win_create(Display *dpy, Window parent, const size_t w, const size_t h) {
-    /* alloc result */
-    t_window result = calloc(1, sizeof(struct s_window));
-    if (!result) { goto __win_create_failure; } 
+    /* window reference */
+    t_window win = *result;
 
     /* assign references to X11 objects */
-    if (!dpy) { goto __win_create_failure; }
-    result->xlib.dpy = dpy; 
+    if (!dpy) { goto __win_wincreate_x11_failure; }
+    win->xlib.dpy = dpy; 
     
-    if (!parent) { goto __win_create_failure; }
-    result->xlib.parent = parent;
+    if (!parent) { goto __win_wincreate_x11_failure; }
+    win->xlib.parent = parent;
 
     /* get visual info */
     XVisualInfo visual = { 0 };
-    switch (WINDOW->attr.api) {
-        /* default option */
-        case (WINDOW_API_NONE): {
-/* label to pivot to when other API fails */
-__win_create_visual_noapi:
-            if (!XMatchVisualInfo(dpy,
-                              WINDOW->xlib.screen,
-                              WINDOW->attr.depth,
-                              WINDOW->attr.class,
-                              &visual)
-            ) {
-                goto __win_create_failure;
-            }
-        } break;
-
-        case (WINDOW_API_OPENGL): {
-            if (!__win_create_visual_gl(dpy, WINDOW->xlib.screen, WINDOW->attr.gl, &visual)) {
-                goto __win_create_visual_noapi;
-            }
-        } break;
+    if (!f || f & WINDOW_FLAG_API_NONE) {
         
-        case (WINDOW_API_VULKAN): {
-            /* ... */ 
-        } break;
+        if (!XMatchVisualInfo(dpy,
+                          WINDOW->xlib.screen,
+                          WINDOW->attr.depth,
+                          TrueColor,
+                          &visual)
+        ) {
+            goto __win_wincreate_x11_failure;
+        }
 
-        default: { } break;
-    }
+    } else if (f & WINDOW_FLAG_API_OPENGL) {
+        
+        GLXFBConfig *fbconf = 0;
+        int fbconf_best = 0,
+            fbconf_cnt  = 0;
+
+        /* get the list of available framebuffer configurations */
+        fbconf = glXChooseFBConfig(dpy, WINDOW->xlib.screen, WINDOW->attr.gl, &fbconf_cnt);
+        if (!fbconf) { goto __win_wincreate_x11_failure; }
+        if (!fbconf_cnt) { goto __win_wincreate_x11_failure; }
+
+        /* iterate over framebuffer configurations and get the best matching one */
+        XVisualInfo *vi = 0;
+        for (size_t i = 0; i < (size_t) fbconf_cnt; i++) {
+            /* check if it's possible to create a visual from this config */
+            vi = glXGetVisualFromFBConfig(dpy, fbconf[i]);
+            if (!vi) { continue; }
+
+            /* release 'vi' */
+            free(vi), vi = 0;
+
+            /* get samples and sample buffers from config */
+            int fbconf_samples = 0;
+            glXGetFBConfigAttrib(dpy, fbconf[i], GLX_SAMPLES, &fbconf_samples);
+
+            int fbconf_sample_buff = 0;
+            glXGetFBConfigAttrib(dpy, fbconf[i], GLX_SAMPLE_BUFFERS, &fbconf_sample_buff);
+
+            /* check if this config suits our needs */
+            if ((fbconf_best < 0 || fbconf_sample_buff) && (!fbconf_samples && fbconf_best == -1)) {
+                fbconf_best = i;
+            }
+        }
+
+        /* get visual from the best fbconfig */
+        vi = glXGetVisualFromFBConfig(dpy, fbconf[fbconf_best]);
+        if (!vi) { goto __win_wincreate_x11_failure; }
+
+        /* copy 'vi' to 'visual' */
+        visual = *vi;
+
+        /* release the resources */
+        free(fbconf), fbconf = 0;
+        free(vi),     vi = 0;
+    
+    } else { /* ... */ }
 
     /* set visual info */
-    result->xutil.visual = visual;
+    win->xutil.visual = visual;
 
     /* colormap */
-    XID colormap = XCreateColormap(dpy, parent, result->xutil.visual.visual, AllocNone);
+    XID colormap = XCreateColormap(dpy, parent, visual.visual, AllocNone);
     if (!colormap) {
-        goto __win_create_failure;
+        goto __win_wincreate_x11_failure;
     }
 
     /* window attributes */
@@ -1429,84 +1458,21 @@ __win_create_visual_noapi:
     };
 
     /* create window */
-    XID client = XCreateWindow(dpy, parent, 0, 0, w, h, 0, result->xutil.visual.depth, InputOutput, result->xutil.visual.visual, CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &attr);
-    if (!client) { goto __win_create_failure; }
-    result->xlib.client = client;
+    XID client = XCreateWindow(dpy, parent, 0, 0, w, h, 0, visual.depth, InputOutput, visual.visual, CWColormap | CWBorderPixel | CWBackPixel | CWEventMask, &attr);
+    if (!client) { goto __win_wincreate_x11_failure; }
+    win->xlib.client = client;
     
-    XSetWMProtocols(result->xlib.dpy, result->xlib.client, &WINDOW->xatom.wm_protocols, 1);
-    XSetWMProtocols(result->xlib.dpy, result->xlib.client, &WINDOW->xatom.wm_delete_window, 1);
+    XSetWMProtocols(dpy, client, &WINDOW->xatom.wm_protocols, 1);
+    XSetWMProtocols(dpy, client, &WINDOW->xatom.wm_delete_window, 1);
     
-    XSelectInput(result->xlib.dpy, result->xlib.client, attr.event_mask);
-
-    return (result);
-
-__win_create_failure:
-
-    if (result) { free(result), result = 0; }
-
-    return (0);
-}
-
-WININT int __win_create_visual_gl(Display *dpy, int screen, int *conf, XVisualInfo *info) {
-    /* null-check */
-    if (!dpy)  { return (0); }
-    if (!conf) { return (0); }
-    if (!info) { return (0); }
-
-    GLXFBConfig *fbconf_arr = 0;
-    int fbconf_cnt = 0,
-        fbconf_best = -1,
-        fbconf_samples = 0,
-        fbconf_sample_buff = 0;
-
-    /* get the list of available framebuffer configurations */
-    fbconf_arr = glXChooseFBConfig(dpy, screen, conf, &fbconf_cnt);
-    if (!fbconf_arr) { goto __win_create_visual_gl_failure; }
-    if (!fbconf_cnt) { goto __win_create_visual_gl_failure; }
-
-    /* iterate over framebuffer configurations and get the best matching one */
-    for (size_t i = 0; i < (size_t) fbconf_cnt; i++) {
-        /* check if it's possible to create a visual from this config */
-        XVisualInfo *vi = glXGetVisualFromFBConfig(dpy, fbconf_arr[i]);
-        if (!vi) { continue; }
-
-        /* release the visual */
-        free(vi), vi = 0;
-
-        /* get samples and sample buffers from config */
-		glXGetFBConfigAttrib(dpy, fbconf_arr[i], GLX_SAMPLES, &fbconf_samples);
-        glXGetFBConfigAttrib(dpy, fbconf_arr[i], GLX_SAMPLE_BUFFERS, &fbconf_sample_buff);
-
-        /* check if this config suits our needs */
-        if ((fbconf_best < 0 || fbconf_sample_buff) && (!fbconf_samples && fbconf_best == -1)) {
-			fbconf_best = (int) i;
-            /* NOTE:
-             *   We could theoretically save ourselves some time and break from this loop right here.
-             *   I should check that possibility... If so, then there's no need of releasing this loops 'vi'!
-             * */
-		}
-    }
-
-    /* check if we've found any suiting framebuffer configuration */
-    if (fbconf_best == -1) { goto __win_create_visual_gl_failure; }
-
-    /* create 'info' from the best config */
-    XVisualInfo *visual = glXGetVisualFromFBConfig(dpy, fbconf_arr[fbconf_best]);
-    if (!visual) { goto __win_create_visual_gl_failure; }
-
-    /* copy 'visual' to 'info' */
-    *info = *visual;
-
-    /* release resources */
-    free(visual), visual = 0; 
-    free(fbconf_arr), fbconf_arr = 0;
+    XSelectInput(dpy, client, attr.event_mask);
 
     /* success */
     return (1);
 
-__win_create_visual_gl_failure:
+__win_wincreate_x11_failure:
 
-    if (fbconf_arr) { free(fbconf_arr), fbconf_arr = 0; }
+    if (result) { free(result), result = 0; }
 
     return (0);
 }
@@ -1556,7 +1522,7 @@ WINDEF int win_winsetflag(t_window win, const uint32_t f) {
     if (!win)    { return (0); }
 
     /* toggle window attirbutes */
-    win->attr.f ^= f;
+    win->attr.flags ^= f;
 
     /* update window properties */
     if (!__win_winupdateflag(win)) {
@@ -1568,87 +1534,48 @@ WINDEF int win_winsetflag(t_window win, const uint32_t f) {
     return (1);
 }
 
+WININT int __win_winflagssendevent(t_window, Atom, Atom, Atom);
+
 WININT int __win_winupdateflag(t_window win) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
-
-    /* references */
-    Display  *dpy = win->xlib.dpy;
-    Window   root = WINDOW->xlib.root; 
-    Window client = win->xlib.client;
    
     /* properties that requires the window to be mapped */
     if (win->attr.mapped) {
-        /* client message we'll use to update window properties */
-        XClientMessageEvent xclient = { 
-            .type = ClientMessage,
-            .display = dpy,
-            .window = client,
-            .message_type = WINDOW->xatom._net_wm_state,
-            .format = 32,
-            .data = { .l = { 0 } }
-        };
-    
         /* WINDOW_FLAG_FULLSCREEN */
-        if (win->attr.f & WINDOW_FLAG_FULLSCREEN) {
-            XClientMessageEvent fullscr = xclient;
-            fullscr.data.l[0] = _NET_WM_STATE_ADD; 
-            fullscr.data.l[1] = WINDOW->xatom._net_wm_state_fullscreen;
-            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
+        if (win->attr.flags & WINDOW_FLAG_FULLSCREEN) {
+            __win_winflagssendevent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_fullscreen, 0);
         } else {
-            XClientMessageEvent fullscr = xclient;
-            fullscr.data.l[0] = _NET_WM_STATE_REMOVE; 
-            fullscr.data.l[1] = WINDOW->xatom._net_wm_state_fullscreen;
-            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &fullscr);
+            __win_winflagssendevent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_fullscreen, 0);
         }
 
         /* WINDOW_FLAG_MINIMIZED */
-        if (win->attr.f & WINDOW_FLAG_MINIMIZED) {
-            XClientMessageEvent minim = xclient;
-            minim.data.l[0] = _NET_WM_STATE_ADD;
-            minim.data.l[1] = WINDOW->xatom._net_wm_state_hidden;
-            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
+        if (win->attr.flags & WINDOW_FLAG_MINIMIZED) {
+            __win_winflagssendevent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_hidden, 0);
         } else {
-            XClientMessageEvent minim = xclient;
-            minim.data.l[0] = _NET_WM_STATE_REMOVE;
-            minim.data.l[1] = WINDOW->xatom._net_wm_state_hidden;
-            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &minim);
+            __win_winflagssendevent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_hidden, 0);
         }
 
         /* WINDOW_FLAG_MAXIMIZED */
-        if (win->attr.f & WINDOW_FLAG_MAXIMIZED) {
-            XClientMessageEvent maxim = xclient;
-            maxim.data.l[0] = _NET_WM_STATE_ADD;
-            maxim.data.l[1] = WINDOW->xatom._net_wm_state_maximized_horz;
-            maxim.data.l[2] = WINDOW->xatom._net_wm_state_maximized_vert;
-            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
+        if (win->attr.flags & WINDOW_FLAG_MAXIMIZED) {
+            __win_winflagssendevent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_maximized_horz, WINDOW->xatom._net_wm_state_maximized_vert);
         } else {
-            XClientMessageEvent maxim = xclient;
-            maxim.data.l[0] = _NET_WM_STATE_REMOVE;
-            maxim.data.l[1] = WINDOW->xatom._net_wm_state_maximized_horz;
-            maxim.data.l[2] = WINDOW->xatom._net_wm_state_maximized_vert;
-            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &maxim);
+            __win_winflagssendevent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_maximized_horz, WINDOW->xatom._net_wm_state_maximized_vert);
         }
 
         /* WINDOW_FLAG_TOPMOST */
-        if (win->attr.f & WINDOW_FLAG_TOPMOST) {
-            XClientMessageEvent topmost = xclient;
-            topmost.data.l[0] = _NET_WM_STATE_ADD;
-            topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
-            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
+        if (win->attr.flags & WINDOW_FLAG_TOPMOST) {
+            __win_winflagssendevent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_above, 0);
         } else {
-            XClientMessageEvent topmost = xclient;
-            topmost.data.l[0] = _NET_WM_STATE_REMOVE;
-            topmost.data.l[1] = WINDOW->xatom._net_wm_state_above;
-            XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &topmost);
+            __win_winflagssendevent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_above, 0);
         }
     }
 
     /* properties that doesn't require the window to be mapped */
 
     /* WINDOW_FLAG_RESIZABLE */
-    if (win->attr.f & WINDOW_FLAG_RESIZABLE) {
+    if (win->attr.flags & WINDOW_FLAG_RESIZABLE) {
         win_winsetsizemin(win, 1, 1);
         win_winsetsizemax(win, 0x10000000, 0x10000000);
     } else {
@@ -1660,25 +1587,58 @@ WININT int __win_winupdateflag(t_window win) {
     }
 
     /* WINDOW_FLAG_TRANSPARENT */
-    if (win->attr.f & WINDOW_FLAG_TRANSPARENT) {
+    if (win->attr.flags & WINDOW_FLAG_TRANSPARENT) {
         long opacity = 0x00000000UL;
-        XChangeProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity, XA_CARDINAL, 32, PropModeReplace, (uint8_t *) &opacity, 1);
+        XChangeProperty(win->xlib.dpy, win->xlib.client, WINDOW->xatom._net_wm_window_opacity, XA_CARDINAL, 32, PropModeReplace, (uint8_t *) &opacity, 1);
     } else {
-        XDeleteProperty(dpy, client, WINDOW->xatom._net_wm_window_opacity);
+        XDeleteProperty(win->xlib.dpy, win->xlib.client, WINDOW->xatom._net_wm_window_opacity);
     }
 
     /* WINDOW_FLAG_UNDECORATED*/
-    if (win->attr.f & WINDOW_FLAG_UNDECORATED) {
+    if (win->attr.flags & WINDOW_FLAG_UNDECORATED) {
         long mwmhints[8] = { 0 };
         mwmhints[0] = (1L << 1);
         mwmhints[2] = _NET_WM_STATE_REMOVE;
-        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, WINDOW->xatom._motif_wm_hints, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
+        XChangeProperty(win->xlib.dpy, win->xlib.client, WINDOW->xatom._motif_wm_hints, WINDOW->xatom._motif_wm_hints, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
     } else {
         long mwmhints[8] = { 0 };
         mwmhints[0] = (1L << 1);
         mwmhints[2] = _NET_WM_STATE_ADD;
-        XChangeProperty(dpy, client, WINDOW->xatom._motif_wm_hints, WINDOW->xatom._motif_wm_hints, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
+        XChangeProperty(win->xlib.dpy, win->xlib.client, WINDOW->xatom._motif_wm_hints, WINDOW->xatom._motif_wm_hints, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
     }
+
+    /* success */
+    win_eventflush();
+    return (1);
+}
+
+WININT int __win_winflagssendevent(t_window win, Atom l0, Atom l1, Atom l2) {
+    /* null-check */
+    if (!WINDOW) { return (0); }
+    if (!win)    { return (0); }
+
+    /* window references */
+    Display  *dpy = win->xlib.dpy;
+    Window   root = WINDOW->xlib.root; 
+    Window client = win->xlib.client;
+
+    /* XClient event */
+    XClientMessageEvent xclient = { 
+        .type = ClientMessage,
+        .display = dpy,
+        .window = client,
+        .message_type = WINDOW->xatom._net_wm_state,
+        .format = 32,
+        .data = { .l = {
+                [0] = l0,
+                [1] = l1,
+                [2] = l2
+            }
+        }
+    };
+
+    /* send event */
+    XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &xclient);
 
     /* success */
     win_eventflush();
@@ -2513,7 +2473,7 @@ WINDEF int win_winsetflag(t_window win, const uint32_t f) {
     if (!win)    { return (0); }
 
     /* toggle window attirbutes */
-    win->attr.f ^= f;
+    win->attr.flags ^= f;
 
     /* update window properties */
     if (!__win_winupdateflag(win)) {

@@ -10,8 +10,6 @@ int main(void) {
         return (1);
     }
 
-    win_setapi(WINDOW_API_OPENGL);
-
     t_window win;
     win_wincreate(&win, 800, 600, "Hello, window.h", 0);
     win_winmap(win);
