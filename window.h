@@ -1901,6 +1901,16 @@ WINDEF int win_winsettitle(t_window win, const char *t) {
     return (1);
 }
 
+/* opengl context functions */
+
+WINDEF int win_glcreate(t_glcontext *ctx, t_window win);
+
+WINDEF int win_gldestroy(t_glcontext ctx);
+
+WINDEF int win_glmakecurrent(t_glcontext ctx, t_window win);
+
+WINDEF int win_glswapbuffers(t_glcontext ctx, t_window win);
+
 /* event functions */
 
 WININT int __win_eventpoll(void);
