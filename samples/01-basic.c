@@ -11,7 +11,7 @@ int main(void) {
     }
 
     t_window win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 01. Basic", WINDOW_FLAG_API_OPENGL);
+    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 01. Basic", WINDOW_FLAG_TOPMOST);
     winMapWindow(win);
 
     int exit = 0;

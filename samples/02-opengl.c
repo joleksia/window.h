@@ -21,8 +21,9 @@ int main(void) {
     t_glcontext ctx;
     winGLCreateContext(&ctx, win);
 
-    winGLMakeCurrent(ctx, win);
     winMapWindow(win);
+    winGLMakeCurrent(ctx, win);
+    winGLSwapInterval(ctx, 1);
 
     printf("%s\n", glGetString(GL_VERSION));
 
