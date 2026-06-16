@@ -5,19 +5,19 @@
 
 int main(void) {
     /* initialize window.h */
-    if (!win_init()) {
+    if (!winInit()) {
         fprintf(stderr, "win_init() failed\n");
         return (1);
     }
 
     t_window win;
-    win_wincreate(&win, 800, 600, "Hello, window.h", WINDOW_FLAG_API_OPENGL);
+    winCreateWindow(&win, 800, 600, "Hello, window.h", WINDOW_FLAG_API_OPENGL);
 
     t_glcontext ctx;
-    win_glcreate(&ctx, win);
+    winGLCreate(&ctx, win);
 
-    win_glmakecurrent(ctx, win);
-    win_winmap(win);
+    winGLMakeCurrent(ctx, win);
+    winMapWindow(win);
 
     int exit = 0;
     while (!exit) {
@@ -26,9 +26,9 @@ int main(void) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* poll events */
-        win_glswapbuffers(ctx, win);
+        winGLSwapBuffers(ctx, win);
         t_event event = { 0 };
-        while (win_eventpoll(&event)) {
+        while (winPollEvents(&event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
                     printf("WINDOW_EVENT_QUIT\n");
@@ -36,7 +36,7 @@ int main(void) {
                 } break;
                 case (WINDOW_EVENT_KEYBOARD_KEY): {
                     if (event.key.key == WINDOW_KEY_SPACE) {
-                        win_winsetflag(win, WINDOW_FLAG_FULLSCREEN);
+                        winSetWindowFlag(win, WINDOW_FLAG_FULLSCREEN);
                     }
                 } break;
             }
@@ -44,6 +44,6 @@ int main(void) {
     }
 
     /* quit */
-    win_quit();
+    winQuit();
     return (0);
 }
