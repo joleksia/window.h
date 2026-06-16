@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <GL/gl.h>
 #
 #define WINDOW_IMPLEMENTATION
 #include "./../window.h"
@@ -14,7 +15,7 @@ int main(void) {
     winCreateWindow(&win, 800, 600, "Hello, window.h", WINDOW_FLAG_API_OPENGL);
 
     t_glcontext ctx;
-    winGLCreate(&ctx, win);
+    winGLCreateContext(&ctx, win);
 
     winGLMakeCurrent(ctx, win);
     winMapWindow(win);

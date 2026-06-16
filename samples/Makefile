@@ -16,9 +16,9 @@ CFLAGS = -Wall -Wextra -Werror -std=c99 -ggdb3
 .PHONY : all
 
 all :
-	-$(CC) $(CFLAGS) -o $(MK_ROOT)00-compile.out $(MK_ROOT)00-compile.c -lX11 -lGLX
-	-$(CC) $(CFLAGS) -o $(MK_ROOT)01-basic.out 	 $(MK_ROOT)01-basic.c	-lX11 -lGLX
-	-$(CC) $(CFLAGS) -o $(MK_ROOT)02-opengl.out  $(MK_ROOT)02-opengl.c	-lX11 -lGLX -lGL
+	-$(CC) $(CFLAGS) -o $(MK_ROOT)00-compile.out $(MK_ROOT)00-compile.c -lX11 -lEGL
+	-$(CC) $(CFLAGS) -o $(MK_ROOT)01-basic.out 	 $(MK_ROOT)01-basic.c	-lX11 -lEGL
+	-$(CC) $(CFLAGS) -o $(MK_ROOT)02-opengl.out  $(MK_ROOT)02-opengl.c	-lX11 -lEGL -lGL
 
 .PHONY : clean
 

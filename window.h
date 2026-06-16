@@ -663,9 +663,9 @@ WINDEF int winGetWindowSize(t_window, size_t *, size_t *);
 
 WINDEF int winSetWindowSize(t_window, const size_t, const size_t);
 
-WINDEF int winSetWindowSizemin(t_window, const size_t, const size_t);
+WINDEF int winSetWindowMinSize(t_window, const size_t, const size_t);
 
-WINDEF int winSetWindowSizemax(t_window, const size_t, const size_t);
+WINDEF int winSetWindowMaxSize(t_window, const size_t, const size_t);
 
 WINDEF int winGetWindowPosition(t_window, size_t *, size_t *);
 
@@ -677,9 +677,9 @@ WINDEF int winSetWindowTitle(t_window, const char *);
 
 /* opengl context functions */
 
-WINDEF int winGLCreate(t_glcontext *, t_window);
+WINDEF int winGLCreateContext(t_glcontext *, t_window);
 
-WINDEF int winGLDestroy(t_glcontext);
+WINDEF int winGLDestroyContext(t_glcontext, t_window);
 
 WINDEF int winGLMakeCurrent(t_glcontext, t_window);
 
@@ -721,7 +721,7 @@ WINDEF int winWaitTime(uint64_t);
 #   include <X11/keysym.h>
 #   include <X11/keysymdef.h>
 #
-#   include <GL/glx.h>
+#   include <EGL/egl.h>
 #
 #   define _NET_WM_STATE_REMOVE 0
 #   define _NET_WM_STATE_ADD    1
@@ -1074,8 +1074,17 @@ struct s_window {
 };
 
 struct s_glcontext {
-    /* parent window of this context */
-    t_window win;
+    /* EGL display wrapper */
+    EGLDisplay dpy;
+
+    /* EGL context configuration */
+    EGLConfig  cfg;
+
+    /* EGL context surface */
+    EGLSurface surf;
+
+    /* EGL context object */
+    EGLContext ctx;
 };
 
 /* platform functions */
@@ -1246,7 +1255,7 @@ WINDEF void *winGetProperty(const uint32_t prop) {
 
 /* windowing functions */
 
-WININT int __winCreateWindow_x11(t_window *, Display *, Window, Window, const size_t, const size_t, const uint32_t);
+WININT int __winCreateWindow_x11(t_window *, Display *, Window, Window, const size_t, const size_t);
 
 WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const char *t, const uint32_t f) {
     /* null-check */
@@ -1258,7 +1267,7 @@ WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const 
     if (!result) { goto __winCreateWindow_failure; }
  
     /* create new window */
-    if (!__winCreateWindow_x11(&result, WINDOW->xlib.dpy, WINDOW->xlib.root, WINDOW->xlib.root, w, h, f)) {
+    if (!__winCreateWindow_x11(&result, WINDOW->xlib.dpy, WINDOW->xlib.root, WINDOW->xlib.root, w, h)) {
         goto __winCreateWindow_failure;
     }
   
@@ -1310,12 +1319,12 @@ WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w,
     if (!result) { goto __winCreateNestedWindow_failure; }
  
     /* create new window */
-    if (!__winCreateWindow_x11(&result, WINDOW->xlib.dpy, WINDOW->xlib.root, parent->xlib.client, w, h, f)) {
+    if (!__winCreateWindow_x11(&result, WINDOW->xlib.dpy, WINDOW->xlib.root, parent->xlib.client, w, h)) {
         goto __winCreateNestedWindow_failure;
     }
   
     /* update window flags */
-    winSetWindowFlag(result, 0); /* by passing flag '0' we're effectively not toggling anything and going straight into updating... */
+    winSetWindowFlag(result, f);
 
     /* set window title */ 
     winSetWindowTitle(result, t);
@@ -1347,11 +1356,10 @@ __winCreateNestedWindow_failure:
     return (0);
 }
 
-WININT int __winCreateWindow_x11(t_window *result, Display *dpy, Window root, Window parent, const size_t w, const size_t h, const uint32_t f) {
+WININT int __winCreateWindow_x11(t_window *result, Display *dpy, Window root, Window parent, const size_t w, const size_t h) {
     /* null-check */
     if (!WINDOW)  { return (0); }
     if (!result)  { return (0); }
-    if (!*result) { return (0); }
 
     /* window reference */
     t_window win = *result;
@@ -1371,65 +1379,9 @@ WININT int __winCreateWindow_x11(t_window *result, Display *dpy, Window root, Wi
 
     /* get visual info */
     XVisualInfo visual = { 0 };
-    if (!f || f & WINDOW_FLAG_API_NONE) {
-        
-        if (!XMatchVisualInfo(dpy, screen,
-                          WINDOW->attr.depth,
-                          TrueColor,
-                          &visual)
-        ) {
-            goto __winCreateWindow_x11_failure;
-        }
-
-    } else if (f & WINDOW_FLAG_API_OPENGL) {
-        
-        GLXFBConfig *fbconf = 0;
-        int fbconf_best = -1,
-            fbconf_cnt  =  0;
-
-        /* get the list of available framebuffer configurations */
-        fbconf = glXChooseFBConfig(dpy, screen, 0, &fbconf_cnt);
-        if (!fbconf) { goto __winCreateWindow_x11_failure; }
-        if (!fbconf_cnt) { goto __winCreateWindow_x11_failure; }
-
-        /* iterate over framebuffer configurations and get the best matching one */
-        XVisualInfo *vi = 0;
-        for (size_t i = 0; i < (size_t) fbconf_cnt; i++) {
-            /* check if it's possible to create a visual from this config */
-            vi = glXGetVisualFromFBConfig(dpy, fbconf[i]);
-            if (!vi) { continue; }
-
-            /* release 'vi' */
-            free(vi), vi = 0;
-
-            /* get samples and sample buffers from config */
-            int fbconf_samples = 0;
-            glXGetFBConfigAttrib(dpy, fbconf[i], GLX_SAMPLES, &fbconf_samples);
-
-            int fbconf_sample_buff = 0;
-            glXGetFBConfigAttrib(dpy, fbconf[i], GLX_SAMPLE_BUFFERS, &fbconf_sample_buff);
-
-            /* check if this config suits our needs */
-            if ((fbconf_best < 0 || fbconf_sample_buff) && (!fbconf_samples && fbconf_best == -1)) {
-                fbconf_best = i;
-            }
-        }
-
-        /* check if we've found any fitting fbconfig */
-        if (fbconf_best == -1) { goto __winCreateWindow_x11_failure; }
-
-        /* get visual from the best fbconfig */
-        vi = glXGetVisualFromFBConfig(dpy, fbconf[fbconf_best]);
-        if (!vi) { goto __winCreateWindow_x11_failure; }
-
-        /* copy 'vi' to 'visual' */
-        visual = *vi;
-
-        /* release the resources */
-        free(fbconf), fbconf = 0;
-        free(vi),     vi = 0;
-    
-    } else { /* ... */ }
+    if (!XMatchVisualInfo(dpy, screen, 24, TrueColor, &visual)) {
+        goto __winCreateWindow_x11_failure;
+    }
 
     /* set visual info */
     win->xutil.visual = visual;
@@ -1576,14 +1528,14 @@ WININT int __winUpdateFlags(t_window win) {
 
     /* WINDOW_FLAG_RESIZABLE */
     if (win->attr.flags & WINDOW_FLAG_RESIZABLE) {
-        winSetWindowSizemin(win, 1, 1);
-        winSetWindowSizemax(win, 0x10000000, 0x10000000);
+        winSetWindowMinSize(win, 1, 1);
+        winSetWindowMaxSize(win, 0x10000000, 0x10000000);
     } else {
         size_t w = 0,
                h = 0;
         winGetWindowSize(win, &w, &h);
-        winSetWindowSizemin(win, w, h);
-        winSetWindowSizemax(win, w, h);
+        winSetWindowMinSize(win, w, h);
+        winSetWindowMaxSize(win, w, h);
     }
 
     /* WINDOW_FLAG_TRANSPARENT */
@@ -1752,7 +1704,7 @@ WINDEF int winSetWindowSize(t_window win, const size_t w, const size_t h) {
 }
 
 
-WINDEF int winSetWindowSizemin(t_window win, const size_t w, const size_t h) {
+WINDEF int winSetWindowMinSize(t_window win, const size_t w, const size_t h) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
@@ -1774,7 +1726,7 @@ WINDEF int winSetWindowSizemin(t_window win, const size_t w, const size_t h) {
 }
 
 
-WINDEF int winSetWindowSizemax(t_window win, const size_t w, const size_t h) {
+WINDEF int winSetWindowMaxSize(t_window win, const size_t w, const size_t h) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
@@ -1863,21 +1815,120 @@ WINDEF int winSetWindowTitle(t_window win, const char *t) {
 
 /* opengl context functions */
 
-WINDEF int winGLCreate(t_glcontext *ctx, t_window win) {
+static int g_gl_cfg[64] = {
+    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+
+    EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+
+    /* OpenGL RED channel size (default: 8) */
+    EGL_RED_SIZE, 8,
+
+    /* OpenGL GREEN channel size (default: 8) */
+    EGL_GREEN_SIZE, 8,
+
+    /* OpenGL BLUE channel size (default: 8) */
+    EGL_BLUE_SIZE, 8,
+
+    /* OpenGL ALPHA channel size (default: 8) */
+    EGL_ALPHA_SIZE, 8,
+
+    /* OpenGL depth buffer size (default: 24) */
+    EGL_DEPTH_SIZE, 24,
+
+    /* OpenGL stencil buffer size (default: 8) */
+    EGL_STENCIL_SIZE, 8,
+
+    /* ... */
+    EGL_NONE
+};
+
+static int g_gl_ctx[16] = {
+    /* OpenGL major version (default: 3) */
+    EGL_CONTEXT_MAJOR_VERSION, 3,
+
+    /* OpenGL minor version (default: 3) */
+    EGL_CONTEXT_MINOR_VERSION, 3,
+    
+    /* ... */
+    EGL_NONE
+};
+
+WINDEF int winGLCreateContext(t_glcontext *ctx, t_window win) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!ctx)    { return (0); }
     if (!win)    { return (0); }
 
+    /* allocate new context object */
+    t_glcontext result = calloc(1, sizeof(struct s_glcontext));
+    if (!result) { goto __winGLCreateContext_failure; }
+
+    /* scope-block only to avoid renaming 'ctx' variables... */
+    {
+        /* create EGL display */
+        EGLDisplay dpy = eglGetDisplay(win->xlib.dpy);
+        if (dpy == EGL_NO_DISPLAY) { goto __winGLCreateContext_failure; }
+
+        /* initialize EGL */
+        if (!eglInitialize(dpy, 0, 0)) {
+            goto __winGLCreateContext_failure;
+        }
+
+        /* bind an OpenGL api */
+        if (!eglBindAPI(EGL_OPENGL_API)) {
+            goto __winGLCreateContext_failure;
+        }
+
+        /* create EGLConfig object */
+        EGLConfig cfg = 0;
+        int cfg_cnt   = 0;
+        if (!eglChooseConfig(dpy, g_gl_cfg, &cfg, 1, &cfg_cnt)) {
+            goto __winGLCreateContext_failure;
+        }
+
+        /* create EGLSurface object */
+        EGLSurface surf = eglCreateWindowSurface(dpy, cfg, win->xlib.client, 0);
+        if (surf == EGL_NO_SURFACE) { goto __winGLCreateContext_failure; }
+
+        /* create EGLContext object */
+        EGLContext ctx = eglCreateContext(dpy, cfg, EGL_NO_CONTEXT, g_gl_ctx);
+        if (ctx == EGL_NO_CONTEXT) { goto __winGLCreateContext_failure; }
+
+        /* assign fields in result */
+        result->dpy  = dpy;
+        result->cfg  = cfg;
+        result->surf = surf;
+        result->ctx  = ctx;
+    }
+
+    /* and return the result */
+    *ctx = result;
+
     /* success */
     return (1);
+
+__winGLCreateContext_failure:
+
+    if (result) { free(result), result = 0; }
+
+    /* failure */
+    return (0);
 }
 
 
-WINDEF int winGLDestroy(t_glcontext ctx) {
+WINDEF int winGLDestroyContext(t_glcontext ctx, t_window win) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!ctx)    { return (0); }
+    if (!win)    { return (0); }
+
+    eglMakeCurrent(ctx->dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (ctx->ctx)  { eglDestroyContext(ctx->dpy, ctx->ctx),  ctx->ctx  = 0; }
+    if (ctx->surf) { eglDestroySurface(ctx->dpy, ctx->surf), ctx->surf = 0; }
+    if (ctx->dpy)  { eglTerminate(ctx->dpy), ctx->dpy = 0; }
+
+    /* release 'ctx' resource */
+    free(ctx), ctx = 0;
 
     /* success */
     return (1);
@@ -1889,6 +1940,10 @@ WINDEF int winGLMakeCurrent(t_glcontext ctx, t_window win) {
     if (!WINDOW) { return (0); }
     if (!ctx)    { return (0); }
     if (!win)    { return (0); }
+    
+    if (!eglMakeCurrent(ctx->dpy, ctx->surf, ctx->surf, ctx->ctx)) {
+        return (0);
+    }
 
     /* success */
     return (1);
@@ -1900,6 +1955,8 @@ WINDEF int winGLSwapBuffers(t_glcontext ctx, t_window win) {
     if (!WINDOW) { return (0); }
     if (!ctx)    { return (0); }
     if (!win)    { return (0); }
+
+    eglSwapBuffers(ctx->dpy, ctx->surf);
 
     /* success */
     return (1);
@@ -2621,7 +2678,7 @@ WINDEF int winSetWindowSize(t_window win, const size_t w, const size_t h) {
 }
 
 
-WINDEF int winSetWindowSizemin(t_window win, const size_t w, const size_t h) {
+WINDEF int winSetWindowMinSize(t_window win, const size_t w, const size_t h) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
@@ -2633,7 +2690,7 @@ WINDEF int winSetWindowSizemin(t_window win, const size_t w, const size_t h) {
 }
 
 
-WINDEF int winSetWindowSizemax(t_window win, const size_t w, const size_t h) {
+WINDEF int winSetWindowMaxSize(t_window win, const size_t w, const size_t h) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
