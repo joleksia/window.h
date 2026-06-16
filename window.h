@@ -451,6 +451,9 @@ enum {
     WINDOW_PROP_WINDOW_X11_DISPLAY,
 # define WINDOW_PROP_WINDOW_X11_DISPLAY WINDOW_PROP_WINDOW_X11_DISPLAY
 
+    WINDOW_PROP_WINDOW_X11_ROOT_ID,
+# define WINDOW_PROP_WINDOW_X11_ROOT_ID WINDOW_PROP_WINDOW_X11_ROOT_ID
+
     WINDOW_PROP_WINDOW_X11_PARENT_ID,
 # define WINDOW_PROP_WINDOW_X11_PARENT_ID WINDOW_PROP_WINDOW_X11_PARENT_ID
 
@@ -1286,8 +1289,8 @@ WINDEF void *winGetProperty(const uint32_t prop) {
     /* null-check */
     if (!WINDOW) { return (0); }
     switch (prop) {
-        case (WINDOW_PROP_PLATFORM_X11_DISPLAY):   { return (WINDOW->xlib.dpy); }
-        case (WINDOW_PROP_PLATFORM_X11_ROOT_ID):   { return (&WINDOW->xlib.root); }
+        case (WINDOW_PROP_PLATFORM_X11_DISPLAY): { return (WINDOW->xlib.dpy); }
+        case (WINDOW_PROP_PLATFORM_X11_ROOT_ID): { return (&WINDOW->xlib.root); }
 
         default: { } break;
     }
@@ -1647,6 +1650,7 @@ WINDEF void *winGetWindowProperty(t_window win, const uint32_t prop) {
     if (!win)     { return (0); }
     switch (prop) {
         case (WINDOW_PROP_WINDOW_X11_DISPLAY):   { return (win->xlib.dpy); }
+        case (WINDOW_PROP_WINDOW_X11_ROOT_ID):   { return (&win->xlib.root); }
         case (WINDOW_PROP_WINDOW_X11_PARENT_ID): { return (&win->xlib.parent); }
         case (WINDOW_PROP_WINDOW_X11_CLIENT_ID): { return (&win->xlib.client); }
         case (WINDOW_PROP_WINDOW_X11_VISUAL):    { return (win->xutil.visual.visual); }
@@ -2006,13 +2010,13 @@ WINDEF int winGLSetAttribute(const int attr, const int value) {
         
         case (WINDOW_GL_STENCIL_SIZE): { egl_attr = EGL_STENCIL_SIZE; } break;
         
-        case (WINDOW_GL_MAJOR_VERSION): { egl_attr = EGL_CONTEXT_MAJOR_VERSION; } break;
+        case (WINDOW_GL_CONTEXT_MAJOR_VERSION): { egl_attr = EGL_CONTEXT_MAJOR_VERSION; } break;
         
-        case (WINDOW_GL_MINOR_VERSION): { egl_attr = EGL_CONTEXT_MINOR_VERSION; } break;
+        case (WINDOW_GL_CONTEXT_MINOR_VERSION): { egl_attr = EGL_CONTEXT_MINOR_VERSION; } break;
         
-        case (WINDOW_GL_PROFILE): { egl_attr = EGL_CONTEXT_OPENGL_PROFILE_MASK; } break;
+        case (WINDOW_GL_CONTEXT_PROFILE): { egl_attr = EGL_CONTEXT_OPENGL_PROFILE_MASK; } break;
         
-        case (WINDOW_GL_DEBUG): { egl_attr = EGL_CONTEXT_OPENGL_DEBUG; } break;
+        case (WINDOW_GL_CONTEXT_DEBUG): { egl_attr = EGL_CONTEXT_OPENGL_DEBUG; } break;
 
         default: { } return (0);
     }
@@ -2701,10 +2705,7 @@ WINDEF void *winGetWindowProperty(t_window win, const uint32_t prop) {
     if (!WINDOW)  { return (0); }
     if (!win)     { return (0); }
     switch (prop) {
-        case (WINDOW_PROP_WINDOW_X11_DISPLAY):   { return (win->xlib.dpy); }
-        case (WINDOW_PROP_WINDOW_X11_ROOT_ID):   { return (&win->xlib.parent); }
-        case (WINDOW_PROP_WINDOW_X11_WINDOW_ID): { return (&win->xlib.client); }
-        case (WINDOW_PROP_WINDOW_X11_VISUAL):    { return (win->xutil.visual.visual); }
+        /* ... */
 
         default: { } break;
     }
