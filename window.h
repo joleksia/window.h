@@ -731,6 +731,10 @@ WINDEF int winGLMakeCurrent(t_glcontext, t_window);
 
 WINDEF int winGLSwapBuffers(t_glcontext, t_window);
 
+WINDEF int winGLSwapInterval(t_glcontext, const int);
+
+WINDEF void *winGLGetProcAddress(const char *);
+
 /* event functions */
 
 WINDEF int winPollEvents(t_event *);
@@ -2071,6 +2075,23 @@ WINDEF int winGLSwapBuffers(t_glcontext ctx, t_window win) {
 
     /* success */
     return (1);
+}
+
+
+WINDEF int winGLSwapInterval(t_glcontext ctx, const int interval) {
+    /* null-check */
+    if (!WINDOW) { return (0); }
+    if (!ctx)    { return (0); }
+
+    eglSwapInterval(ctx->dpy, interval);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF void *winGLGetProcAddress(const char *name) {
+    return (eglGetProcAddress(name));
 }
 
 /* event functions */
