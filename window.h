@@ -537,6 +537,47 @@ enum {
 };
 
 
+enum {
+    WINDOW_GL_ATTRIB_NONE = 0,
+# define WINDOW_GL_ATTRIB_NONE WINDOW_GL_ATTRIB_NONE
+    
+    WINDOW_GL_ATTRIB_DOUBLEBUFFER,
+# define WINDOW_GL_ATTRIB_DOUBLEBUFFER WINDOW_GL_ATTRIB_DOUBLEBUFFER
+
+    WINDOW_GL_ATTRIB_RED_SIZE,
+# define WINDOW_GL_ATTRIB_RED_SIZE WINDOW_GL_ATTRIB_RED_SIZE
+
+    WINDOW_GL_ATTRIB_GREEN_SIZE,
+# define WINDOW_GL_ATTRIB_GREEN_SIZE WINDOW_GL_ATTRIB_GREEN_SIZE
+
+    WINDOW_GL_ATTRIB_BLUE_SIZE,
+# define WINDOW_GL_ATTRIB_BLUE_SIZE WINDOW_GL_ATTRIB_BLUE_SIZE
+
+    WINDOW_GL_ATTRIB_ALPHA_SIZE,
+# define WINDOW_GL_ATTRIB_ALPHA_SIZE WINDOW_GL_ATTRIB_ALPHA_SIZE
+
+    WINDOW_GL_ATTRIB_DEPTH_SIZE,
+# define WINDOW_GL_ATTRIB_DEPTH_SIZE WINDOW_GL_ATTRIB_DEPTH_SIZE
+
+    WINDOW_GL_ATTRIB_STENCIL_SIZE,
+# define WINDOW_GL_ATTRIB_STENCIL_SIZE WINDOW_GL_ATTRIB_STENCIL_SIZE
+    
+    WINDOW_GL_ATTRIB_MAJOR_VERSION,
+# define WINDOW_GL_ATTRIB_MAJOR_VERSION WINDOW_GL_ATTRIB_MAJOR_VERSION
+
+    WINDOW_GL_ATTRIB_MINOR_VERSION,
+# define WINDOW_GL_ATTRIB_MINOR_VERSION WINDOW_GL_ATTRIB_MINOR_VERSION
+
+    WINDOW_GL_ATTRIB_PROFILE,
+# define WINDOW_GL_ATTRIB_PROFILE WINDOW_GL_ATTRIB_PROFILE
+
+    WINDOW_GL_ATTRIB_DEBUG,
+# define WINDOW_GL_ATTRIB_DEBUG WINDOW_GL_ATTRIB_DEBUG
+
+    /* ... */
+};
+
+
 typedef struct s_window *t_window;
 
 
@@ -680,6 +721,8 @@ WINDEF int winSetWindowTitle(t_window, const char *);
 WINDEF int winGLCreateContext(t_glcontext *, t_window);
 
 WINDEF int winGLDestroyContext(t_glcontext, t_window);
+
+WINDEF int winGLSetAttribute(const int, const int);
 
 WINDEF int winGLMakeCurrent(t_glcontext, t_window);
 
@@ -1942,6 +1985,60 @@ WINDEF int winGLDestroyContext(t_glcontext ctx, t_window win) {
 
     /* success */
     return (1);
+}
+
+
+WINDEF int winGLSetAttribute(const int attr, const int value) {
+    /* get the EGL attribute */
+    int egl_attr = EGL_NONE;
+    switch (attr) {
+        case (WINDOW_GL_ATTRIB_DOUBLEBUFFER): { egl_attr = EGL_SURFACE_TYPE; } break; 
+        
+        case (WINDOW_GL_ATTRIB_RED_SIZE): { egl_attr = EGL_RED_SIZE; } break;
+        
+        case (WINDOW_GL_ATTRIB_GREEN_SIZE): { egl_attr = EGL_GREEN_SIZE; } break;
+        
+        case (WINDOW_GL_ATTRIB_BLUE_SIZE): { egl_attr = EGL_BLUE_SIZE; } break;
+        
+        case (WINDOW_GL_ATTRIB_ALPHA_SIZE): { egl_attr = EGL_ALPHA_SIZE; } break;
+        
+        case (WINDOW_GL_ATTRIB_DEPTH_SIZE): { egl_attr = EGL_DEPTH_SIZE; } break;
+        
+        case (WINDOW_GL_ATTRIB_STENCIL_SIZE): { egl_attr = EGL_STENCIL_SIZE; } break;
+        
+        case (WINDOW_GL_ATTRIB_MAJOR_VERSION): { egl_attr = EGL_CONTEXT_MAJOR_VERSION; } break;
+        
+        case (WINDOW_GL_ATTRIB_MINOR_VERSION): { egl_attr = EGL_CONTEXT_MINOR_VERSION; } break;
+        
+        case (WINDOW_GL_ATTRIB_PROFILE): { egl_attr = EGL_CONTEXT_OPENGL_PROFILE_MASK; } break;
+        
+        case (WINDOW_GL_ATTRIB_DEBUG): { egl_attr = EGL_CONTEXT_OPENGL_DEBUG; } break;
+
+        default: { } return (0);
+    }
+
+    /* look for the config egl_attribute */
+    for (size_t i = 0; g_gl_cfg[i] != EGL_NONE; i += 2) {
+        if (g_gl_cfg[i] == egl_attr) {
+            g_gl_cfg[i + 1] = value;
+
+            /* success */
+            return (1);
+        }
+    }
+
+    /* look for the context egl_attribute */
+    for (size_t i = 0; g_gl_ctx[i] != EGL_NONE; i += 2) {
+        if (g_gl_ctx[i] == egl_attr) {
+            g_gl_ctx[i + 1] = value;
+
+            /* success */
+            return (1);
+        }
+    }
+
+    /* failure */
+    return (0);
 }
 
 
