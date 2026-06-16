@@ -1514,7 +1514,7 @@ WINDEF int winDestroyWindow(t_window win) {
 }
 
 
-WININT int __winwinupdateflag(t_window);
+WININT int __winUpdateFlags(t_window);
 
 WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
     /* null-check */
@@ -1525,7 +1525,7 @@ WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
     win->attr.flags ^= f;
 
     /* update window properties */
-    if (!__winwinupdateflag(win)) {
+    if (!__winUpdateFlags(win)) {
         return (0);
     }
 
@@ -1534,9 +1534,9 @@ WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
     return (1);
 }
 
-WININT int __winwinflagssendevent(t_window, Atom, Atom, Atom);
+WININT int __winSendClientEvent(t_window, Atom, Atom, Atom);
 
-WININT int __winwinupdateflag(t_window win) {
+WININT int __winUpdateFlags(t_window win) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
@@ -1545,30 +1545,30 @@ WININT int __winwinupdateflag(t_window win) {
     if (win->attr.mapped) {
         /* WINDOW_FLAG_FULLSCREEN */
         if (win->attr.flags & WINDOW_FLAG_FULLSCREEN) {
-            __winwinflagssendevent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_fullscreen, 0);
+            __winSendClientEvent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_fullscreen, 0);
         } else {
-            __winwinflagssendevent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_fullscreen, 0);
+            __winSendClientEvent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_fullscreen, 0);
         }
 
         /* WINDOW_FLAG_MINIMIZED */
         if (win->attr.flags & WINDOW_FLAG_MINIMIZED) {
-            __winwinflagssendevent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_hidden, 0);
+            __winSendClientEvent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_hidden, 0);
         } else {
-            __winwinflagssendevent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_hidden, 0);
+            __winSendClientEvent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_hidden, 0);
         }
 
         /* WINDOW_FLAG_MAXIMIZED */
         if (win->attr.flags & WINDOW_FLAG_MAXIMIZED) {
-            __winwinflagssendevent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_maximized_horz, WINDOW->xatom._net_wm_state_maximized_vert);
+            __winSendClientEvent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_maximized_horz, WINDOW->xatom._net_wm_state_maximized_vert);
         } else {
-            __winwinflagssendevent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_maximized_horz, WINDOW->xatom._net_wm_state_maximized_vert);
+            __winSendClientEvent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_maximized_horz, WINDOW->xatom._net_wm_state_maximized_vert);
         }
 
         /* WINDOW_FLAG_TOPMOST */
         if (win->attr.flags & WINDOW_FLAG_TOPMOST) {
-            __winwinflagssendevent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_above, 0);
+            __winSendClientEvent(win, _NET_WM_STATE_ADD, WINDOW->xatom._net_wm_state_above, 0);
         } else {
-            __winwinflagssendevent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_above, 0);
+            __winSendClientEvent(win, _NET_WM_STATE_REMOVE, WINDOW->xatom._net_wm_state_above, 0);
         }
     }
 
@@ -1612,7 +1612,7 @@ WININT int __winwinupdateflag(t_window win) {
     return (1);
 }
 
-WININT int __winwinflagssendevent(t_window win, Atom l0, Atom l1, Atom l2) {
+WININT int __winSendClientEvent(t_window win, Atom l0, Atom l1, Atom l2) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
@@ -1684,7 +1684,7 @@ WINDEF int winMapWindow(t_window win) {
     win->attr.mapped = 1;
 
     /* update window properties */
-    if (!__winwinupdateflag(win)) {
+    if (!__winUpdateFlags(win)) {
         return (0);
     }
 
@@ -2366,15 +2366,15 @@ WINDEF void *winGetProperty(const uint64_t prop) {
 
 /* windowing functions */
 
-WININT t_window __wincreate(...);
+WININT t_window __winCreateWindow(...);
 
 WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const char *t, const uint64_t f) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
     
-    t_window result = __wincreate(...);
-    if (!result) { goto __wincreate_failure; }
+    t_window result = __winCreateWindow(...);
+    if (!result) { goto __winCreateWindow_failure; }
    
     winSetWindowFlag(result, f);
     winSetWindowTitle(result, t);
@@ -2393,7 +2393,7 @@ WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const 
     winFlushEvents();
     return (1);
 
-__wincreate_failure:
+__winCreateWindow_failure:
 
     /* release result */
     if (result) { free(result), result = 0; }
@@ -2415,8 +2415,8 @@ WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w,
     /* check if parent is valid */
     if (!parent->xlib.client) { return (0); }
     
-    t_window result = __wincreate(...);
-    if (!result) { goto __wincreate_failure; }
+    t_window result = __winCreateWindow(...);
+    if (!result) { goto __winCreateWindow_failure; }
    
    
     winSetWindowFlag(result, f);
@@ -2435,7 +2435,7 @@ WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w,
     winFlushEvents();
     return (1);
 
-__wincreatenest_failure:
+__winCreateWindownest_failure:
 
     /* release result */
     if (result) { free(result), result = 0; }
@@ -2447,16 +2447,16 @@ __wincreatenest_failure:
     return (0);
 }
 
-WININT t_window __wincreate(...) {
+WININT t_window __winCreateWindow(...) {
     /* alloc result */
     t_window result = calloc(1, sizeof(struct s_window));
-    if (!result) { goto __wincreate_failure; } 
+    if (!result) { goto __winCreateWindow_failure; } 
 
     /* ... */
 
     return (result);
 
-__wincreate_failure:
+__winCreateWindow_failure:
 
     if (result) { free(result), result = 0; }
 
@@ -2499,7 +2499,7 @@ WINDEF int winDestroyWindow(t_window win) {
 }
 
 
-WININT int __winwinupdateflag(t_window);
+WININT int __winUpdateFlags(t_window);
 
 WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
     /* null-check */
@@ -2510,7 +2510,7 @@ WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
     win->attr.flags ^= f;
 
     /* update window properties */
-    if (!__winwinupdateflag(win)) {
+    if (!__winUpdateFlags(win)) {
         return (0);
     }
 
@@ -2519,7 +2519,7 @@ WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
     return (1);
 }
 
-WININT int __winwinupdateflag(t_window win) {
+WININT int __winUpdateFlags(t_window win) {
     /* null-check */
     if (!WINDOW) { return (0); }
     if (!win)    { return (0); }
@@ -2564,7 +2564,7 @@ WINDEF int winMapWindow(t_window win) {
     win->attr.mapped = 1;
 
     /* update window properties */
-    if (!__winwinupdateflag(win)) {
+    if (!__winUpdateFlags(win)) {
         return (0);
     }
 
