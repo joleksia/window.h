@@ -1815,10 +1815,14 @@ WINDEF int winSetWindowTitle(t_window win, const char *t) {
 
 /* opengl context functions */
 
-static int g_gl_cfg[64] = {
-    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-
+static int g_gl_cfg[] = {
     EGL_RENDERABLE_TYPE, EGL_OPENGL_BIT,
+    
+    /* Render surface type (default: EGL_WINDOW_BIT)
+     * - EGL_PBUFFER_BIT (Singlebuffer)
+     * - EGL_WINDOW_BIT  (Doublebuffer)
+     * */
+    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
 
     /* OpenGL RED channel size (default: 8) */
     EGL_RED_SIZE, 8,
@@ -1842,13 +1846,19 @@ static int g_gl_cfg[64] = {
     EGL_NONE
 };
 
-static int g_gl_ctx[16] = {
+static int g_gl_ctx[] = {
     /* OpenGL major version (default: 3) */
     EGL_CONTEXT_MAJOR_VERSION, 3,
 
     /* OpenGL minor version (default: 3) */
     EGL_CONTEXT_MINOR_VERSION, 3,
+
+    /* OpenGL profile (default: EGL_CONTEXT_OPENGL_CORE_PROFILE / core) */
+    EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
     
+    /* OpenGL debugging (default: EGL_FALSE / false) */
+    EGL_CONTEXT_OPENGL_DEBUG, EGL_FALSE,
+
     /* ... */
     EGL_NONE
 };
