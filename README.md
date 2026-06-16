@@ -14,18 +14,18 @@
 
 int main(void) {
     /* initialize window.h */
-    win_init();
+    winInit();
 
     /* create window */
     t_window win;
-    win_wincreate(&win, 800, 600, "Hello, window.h", 0);
-    win_winmap(win);
+    winCreateWindow(&win, 800, 600, "Hello, window.h", 0);
+    winMapWindow(win);
 
     int exit = 0;
     while (!exit) {
         /* poll events */
         t_event event = { 0 };
-        while (win_eventpoll(&event)) {
+        while (winPollEvents(&event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
                     printf("WINDOW_EVENT_QUIT\n");
@@ -36,7 +36,7 @@ int main(void) {
     }
 
     /* quit */
-    win_quit();
+    winQuit();
     return (0);
 }
 ```
