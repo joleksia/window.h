@@ -11,14 +11,20 @@ int main(void) {
         return (1);
     }
 
+    winGLSetAttribute(WINDOW_GL_ATTRIB_MAJOR_VERSION, 4);
+    winGLSetAttribute(WINDOW_GL_ATTRIB_MINOR_VERSION, 6);
+    winGLSetAttribute(WINDOW_GL_ATTRIB_PROFILE, 1);
+
     t_window win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h", WINDOW_FLAG_API_OPENGL);
+    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", WINDOW_FLAG_API_OPENGL);
 
     t_glcontext ctx;
     winGLCreateContext(&ctx, win);
 
     winGLMakeCurrent(ctx, win);
     winMapWindow(win);
+
+    printf("%s\n", glGetString(GL_VERSION));
 
     int exit = 0;
     while (!exit) {
