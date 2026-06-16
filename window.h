@@ -745,6 +745,8 @@ WINDEF int winPushEvent(t_event *);
 
 WINDEF int winPopEvent(t_event *);
 
+WINDEF int winPeekEvent(t_event *);
+
 WINDEF int winFlushEvents(void);
 
 /* timing functions */
@@ -2343,6 +2345,28 @@ WINDEF int winPopEvent(t_event *event) {
 
     /* decrement the count */
     WINDOW->da_event.cnt--;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winPeekEvent(t_event *event) {
+    /* null-check */
+    if (!WINDOW) { return (0); }
+    if (!event)  { return (0); }
+
+    /* zero-down the event */
+    *event = (t_event) { 0 };
+
+    /* check if event queue exists */
+    if (!WINDOW->da_event.arr) { return (0); }
+
+    /* check if there's anything in the queue */
+    if (WINDOW->da_event.cnt == 0) { return (0); }
+
+    /* assign the first element to the reference */
+    *event = *WINDOW->da_event.arr_s;
 
     /* success */
     return (1);
