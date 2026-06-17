@@ -57,7 +57,11 @@
 #  define WINDOW_PLATFORM_LINUX 1
 #  /* define default backend if none is defined */
 #  if !defined (WINDOW_BACKEND_X11) && !defined (WINDOW_BACKEND_WAYLAND)
-#   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 for *nix platforms */
+#   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 */
+#
+#   if defined (WINDOW_API_OPENGL)
+#    define WINDOW_BACKEND_GL_EGL 1 /* by default window.h picks EGL */
+#   endif 
 #  endif
 #
 # elif defined (__APPLE__) || defined (__MACH__)
@@ -68,12 +72,20 @@
 #  define WINDOW_PLATFORM "win32"
 #  define WINDOW_PLATFORM_WIN32 1
 #
+#  if defined (WINDOW_API_OPENGL)
+#   define WINDOW_BACKEND_GL_WGL 1 /* by default window.h picks WGL */
+#  endif
+#
 # elif defined (__FreeBSD__) || defined (__NetBSD__) || defined (__bsdi__) || defined (__DragonFly__) || defined (__MidnightBSD__)
 #  define WINDOW_PLATFORM "bsd"
 #  define WINDOW_PLATFORM_BSD 1
 #  /* define default backend if none is defined */
 #  if !defined (WINDOW_BACKEND_X11) && !defined (WINDOW_BACKEND_WAYLAND)
-#   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 for *nix platforms */
+#   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 */
+#
+#   if defined (WINDOW_API_OPENGL)
+#    define WINDOW_BACKEND_GL_EGL 1 /* by default window.h picks EGL */
+#   endif 
 #  endif
 #
 # else
@@ -2653,5 +2665,19 @@ WININT int __winPollEvents(void) {
 /* ... */
 
 #  endif /* WINDOW_PLATFORM_WIN32 */
+#
+#  /* WINDOW_BACKEND_GL_EGL - EGL implementation layer */
+#  if defined (WINDOW_BACKEND_GL_EGL)
+
+/* ... */
+
+#  endif /* WINDOW_BACKEND_GL_EGL */
+#
+#  /* WINDOW_BACKEND_GL_WGL - WGL implementation layer */
+#  if defined (WINDOW_BACKEND_GL_WGL)
+
+/* ... */
+
+#  endif /* WINDOW_BACKEND_GL_WGL */
 # endif /* WINDOW_IMPLEMENTATION */
 #endif /* _window_h_ */
