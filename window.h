@@ -109,314 +109,314 @@ enum {
 
 
 enum {
-    WINDOW_KEY_NONE = 0,
-# define WINDOW_KEY_NONE WINDOW_KEY_NONE
+    WINDOW_KEYCODE_NONE = 0,
+# define WINDOW_KEYCODE_NONE WINDOW_KEYCODE_NONE
 
-    WINDOW_KEY_ESCAPE = 0x100,
-# define WINDOW_KEY_ESCAPE WINDOW_KEY_ESCAPE
+    WINDOW_KEYCODE_ESCAPE = 0x100,
+# define WINDOW_KEYCODE_ESCAPE WINDOW_KEYCODE_ESCAPE
 
-    WINDOW_KEY_F1 = 0x101,
-# define WINDOW_KEY_F1 WINDOW_KEY_F1
+    WINDOW_KEYCODE_F1 = 0x101,
+# define WINDOW_KEYCODE_F1 WINDOW_KEYCODE_F1
 
-    WINDOW_KEY_F2 = 0x102,
-# define WINDOW_KEY_F2 WINDOW_KEY_F2
+    WINDOW_KEYCODE_F2 = 0x102,
+# define WINDOW_KEYCODE_F2 WINDOW_KEYCODE_F2
 
-    WINDOW_KEY_F3 = 0x103,
-# define WINDOW_KEY_F3 WINDOW_KEY_F3
+    WINDOW_KEYCODE_F3 = 0x103,
+# define WINDOW_KEYCODE_F3 WINDOW_KEYCODE_F3
 
-    WINDOW_KEY_F4 = 0x104,
-# define WINDOW_KEY_F4 WINDOW_KEY_F4
+    WINDOW_KEYCODE_F4 = 0x104,
+# define WINDOW_KEYCODE_F4 WINDOW_KEYCODE_F4
 
-    WINDOW_KEY_F5 = 0x105,
-# define WINDOW_KEY_F5 WINDOW_KEY_F5
+    WINDOW_KEYCODE_F5 = 0x105,
+# define WINDOW_KEYCODE_F5 WINDOW_KEYCODE_F5
 
-    WINDOW_KEY_F6 = 0x106,
-# define WINDOW_KEY_F6 WINDOW_KEY_F6
+    WINDOW_KEYCODE_F6 = 0x106,
+# define WINDOW_KEYCODE_F6 WINDOW_KEYCODE_F6
 
-    WINDOW_KEY_F7 = 0x107,
-# define WINDOW_KEY_F7 WINDOW_KEY_F7
+    WINDOW_KEYCODE_F7 = 0x107,
+# define WINDOW_KEYCODE_F7 WINDOW_KEYCODE_F7
 
-    WINDOW_KEY_F8 = 0x108,
-# define WINDOW_KEY_F8 WINDOW_KEY_F8
+    WINDOW_KEYCODE_F8 = 0x108,
+# define WINDOW_KEYCODE_F8 WINDOW_KEYCODE_F8
 
-    WINDOW_KEY_F9 = 0x109,
-# define WINDOW_KEY_F9 WINDOW_KEY_F9
+    WINDOW_KEYCODE_F9 = 0x109,
+# define WINDOW_KEYCODE_F9 WINDOW_KEYCODE_F9
 
-    WINDOW_KEY_F10 = 0x10A,
-# define WINDOW_KEY_F10 WINDOW_KEY_F10
+    WINDOW_KEYCODE_F10 = 0x10A,
+# define WINDOW_KEYCODE_F10 WINDOW_KEYCODE_F10
 
-    WINDOW_KEY_F11 = 0x10B,
-# define WINDOW_KEY_F11 WINDOW_KEY_F11
+    WINDOW_KEYCODE_F11 = 0x10B,
+# define WINDOW_KEYCODE_F11 WINDOW_KEYCODE_F11
 
-    WINDOW_KEY_F12 = 0x10C,
-# define WINDOW_KEY_F12 WINDOW_KEY_F12
+    WINDOW_KEYCODE_F12 = 0x10C,
+# define WINDOW_KEYCODE_F12 WINDOW_KEYCODE_F12
 
-    WINDOW_KEY_GRAVE = 0x60,
-# define WINDOW_KEY_GRAVE WINDOW_KEY_GRAVE
+    WINDOW_KEYCODE_GRAVE = 0x60,
+# define WINDOW_KEYCODE_GRAVE WINDOW_KEYCODE_GRAVE
 
-    WINDOW_KEY_ONE = 0x31,
-# define WINDOW_KEY_ONE WINDOW_KEY_ONE
+    WINDOW_KEYCODE_ONE = 0x31,
+# define WINDOW_KEYCODE_ONE WINDOW_KEYCODE_ONE
 
-    WINDOW_KEY_TWO = 0x32,
-# define WINDOW_KEY_TWO WINDOW_KEY_TWO
+    WINDOW_KEYCODE_TWO = 0x32,
+# define WINDOW_KEYCODE_TWO WINDOW_KEYCODE_TWO
 
-    WINDOW_KEY_THREE = 0x33,
-# define WINDOW_KEY_THREE WINDOW_KEY_THREE
+    WINDOW_KEYCODE_THREE = 0x33,
+# define WINDOW_KEYCODE_THREE WINDOW_KEYCODE_THREE
 
-    WINDOW_KEY_FOUR = 0x34,
-# define WINDOW_KEY_FOUR WINDOW_KEY_FOUR
+    WINDOW_KEYCODE_FOUR = 0x34,
+# define WINDOW_KEYCODE_FOUR WINDOW_KEYCODE_FOUR
 
-    WINDOW_KEY_FIVE = 0x35,
-# define WINDOW_KEY_FIVE WINDOW_KEY_FIVE
+    WINDOW_KEYCODE_FIVE = 0x35,
+# define WINDOW_KEYCODE_FIVE WINDOW_KEYCODE_FIVE
 
-    WINDOW_KEY_SIX = 0x36,
-# define WINDOW_KEY_SIX WINDOW_KEY_SIX
+    WINDOW_KEYCODE_SIX = 0x36,
+# define WINDOW_KEYCODE_SIX WINDOW_KEYCODE_SIX
 
-    WINDOW_KEY_SEVEN = 0x37,
-# define WINDOW_KEY_SEVEN WINDOW_KEY_SEVEN
+    WINDOW_KEYCODE_SEVEN = 0x37,
+# define WINDOW_KEYCODE_SEVEN WINDOW_KEYCODE_SEVEN
 
-    WINDOW_KEY_EIGHT = 0x38,
-# define WINDOW_KEY_EIGHT WINDOW_KEY_EIGHT
+    WINDOW_KEYCODE_EIGHT = 0x38,
+# define WINDOW_KEYCODE_EIGHT WINDOW_KEYCODE_EIGHT
 
-    WINDOW_KEY_NINE = 0x39,
-# define WINDOW_KEY_NINE WINDOW_KEY_NINE
+    WINDOW_KEYCODE_NINE = 0x39,
+# define WINDOW_KEYCODE_NINE WINDOW_KEYCODE_NINE
 
-    WINDOW_KEY_ZERO = 0x30,
-# define WINDOW_KEY_ZERO WINDOW_KEY_ZERO
+    WINDOW_KEYCODE_ZERO = 0x30,
+# define WINDOW_KEYCODE_ZERO WINDOW_KEYCODE_ZERO
 
-    WINDOW_KEY_DASH = 0x2D,
-# define WINDOW_KEY_DASH WINDOW_KEY_DASH
+    WINDOW_KEYCODE_DASH = 0x2D,
+# define WINDOW_KEYCODE_DASH WINDOW_KEYCODE_DASH
 
-    WINDOW_KEY_EQUAL = 0x3D,
-# define WINDOW_KEY_EQUAL WINDOW_KEY_EQUAL
+    WINDOW_KEYCODE_EQUAL = 0x3D,
+# define WINDOW_KEYCODE_EQUAL WINDOW_KEYCODE_EQUAL
 
-    WINDOW_KEY_BACKSPACE = 0x08,
-# define WINDOW_KEY_BACKSPACE WINDOW_KEY_BACKSPACE
+    WINDOW_KEYCODE_BACKSPACE = 0x08,
+# define WINDOW_KEYCODE_BACKSPACE WINDOW_KEYCODE_BACKSPACE
 
-    WINDOW_KEY_TAB = 0x09,
-# define WINDOW_KEY_TAB WINDOW_KEY_TAB
+    WINDOW_KEYCODE_TAB = 0x09,
+# define WINDOW_KEYCODE_TAB WINDOW_KEYCODE_TAB
 
-    WINDOW_KEY_Q = 0x51,
-# define WINDOW_KEY_Q WINDOW_KEY_Q
+    WINDOW_KEYCODE_Q = 0x51,
+# define WINDOW_KEYCODE_Q WINDOW_KEYCODE_Q
 
-    WINDOW_KEY_W = 0x57,
-# define WINDOW_KEY_W WINDOW_KEY_W
+    WINDOW_KEYCODE_W = 0x57,
+# define WINDOW_KEYCODE_W WINDOW_KEYCODE_W
 
-    WINDOW_KEY_E = 0x45,
-# define WINDOW_KEY_E WINDOW_KEY_E
+    WINDOW_KEYCODE_E = 0x45,
+# define WINDOW_KEYCODE_E WINDOW_KEYCODE_E
 
-    WINDOW_KEY_R = 0x52,
-# define WINDOW_KEY_R WINDOW_KEY_R
+    WINDOW_KEYCODE_R = 0x52,
+# define WINDOW_KEYCODE_R WINDOW_KEYCODE_R
 
-    WINDOW_KEY_T = 0x54,
-# define WINDOW_KEY_T WINDOW_KEY_T
+    WINDOW_KEYCODE_T = 0x54,
+# define WINDOW_KEYCODE_T WINDOW_KEYCODE_T
 
-    WINDOW_KEY_Y = 0x59,
-# define WINDOW_KEY_Y WINDOW_KEY_Y
+    WINDOW_KEYCODE_Y = 0x59,
+# define WINDOW_KEYCODE_Y WINDOW_KEYCODE_Y
 
-    WINDOW_KEY_U = 0x55,
-# define WINDOW_KEY_U WINDOW_KEY_U
+    WINDOW_KEYCODE_U = 0x55,
+# define WINDOW_KEYCODE_U WINDOW_KEYCODE_U
 
-    WINDOW_KEY_I = 0x49,
-# define WINDOW_KEY_I WINDOW_KEY_I
+    WINDOW_KEYCODE_I = 0x49,
+# define WINDOW_KEYCODE_I WINDOW_KEYCODE_I
 
-    WINDOW_KEY_O = 0x4F,
-# define WINDOW_KEY_O WINDOW_KEY_O
+    WINDOW_KEYCODE_O = 0x4F,
+# define WINDOW_KEYCODE_O WINDOW_KEYCODE_O
 
-    WINDOW_KEY_P = 0x50,
-# define WINDOW_KEY_P WINDOW_KEY_P
+    WINDOW_KEYCODE_P = 0x50,
+# define WINDOW_KEYCODE_P WINDOW_KEYCODE_P
 
-    WINDOW_KEY_OBRACE = 0x5B,
-# define WINDOW_KEY_OBRACE WINDOW_KEY_OBRACE
+    WINDOW_KEYCODE_OBRACE = 0x5B,
+# define WINDOW_KEYCODE_OBRACE WINDOW_KEYCODE_OBRACE
 
-    WINDOW_KEY_CBRACE = 0x5D,
-# define WINDOW_KEY_CBRACE WINDOW_KEY_CBRACE
+    WINDOW_KEYCODE_CBRACE = 0x5D,
+# define WINDOW_KEYCODE_CBRACE WINDOW_KEYCODE_CBRACE
 
-    WINDOW_KEY_CAPSLOCK = 0,
-# define WINDOW_KEY_CAPSLOCK WINDOW_KEY_CAPSLOCK
+    WINDOW_KEYCODE_CAPSLOCK = 0,
+# define WINDOW_KEYCODE_CAPSLOCK WINDOW_KEYCODE_CAPSLOCK
 
-    WINDOW_KEY_A = 0x41,
-# define WINDOW_KEY_A WINDOW_KEY_A
+    WINDOW_KEYCODE_A = 0x41,
+# define WINDOW_KEYCODE_A WINDOW_KEYCODE_A
 
-    WINDOW_KEY_S = 0x53,
-# define WINDOW_KEY_S WINDOW_KEY_S
+    WINDOW_KEYCODE_S = 0x53,
+# define WINDOW_KEYCODE_S WINDOW_KEYCODE_S
 
-    WINDOW_KEY_D = 0x44,
-# define WINDOW_KEY_D WINDOW_KEY_D
+    WINDOW_KEYCODE_D = 0x44,
+# define WINDOW_KEYCODE_D WINDOW_KEYCODE_D
 
-    WINDOW_KEY_F = 0x46,
-# define WINDOW_KEY_F WINDOW_KEY_F
+    WINDOW_KEYCODE_F = 0x46,
+# define WINDOW_KEYCODE_F WINDOW_KEYCODE_F
 
-    WINDOW_KEY_G = 0x47,
-# define WINDOW_KEY_G WINDOW_KEY_G
+    WINDOW_KEYCODE_G = 0x47,
+# define WINDOW_KEYCODE_G WINDOW_KEYCODE_G
 
-    WINDOW_KEY_H = 0x48,
-# define WINDOW_KEY_H WINDOW_KEY_H
+    WINDOW_KEYCODE_H = 0x48,
+# define WINDOW_KEYCODE_H WINDOW_KEYCODE_H
 
-    WINDOW_KEY_J = 0x4A,
-# define WINDOW_KEY_J WINDOW_KEY_J
+    WINDOW_KEYCODE_J = 0x4A,
+# define WINDOW_KEYCODE_J WINDOW_KEYCODE_J
 
-    WINDOW_KEY_K = 0x4B,
-# define WINDOW_KEY_K WINDOW_KEY_K
+    WINDOW_KEYCODE_K = 0x4B,
+# define WINDOW_KEYCODE_K WINDOW_KEYCODE_K
 
-    WINDOW_KEY_L = 0x4C,
-# define WINDOW_KEY_L WINDOW_KEY_L
+    WINDOW_KEYCODE_L = 0x4C,
+# define WINDOW_KEYCODE_L WINDOW_KEYCODE_L
 
-    WINDOW_KEY_SEMICOLON = 0x3B,
-# define WINDOW_KEY_SEMICOLON WINDOW_KEY_SEMICOLON
+    WINDOW_KEYCODE_SEMICOLON = 0x3B,
+# define WINDOW_KEYCODE_SEMICOLON WINDOW_KEYCODE_SEMICOLON
 
-    WINDOW_KEY_QUOTE = 0x27,
-# define WINDOW_KEY_QUOTE WINDOW_KEY_QUOTE
+    WINDOW_KEYCODE_QUOTE = 0x27,
+# define WINDOW_KEYCODE_QUOTE WINDOW_KEYCODE_QUOTE
 
-    WINDOW_KEY_BACKSLASH = 0x5C,
-# define WINDOW_KEY_BACKSLASH WINDOW_KEY_BACKSLASH
+    WINDOW_KEYCODE_BACKSLASH = 0x5C,
+# define WINDOW_KEYCODE_BACKSLASH WINDOW_KEYCODE_BACKSLASH
 
-    WINDOW_KEY_ENTER = 0x0D,
-# define WINDOW_KEY_ENTER WINDOW_KEY_ENTER
+    WINDOW_KEYCODE_ENTER = 0x0D,
+# define WINDOW_KEYCODE_ENTER WINDOW_KEYCODE_ENTER
 
-    WINDOW_KEY_LSHIFT = 0x120,
-# define WINDOW_KEY_LSHIFT WINDOW_KEY_LSHIFT
+    WINDOW_KEYCODE_LSHIFT = 0x120,
+# define WINDOW_KEYCODE_LSHIFT WINDOW_KEYCODE_LSHIFT
 
-    WINDOW_KEY_Z = 0x5A,
-# define WINDOW_KEY_Z WINDOW_KEY_Z
+    WINDOW_KEYCODE_Z = 0x5A,
+# define WINDOW_KEYCODE_Z WINDOW_KEYCODE_Z
 
-    WINDOW_KEY_X = 0x58,
-# define WINDOW_KEY_X WINDOW_KEY_X
+    WINDOW_KEYCODE_X = 0x58,
+# define WINDOW_KEYCODE_X WINDOW_KEYCODE_X
 
-    WINDOW_KEY_C = 0x43,
-# define WINDOW_KEY_C WINDOW_KEY_C
+    WINDOW_KEYCODE_C = 0x43,
+# define WINDOW_KEYCODE_C WINDOW_KEYCODE_C
 
-    WINDOW_KEY_V = 0x56,
-# define WINDOW_KEY_V WINDOW_KEY_V
+    WINDOW_KEYCODE_V = 0x56,
+# define WINDOW_KEYCODE_V WINDOW_KEYCODE_V
 
-    WINDOW_KEY_B = 0x42,
-# define WINDOW_KEY_B WINDOW_KEY_B
+    WINDOW_KEYCODE_B = 0x42,
+# define WINDOW_KEYCODE_B WINDOW_KEYCODE_B
 
-    WINDOW_KEY_N = 0x4E,
-# define WINDOW_KEY_N WINDOW_KEY_N
+    WINDOW_KEYCODE_N = 0x4E,
+# define WINDOW_KEYCODE_N WINDOW_KEYCODE_N
 
-    WINDOW_KEY_M = 0x4D,
-# define WINDOW_KEY_M WINDOW_KEY_M
+    WINDOW_KEYCODE_M = 0x4D,
+# define WINDOW_KEYCODE_M WINDOW_KEYCODE_M
 
-    WINDOW_KEY_COMMA = 0x2C,
-# define WINDOW_KEY_COMMA WINDOW_KEY_COMMA
+    WINDOW_KEYCODE_COMMA = 0x2C,
+# define WINDOW_KEYCODE_COMMA WINDOW_KEYCODE_COMMA
 
-    WINDOW_KEY_PERIOD = 0x2E,
-# define WINDOW_KEY_PERIOD WINDOW_KEY_PERIOD
+    WINDOW_KEYCODE_PERIOD = 0x2E,
+# define WINDOW_KEYCODE_PERIOD WINDOW_KEYCODE_PERIOD
 
-    WINDOW_KEY_SLASH = 0x2F,
-# define WINDOW_KEY_SLASH WINDOW_KEY_SLASH
+    WINDOW_KEYCODE_SLASH = 0x2F,
+# define WINDOW_KEYCODE_SLASH WINDOW_KEYCODE_SLASH
 
-    WINDOW_KEY_RSHIFT = 0x121,
-# define WINDOW_KEY_RSHIFT WINDOW_KEY_RSHIFT
+    WINDOW_KEYCODE_RSHIFT = 0x121,
+# define WINDOW_KEYCODE_RSHIFT WINDOW_KEYCODE_RSHIFT
 
-    WINDOW_KEY_LCTRL = 0x122,
-# define WINDOW_KEY_LCTRL WINDOW_KEY_LCTRL
+    WINDOW_KEYCODE_LCTRL = 0x122,
+# define WINDOW_KEYCODE_LCTRL WINDOW_KEYCODE_LCTRL
 
-    WINDOW_KEY_MOD = 0x123,
-# define WINDOW_KEY_MOD WINDOW_KEY_MOD
+    WINDOW_KEYCODE_MOD = 0x123,
+# define WINDOW_KEYCODE_MOD WINDOW_KEYCODE_MOD
 
-    WINDOW_KEY_LALT = 0x124,
-# define WINDOW_KEY_LALT WINDOW_KEY_LALT
+    WINDOW_KEYCODE_LALT = 0x124,
+# define WINDOW_KEYCODE_LALT WINDOW_KEYCODE_LALT
 
-    WINDOW_KEY_SPACE = 0x20,
-# define WINDOW_KEY_SPACE WINDOW_KEY_SPACE
+    WINDOW_KEYCODE_SPACE = 0x20,
+# define WINDOW_KEYCODE_SPACE WINDOW_KEYCODE_SPACE
 
-    WINDOW_KEY_RALT = 0x125,
-# define WINDOW_KEY_RALT WINDOW_KEY_RALT
+    WINDOW_KEYCODE_RALT = 0x125,
+# define WINDOW_KEYCODE_RALT WINDOW_KEYCODE_RALT
 
-    WINDOW_KEY_RCTRL = 0x126,
-# define WINDOW_KEY_RCTRL WINDOW_KEY_RCTRL
+    WINDOW_KEYCODE_RCTRL = 0x126,
+# define WINDOW_KEYCODE_RCTRL WINDOW_KEYCODE_RCTRL
 
-    WINDOW_KEY_PRINTSCREEN = 0x127,
-# define WINDOW_KEY_PRINTSCREEN WINDOW_KEY_PRINTSCREEN
+    WINDOW_KEYCODE_PRINTSCREEN = 0x127,
+# define WINDOW_KEYCODE_PRINTSCREEN WINDOW_KEYCODE_PRINTSCREEN
 
-    WINDOW_KEY_SCROLLLOCK = 0x128,
-# define WINDOW_KEY_SCROLLLOCK WINDOW_KEY_SCROLLLOCK
+    WINDOW_KEYCODE_SCROLLLOCK = 0x128,
+# define WINDOW_KEYCODE_SCROLLLOCK WINDOW_KEYCODE_SCROLLLOCK
 
-    WINDOW_KEY_PAUSE = 0x129,
-# define WINDOW_KEY_PAUSE WINDOW_KEY_PAUSE
+    WINDOW_KEYCODE_PAUSE = 0x129,
+# define WINDOW_KEYCODE_PAUSE WINDOW_KEYCODE_PAUSE
 
-    WINDOW_KEY_INSERT = 0x144,
-# define WINDOW_KEY_INSERT WINDOW_KEY_INSERT
+    WINDOW_KEYCODE_INSERT = 0x144,
+# define WINDOW_KEYCODE_INSERT WINDOW_KEYCODE_INSERT
 
-    WINDOW_KEY_HOME = 0x145,
-# define WINDOW_KEY_HOME WINDOW_KEY_HOME
+    WINDOW_KEYCODE_HOME = 0x145,
+# define WINDOW_KEYCODE_HOME WINDOW_KEYCODE_HOME
 
-    WINDOW_KEY_PAGEUP = 0x146,
-# define WINDOW_KEY_PAGEUP WINDOW_KEY_PAGEUP
+    WINDOW_KEYCODE_PAGEUP = 0x146,
+# define WINDOW_KEYCODE_PAGEUP WINDOW_KEYCODE_PAGEUP
 
-    WINDOW_KEY_DELETE = 0x147,
-# define WINDOW_KEY_DELETE WINDOW_KEY_DELETE
+    WINDOW_KEYCODE_DELETE = 0x147,
+# define WINDOW_KEYCODE_DELETE WINDOW_KEYCODE_DELETE
 
-    WINDOW_KEY_END = 0x148,
-# define WINDOW_KEY_END WINDOW_KEY_END
+    WINDOW_KEYCODE_END = 0x148,
+# define WINDOW_KEYCODE_END WINDOW_KEYCODE_END
 
-    WINDOW_KEY_PAGEDOWN = 0x149,
-# define WINDOW_KEY_PAGEDOWN WINDOW_KEY_PAGEDOWN
+    WINDOW_KEYCODE_PAGEDOWN = 0x149,
+# define WINDOW_KEYCODE_PAGEDOWN WINDOW_KEYCODE_PAGEDOWN
 
-    WINDOW_KEY_UP = 0x140,
-# define WINDOW_KEY_UP WINDOW_KEY_UP
+    WINDOW_KEYCODE_UP = 0x140,
+# define WINDOW_KEYCODE_UP WINDOW_KEYCODE_UP
 
-    WINDOW_KEY_LEFT = 0x141,
-# define WINDOW_KEY_LEFT WINDOW_KEY_LEFT
+    WINDOW_KEYCODE_LEFT = 0x141,
+# define WINDOW_KEYCODE_LEFT WINDOW_KEYCODE_LEFT
 
-    WINDOW_KEY_DOWN = 0x142,
-# define WINDOW_KEY_DOWN WINDOW_KEY_DOWN
+    WINDOW_KEYCODE_DOWN = 0x142,
+# define WINDOW_KEYCODE_DOWN WINDOW_KEYCODE_DOWN
 
-    WINDOW_KEY_RIGHT = 0x143,
-# define WINDOW_KEY_RIGHT WINDOW_KEY_RIGHT
+    WINDOW_KEYCODE_RIGHT = 0x143,
+# define WINDOW_KEYCODE_RIGHT WINDOW_KEYCODE_RIGHT
 
-    WINDOW_KEY_NUMLOCK = 0x12A,
-# define WINDOW_KEY_NUMLOCK WINDOW_KEY_NUMLOCK
+    WINDOW_KEYCODE_NUMLOCK = 0x12A,
+# define WINDOW_KEYCODE_NUMLOCK WINDOW_KEYCODE_NUMLOCK
 
-    WINDOW_KEY_NUMSLASH = 0x16A,
-# define WINDOW_KEY_NUMSLASH WINDOW_KEY_NUMSLASH
+    WINDOW_KEYCODE_NUMSLASH = 0x16A,
+# define WINDOW_KEYCODE_NUMSLASH WINDOW_KEYCODE_NUMSLASH
 
-    WINDOW_KEY_NUMSTAR = 0x16B,
-# define WINDOW_KEY_NUMSTAR WINDOW_KEY_NUMSTAR
+    WINDOW_KEYCODE_NUMSTAR = 0x16B,
+# define WINDOW_KEYCODE_NUMSTAR WINDOW_KEYCODE_NUMSTAR
 
-    WINDOW_KEY_NUMDASH = 0x16C,
-# define WINDOW_KEY_NUMDASH WINDOW_KEY_NUMDASH
+    WINDOW_KEYCODE_NUMDASH = 0x16C,
+# define WINDOW_KEYCODE_NUMDASH WINDOW_KEYCODE_NUMDASH
 
-    WINDOW_KEY_NUM7 = 0x167,
-# define WINDOW_KEY_NUM7 WINDOW_KEY_NUM7
+    WINDOW_KEYCODE_NUM7 = 0x167,
+# define WINDOW_KEYCODE_NUM7 WINDOW_KEYCODE_NUM7
 
-    WINDOW_KEY_NUM8 = 0x168,
-# define WINDOW_KEY_NUM8 WINDOW_KEY_NUM8
+    WINDOW_KEYCODE_NUM8 = 0x168,
+# define WINDOW_KEYCODE_NUM8 WINDOW_KEYCODE_NUM8
 
-    WINDOW_KEY_NUM9 = 0x169,
-# define WINDOW_KEY_NUM9 WINDOW_KEY_NUM9
+    WINDOW_KEYCODE_NUM9 = 0x169,
+# define WINDOW_KEYCODE_NUM9 WINDOW_KEYCODE_NUM9
 
-    WINDOW_KEY_NUM4 = 0x164,
-# define WINDOW_KEY_NUM4 WINDOW_KEY_NUM4
+    WINDOW_KEYCODE_NUM4 = 0x164,
+# define WINDOW_KEYCODE_NUM4 WINDOW_KEYCODE_NUM4
 
-    WINDOW_KEY_NUM5 = 0x165,
-# define WINDOW_KEY_NUM5 WINDOW_KEY_NUM5
+    WINDOW_KEYCODE_NUM5 = 0x165,
+# define WINDOW_KEYCODE_NUM5 WINDOW_KEYCODE_NUM5
 
-    WINDOW_KEY_NUM6 = 0x166,
-# define WINDOW_KEY_NUM6 WINDOW_KEY_NUM6
+    WINDOW_KEYCODE_NUM6 = 0x166,
+# define WINDOW_KEYCODE_NUM6 WINDOW_KEYCODE_NUM6
 
-    WINDOW_KEY_NUM1 = 0x161,
-# define WINDOW_KEY_NUM1 WINDOW_KEY_NUM1
+    WINDOW_KEYCODE_NUM1 = 0x161,
+# define WINDOW_KEYCODE_NUM1 WINDOW_KEYCODE_NUM1
 
-    WINDOW_KEY_NUM2 = 0x162,
-# define WINDOW_KEY_NUM2 WINDOW_KEY_NUM2
+    WINDOW_KEYCODE_NUM2 = 0x162,
+# define WINDOW_KEYCODE_NUM2 WINDOW_KEYCODE_NUM2
 
-    WINDOW_KEY_NUM3 = 0x163,
-# define WINDOW_KEY_NUM3 WINDOW_KEY_NUM3
+    WINDOW_KEYCODE_NUM3 = 0x163,
+# define WINDOW_KEYCODE_NUM3 WINDOW_KEYCODE_NUM3
 
-    WINDOW_KEY_NUM0 = 0x160,
-# define WINDOW_KEY_NUM0 WINDOW_KEY_NUM0
+    WINDOW_KEYCODE_NUM0 = 0x160,
+# define WINDOW_KEYCODE_NUM0 WINDOW_KEYCODE_NUM0
 
-    WINDOW_KEY_NUMSEP = 0x16D,
-# define WINDOW_KEY_NUMSEP WINDOW_KEY_NUMSEP
+    WINDOW_KEYCODE_NUMSEP = 0x16D,
+# define WINDOW_KEYCODE_NUMSEP WINDOW_KEYCODE_NUMSEP
 
-    WINDOW_KEY_NUMPLUS = 0x16E,
-# define WINDOW_KEY_NUMPLUS WINDOW_KEY_NUMPLUS
+    WINDOW_KEYCODE_NUMPLUS = 0x16E,
+# define WINDOW_KEYCODE_NUMPLUS WINDOW_KEYCODE_NUMPLUS
 
-    WINDOW_KEY_NUMENTER = 0x16F,
-# define WINDOW_KEY_NUMENTER WINDOW_KEY_NUMENTER
+    WINDOW_KEYCODE_NUMENTER = 0x16F,
+# define WINDOW_KEYCODE_NUMENTER WINDOW_KEYCODE_NUMENTER
 
     /* ... */
 
@@ -629,7 +629,8 @@ struct s_eventKeyboardKey {
     uint32_t type;
     uint64_t timestamp;
 
-    int32_t key;
+    int32_t keysym;
+    int32_t keycode;
     int8_t  state;
 };
 
@@ -866,277 +867,276 @@ struct s_glcontext {
 
 /* platform type definitions */
 
-struct s_keymap {
+static const struct __window_h_keymap {
     uint32_t src;
-    uint32_t dst;
-};
+    uint32_t kc;
+    uint32_t ks;
+} __window_h_keymap[] = {
+    
+    { XK_Escape, WINDOW_KEYCODE_ESCAPE, 0 },
+    
+    { XK_F1, WINDOW_KEYCODE_F1, 0 },
+    
+    { XK_F2, WINDOW_KEYCODE_F2, 0 },
+    
+    { XK_F3, WINDOW_KEYCODE_F3, 0 },
+    
+    { XK_F4, WINDOW_KEYCODE_F4, 0 },
+    
+    { XK_F5, WINDOW_KEYCODE_F5, 0 },
+    
+    { XK_F6, WINDOW_KEYCODE_F6, 0 },
+    
+    { XK_F7, WINDOW_KEYCODE_F7, 0 },
+    
+    { XK_F8, WINDOW_KEYCODE_F8, 0 },
+    
+    { XK_F9, WINDOW_KEYCODE_F9, 0 },
+    
+    { XK_F10, WINDOW_KEYCODE_F10, 0 },
+    
+    { XK_F11, WINDOW_KEYCODE_F11, 0 },
+    
+    { XK_F12, WINDOW_KEYCODE_F12, 0 },
+    
+    { XK_grave, WINDOW_KEYCODE_GRAVE, 0 }, 
+    { XK_asciitilde, WINDOW_KEYCODE_GRAVE, 0 },
+    
+    { XK_1, WINDOW_KEYCODE_ONE, 0 },       
+    { XK_exclam, WINDOW_KEYCODE_ONE, 0 },
+    
+    { XK_2, WINDOW_KEYCODE_TWO, 0 },       
+    { XK_at, WINDOW_KEYCODE_TWO, 0 },
+    
+    { XK_3, WINDOW_KEYCODE_THREE, 0 },     
+    { XK_numbersign, WINDOW_KEYCODE_THREE, 0 },
+    
+    { XK_4, WINDOW_KEYCODE_FOUR, 0 },      
+    { XK_dollar, WINDOW_KEYCODE_FOUR, 0 },
+    
+    { XK_5, WINDOW_KEYCODE_FIVE, 0 },      
+    { XK_percent, WINDOW_KEYCODE_FIVE, 0 },
+    
+    { XK_6, WINDOW_KEYCODE_SIX, 0 },       
+    { XK_asciicircum, WINDOW_KEYCODE_SIX, 0 },
+    
+    { XK_7, WINDOW_KEYCODE_SEVEN, 0 },     
+    { XK_ampersand, WINDOW_KEYCODE_SEVEN, 0 },
+    
+    { XK_8, WINDOW_KEYCODE_EIGHT, 0 },     
+    { XK_asterisk, WINDOW_KEYCODE_EIGHT, 0 },
+    
+    { XK_9, WINDOW_KEYCODE_NINE, 0 },      
+    { XK_parenleft, WINDOW_KEYCODE_NINE, 0 },
+    
+    { XK_0, WINDOW_KEYCODE_ZERO, 0 },      
+    { XK_parenright, WINDOW_KEYCODE_ZERO, 0 },
+    
+    { XK_minus, WINDOW_KEYCODE_DASH, 0 },  
+    { XK_underscore, WINDOW_KEYCODE_DASH, 0 },
+    
+    { XK_equal, WINDOW_KEYCODE_EQUAL, 0 },
+    { XK_plus, WINDOW_KEYCODE_EQUAL, 0 },
+    
+    { XK_BackSpace, WINDOW_KEYCODE_BACKSPACE, 0 },
+    
+    { XK_Tab, WINDOW_KEYCODE_TAB, 0 },
+    
+    { XK_Q, WINDOW_KEYCODE_Q, 0 },
+    { XK_q, WINDOW_KEYCODE_Q, 0 },
+    
+    { XK_W, WINDOW_KEYCODE_W, 0 },
+    { XK_w, WINDOW_KEYCODE_W, 0 },
+    
+    { XK_E, WINDOW_KEYCODE_E, 0 },
+    { XK_e, WINDOW_KEYCODE_E, 0 },
+    
+    { XK_R, WINDOW_KEYCODE_R, 0 },
+    { XK_r, WINDOW_KEYCODE_R, 0 },
+    
+    { XK_T, WINDOW_KEYCODE_T, 0 },
+    { XK_t, WINDOW_KEYCODE_T, 0 },
+    
+    { XK_Y, WINDOW_KEYCODE_Y, 0 },
+    { XK_y, WINDOW_KEYCODE_Y, 0 },
+    
+    { XK_U, WINDOW_KEYCODE_U, 0 },
+    { XK_u, WINDOW_KEYCODE_U, 0 },
+    
+    { XK_I, WINDOW_KEYCODE_I, 0 },
+    { XK_i, WINDOW_KEYCODE_I, 0 },
+    
+    { XK_O, WINDOW_KEYCODE_O, 0 },
+    { XK_o, WINDOW_KEYCODE_O, 0 },
+    
+    { XK_P, WINDOW_KEYCODE_P, 0 },
+    { XK_p, WINDOW_KEYCODE_P, 0 },
+    
+    { XK_bracketleft, WINDOW_KEYCODE_OBRACE, 0 },
+    { XK_braceleft, WINDOW_KEYCODE_OBRACE, 0 },
+    
+    { XK_bracketright, WINDOW_KEYCODE_CBRACE, 0 },
+    { XK_braceright, WINDOW_KEYCODE_CBRACE, 0 },
 
-static const struct s_keymap g_keymap[] = {
-    
-    { XK_Escape, WINDOW_KEY_ESCAPE },
-    
-    { XK_F1, WINDOW_KEY_F1 },
-    
-    { XK_F2, WINDOW_KEY_F2 },
-    
-    { XK_F3, WINDOW_KEY_F3 },
-    
-    { XK_F4, WINDOW_KEY_F4 },
-    
-    { XK_F5, WINDOW_KEY_F5 },
-    
-    { XK_F6, WINDOW_KEY_F6 },
-    
-    { XK_F7, WINDOW_KEY_F7 },
-    
-    { XK_F8, WINDOW_KEY_F8 },
-    
-    { XK_F9, WINDOW_KEY_F9 },
-    
-    { XK_F10, WINDOW_KEY_F10 },
-    
-    { XK_F11, WINDOW_KEY_F11 },
-    
-    { XK_F12, WINDOW_KEY_F12 },
-    
-    { XK_grave, WINDOW_KEY_GRAVE }, 
-    { XK_asciitilde, WINDOW_KEY_GRAVE },
-    
-    { XK_1, WINDOW_KEY_ONE },       
-    { XK_exclam, WINDOW_KEY_ONE },
-    
-    { XK_2, WINDOW_KEY_TWO },       
-    { XK_at, WINDOW_KEY_TWO },
-    
-    { XK_3, WINDOW_KEY_THREE },     
-    { XK_numbersign, WINDOW_KEY_THREE },
-    
-    { XK_4, WINDOW_KEY_FOUR },      
-    { XK_dollar, WINDOW_KEY_FOUR },
-    
-    { XK_5, WINDOW_KEY_FIVE },      
-    { XK_percent, WINDOW_KEY_FIVE },
-    
-    { XK_6, WINDOW_KEY_SIX },       
-    { XK_asciicircum, WINDOW_KEY_SIX },
-    
-    { XK_7, WINDOW_KEY_SEVEN },     
-    { XK_ampersand, WINDOW_KEY_SEVEN },
-    
-    { XK_8, WINDOW_KEY_EIGHT },     
-    { XK_asterisk, WINDOW_KEY_EIGHT },
-    
-    { XK_9, WINDOW_KEY_NINE },      
-    { XK_parenleft, WINDOW_KEY_NINE },
-    
-    { XK_0, WINDOW_KEY_ZERO },      
-    { XK_parenright, WINDOW_KEY_ZERO },
-    
-    { XK_minus, WINDOW_KEY_DASH },  
-    { XK_underscore, WINDOW_KEY_DASH },
-    
-    { XK_equal, WINDOW_KEY_EQUAL },
-    { XK_plus, WINDOW_KEY_EQUAL },
-    
-    { XK_BackSpace, WINDOW_KEY_BACKSPACE },
-    
-    { XK_Tab, WINDOW_KEY_TAB },
-    
-    { XK_Q, WINDOW_KEY_Q },
-    { XK_q, WINDOW_KEY_Q },
-    
-    { XK_W, WINDOW_KEY_W },
-    { XK_w, WINDOW_KEY_W },
-    
-    { XK_E, WINDOW_KEY_E },
-    { XK_e, WINDOW_KEY_E },
-    
-    { XK_R, WINDOW_KEY_R },
-    { XK_r, WINDOW_KEY_R },
-    
-    { XK_T, WINDOW_KEY_T },
-    { XK_t, WINDOW_KEY_T },
-    
-    { XK_Y, WINDOW_KEY_Y },
-    { XK_y, WINDOW_KEY_Y },
-    
-    { XK_U, WINDOW_KEY_U },
-    { XK_u, WINDOW_KEY_U },
-    
-    { XK_I, WINDOW_KEY_I },
-    { XK_i, WINDOW_KEY_I },
-    
-    { XK_O, WINDOW_KEY_O },
-    { XK_o, WINDOW_KEY_O },
-    
-    { XK_P, WINDOW_KEY_P },
-    { XK_p, WINDOW_KEY_P },
-    
-    { XK_bracketleft, WINDOW_KEY_OBRACE },
-    { XK_braceleft, WINDOW_KEY_OBRACE },
-    
-    { XK_bracketright, WINDOW_KEY_CBRACE },
-    { XK_braceright, WINDOW_KEY_CBRACE },
+    { XK_Caps_Lock, WINDOW_KEYCODE_CAPSLOCK, 0 },
 
-    { XK_Caps_Lock, WINDOW_KEY_CAPSLOCK },
+    { XK_A, WINDOW_KEYCODE_A, 0 },
+    { XK_a, WINDOW_KEYCODE_A, 0 },
 
-    { XK_A, WINDOW_KEY_A },
-    { XK_a, WINDOW_KEY_A },
+    { XK_S, WINDOW_KEYCODE_S, 0 },
+    { XK_s, WINDOW_KEYCODE_S, 0 },
 
-    { XK_S, WINDOW_KEY_S },
-    { XK_s, WINDOW_KEY_S },
+    { XK_D, WINDOW_KEYCODE_D, 0 },
+    { XK_d, WINDOW_KEYCODE_D, 0 },
 
-    { XK_D, WINDOW_KEY_D },
-    { XK_d, WINDOW_KEY_D },
+    { XK_F, WINDOW_KEYCODE_F, 0 },
+    { XK_f, WINDOW_KEYCODE_F, 0 },
 
-    { XK_F, WINDOW_KEY_F },
-    { XK_f, WINDOW_KEY_F },
+    { XK_G, WINDOW_KEYCODE_G, 0 },
+    { XK_g, WINDOW_KEYCODE_G, 0 },
 
-    { XK_G, WINDOW_KEY_G },
-    { XK_g, WINDOW_KEY_G },
+    { XK_H, WINDOW_KEYCODE_H, 0 },
+    { XK_h, WINDOW_KEYCODE_H, 0 },
 
-    { XK_H, WINDOW_KEY_H },
-    { XK_h, WINDOW_KEY_H },
+    { XK_J, WINDOW_KEYCODE_J, 0 },
+    { XK_j, WINDOW_KEYCODE_J, 0 },
 
-    { XK_J, WINDOW_KEY_J },
-    { XK_j, WINDOW_KEY_J },
+    { XK_K, WINDOW_KEYCODE_K, 0 },
+    { XK_k, WINDOW_KEYCODE_K, 0 },
 
-    { XK_K, WINDOW_KEY_K },
-    { XK_k, WINDOW_KEY_K },
+    { XK_L, WINDOW_KEYCODE_L, 0 },
+    { XK_l, WINDOW_KEYCODE_L, 0 },
 
-    { XK_L, WINDOW_KEY_L },
-    { XK_l, WINDOW_KEY_L },
+    { XK_semicolon, WINDOW_KEYCODE_SEMICOLON, 0 },
+    { XK_colon, WINDOW_KEYCODE_SEMICOLON, 0 },
 
-    { XK_semicolon, WINDOW_KEY_SEMICOLON },
-    { XK_colon, WINDOW_KEY_SEMICOLON },
+    { XK_apostrophe, WINDOW_KEYCODE_QUOTE, 0 },
+    { XK_quotedbl, WINDOW_KEYCODE_QUOTE, 0 },
 
-    { XK_apostrophe, WINDOW_KEY_QUOTE },
-    { XK_quotedbl, WINDOW_KEY_QUOTE },
+    { XK_backslash, WINDOW_KEYCODE_BACKSLASH, 0 },
+    { XK_bar, WINDOW_KEYCODE_BACKSLASH, 0 },
 
-    { XK_backslash, WINDOW_KEY_BACKSLASH },
-    { XK_bar, WINDOW_KEY_BACKSLASH },
+    { XK_Return, WINDOW_KEYCODE_ENTER, 0 },
 
-    { XK_Return, WINDOW_KEY_ENTER },
+    { XK_Shift_L, WINDOW_KEYCODE_LSHIFT, 0 },
+    
+    { XK_Z, WINDOW_KEYCODE_Z, 0 },
+    { XK_z, WINDOW_KEYCODE_Z, 0 },
+    
+    { XK_X, WINDOW_KEYCODE_X, 0 },
+    { XK_x, WINDOW_KEYCODE_X, 0 },
+    
+    { XK_C, WINDOW_KEYCODE_C, 0 },
+    { XK_c, WINDOW_KEYCODE_C, 0 },
+    
+    { XK_V, WINDOW_KEYCODE_V, 0 },
+    { XK_v, WINDOW_KEYCODE_V, 0 },
+    
+    { XK_B, WINDOW_KEYCODE_B, 0 },
+    { XK_b, WINDOW_KEYCODE_B, 0 },
+    
+    { XK_N, WINDOW_KEYCODE_N, 0 },
+    { XK_n, WINDOW_KEYCODE_N, 0 },
+    
+    { XK_M, WINDOW_KEYCODE_M, 0 },
+    { XK_m, WINDOW_KEYCODE_M, 0 },
+    
+    { XK_comma, WINDOW_KEYCODE_COMMA, 0 },
+    { XK_less, WINDOW_KEYCODE_COMMA, 0 },
+    
+    { XK_period, WINDOW_KEYCODE_PERIOD, 0 },
+    { XK_greater, WINDOW_KEYCODE_PERIOD, 0 },
+    
+    { XK_slash, WINDOW_KEYCODE_SLASH, 0 },
+    { XK_question, WINDOW_KEYCODE_SLASH, 0 },
+    
+    { XK_Shift_R, WINDOW_KEYCODE_RSHIFT, 0 },
+    
+    { XK_Control_L, WINDOW_KEYCODE_LCTRL, 0 },
+    
+    { XK_Super_L, WINDOW_KEYCODE_MOD, 0 },
+    
+    { XK_Alt_L, WINDOW_KEYCODE_LALT, 0 },
+    
+    { XK_space, WINDOW_KEYCODE_SPACE, 0 },
+    
+    { XK_Alt_R, WINDOW_KEYCODE_RALT, 0 },
+    
+    { XK_Control_R, WINDOW_KEYCODE_RCTRL, 0 },
 
-    { XK_Shift_L, WINDOW_KEY_LSHIFT },
+    { XK_Print, WINDOW_KEYCODE_PRINTSCREEN, 0 },
     
-    { XK_Z, WINDOW_KEY_Z },
-    { XK_z, WINDOW_KEY_Z },
+    { XK_Scroll_Lock, WINDOW_KEYCODE_SCROLLLOCK, 0 },
     
-    { XK_X, WINDOW_KEY_X },
-    { XK_x, WINDOW_KEY_X },
-    
-    { XK_C, WINDOW_KEY_C },
-    { XK_c, WINDOW_KEY_C },
-    
-    { XK_V, WINDOW_KEY_V },
-    { XK_v, WINDOW_KEY_V },
-    
-    { XK_B, WINDOW_KEY_B },
-    { XK_b, WINDOW_KEY_B },
-    
-    { XK_N, WINDOW_KEY_N },
-    { XK_n, WINDOW_KEY_N },
-    
-    { XK_M, WINDOW_KEY_M },
-    { XK_m, WINDOW_KEY_M },
-    
-    { XK_comma, WINDOW_KEY_COMMA },
-    { XK_less, WINDOW_KEY_COMMA },
-    
-    { XK_period, WINDOW_KEY_PERIOD },
-    { XK_greater, WINDOW_KEY_PERIOD },
-    
-    { XK_slash, WINDOW_KEY_SLASH },
-    { XK_question, WINDOW_KEY_SLASH },
-    
-    { XK_Shift_R, WINDOW_KEY_RSHIFT },
-    
-    { XK_Control_L, WINDOW_KEY_LCTRL },
-    
-    { XK_Super_L, WINDOW_KEY_MOD },
-    
-    { XK_Alt_L, WINDOW_KEY_LALT },
-    
-    { XK_space, WINDOW_KEY_SPACE },
-    
-    { XK_Alt_R, WINDOW_KEY_RALT },
-    
-    { XK_Control_R, WINDOW_KEY_RCTRL },
+    { XK_Pause, WINDOW_KEYCODE_PAUSE, 0 },
 
-    { XK_Print, WINDOW_KEY_PRINTSCREEN },
+    { XK_Insert, WINDOW_KEYCODE_INSERT, 0 },
     
-    { XK_Scroll_Lock, WINDOW_KEY_SCROLLLOCK },
+    { XK_Home, WINDOW_KEYCODE_HOME, 0 },
     
-    { XK_Pause, WINDOW_KEY_PAUSE },
+    { XK_Prior, WINDOW_KEYCODE_PAGEUP, 0 },
 
-    { XK_Insert, WINDOW_KEY_INSERT },
+    { XK_Delete, WINDOW_KEYCODE_DELETE, 0 },
     
-    { XK_Home, WINDOW_KEY_HOME },
+    { XK_End, WINDOW_KEYCODE_END, 0 },
     
-    { XK_Prior, WINDOW_KEY_PAGEUP },
+    { XK_Next, WINDOW_KEYCODE_PAGEDOWN, 0 },
 
-    { XK_Delete, WINDOW_KEY_DELETE },
+    { XK_Up, WINDOW_KEYCODE_UP, 0 },
     
-    { XK_End, WINDOW_KEY_END },
+    { XK_Left, WINDOW_KEYCODE_LEFT, 0 },
     
-    { XK_Next, WINDOW_KEY_PAGEDOWN },
+    { XK_Down, WINDOW_KEYCODE_DOWN, 0 },
+    
+    { XK_Right, WINDOW_KEYCODE_RIGHT, 0 },
 
-    { XK_Up, WINDOW_KEY_UP },
+    { XK_Num_Lock, WINDOW_KEYCODE_NUMLOCK, 0 },
     
-    { XK_Left, WINDOW_KEY_LEFT },
+    { XK_KP_Divide, WINDOW_KEYCODE_NUMSLASH, 0 },
     
-    { XK_Down, WINDOW_KEY_DOWN },
+    { XK_KP_Multiply, WINDOW_KEYCODE_NUMSTAR, 0 },
     
-    { XK_Right, WINDOW_KEY_RIGHT },
-
-    { XK_Num_Lock, WINDOW_KEY_NUMLOCK },
+    { XK_KP_Subtract, WINDOW_KEYCODE_NUMDASH, 0 },
     
-    { XK_KP_Divide, WINDOW_KEY_NUMSLASH },
+    { XK_KP_Home, WINDOW_KEYCODE_NUM7, 0 },
+    { XK_KP_7, WINDOW_KEYCODE_NUM7, 0 },
     
-    { XK_KP_Multiply, WINDOW_KEY_NUMSTAR },
+    { XK_KP_Up, WINDOW_KEYCODE_NUM8, 0 },
+    { XK_KP_8, WINDOW_KEYCODE_NUM8, 0 },
     
-    { XK_KP_Subtract, WINDOW_KEY_NUMDASH },
+    { XK_KP_Prior, WINDOW_KEYCODE_NUM9, 0 },
+    { XK_KP_9, WINDOW_KEYCODE_NUM9, 0 },
     
-    { XK_KP_Home, WINDOW_KEY_NUM7 },
-    { XK_KP_7, WINDOW_KEY_NUM7 },
+    { XK_KP_Left, WINDOW_KEYCODE_NUM4, 0 },
+    { XK_KP_4, WINDOW_KEYCODE_NUM4, 0 },
     
-    { XK_KP_Up, WINDOW_KEY_NUM8 },
-    { XK_KP_8, WINDOW_KEY_NUM8 },
+    { XK_KP_Begin, WINDOW_KEYCODE_NUM5, 0 },
+    { XK_KP_5, WINDOW_KEYCODE_NUM5, 0 },
     
-    { XK_KP_Prior, WINDOW_KEY_NUM9 },
-    { XK_KP_9, WINDOW_KEY_NUM9 },
+    { XK_KP_Right, WINDOW_KEYCODE_NUM6, 0 },
+    { XK_KP_6, WINDOW_KEYCODE_NUM6, 0 },
     
-    { XK_KP_Left, WINDOW_KEY_NUM4 },
-    { XK_KP_4, WINDOW_KEY_NUM4 },
+    { XK_KP_End, WINDOW_KEYCODE_NUM1, 0 },
+    { XK_KP_1, WINDOW_KEYCODE_NUM1, 0 },
     
-    { XK_KP_Begin, WINDOW_KEY_NUM5 },
-    { XK_KP_5, WINDOW_KEY_NUM5 },
+    { XK_KP_Down, WINDOW_KEYCODE_NUM2, 0 },
+    { XK_KP_2, WINDOW_KEYCODE_NUM2, 0 },
     
-    { XK_KP_Right, WINDOW_KEY_NUM6 },
-    { XK_KP_6, WINDOW_KEY_NUM6 },
+    { XK_KP_Next, WINDOW_KEYCODE_NUM3, 0 },
+    { XK_KP_3, WINDOW_KEYCODE_NUM3, 0 },
     
-    { XK_KP_End, WINDOW_KEY_NUM1 },
-    { XK_KP_1, WINDOW_KEY_NUM1 },
+    { XK_KP_Insert, WINDOW_KEYCODE_NUM0, 0 },
+    { XK_KP_0, WINDOW_KEYCODE_NUM0, 0 },
     
-    { XK_KP_Down, WINDOW_KEY_NUM2 },
-    { XK_KP_2, WINDOW_KEY_NUM2 },
+    { XK_KP_Delete, WINDOW_KEYCODE_NUMSEP, 0 },
     
-    { XK_KP_Next, WINDOW_KEY_NUM3 },
-    { XK_KP_3, WINDOW_KEY_NUM3 },
+    { XK_KP_Add, WINDOW_KEYCODE_NUMPLUS, 0 },
     
-    { XK_KP_Insert, WINDOW_KEY_NUM0 },
-    { XK_KP_0, WINDOW_KEY_NUM0 },
-    
-    { XK_KP_Delete, WINDOW_KEY_NUMSEP },
-    
-    { XK_KP_Add, WINDOW_KEY_NUMPLUS },
-    
-    { XK_KP_Enter, WINDOW_KEY_NUMENTER },
+    { XK_KP_Enter, WINDOW_KEYCODE_NUMENTER, 0 },
 
     /* ... */
 
-    { 0, WINDOW_KEY_NONE }
+    { 0, WINDOW_KEYCODE_NONE, 0 }
 };
 
 
@@ -2373,6 +2373,9 @@ WINDEF int winPollEvents(t_event *event) {
 WININT int __winPollEvents(void) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+	
+    /* xlib references */
+	Display *dpy = __window_h.x11->xlib.dpy; 
     
     XEvent xevent = { 0 };
     while (XPending(__window_h.x11->xlib.dpy)) {
@@ -2448,25 +2451,27 @@ WININT int __winPollEvents(void) {
 
             case (KeyPress):
             case (KeyRelease): {
-                uint8_t  state   = (xevent.type == KeyPress) ? 1 : 0;
-                uint64_t keycode = xevent.xkey.keycode;
-                uint64_t keysym  = XkbKeycodeToKeysym(__window_h.x11->xlib.dpy, keycode, 0, 0);
+                int8_t  state = (xevent.type == KeyPress) ? 1 : 0;
+                int64_t  x_kc = xevent.xkey.keycode;
+                int64_t  x_ks = XkbKeycodeToKeysym(dpy, x_kc, 0, 0);
 
-                uint32_t key = 0;
-                for (size_t i = 0; g_keymap[i].src; i++) {
-                    if (keysym == g_keymap[i].src) {
-                        key = g_keymap[i].dst;
+                /* get keycode */
+                int32_t keycode = 0;
+                for (size_t i = 0; __window_h_keymap[i].src; i++) {
+                    if (x_ks == __window_h_keymap[i].src) {
+                        keycode = __window_h_keymap[i].kc;
                         break;
                     }
                 }
 
-                /* invalid button */
-                if (key == 0) { break; }
+                /* get keysym */
+                int32_t keysym = x_ks;
 
                 t_eventKeyboardKey event = (t_eventKeyboardKey) {
                     .type = WINDOW_EVENT_KEYBOARD_KEY,
                     .timestamp = winGetTime(),
-                    .key = key,
+                    .keysym = keysym,
+                    .keycode = keycode,
                     .state = state
                 };
                 winPushEvent((t_event *) &event);

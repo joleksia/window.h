@@ -43,11 +43,6 @@ int main(void) {
                     printf("WINDOW_EVENT_QUIT\n");
                     exit = 1;
                 } break;
-                case (WINDOW_EVENT_KEYBOARD_KEY): {
-                    if (event.key.key == WINDOW_KEY_SPACE) {
-                        winSetWindowFlag(win, WINDOW_FLAG_FULLSCREEN);
-                    }
-                } break;
             }
         }
     }
