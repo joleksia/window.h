@@ -760,17 +760,34 @@ WINDEF int winWaitTime(uint64_t);
 #   include <windows.h>
 #  endif
 
+/* platform-independent */
+
+typedef struct __window_h_eventQueue __window_h_eventQueue;
+
+struct __window_h_eventQueue {
+    t_event *bgn, /* beginning of the circular buffer */
+            *end, /* end of the circular buffer */
+            *arr; /* circular buffer */
+
+    size_t cap, /* circular buffer elements capacity */
+           cnt; /* circular buffer elements count */
+};
+
+/* platform-specific */
+
 typedef struct __window_h_x11 *__window_h_x11;
 
 typedef struct __window_h_egl *__window_h_egl;
 
 static struct __window_h  {
 
-    /* platform libraries */
+    /* platform-independent */
+
+    __window_h_eventQueue eventQueue;
+
+    /* platform-specific */
 
     __window_h_x11 x11;
-
-    /* opengl api */
 
     __window_h_egl egl;
 
@@ -1884,6 +1901,7 @@ WINDEF int winInit(void) {
     return (1);
 }
 
+
 WINDEF int winQuit(void) {
     /* release X11 resources */
     XCloseDisplay(__window_h.x11->xlib.dpy);
@@ -1892,6 +1910,307 @@ WINDEF int winQuit(void) {
     free(__window_h.x11), __window_h.x11 = 0;
     
     /* success */
+    return (1);
+}
+
+
+WINDEF int winGetSize(size_t *w_ptr, size_t *h_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* references */
+    Display *dpy = __window_h.x11->xlib.dpy;
+    Window  root = __window_h.x11->xlib.root;
+
+    /* query attributes */
+    XWindowAttributes attr;
+    if (!XGetWindowAttributes(dpy, root, &attr)) { return (0); }
+    
+    /* assign values */
+    if (w_ptr) { *w_ptr = attr.width; }
+    if (h_ptr) { *h_ptr = attr.height; }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF void *winGetProperty(const uint32_t prop) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    switch (prop) {
+        case (WINDOW_PROP_PLATFORM_X11_DISPLAY): { return (__window_h.x11->xlib.dpy); }
+        case (WINDOW_PROP_PLATFORM_X11_ROOT_ID): { return (&__window_h.x11->xlib.root); }
+
+        default: { } break;
+    }
+
+    /* return nothing */
+    return (0);
+}
+
+/* event functions */
+
+WININT int __winPollEvents(void);
+
+WINDEF int winPollEvents(t_event *event) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!event)  		 { return (0); }
+
+    /* poll events from platform queue */
+    if (winPopEvent(event)) { return (1); }
+
+    /* handle platform events */
+    __winPollEvents();
+
+    /* queue filled, return WINDOW_EVENT_NONE */
+    *event = (t_event) { 0 };
+    return (0);
+}
+    
+WININT int __winPollEvents(void) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    XEvent xevent = { 0 };
+    while (XPending(__window_h.x11->xlib.dpy)) {
+        XNextEvent(__window_h.x11->xlib.dpy, &xevent);
+        
+        switch (xevent.type) {
+            case (ClientMessage): {
+                if (xevent.xclient.message_type == __window_h.x11->xatom.wm_protocols) {
+                    const Atom data = xevent.xclient.data.l[0];
+
+                    if (data == __window_h.x11->xatom.wm_delete_window) {
+                        t_eventQuit event = (t_eventQuit) {
+                            .type = WINDOW_EVENT_QUIT,
+                            .timestamp = winGetTime()
+                        };
+                        winPushEvent((t_event *) &event);
+                    }
+                }
+            } break;
+
+            case (MotionNotify): {
+                t_eventMouseMotion event = (t_eventMouseMotion) {
+                    .type = WINDOW_EVENT_MOUSE_MOTION,
+                    .timestamp = winGetTime(),
+                    .x = xevent.xmotion.x, .xrel = xevent.xmotion.x_root,
+                    .y = xevent.xmotion.y, .yrel = xevent.xmotion.y_root,
+                };
+                winPushEvent((t_event *) &event);
+            } break;
+
+            case (ButtonPress):
+            case (ButtonRelease): {
+                uint8_t btn = 0;
+                switch (xevent.xbutton.button) {
+                    /* key press / relese */
+                    case (1): { btn = WINDOW_BUTTON_LEFT;   } break; /* left */
+                    case (2): { btn = WINDOW_BUTTON_MIDDLE; } break; /* middle */
+                    case (3): { btn = WINDOW_BUTTON_RIGHT;  } break; /* right */
+
+                    /* scroll up / down */
+                    case (4): { btn = 4; } break; /* scroll up */
+                    case (5): { btn = 5; } break; /* scroll down */
+                }
+
+                /* invalid button */
+                if (btn == 0) { break; }
+
+                /* mouse button presses / releases */
+                else if (btn >= 1 && btn <= 3) {
+                    uint8_t state = (xevent.type == ButtonPress) ? 1 : 0;
+
+                    t_eventMouseButton event = (t_eventMouseButton) {
+                        .type = WINDOW_EVENT_MOUSE_BUTTON,
+                        .timestamp = winGetTime(),
+                        .btn = btn,
+                        .state = state
+                    };
+                    winPushEvent((t_event *) &event);
+                }
+
+                /* scroll up / down */
+                else if (btn >= 4 && btn <= 5) {
+                    if (xevent.type == ButtonRelease) { break; }
+
+                    t_eventMouseScroll event = (t_eventMouseScroll) {
+                        .type = WINDOW_EVENT_MOUSE_SCROLL,
+                        .timestamp = winGetTime(),
+                        .scroll = (btn == 4) ? 1 : -1
+                    };
+                    winPushEvent((t_event *) &event);
+                }
+            } break;
+
+            case (KeyPress):
+            case (KeyRelease): {
+                uint8_t  state   = (xevent.type == KeyPress) ? 1 : 0;
+                uint64_t keycode = xevent.xkey.keycode;
+                uint64_t keysym  = XkbKeycodeToKeysym(__window_h.x11->xlib.dpy, keycode, 0, state);
+
+                uint32_t key = 0;
+                for (size_t i = 0; g_keymap[i].src; i++) {
+                    if (keysym == g_keymap[i].src) {
+                        key = g_keymap[i].dst;
+                        break;
+                    }
+                }
+
+                /* invalid button */
+                if (key == 0) { break; }
+
+                t_eventKeyboardKey event = (t_eventKeyboardKey) {
+                    .type = WINDOW_EVENT_KEYBOARD_KEY,
+                    .timestamp = winGetTime(),
+                    .key = key,
+                    .state = state
+                };
+                winPushEvent((t_event *) &event);
+            } break;
+        }
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winWaitEvents(t_event *event) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!event)  		 { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winPushEvent(t_event *event) {
+    /* null-check */
+    if (!event)  { return (0); }
+    
+    /* alloc new `arr` if needed */
+    if (!__window_h.eventQueue.arr) {
+        t_event *arr = malloc(WINDOW_EVENT_QUEUE_CAPACITY * sizeof(t_event));
+        if (!arr) { return (0); }
+
+        __window_h.eventQueue.arr = __window_h.eventQueue.bgn = __window_h.eventQueue.end = arr;
+        __window_h.eventQueue.cap = WINDOW_EVENT_QUEUE_CAPACITY;
+        __window_h.eventQueue.cnt = 0;
+    }
+
+    /* bound check */
+    if (__window_h.eventQueue.cnt >= __window_h.eventQueue.cap) {
+        /* consider resizing
+         * for now returning
+         * */
+        return (0);
+    }
+
+    /* assign the object to the last `arr` element */
+    *__window_h.eventQueue.end = *event;
+    /* move the last element by one */
+    __window_h.eventQueue.end++;
+    /* boundary check
+     * if exceeds the `arr`, return back to start
+     * */
+    size_t end = __window_h.eventQueue.end - __window_h.eventQueue.arr;
+    if (end >= __window_h.eventQueue.cap) {
+        __window_h.eventQueue.end = __window_h.eventQueue.arr;
+    }
+
+    /* increment the count */
+    __window_h.eventQueue.cnt++;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winPopEvent(t_event *event) {
+    /* null-check */
+    if (!event)  { return (0); }
+
+    /* check if event queue exists */
+    if (!__window_h.eventQueue.arr) { return (0); }
+
+    /* check if there's anything in the queue */
+    if (__window_h.eventQueue.cnt == 0) { return (0); }
+
+    /* assign the first element to the reference */
+    *event = *__window_h.eventQueue.bgn;
+    /* zero-down the first element (safety matter) */
+    *__window_h.eventQueue.bgn = (t_event) { 0 };
+    /* move the first element by one */
+    __window_h.eventQueue.bgn++;
+    /* boundary check
+     * if exceeds the `arr`, return back to start
+     * */
+    size_t bgn = __window_h.eventQueue.bgn - __window_h.eventQueue.arr;
+    if (bgn >= __window_h.eventQueue.cap) {
+        __window_h.eventQueue.bgn = __window_h.eventQueue.arr;
+    }
+
+    /* decrement the count */
+    __window_h.eventQueue.cnt--;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winPeekEvent(t_event *event) {
+    /* null-check */
+    if (!event)  { return (0); }
+
+    /* zero-down the event */
+    *event = (t_event) { 0 };
+
+    /* check if event queue exists */
+    if (!__window_h.eventQueue.arr) { return (0); }
+
+    /* check if there's anything in the queue */
+    if (__window_h.eventQueue.cnt == 0) { return (0); }
+
+    /* assign the first element to the reference */
+    *event = *__window_h.eventQueue.bgn;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winFlushEvents(void) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* flush */
+    if (!XFlush(__window_h.x11->xlib.dpy)) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+/* timing functions */
+
+WINDEF uint64_t winGetTime(void) {
+    struct timeval t;
+    if (gettimeofday(&t, 0) == -1) {
+        return (0);
+    }
+
+    return (t.tv_sec * 1000 + t.tv_usec / 1000);
+}
+
+
+WINDEF int winWaitTime(uint64_t ms) {
+    uint64_t t = winGetTime();
+    if (t == 0) { return (0); }
+
+    while ((winGetTime() - t) < ms);
     return (1);
 }
 
