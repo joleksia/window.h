@@ -10,6 +10,10 @@ int main(void) {
         return (1);
     }
 
+    t_window window = 0;
+    winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
+    winMapWindow(window);
+
     int exit = 0;
     while (!exit) {
         /* poll events */

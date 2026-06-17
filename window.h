@@ -806,6 +806,13 @@ struct s_window {
 
     struct s_window *next;
 
+    /* config flag data */
+    uint32_t flags;
+
+    /* mapping boolean */
+    uint8_t mapped;
+    
+    /* structure data */
     size_t siz_w, siz_h;
     size_t pos_x, pos_y;
 
@@ -849,725 +856,7 @@ struct s_glcontext {
 #   define _NET_WM_STATE_ADD    1
 #   define _NET_WM_STATE_TOGGLE 2
 
-typedef XClassHint *(* PFN_XAllocClassHint_PROC) (void);
-PFN_XAllocClassHint_PROC XAllocClassHint_PROC = 0;
-#   define XAllocClassHint XAllocClassHint_PROC
-
-typedef XSizeHints *(* PFN_XAllocSizeHints_PROC) (void);
-PFN_XAllocSizeHints_PROC XAllocSizeHints_PROC = 0;
-#   define XAllocSizeHints XAllocSizeHints_PROC
-
-typedef XWMHints *(* PFN_XAllocWMHints_PROC) (void);
-PFN_XAllocWMHints_PROC XAllocWMHints_PROC = 0;
-#   define XAllocWMHints XAllocWMHints_PROC
-
-typedef int (* PFN_XChangeProperty_PROC) (Display *, Window, Atom, Atom, int, int, const unsigned char *, int);
-PFN_XChangeProperty_PROC XChangeProperty_PROC = 0;
-#   define XChangeProperty XChangeProperty_PROC
-
-typedef int (* PFN_XChangeWindowAttributes_PROC) (Display *, Window, unsigned long, XSetWindowAttributes *);
-PFN_XChangeWindowAttributes_PROC XChangeWindowAttributes_PROC = 0;
-#   define XChangeWindowAttributes XChangeWindowAttributes_PROC
-
-typedef Bool (* PFN_XCheckIfEvent_PROC) (Display *, XEvent *, Bool(*_PROC) (Display *, XEvent *, XPointer), XPointer);
-PFN_XCheckIfEvent_PROC XCheckIfEvent_PROC = 0;
-#   define XCheckIfEvent XCheckIfEvent_PROC
-
-typedef Bool (* PFN_XCheckTypedWindowEvent_PROC) (Display *, Window, int, XEvent *);
-PFN_XCheckTypedWindowEvent_PROC XCheckTypedWindowEvent_PROC = 0;
-#   define XCheckTypedWindowEvent XCheckTypedWindowEvent_PROC
-
-typedef int (* PFN_XCloseDisplay_PROC) (Display *);
-PFN_XCloseDisplay_PROC XCloseDisplay_PROC = 0;
-#   define XCloseDisplay XCloseDisplay_PROC
-
-typedef int (* PFN_XConvertSelection_PROC) (Display *, Atom, Atom, Atom, Window, Time);
-PFN_XConvertSelection_PROC XConvertSelection_PROC = 0;
-#   define XConvertSelection XConvertSelection_PROC
-
-typedef Colormap (* PFN_XCreateColormap_PROC) (Display *, Window, Visual *, int);
-PFN_XCreateColormap_PROC XCreateColormap_PROC = 0;
-#   define XCreateColormap XCreateColormap_PROC
-
-typedef Cursor (* PFN_XCreateFontCursor_PROC) (Display *, unsigned int);
-PFN_XCreateFontCursor_PROC XCreateFontCursor_PROC = 0;
-#   define XCreateFontCursor XCreateFontCursor_PROC
-
-typedef XIC (* PFN_XCreateIC_PROC) (XIM, ...);
-PFN_XCreateIC_PROC XCreateIC_PROC = 0;
-#   define XCreateIC XCreateIC_PROC
-
-typedef Region (* PFN_XCreateRegion_PROC) (void);
-PFN_XCreateRegion_PROC XCreateRegion_PROC = 0;
-#   define XCreateRegion XCreateRegion_PROC
-
-typedef Window (* PFN_XCreateWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual *, unsigned long, XSetWindowAttributes *);
-PFN_XCreateWindow_PROC XCreateWindow_PROC = 0;
-#   define XCreateWindow XCreateWindow_PROC
-
-typedef int (* PFN_XDefineCursor_PROC) (Display *, Window, Cursor);
-PFN_XDefineCursor_PROC XDefineCursor_PROC = 0;
-#   define XDefineCursor XDefineCursor_PROC
-
-typedef int (* PFN_XDeleteContext_PROC) (Display *, XID, XContext);
-PFN_XDeleteContext_PROC XDeleteContext_PROC = 0;
-#   define XDeleteContext XDeleteContext_PROC
-
-typedef int (* PFN_XDeleteProperty_PROC) (Display *, Window, Atom);
-PFN_XDeleteProperty_PROC XDeleteProperty_PROC = 0;
-#   define XDeleteProperty XDeleteProperty_PROC
-
-typedef void (* PFN_XDestroyIC_PROC) (XIC);
-PFN_XDestroyIC_PROC XDestroyIC_PROC = 0;
-#   define XDestroyIC XDestroyIC_PROC
-
-typedef int (* PFN_XDestroyRegion_PROC) (Region);
-PFN_XDestroyRegion_PROC XDestroyRegion_PROC = 0;
-#   define XDestroyRegion XDestroyRegion_PROC
-
-typedef int (* PFN_XDestroyWindow_PROC) (Display *, Window);
-PFN_XDestroyWindow_PROC XDestroyWindow_PROC = 0;
-#   define XDestroyWindow XDestroyWindow_PROC
-
-typedef int (* PFN_XDisplayKeycodes_PROC) (Display *, int *, int *);
-PFN_XDisplayKeycodes_PROC XDisplayKeycodes_PROC = 0;
-#   define XDisplayKeycodes XDisplayKeycodes_PROC
-
-typedef int (* PFN_XEventsQueued_PROC) (Display *, int);
-PFN_XEventsQueued_PROC XEventsQueued_PROC = 0;
-#   define XEventsQueued XEventsQueued_PROC
-
-typedef Bool (* PFN_XFilterEvent_PROC) (XEvent *, Window);
-PFN_XFilterEvent_PROC XFilterEvent_PROC = 0;
-#   define XFilterEvent XFilterEvent_PROC
-
-typedef int (* PFN_XFindContext_PROC) (Display *, XID, XContext, XPointer *);
-PFN_XFindContext_PROC XFindContext_PROC = 0;
-#   define XFindContext XFindContext_PROC
-
-typedef int (* PFN_XFlush_PROC) (Display *);
-PFN_XFlush_PROC XFlush_PROC = 0;
-#   define XFlush XFlush_PROC
-
-typedef int (* PFN_XFree_PROC) (void *);
-PFN_XFree_PROC XFree_PROC = 0;
-#   define XFree XFree_PROC
-
-typedef int (* PFN_XFreeColormap_PROC) (Display *, Colormap);
-PFN_XFreeColormap_PROC XFreeColormap_PROC = 0;
-#   define XFreeColormap XFreeColormap_PROC
-
-typedef int (* PFN_XFreeCursor_PROC) (Display *, Cursor);
-PFN_XFreeCursor_PROC XFreeCursor_PROC = 0;
-#   define XFreeCursor XFreeCursor_PROC
-
-typedef void (* PFN_XFreeEventData_PROC) (Display *, XGenericEventCookie *);
-PFN_XFreeEventData_PROC XFreeEventData_PROC = 0;
-#   define XFreeEventData XFreeEventData_PROC
-
-typedef int (* PFN_XGetErrorText_PROC) (Display *, int, char *, int);
-PFN_XGetErrorText_PROC XGetErrorText_PROC = 0;
-#   define XGetErrorText XGetErrorText_PROC
-
-typedef Bool (* PFN_XGetEventData_PROC) (Display *, XGenericEventCookie *);
-PFN_XGetEventData_PROC XGetEventData_PROC = 0;
-#   define XGetEventData XGetEventData_PROC
-
-typedef char *(* PFN_XGetICValues_PROC) (XIC, ...);
-PFN_XGetICValues_PROC XGetICValues_PROC = 0;
-#   define XGetICValues XGetICValues_PROC
-
-typedef char *(* PFN_XGetIMValues_PROC) (XIM, ...);
-PFN_XGetIMValues_PROC XGetIMValues_PROC = 0;
-#   define XGetIMValues XGetIMValues_PROC
-
-typedef int (* PFN_XGetInputFocus_PROC) (Display *, Window *, int *);
-PFN_XGetInputFocus_PROC XGetInputFocus_PROC = 0;
-#   define XGetInputFocus XGetInputFocus_PROC
-
-typedef KeySym *(* PFN_XGetKeyboardMapping_PROC) (Display *, KeyCode, int, int *);
-PFN_XGetKeyboardMapping_PROC XGetKeyboardMapping_PROC = 0;
-#   define XGetKeyboardMapping XGetKeyboardMapping_PROC
-
-typedef int (* PFN_XGetScreenSaver_PROC) (Display *, int *, int *, int *, int *);
-PFN_XGetScreenSaver_PROC XGetScreenSaver_PROC = 0;
-#   define XGetScreenSaver XGetScreenSaver_PROC
-
-typedef Window (* PFN_XGetSelectionOwner_PROC) (Display *, Atom);
-PFN_XGetSelectionOwner_PROC XGetSelectionOwner_PROC = 0;
-#   define XGetSelectionOwner XGetSelectionOwner_PROC
-
-typedef XVisualInfo *(* PFN_XGetVisualInfo_PROC) (Display *, long, XVisualInfo *, int *);
-PFN_XGetVisualInfo_PROC XGetVisualInfo_PROC = 0;
-#   define XGetVisualInfo XGetVisualInfo_PROC
-
-typedef Status (* PFN_XGetWMNormalHints_PROC) (Display *, Window, XSizeHints *, long *);
-PFN_XGetWMNormalHints_PROC XGetWMNormalHints_PROC = 0;
-#   define XGetWMNormalHints XGetWMNormalHints_PROC
-
-typedef Status (* PFN_XGetWindowAttributes_PROC) (Display *, Window, XWindowAttributes *);
-PFN_XGetWindowAttributes_PROC XGetWindowAttributes_PROC = 0;
-#   define XGetWindowAttributes XGetWindowAttributes_PROC
-
-typedef int (* PFN_XGetWindowProperty_PROC) (Display *, Window, Atom, long, long, Bool, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char* *);
-PFN_XGetWindowProperty_PROC XGetWindowProperty_PROC = 0;
-#   define XGetWindowProperty XGetWindowProperty_PROC
-
-typedef int (* PFN_XGrabPointer_PROC) (Display *, Window, Bool, unsigned int, int, int, Window, Cursor, Time);
-PFN_XGrabPointer_PROC XGrabPointer_PROC = 0;
-#   define XGrabPointer XGrabPointer_PROC
-
-typedef Status (* PFN_XIconifyWindow_PROC) (Display *, Window, int);
-PFN_XIconifyWindow_PROC XIconifyWindow_PROC = 0;
-#   define XIconifyWindow XIconifyWindow_PROC
-
-typedef Status (* PFN_XInitThreads_PROC) (void);
-PFN_XInitThreads_PROC XInitThreads_PROC = 0;
-#   define XInitThreads XInitThreads_PROC
-
-typedef Atom (* PFN_XInternAtom_PROC) (Display *, const char *, Bool);
-PFN_XInternAtom_PROC XInternAtom_PROC = 0;
-#   define XInternAtom XInternAtom_PROC
-
-typedef int (* PFN_XLookupString_PROC) (XKeyEvent *, char *, int, KeySym *, XComposeStatus *);
-PFN_XLookupString_PROC XLookupString_PROC = 0;
-#   define XLookupString XLookupString_PROC
-
-typedef int (* PFN_XMapRaised_PROC) (Display *, Window);
-PFN_XMapRaised_PROC XMapRaised_PROC = 0;
-#   define XMapRaised XMapRaised_PROC
-
-typedef int (* PFN_XMapWindow_PROC) (Display *, Window);
-PFN_XMapWindow_PROC XMapWindow_PROC = 0;
-#   define XMapWindow XMapWindow_PROC
-
-typedef int (* PFN_XMoveResizeWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int);
-PFN_XMoveResizeWindow_PROC XMoveResizeWindow_PROC = 0;
-#   define XMoveResizeWindow XMoveResizeWindow_PROC
-
-typedef int (* PFN_XMoveWindow_PROC) (Display *, Window, int, int);
-PFN_XMoveWindow_PROC XMoveWindow_PROC = 0;
-#   define XMoveWindow XMoveWindow_PROC
-
-typedef int (* PFN_XNextEvent_PROC) (Display *, XEvent *);
-PFN_XNextEvent_PROC XNextEvent_PROC = 0;
-#   define XNextEvent XNextEvent_PROC
-
-typedef Display *(* PFN_XOpenDisplay_PROC) (const char *);
-PFN_XOpenDisplay_PROC XOpenDisplay_PROC = 0;
-#   define XOpenDisplay XOpenDisplay_PROC
-
-typedef int (* PFN_XPeekEvent_PROC) (Display *, XEvent *);
-PFN_XPeekEvent_PROC XPeekEvent_PROC = 0;
-#   define XPeekEvent XPeekEvent_PROC
-
-typedef int (* PFN_XPending_PROC) (Display *);
-PFN_XPending_PROC XPending_PROC = 0;
-#   define XPending XPending_PROC
-
-typedef Bool (* PFN_XQueryExtension_PROC) (Display *, const char *, int *, int *, int *);
-PFN_XQueryExtension_PROC XQueryExtension_PROC = 0;
-#   define XQueryExtension XQueryExtension_PROC
-
-typedef Bool (* PFN_XQueryPointer_PROC) (Display *, Window, Window *, Window *, int *, int *, int *, int *, unsigned int *);
-PFN_XQueryPointer_PROC XQueryPointer_PROC = 0;
-#   define XQueryPointer XQueryPointer_PROC
-
-typedef int (* PFN_XRaiseWindow_PROC) (Display *, Window);
-PFN_XRaiseWindow_PROC XRaiseWindow_PROC = 0;
-#   define XRaiseWindow XRaiseWindow_PROC
-
-typedef Bool (* PFN_XRegisterIMInstantiateCallback_PROC) (Display *, void *, char *, char *, XIDProc, XPointer);
-PFN_XRegisterIMInstantiateCallback_PROC XRegisterIMInstantiateCallback_PROC = 0;
-#   define XRegisterIMInstantiateCallback XRegisterIMInstantiateCallback_PROC
-
-typedef int (* PFN_XResizeWindow_PROC) (Display *, Window, unsigned int, unsigned int);
-PFN_XResizeWindow_PROC XResizeWindow_PROC = 0;
-#   define XResizeWindow XResizeWindow_PROC
-
-typedef int (* PFN_XSaveContext_PROC) (Display *, XID, XContext, const char *);
-PFN_XSaveContext_PROC XSaveContext_PROC = 0;
-#   define XSaveContext XSaveContext_PROC
-
-typedef int (* PFN_XSelectInput_PROC) (Display *, Window, long);
-PFN_XSelectInput_PROC XSelectInput_PROC = 0;
-#   define XSelectInput XSelectInput_PROC
-
-typedef Status (* PFN_XSendEvent_PROC) (Display *, Window, Bool, long, XEvent *);
-PFN_XSendEvent_PROC XSendEvent_PROC = 0;
-#   define XSendEvent XSendEvent_PROC
-
-typedef int (* PFN_XSetClassHint_PROC) (Display *, Window, XClassHint *);
-PFN_XSetClassHint_PROC XSetClassHint_PROC = 0;
-#   define XSetClassHint XSetClassHint_PROC
-
-typedef XErrorHandler (* PFN_XSetErrorHandler_PROC) (XErrorHandler);
-PFN_XSetErrorHandler_PROC XSetErrorHandler_PROC = 0;
-#   define XSetErrorHandler XSetErrorHandler_PROC
-
-typedef void (* PFN_XSetICFocus_PROC) (XIC);
-PFN_XSetICFocus_PROC XSetICFocus_PROC = 0;
-#   define XSetICFocus XSetICFocus_PROC
-
-typedef char *(* PFN_XSetIMValues_PROC) (XIM, ...);
-PFN_XSetIMValues_PROC XSetIMValues_PROC = 0;
-#   define XSetIMValues XSetIMValues_PROC
-
-typedef int (* PFN_XSetInputFocus_PROC) (Display *, Window, int, Time);
-PFN_XSetInputFocus_PROC XSetInputFocus_PROC = 0;
-#   define XSetInputFocus XSetInputFocus_PROC
-
-typedef char *(* PFN_XSetLocaleModifiers_PROC) (const char *);
-PFN_XSetLocaleModifiers_PROC XSetLocaleModifiers_PROC = 0;
-#   define XSetLocaleModifiers XSetLocaleModifiers_PROC
-
-typedef int (* PFN_XSetScreenSaver_PROC) (Display *, int, int, int, int);
-PFN_XSetScreenSaver_PROC XSetScreenSaver_PROC = 0;
-#   define XSetScreenSaver XSetScreenSaver_PROC
-
-typedef int (* PFN_XSetSelectionOwner_PROC) (Display *, Atom, Window, Time);
-PFN_XSetSelectionOwner_PROC XSetSelectionOwner_PROC = 0;
-#   define XSetSelectionOwner XSetSelectionOwner_PROC
-
-typedef int (* PFN_XSetWMHints_PROC) (Display *, Window, XWMHints *);
-PFN_XSetWMHints_PROC XSetWMHints_PROC = 0;
-#   define XSetWMHints XSetWMHints_PROC
-
-typedef void (* PFN_XSetWMNormalHints_PROC) (Display *, Window, XSizeHints *);
-PFN_XSetWMNormalHints_PROC XSetWMNormalHints_PROC = 0;
-#   define XSetWMNormalHints XSetWMNormalHints_PROC
-
-typedef Status (* PFN_XSetWMProtocols_PROC) (Display *, Window, Atom *, int);
-PFN_XSetWMProtocols_PROC XSetWMProtocols_PROC = 0;
-#   define XSetWMProtocols XSetWMProtocols_PROC
-
-typedef Bool (* PFN_XSupportsLocale_PROC) (void);
-PFN_XSupportsLocale_PROC XSupportsLocale_PROC = 0;
-#   define XSupportsLocale XSupportsLocale_PROC
-
-typedef int (* PFN_XSync_PROC) (Display *, Bool);
-PFN_XSync_PROC XSync_PROC = 0;
-#   define XSync XSync_PROC
-
-typedef Bool (* PFN_XTranslateCoordinates_PROC) (Display *, Window, Window, int, int, int *, int *, Window *);
-PFN_XTranslateCoordinates_PROC XTranslateCoordinates_PROC = 0;
-#   define XTranslateCoordinates XTranslateCoordinates_PROC
-
-typedef int (* PFN_XUndefineCursor_PROC) (Display *, Window);
-PFN_XUndefineCursor_PROC XUndefineCursor_PROC = 0;
-#   define XUndefineCursor XUndefineCursor_PROC
-
-typedef int (* PFN_XUngrabPointer_PROC) (Display *, Time);
-PFN_XUngrabPointer_PROC XUngrabPointer_PROC = 0;
-#   define XUngrabPointer XUngrabPointer_PROC
-
-typedef int (* PFN_XUnmapWindow_PROC) (Display *, Window);
-PFN_XUnmapWindow_PROC XUnmapWindow_PROC = 0;
-#   define XUnmapWindow XUnmapWindow_PROC
-
-typedef void (* PFN_XUnsetICFocus_PROC) (XIC);
-PFN_XUnsetICFocus_PROC XUnsetICFocus_PROC = 0;
-#   define XUnsetICFocus XUnsetICFocus_PROC
-
-typedef VisualID (* PFN_XVisualIDFromVisual_PROC) (Visual *);
-PFN_XVisualIDFromVisual_PROC XVisualIDFromVisual_PROC = 0;
-#   define XVisualIDFromVisual XVisualIDFromVisual_PROC
-
-typedef int (* PFN_XWarpPointer_PROC) (Display *, Window, Window, int, int, unsigned int, unsigned int, int, int);
-PFN_XWarpPointer_PROC XWarpPointer_PROC = 0;
-#   define XWarpPointer XWarpPointer_PROC
-
-typedef void (* PFN_XkbFreeKeyboard_PROC) (XkbDescPtr, unsigned int, Bool);
-PFN_XkbFreeKeyboard_PROC XkbFreeKeyboard_PROC = 0;
-#   define XkbFreeKeyboard XkbFreeKeyboard_PROC
-
-typedef void (* PFN_XkbFreeNames_PROC) (XkbDescPtr, unsigned int, Bool);
-PFN_XkbFreeNames_PROC XkbFreeNames_PROC = 0;
-#   define XkbFreeNames XkbFreeNames_PROC
-
-typedef XkbDescPtr (* PFN_XkbGetMap_PROC) (Display *, unsigned int, unsigned int);
-PFN_XkbGetMap_PROC XkbGetMap_PROC = 0;
-#   define XkbGetMap XkbGetMap_PROC
-
-typedef Status (* PFN_XkbGetNames_PROC) (Display *, unsigned int, XkbDescPtr);
-PFN_XkbGetNames_PROC XkbGetNames_PROC = 0;
-#   define XkbGetNames XkbGetNames_PROC
-
-typedef Status (* PFN_XkbGetState_PROC) (Display *, unsigned int, XkbStatePtr);
-PFN_XkbGetState_PROC XkbGetState_PROC = 0;
-#   define XkbGetState XkbGetState_PROC
-
-typedef KeySym (* PFN_XkbKeycodeToKeysym_PROC) (Display *, KeyCode, int, int);
-PFN_XkbKeycodeToKeysym_PROC XkbKeycodeToKeysym_PROC = 0;
-#   define XkbKeycodeToKeysym XkbKeycodeToKeysym_PROC
-
-typedef Bool (* PFN_XkbQueryExtension_PROC) (Display *, int *, int *, int *, int *, int *);
-PFN_XkbQueryExtension_PROC XkbQueryExtension_PROC = 0;
-#   define XkbQueryExtension XkbQueryExtension_PROC
-
-typedef Bool (* PFN_XkbSelectEventDetails_PROC) (Display *, unsigned int, unsigned int, unsigned long, unsigned long);
-PFN_XkbSelectEventDetails_PROC XkbSelectEventDetails_PROC = 0;
-#   define XkbSelectEventDetails XkbSelectEventDetails_PROC
-
-typedef Bool (* PFN_XkbSetDetectableAutoRepeat_PROC) (Display *, Bool, Bool *);
-PFN_XkbSetDetectableAutoRepeat_PROC XkbSetDetectableAutoRepeat_PROC = 0;
-#   define XkbSetDetectableAutoRepeat XkbSetDetectableAutoRepeat_PROC
-
-typedef Bool (* PFN_XUnregisterIMInstantiateCallback_PROC) (Display *, void *, char *, char *, XIDProc, XPointer);
-PFN_XUnregisterIMInstantiateCallback_PROC XUnregisterIMInstantiateCallback_PROC = 0;
-#   define XUnregisterIMInstantiateCallback XUnregisterIMInstantiateCallback_PROC
-
-typedef int (* PFN_Xutf8LookupString_PROC) (XIC, XKeyPressedEvent *, char *, int, KeySym *, Status *);
-PFN_Xutf8LookupString_PROC Xutf8LookupString_PROC = 0;
-#   define Xutf8LookupString Xutf8LookupString_PROC
-
-typedef void (* PFN_Xutf8SetWMProperties_PROC) (Display *, Window, const char *, const char *, char* *, int, XSizeHints *, XWMHints *, XClassHint *);
-PFN_Xutf8SetWMProperties_PROC Xutf8SetWMProperties_PROC = 0;
-#   define Xutf8SetWMProperties Xutf8SetWMProperties_PROC
-
-typedef struct __window_h_x11 *__window_h_x11;
-
-struct __window_h_x11 {
-    struct {
-        Display *dpy;
-        Window   root;
-    } xlib;
-
-    struct {
-        /* Atoms: WM */
-        Atom wm_protocols;
-        Atom wm_delete_window;
-
-        /* Atoms: MOTIF */
-        Atom _motif_wm_hints;
-
-        /* Atoms: EWMH */
-        Atom _net_wm_state;
-        Atom _net_wm_state_above;
-        Atom _net_wm_state_fullscreen;
-        Atom _net_wm_state_hidden;
-        Atom _net_wm_state_maximized_horz;
-        Atom _net_wm_state_maximized_vert;
-        Atom _net_wm_window_opacity;
-    } xatom;
-};
-
-
-typedef struct s_window_x11 *t_window_x11;
-
-struct s_window_x11 {
-    struct {
-        Display *dpy;
-        Window   root;
-        Window   parent;
-        Window   client;
-    } xlib;
-};
-
-
-WININT int __winLoadX11(void) {
-    const char *names[] = { "libX11.so", "libX11.so.6", 0 };
-
-    /* try to load handle */
-    static void *handle = 0;
-    if (!handle) {
-        for (const char **name = names; *name; name++) {
-            handle = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
-            if (handle) { break; }
-        }
-
-        /* check if handle loaded */
-        if (!handle) { return (0); }
-    }
-
-    /* load libX11 symbols */
-    XAllocClassHint = (PFN_XAllocClassHint_PROC) dlsym(handle, "XAllocClassHint");
-    if (!XAllocClassHint) { return (0); }
-
-    XAllocSizeHints = (PFN_XAllocSizeHints_PROC) dlsym(handle, "XAllocSizeHints");
-    if (!XAllocSizeHints) { return (0); }
-
-    XAllocWMHints = (PFN_XAllocWMHints_PROC) dlsym(handle, "XAllocWMHints");
-    if (!XAllocWMHints) { return (0); }
-
-    XChangeProperty = (PFN_XChangeProperty_PROC) dlsym(handle, "XChangeProperty");
-    if (!XChangeProperty) { return (0); }
-
-    XChangeWindowAttributes = (PFN_XChangeWindowAttributes_PROC) dlsym(handle, "XChangeWindowAttributes");
-    if (!XChangeWindowAttributes) { return (0); }
-
-    XCheckIfEvent = (PFN_XCheckIfEvent_PROC) dlsym(handle, "XCheckIfEvent");
-    if (!XCheckIfEvent) { return (0); }
-
-    XCheckTypedWindowEvent = (PFN_XCheckTypedWindowEvent_PROC) dlsym(handle, "XCheckTypedWindowEvent");
-    if (!XCheckTypedWindowEvent) { return (0); }
-
-    XCloseDisplay = (PFN_XCloseDisplay_PROC) dlsym(handle, "XCloseDisplay");
-    if (!XCloseDisplay) { return (0); }
-
-    XConvertSelection = (PFN_XConvertSelection_PROC) dlsym(handle, "XConvertSelection");
-    if (!XConvertSelection) { return (0); }
-
-    XCreateColormap = (PFN_XCreateColormap_PROC) dlsym(handle, "XCreateColormap");
-    if (!XCreateColormap) { return (0); }
-
-    XCreateFontCursor = (PFN_XCreateFontCursor_PROC) dlsym(handle, "XCreateFontCursor");
-    if (!XCreateFontCursor) { return (0); }
-
-    XCreateIC = (PFN_XCreateIC_PROC) dlsym(handle, "XCreateIC");
-    if (!XCreateIC) { return (0); }
-
-    XCreateRegion = (PFN_XCreateRegion_PROC) dlsym(handle, "XCreateRegion");
-    if (!XCreateRegion) { return (0); }
-
-    XCreateWindow = (PFN_XCreateWindow_PROC) dlsym(handle, "XCreateWindow");
-    if (!XCreateWindow) { return (0); }
-
-    XDefineCursor = (PFN_XDefineCursor_PROC) dlsym(handle, "XDefineCursor");
-    if (!XDefineCursor) { return (0); }
-
-    XDeleteContext = (PFN_XDeleteContext_PROC) dlsym(handle, "XDeleteContext");
-    if (!XDeleteContext) { return (0); }
-
-    XDeleteProperty = (PFN_XDeleteProperty_PROC) dlsym(handle, "XDeleteProperty");
-    if (!XDeleteProperty) { return (0); }
-
-    XDestroyIC = (PFN_XDestroyIC_PROC) dlsym(handle, "XDestroyIC");
-    if (!XDestroyIC) { return (0); }
-
-    XDestroyRegion = (PFN_XDestroyRegion_PROC) dlsym(handle, "XDestroyRegion");
-    if (!XDestroyRegion) { return (0); }
-
-    XDestroyWindow = (PFN_XDestroyWindow_PROC) dlsym(handle, "XDestroyWindow");
-    if (!XDestroyWindow) { return (0); }
-
-    XDisplayKeycodes = (PFN_XDisplayKeycodes_PROC) dlsym(handle, "XDisplayKeycodes");
-    if (!XDisplayKeycodes) { return (0); }
-
-    XEventsQueued = (PFN_XEventsQueued_PROC) dlsym(handle, "XEventsQueued");
-    if (!XEventsQueued) { return (0); }
-
-    XFilterEvent = (PFN_XFilterEvent_PROC) dlsym(handle, "XFilterEvent");
-    if (!XFilterEvent) { return (0); }
-
-    XFindContext = (PFN_XFindContext_PROC) dlsym(handle, "XFindContext");
-    if (!XFindContext) { return (0); }
-
-    XFlush = (PFN_XFlush_PROC) dlsym(handle, "XFlush");
-    if (!XFlush) { return (0); }
-
-    XFree = (PFN_XFree_PROC) dlsym(handle, "XFree");
-    if (!XFree) { return (0); }
-
-    XFreeColormap = (PFN_XFreeColormap_PROC) dlsym(handle, "XFreeColormap");
-    if (!XFreeColormap) { return (0); }
-
-    XFreeCursor = (PFN_XFreeCursor_PROC) dlsym(handle, "XFreeCursor");
-    if (!XFreeCursor) { return (0); }
-
-    XFreeEventData = (PFN_XFreeEventData_PROC) dlsym(handle, "XFreeEventData");
-    if (!XFreeEventData) { return (0); }
-
-    XGetErrorText = (PFN_XGetErrorText_PROC) dlsym(handle, "XGetErrorText");
-    if (!XGetErrorText) { return (0); }
-
-    XGetEventData = (PFN_XGetEventData_PROC) dlsym(handle, "XGetEventData");
-    if (!XGetEventData) { return (0); }
-
-    XGetICValues = (PFN_XGetICValues_PROC) dlsym(handle, "XGetICValues");
-    if (!XGetICValues) { return (0); }
-
-    XGetIMValues = (PFN_XGetIMValues_PROC) dlsym(handle, "XGetIMValues");
-    if (!XGetIMValues) { return (0); }
-
-    XGetInputFocus = (PFN_XGetInputFocus_PROC) dlsym(handle, "XGetInputFocus");
-    if (!XGetInputFocus) { return (0); }
-
-    XGetKeyboardMapping = (PFN_XGetKeyboardMapping_PROC) dlsym(handle, "XGetKeyboardMapping");
-    if (!XGetKeyboardMapping) { return (0); }
-
-    XGetScreenSaver = (PFN_XGetScreenSaver_PROC) dlsym(handle, "XGetScreenSaver");
-    if (!XGetScreenSaver) { return (0); }
-
-    XGetSelectionOwner = (PFN_XGetSelectionOwner_PROC) dlsym(handle, "XGetSelectionOwner");
-    if (!XGetSelectionOwner) { return (0); }
-
-    XGetVisualInfo = (PFN_XGetVisualInfo_PROC) dlsym(handle, "XGetVisualInfo");
-    if (!XGetVisualInfo) { return (0); }
-
-    XGetWMNormalHints = (PFN_XGetWMNormalHints_PROC) dlsym(handle, "XGetWMNormalHints");
-    if (!XGetWMNormalHints) { return (0); }
-
-    XGetWindowAttributes = (PFN_XGetWindowAttributes_PROC) dlsym(handle, "XGetWindowAttributes");
-    if (!XGetWindowAttributes) { return (0); }
-
-    XGetWindowProperty = (PFN_XGetWindowProperty_PROC) dlsym(handle, "XGetWindowProperty");
-    if (!XGetWindowProperty) { return (0); }
-
-    XGrabPointer = (PFN_XGrabPointer_PROC) dlsym(handle, "XGrabPointer");
-    if (!XGrabPointer) { return (0); }
-
-    XIconifyWindow = (PFN_XIconifyWindow_PROC) dlsym(handle, "XIconifyWindow");
-    if (!XIconifyWindow) { return (0); }
-
-    XInitThreads = (PFN_XInitThreads_PROC) dlsym(handle, "XInitThreads");
-    if (!XInitThreads) { return (0); }
-
-    XInternAtom = (PFN_XInternAtom_PROC) dlsym(handle, "XInternAtom");
-    if (!XInternAtom) { return (0); }
-
-    XLookupString = (PFN_XLookupString_PROC) dlsym(handle, "XLookupString");
-    if (!XLookupString) { return (0); }
-
-    XMapRaised = (PFN_XMapRaised_PROC) dlsym(handle, "XMapRaised");
-    if (!XMapRaised) { return (0); }
-
-    XMapWindow = (PFN_XMapWindow_PROC) dlsym(handle, "XMapWindow");
-    if (!XMapWindow) { return (0); }
-
-    XMoveResizeWindow = (PFN_XMoveResizeWindow_PROC) dlsym(handle, "XMoveResizeWindow");
-    if (!XMoveResizeWindow) { return (0); }
-
-    XMoveWindow = (PFN_XMoveWindow_PROC) dlsym(handle, "XMoveWindow");
-    if (!XMoveWindow) { return (0); }
-
-    XNextEvent = (PFN_XNextEvent_PROC) dlsym(handle, "XNextEvent");
-    if (!XNextEvent) { return (0); }
-
-    XOpenDisplay = (PFN_XOpenDisplay_PROC) dlsym(handle, "XOpenDisplay");
-    if (!XOpenDisplay) { return (0); }
-
-    XPeekEvent = (PFN_XPeekEvent_PROC) dlsym(handle, "XPeekEvent");
-    if (!XPeekEvent) { return (0); }
-
-    XPending = (PFN_XPending_PROC) dlsym(handle, "XPending");
-    if (!XPending) { return (0); }
-
-    XQueryExtension = (PFN_XQueryExtension_PROC) dlsym(handle, "XQueryExtension");
-    if (!XQueryExtension) { return (0); }
-
-    XQueryPointer = (PFN_XQueryPointer_PROC) dlsym(handle, "XQueryPointer");
-    if (!XQueryPointer) { return (0); }
-
-    XRaiseWindow = (PFN_XRaiseWindow_PROC) dlsym(handle, "XRaiseWindow");
-    if (!XRaiseWindow) { return (0); }
-
-    XRegisterIMInstantiateCallback = (PFN_XRegisterIMInstantiateCallback_PROC) dlsym(handle, "XRegisterIMInstantiateCallback");
-    if (!XRegisterIMInstantiateCallback) { return (0); }
-
-    XResizeWindow = (PFN_XResizeWindow_PROC) dlsym(handle, "XResizeWindow");
-    if (!XResizeWindow) { return (0); }
-
-    XSaveContext = (PFN_XSaveContext_PROC) dlsym(handle, "XSaveContext");
-    if (!XSaveContext) { return (0); }
-
-    XSelectInput = (PFN_XSelectInput_PROC) dlsym(handle, "XSelectInput");
-    if (!XSelectInput) { return (0); }
-
-    XSendEvent = (PFN_XSendEvent_PROC) dlsym(handle, "XSendEvent");
-    if (!XSendEvent) { return (0); }
-
-    XSetClassHint = (PFN_XSetClassHint_PROC) dlsym(handle, "XSetClassHint");
-    if (!XSetClassHint) { return (0); }
-
-    XSetErrorHandler = (PFN_XSetErrorHandler_PROC) dlsym(handle, "XSetErrorHandler");
-    if (!XSetErrorHandler) { return (0); }
-
-    XSetICFocus = (PFN_XSetICFocus_PROC) dlsym(handle, "XSetICFocus");
-    if (!XSetICFocus) { return (0); }
-
-    XSetIMValues = (PFN_XSetIMValues_PROC) dlsym(handle, "XSetIMValues");
-    if (!XSetIMValues) { return (0); }
-
-    XSetInputFocus = (PFN_XSetInputFocus_PROC) dlsym(handle, "XSetInputFocus");
-    if (!XSetInputFocus) { return (0); }
-
-    XSetLocaleModifiers = (PFN_XSetLocaleModifiers_PROC) dlsym(handle, "XSetLocaleModifiers");
-    if (!XSetLocaleModifiers) { return (0); }
-
-    XSetScreenSaver = (PFN_XSetScreenSaver_PROC) dlsym(handle, "XSetScreenSaver");
-    if (!XSetScreenSaver) { return (0); }
-
-    XSetSelectionOwner = (PFN_XSetSelectionOwner_PROC) dlsym(handle, "XSetSelectionOwner");
-    if (!XSetSelectionOwner) { return (0); }
-
-    XSetWMHints = (PFN_XSetWMHints_PROC) dlsym(handle, "XSetWMHints");
-    if (!XSetWMHints) { return (0); }
-
-    XSetWMNormalHints = (PFN_XSetWMNormalHints_PROC) dlsym(handle, "XSetWMNormalHints");
-    if (!XSetWMNormalHints) { return (0); }
-
-    XSetWMProtocols = (PFN_XSetWMProtocols_PROC) dlsym(handle, "XSetWMProtocols");
-    if (!XSetWMProtocols) { return (0); }
-
-    XSupportsLocale = (PFN_XSupportsLocale_PROC) dlsym(handle, "XSupportsLocale");
-    if (!XSupportsLocale) { return (0); }
-
-    XSync = (PFN_XSync_PROC) dlsym(handle, "XSync");
-    if (!XSync) { return (0); }
-
-    XTranslateCoordinates = (PFN_XTranslateCoordinates_PROC) dlsym(handle, "XTranslateCoordinates");
-    if (!XTranslateCoordinates) { return (0); }
-
-    XUndefineCursor = (PFN_XUndefineCursor_PROC) dlsym(handle, "XUndefineCursor");
-    if (!XUndefineCursor) { return (0); }
-
-    XUngrabPointer = (PFN_XUngrabPointer_PROC) dlsym(handle, "XUngrabPointer");
-    if (!XUngrabPointer) { return (0); }
-
-    XUnmapWindow = (PFN_XUnmapWindow_PROC) dlsym(handle, "XUnmapWindow");
-    if (!XUnmapWindow) { return (0); }
-
-    XUnsetICFocus = (PFN_XUnsetICFocus_PROC) dlsym(handle, "XUnsetICFocus");
-    if (!XUnsetICFocus) { return (0); }
-
-    XVisualIDFromVisual = (PFN_XVisualIDFromVisual_PROC) dlsym(handle, "XVisualIDFromVisual");
-    if (!XVisualIDFromVisual) { return (0); }
-
-    XWarpPointer = (PFN_XWarpPointer_PROC) dlsym(handle, "XWarpPointer");
-    if (!XWarpPointer) { return (0); }
-
-    XkbFreeKeyboard = (PFN_XkbFreeKeyboard_PROC) dlsym(handle, "XkbFreeKeyboard");
-    if (!XkbFreeKeyboard) { return (0); }
-
-    XkbFreeNames = (PFN_XkbFreeNames_PROC) dlsym(handle, "XkbFreeNames");
-    if (!XkbFreeNames) { return (0); }
-
-    XkbGetMap = (PFN_XkbGetMap_PROC) dlsym(handle, "XkbGetMap");
-    if (!XkbGetMap) { return (0); }
-
-    XkbGetNames = (PFN_XkbGetNames_PROC) dlsym(handle, "XkbGetNames");
-    if (!XkbGetNames) { return (0); }
-
-    XkbGetState = (PFN_XkbGetState_PROC) dlsym(handle, "XkbGetState");
-    if (!XkbGetState) { return (0); }
-
-    XkbKeycodeToKeysym = (PFN_XkbKeycodeToKeysym_PROC) dlsym(handle, "XkbKeycodeToKeysym");
-    if (!XkbKeycodeToKeysym) { return (0); }
-
-    XkbQueryExtension = (PFN_XkbQueryExtension_PROC) dlsym(handle, "XkbQueryExtension");
-    if (!XkbQueryExtension) { return (0); }
-
-    XkbSelectEventDetails = (PFN_XkbSelectEventDetails_PROC) dlsym(handle, "XkbSelectEventDetails");
-    if (!XkbSelectEventDetails) { return (0); }
-
-    XkbSetDetectableAutoRepeat = (PFN_XkbSetDetectableAutoRepeat_PROC) dlsym(handle, "XkbSetDetectableAutoRepeat");
-    if (!XkbSetDetectableAutoRepeat) { return (0); }
-
-    XUnregisterIMInstantiateCallback = (PFN_XUnregisterIMInstantiateCallback_PROC) dlsym(handle, "XUnregisterIMInstantiateCallback");
-    if (!XUnregisterIMInstantiateCallback) { return (0); }
-
-    Xutf8LookupString = (PFN_Xutf8LookupString_PROC) dlsym(handle, "Xutf8LookupString");
-    if (!Xutf8LookupString) { return (0); }
-
-    Xutf8SetWMProperties = (PFN_Xutf8SetWMProperties_PROC) dlsym(handle, "Xutf8SetWMProperties");
-    if (!Xutf8SetWMProperties) { return (0); }
-
-    /* success */
-    return (1);
-}
-
-/* window.h API */
+/* platform type definitions */
 
 struct s_keymap {
     uint32_t src;
@@ -1842,18 +1131,302 @@ static const struct s_keymap g_keymap[] = {
     { 0, WINDOW_KEY_NONE }
 };
 
+typedef XClassHint *(* PFN_XAllocClassHint_PROC) (void);
+typedef XSizeHints *(* PFN_XAllocSizeHints_PROC) (void);
+typedef XWMHints *(* PFN_XAllocWMHints_PROC) (void);
+typedef int (* PFN_XChangeProperty_PROC) (Display *, Window, Atom, Atom, int, int, const unsigned char *, int);
+typedef int (* PFN_XChangeWindowAttributes_PROC) (Display *, Window, unsigned long, XSetWindowAttributes *);
+typedef Bool (* PFN_XCheckIfEvent_PROC) (Display *, XEvent *, Bool(*_PROC) (Display *, XEvent *, XPointer), XPointer);
+typedef Bool (* PFN_XCheckTypedWindowEvent_PROC) (Display *, Window, int, XEvent *);
+typedef int (* PFN_XCloseDisplay_PROC) (Display *);
+typedef int (* PFN_XConvertSelection_PROC) (Display *, Atom, Atom, Atom, Window, Time);
+typedef Colormap (* PFN_XCreateColormap_PROC) (Display *, Window, Visual *, int);
+typedef Cursor (* PFN_XCreateFontCursor_PROC) (Display *, unsigned int);
+typedef Region (* PFN_XCreateRegion_PROC) (void);
+typedef Window (* PFN_XCreateWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual *, unsigned long, XSetWindowAttributes *);
+typedef int (* PFN_XDefineCursor_PROC) (Display *, Window, Cursor);
+typedef int (* PFN_XDeleteContext_PROC) (Display *, XID, XContext);
+typedef int (* PFN_XDeleteProperty_PROC) (Display *, Window, Atom);
+typedef int (* PFN_XDestroyRegion_PROC) (Region);
+typedef int (* PFN_XDestroyWindow_PROC) (Display *, Window);
+typedef int (* PFN_XDisplayKeycodes_PROC) (Display *, int *, int *);
+typedef int (* PFN_XEventsQueued_PROC) (Display *, int);
+typedef Status (* PFN_XFetchName_PROC) (Display *, Window, char **);
+typedef Bool (* PFN_XFilterEvent_PROC) (XEvent *, Window);
+typedef int (* PFN_XFindContext_PROC) (Display *, XID, XContext, XPointer *);
+typedef int (* PFN_XFlush_PROC) (Display *);
+typedef int (* PFN_XFree_PROC) (void *);
+typedef int (* PFN_XFreeColormap_PROC) (Display *, Colormap);
+typedef int (* PFN_XFreeCursor_PROC) (Display *, Cursor);
+typedef void (* PFN_XFreeEventData_PROC) (Display *, XGenericEventCookie *);
+typedef int (* PFN_XGetErrorText_PROC) (Display *, int, char *, int);
+typedef Bool (* PFN_XGetEventData_PROC) (Display *, XGenericEventCookie *);
+typedef int (* PFN_XGetInputFocus_PROC) (Display *, Window *, int *);
+typedef KeySym *(* PFN_XGetKeyboardMapping_PROC) (Display *, KeyCode, int, int *);
+typedef Window (* PFN_XGetSelectionOwner_PROC) (Display *, Atom);
+typedef XVisualInfo *(* PFN_XGetVisualInfo_PROC) (Display *, long, XVisualInfo *, int *);
+typedef Status (* PFN_XGetWMNormalHints_PROC) (Display *, Window, XSizeHints *, long *);
+typedef Status (* PFN_XGetWindowAttributes_PROC) (Display *, Window, XWindowAttributes *);
+typedef int (* PFN_XGetWindowProperty_PROC) (Display *, Window, Atom, long, long, Bool, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char* *);
+typedef int (* PFN_XGrabPointer_PROC) (Display *, Window, Bool, unsigned int, int, int, Window, Cursor, Time);
+typedef Status (* PFN_XIconifyWindow_PROC) (Display *, Window, int);
+typedef Status (* PFN_XInitThreads_PROC) (void);
+typedef Atom (* PFN_XInternAtom_PROC) (Display *, const char *, Bool);
+typedef int (* PFN_XLookupString_PROC) (XKeyEvent *, char *, int, KeySym *, XComposeStatus *);
+typedef int (* PFN_XMapRaised_PROC) (Display *, Window);
+typedef int (* PFN_XMapWindow_PROC) (Display *, Window);
+typedef Status (* PFN_XMatchVisualInfo_PROC) (Display *, int, int, int, XVisualInfo *);
+typedef int (* PFN_XMoveResizeWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int);
+typedef int (* PFN_XMoveWindow_PROC) (Display *, Window, int, int);
+typedef int (* PFN_XNextEvent_PROC) (Display *, XEvent *);
+typedef Display *(* PFN_XOpenDisplay_PROC) (const char *);
+typedef int (* PFN_XPeekEvent_PROC) (Display *, XEvent *);
+typedef int (* PFN_XPending_PROC) (Display *);
+typedef Bool (* PFN_XQueryExtension_PROC) (Display *, const char *, int *, int *, int *);
+typedef Bool (* PFN_XQueryPointer_PROC) (Display *, Window, Window *, Window *, int *, int *, int *, int *, unsigned int *);
+typedef int (* PFN_XRaiseWindow_PROC) (Display *, Window);
+typedef Bool (* PFN_XRegisterIMInstantiateCallback_PROC) (Display *, void *, char *, char *, XIDProc, XPointer);
+typedef int (* PFN_XResizeWindow_PROC) (Display *, Window, unsigned int, unsigned int);
+typedef int (* PFN_XSaveContext_PROC) (Display *, XID, XContext, const char *);
+typedef int (* PFN_XSelectInput_PROC) (Display *, Window, long);
+typedef Status (* PFN_XSendEvent_PROC) (Display *, Window, Bool, long, XEvent *);
+typedef int (* PFN_XSetClassHint_PROC) (Display *, Window, XClassHint *);
+typedef XErrorHandler (* PFN_XSetErrorHandler_PROC) (XErrorHandler);
+typedef int (* PFN_XSetInputFocus_PROC) (Display *, Window, int, Time);
+typedef char *(* PFN_XSetLocaleModifiers_PROC) (const char *);
+typedef int (* PFN_XSetSelectionOwner_PROC) (Display *, Atom, Window, Time);
+typedef int (* PFN_XSetWMHints_PROC) (Display *, Window, XWMHints *);
+typedef void (* PFN_XSetWMNormalHints_PROC) (Display *, Window, XSizeHints *);
+typedef Status (* PFN_XSetWMProtocols_PROC) (Display *, Window, Atom *, int);
+typedef int (* PFN_XStoreName_PROC) (Display *, Window, _Xconst char *);
+typedef Bool (* PFN_XSupportsLocale_PROC) (void);
+typedef int (* PFN_XSync_PROC) (Display *, Bool);
+typedef Bool (* PFN_XTranslateCoordinates_PROC) (Display *, Window, Window, int, int, int *, int *, Window *);
+typedef int (* PFN_XUndefineCursor_PROC) (Display *, Window);
+typedef int (* PFN_XUngrabPointer_PROC) (Display *, Time);
+typedef int (* PFN_XUnmapWindow_PROC) (Display *, Window);
+typedef VisualID (* PFN_XVisualIDFromVisual_PROC) (Visual *);
+typedef int (* PFN_XWarpPointer_PROC) (Display *, Window, Window, int, int, unsigned int, unsigned int, int, int);
+typedef int (* PFN_XWindowEvent_PROC) (Display *, Window, long, XEvent *);
+typedef KeySym (* PFN_XkbKeycodeToKeysym_PROC) (Display *, KeyCode, int, int);
+typedef Bool (* PFN_XkbSetDetectableAutoRepeat_PROC) (Display *, Bool, Bool *);
+
+#   define XAllocClassHint __window_h.x11->AllocClassHint
+#   define XAllocSizeHints __window_h.x11->AllocSizeHints
+#   define XAllocWMHints __window_h.x11->AllocWMHints
+#   define XChangeProperty __window_h.x11->ChangeProperty
+#   define XChangeWindowAttributes __window_h.x11->ChangeWindowAttributes
+#   define XCheckIfEvent __window_h.x11->CheckIfEvent
+#   define XCheckTypedWindowEvent __window_h.x11->CheckTypedWindowEvent
+#   define XCloseDisplay __window_h.x11->CloseDisplay
+#   define XConvertSelection __window_h.x11->ConvertSelection
+#   define XCreateColormap __window_h.x11->CreateColormap
+#   define XCreateFontCursor __window_h.x11->CreateFontCursor
+#   define XCreateRegion __window_h.x11->CreateRegion
+#   define XCreateWindow __window_h.x11->CreateWindow
+#   define XDefineCursor __window_h.x11->DefineCursor
+#   define XDeleteContext __window_h.x11->DeleteContext
+#   define XDeleteProperty __window_h.x11->DeleteProperty
+#   define XDestroyRegion __window_h.x11->DestroyRegion
+#   define XDestroyWindow __window_h.x11->DestroyWindow
+#   define XDisplayKeycodes __window_h.x11->DisplayKeycodes
+#   define XEventsQueued __window_h.x11->EventsQueued
+#   define XFetchName __window_h.x11->FetchName
+#   define XFilterEvent __window_h.x11->FilterEvent
+#   define XFindContext __window_h.x11->FindContext
+#   define XFlush __window_h.x11->Flush
+#   define XFree __window_h.x11->Free
+#   define XFreeColormap __window_h.x11->FreeColormap
+#   define XFreeCursor __window_h.x11->FreeCursor
+#   define XFreeEventData __window_h.x11->FreeEventData
+#   define XGetErrorText __window_h.x11->GetErrorText
+#   define XGetEventData __window_h.x11->GetEventData
+#   define XGetInputFocus __window_h.x11->GetInputFocus
+#   define XGetKeyboardMapping __window_h.x11->GetKeyboardMapping
+#   define XGetSelectionOwner __window_h.x11->GetSelectionOwner
+#   define XGetVisualInfo __window_h.x11->GetVisualInfo
+#   define XGetWMNormalHints __window_h.x11->GetWMNormalHints
+#   define XGetWindowAttributes __window_h.x11->GetWindowAttributes
+#   define XGetWindowProperty __window_h.x11->GetWindowProperty
+#   define XGrabPointer __window_h.x11->GrabPointer
+#   define XIconifyWindow __window_h.x11->IconifyWindow
+#   define XInitThreads __window_h.x11->InitThreads
+#   define XInternAtom __window_h.x11->InternAtom
+#   define XLookupString __window_h.x11->LookupString
+#   define XMapRaised __window_h.x11->MapRaised
+#   define XMapWindow __window_h.x11->MapWindow
+#   define XMatchVisualInfo __window_h.x11->MatchVisualInfo
+#   define XMoveResizeWindow __window_h.x11->MoveResizeWindow
+#   define XMoveWindow __window_h.x11->MoveWindow
+#   define XNextEvent __window_h.x11->NextEvent
+#   define XOpenDisplay __window_h.x11->OpenDisplay
+#   define XPeekEvent __window_h.x11->PeekEvent
+#   define XPending __window_h.x11->Pending
+#   define XQueryExtension __window_h.x11->QueryExtension
+#   define XQueryPointer __window_h.x11->QueryPointer
+#   define XRaiseWindow __window_h.x11->RaiseWindow
+#   define XRegisterIMInstantiateCallback __window_h.x11->RegisterIMInstantiateCallback
+#   define XResizeWindow __window_h.x11->ResizeWindow
+#   define XSaveContext __window_h.x11->SaveContext
+#   define XSelectInput __window_h.x11->SelectInput
+#   define XSendEvent __window_h.x11->SendEvent
+#   define XSetClassHint __window_h.x11->SetClassHint
+#   define XSetErrorHandler __window_h.x11->SetErrorHandler
+#   define XSetInputFocus __window_h.x11->SetInputFocus
+#   define XSetLocaleModifiers __window_h.x11->SetLocaleModifiers
+#   define XSetSelectionOwner __window_h.x11->SetSelectionOwner
+#   define XSetWMHints __window_h.x11->SetWMHints
+#   define XSetWMNormalHints __window_h.x11->SetWMNormalHints
+#   define XSetWMProtocols __window_h.x11->SetWMProtocols
+#   define XStoreName __window_h.x11->StoreName
+#   define XSupportsLocale __window_h.x11->SupportsLocale
+#   define XSync __window_h.x11->Sync
+#   define XTranslateCoordinates __window_h.x11->TranslateCoordinates
+#   define XUndefineCursor __window_h.x11->UndefineCursor
+#   define XUngrabPointer __window_h.x11->UngrabPointer
+#   define XUnmapWindow __window_h.x11->UnmapWindow
+#   define XVisualIDFromVisual __window_h.x11->VisualIDFromVisual
+#   define XWarpPointer __window_h.x11->WarpPointer
+#   define XWindowEvent __window_h.x11->WindowEvent
+#   define XkbKeycodeToKeysym __window_h.x11->kbKeycodeToKeysym
+#   define XkbSetDetectableAutoRepeat __window_h.x11->kbSetDetectableAutoRepeat
+
+typedef struct __window_h_x11 *__window_h_x11;
+
+struct __window_h_x11 {
+    struct {
+        Display *dpy;
+        Window   root;
+    } xlib;
+
+    struct {
+        /* Atoms: WM */
+        Atom wm_protocols;
+        Atom wm_delete_window;
+
+        /* Atoms: MOTIF */
+        Atom _motif_wm_hints;
+
+        /* Atoms: EWMH */
+        Atom _net_wm_state;
+        Atom _net_wm_state_above;
+        Atom _net_wm_state_fullscreen;
+        Atom _net_wm_state_hidden;
+        Atom _net_wm_state_maximized_horz;
+        Atom _net_wm_state_maximized_vert;
+        Atom _net_wm_window_opacity;
+    } xatom;
+
+    /* libX11 */
+    void *handle;
+    PFN_XAllocClassHint_PROC AllocClassHint;
+    PFN_XAllocSizeHints_PROC AllocSizeHints;
+    PFN_XAllocWMHints_PROC AllocWMHints;
+    PFN_XChangeProperty_PROC ChangeProperty;
+    PFN_XChangeWindowAttributes_PROC ChangeWindowAttributes;
+    PFN_XCheckIfEvent_PROC CheckIfEvent;
+    PFN_XCheckTypedWindowEvent_PROC CheckTypedWindowEvent;
+    PFN_XCloseDisplay_PROC CloseDisplay;
+    PFN_XConvertSelection_PROC ConvertSelection;
+    PFN_XCreateColormap_PROC CreateColormap;
+    PFN_XCreateFontCursor_PROC CreateFontCursor;
+    PFN_XCreateRegion_PROC CreateRegion;
+    PFN_XCreateWindow_PROC CreateWindow;
+    PFN_XDefineCursor_PROC DefineCursor;
+    PFN_XDeleteContext_PROC DeleteContext;
+    PFN_XDeleteProperty_PROC DeleteProperty;
+    PFN_XDestroyRegion_PROC DestroyRegion;
+    PFN_XDestroyWindow_PROC DestroyWindow;
+    PFN_XDisplayKeycodes_PROC DisplayKeycodes;
+    PFN_XEventsQueued_PROC EventsQueued;
+    PFN_XFetchName_PROC FetchName;
+    PFN_XFilterEvent_PROC FilterEvent;
+    PFN_XFindContext_PROC FindContext;
+    PFN_XFlush_PROC Flush;
+    PFN_XFree_PROC Free;
+    PFN_XFreeColormap_PROC FreeColormap;
+    PFN_XFreeCursor_PROC FreeCursor;
+    PFN_XFreeEventData_PROC FreeEventData;
+    PFN_XGetErrorText_PROC GetErrorText;
+    PFN_XGetEventData_PROC GetEventData;
+    PFN_XGetInputFocus_PROC GetInputFocus;
+    PFN_XGetKeyboardMapping_PROC GetKeyboardMapping;
+    PFN_XGetSelectionOwner_PROC GetSelectionOwner;
+    PFN_XGetVisualInfo_PROC GetVisualInfo;
+    PFN_XGetWMNormalHints_PROC GetWMNormalHints;
+    PFN_XGetWindowAttributes_PROC GetWindowAttributes;
+    PFN_XGetWindowProperty_PROC GetWindowProperty;
+    PFN_XGrabPointer_PROC GrabPointer;
+    PFN_XIconifyWindow_PROC IconifyWindow;
+    PFN_XInitThreads_PROC InitThreads;
+    PFN_XInternAtom_PROC InternAtom;
+    PFN_XLookupString_PROC LookupString;
+    PFN_XMapRaised_PROC MapRaised;
+    PFN_XMapWindow_PROC MapWindow;
+    PFN_XMatchVisualInfo_PROC MatchVisualInfo;
+    PFN_XMoveResizeWindow_PROC MoveResizeWindow;
+    PFN_XMoveWindow_PROC MoveWindow;
+    PFN_XNextEvent_PROC NextEvent;
+    PFN_XOpenDisplay_PROC OpenDisplay;
+    PFN_XPeekEvent_PROC PeekEvent;
+    PFN_XPending_PROC Pending;
+    PFN_XQueryExtension_PROC QueryExtension;
+    PFN_XQueryPointer_PROC QueryPointer;
+    PFN_XRaiseWindow_PROC RaiseWindow;
+    PFN_XRegisterIMInstantiateCallback_PROC RegisterIMInstantiateCallback;
+    PFN_XResizeWindow_PROC ResizeWindow;
+    PFN_XSaveContext_PROC SaveContext;
+    PFN_XSelectInput_PROC SelectInput;
+    PFN_XSendEvent_PROC SendEvent;
+    PFN_XSetClassHint_PROC SetClassHint;
+    PFN_XSetErrorHandler_PROC SetErrorHandler;
+    PFN_XSetInputFocus_PROC SetInputFocus;
+    PFN_XSetLocaleModifiers_PROC SetLocaleModifiers;
+    PFN_XSetSelectionOwner_PROC SetSelectionOwner;
+    PFN_XSetWMHints_PROC SetWMHints;
+    PFN_XSetWMNormalHints_PROC SetWMNormalHints;
+    PFN_XSetWMProtocols_PROC SetWMProtocols;
+    PFN_XStoreName_PROC StoreName;
+    PFN_XSupportsLocale_PROC SupportsLocale;
+    PFN_XSync_PROC Sync;
+    PFN_XTranslateCoordinates_PROC TranslateCoordinates;
+    PFN_XUndefineCursor_PROC UndefineCursor;
+    PFN_XUngrabPointer_PROC UngrabPointer;
+    PFN_XUnmapWindow_PROC UnmapWindow;
+    PFN_XVisualIDFromVisual_PROC VisualIDFromVisual;
+    PFN_XWarpPointer_PROC WarpPointer;
+    PFN_XWindowEvent_PROC WindowEvent;
+    PFN_XkbKeycodeToKeysym_PROC kbKeycodeToKeysym;
+    PFN_XkbSetDetectableAutoRepeat_PROC kbSetDetectableAutoRepeat;
+};
+
+/* window type definitions */
+
+typedef struct s_window_x11 *t_window_x11;
+
+struct s_window_x11 {
+    struct {
+        Display *dpy;
+        Window   root;
+        Window   parent;
+        Window   client;
+    } xlib;
+};
+
 /* platform functions */
+
+WININT int __winLoadX11(void);
 
 WINDEF int winInit(void) {
     /* initialize '__window_h' object */
     __window_h = (struct __window_h) { 0 };
 
-    /* load libX11 library */
-    if (!__winLoadX11()) { return (0); }
-
-    /* initialize '__window_h.x11' field */
+    /* allocate '__window_h.x11' field */
     __window_h.x11 = calloc(1, sizeof(struct __window_h_x11));
     if (!__window_h.x11) { return (0); }
+
+    /* load libX11 library */
+    if (!__winLoadX11()) { return (0); }
 
     /* initialize '__window_h.x11' members */
     Display *dpy = XOpenDisplay(0);
@@ -1915,18 +1488,306 @@ WINDEF int winInit(void) {
     if (!supported) { return (0); }
 
     /* success */
-    // winFlushEvents();
+    winFlushEvents();
+    return (1);
+}
+
+WININT int __winLoadX11(void) {
+    const char *names[] = { "libX11.so", "libX11.so.6", 0 };
+
+    /* try to load handle */
+    static void *handle = 0;
+    if (!handle) {
+        for (const char **name = names; *name; name++) {
+            handle = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
+            if (handle) { break; }
+        }
+
+        /* check if handle loaded */
+        if (!handle) { return (0); }
+    }
+
+    /* load libX11 symbols */
+    XAllocClassHint = (PFN_XAllocClassHint_PROC) dlsym(handle, "XAllocClassHint");
+    if (!XAllocClassHint) { return (0); }
+
+    XAllocSizeHints = (PFN_XAllocSizeHints_PROC) dlsym(handle, "XAllocSizeHints");
+    if (!XAllocSizeHints) { return (0); }
+
+    XAllocWMHints = (PFN_XAllocWMHints_PROC) dlsym(handle, "XAllocWMHints");
+    if (!XAllocWMHints) { return (0); }
+
+    XChangeProperty = (PFN_XChangeProperty_PROC) dlsym(handle, "XChangeProperty");
+    if (!XChangeProperty) { return (0); }
+
+    XChangeWindowAttributes = (PFN_XChangeWindowAttributes_PROC) dlsym(handle, "XChangeWindowAttributes");
+    if (!XChangeWindowAttributes) { return (0); }
+
+    XCheckIfEvent = (PFN_XCheckIfEvent_PROC) dlsym(handle, "XCheckIfEvent");
+    if (!XCheckIfEvent) { return (0); }
+
+    XCheckTypedWindowEvent = (PFN_XCheckTypedWindowEvent_PROC) dlsym(handle, "XCheckTypedWindowEvent");
+    if (!XCheckTypedWindowEvent) { return (0); }
+
+    XCloseDisplay = (PFN_XCloseDisplay_PROC) dlsym(handle, "XCloseDisplay");
+    if (!XCloseDisplay) { return (0); }
+
+    XConvertSelection = (PFN_XConvertSelection_PROC) dlsym(handle, "XConvertSelection");
+    if (!XConvertSelection) { return (0); }
+
+    XCreateColormap = (PFN_XCreateColormap_PROC) dlsym(handle, "XCreateColormap");
+    if (!XCreateColormap) { return (0); }
+
+    XCreateFontCursor = (PFN_XCreateFontCursor_PROC) dlsym(handle, "XCreateFontCursor");
+    if (!XCreateFontCursor) { return (0); }
+
+    XCreateRegion = (PFN_XCreateRegion_PROC) dlsym(handle, "XCreateRegion");
+    if (!XCreateRegion) { return (0); }
+
+    XCreateWindow = (PFN_XCreateWindow_PROC) dlsym(handle, "XCreateWindow");
+    if (!XCreateWindow) { return (0); }
+
+    XDefineCursor = (PFN_XDefineCursor_PROC) dlsym(handle, "XDefineCursor");
+    if (!XDefineCursor) { return (0); }
+
+    XDeleteContext = (PFN_XDeleteContext_PROC) dlsym(handle, "XDeleteContext");
+    if (!XDeleteContext) { return (0); }
+
+    XDeleteProperty = (PFN_XDeleteProperty_PROC) dlsym(handle, "XDeleteProperty");
+    if (!XDeleteProperty) { return (0); }
+
+    XDestroyRegion = (PFN_XDestroyRegion_PROC) dlsym(handle, "XDestroyRegion");
+    if (!XDestroyRegion) { return (0); }
+
+    XDestroyWindow = (PFN_XDestroyWindow_PROC) dlsym(handle, "XDestroyWindow");
+    if (!XDestroyWindow) { return (0); }
+
+    XDisplayKeycodes = (PFN_XDisplayKeycodes_PROC) dlsym(handle, "XDisplayKeycodes");
+    if (!XDisplayKeycodes) { return (0); }
+
+    XEventsQueued = (PFN_XEventsQueued_PROC) dlsym(handle, "XEventsQueued");
+    if (!XEventsQueued) { return (0); }
+
+    XFetchName = (PFN_XFetchName_PROC) dlsym(handle, "XFetchName");
+    if (!XFetchName) { return (0); }
+
+    XFilterEvent = (PFN_XFilterEvent_PROC) dlsym(handle, "XFilterEvent");
+    if (!XFilterEvent) { return (0); }
+
+    XFindContext = (PFN_XFindContext_PROC) dlsym(handle, "XFindContext");
+    if (!XFindContext) { return (0); }
+
+    XFlush = (PFN_XFlush_PROC) dlsym(handle, "XFlush");
+    if (!XFlush) { return (0); }
+
+    XFree = (PFN_XFree_PROC) dlsym(handle, "XFree");
+    if (!XFree) { return (0); }
+
+    XFreeColormap = (PFN_XFreeColormap_PROC) dlsym(handle, "XFreeColormap");
+    if (!XFreeColormap) { return (0); }
+
+    XFreeCursor = (PFN_XFreeCursor_PROC) dlsym(handle, "XFreeCursor");
+    if (!XFreeCursor) { return (0); }
+
+    XFreeEventData = (PFN_XFreeEventData_PROC) dlsym(handle, "XFreeEventData");
+    if (!XFreeEventData) { return (0); }
+
+    XGetErrorText = (PFN_XGetErrorText_PROC) dlsym(handle, "XGetErrorText");
+    if (!XGetErrorText) { return (0); }
+
+    XGetEventData = (PFN_XGetEventData_PROC) dlsym(handle, "XGetEventData");
+    if (!XGetEventData) { return (0); }
+
+    XGetInputFocus = (PFN_XGetInputFocus_PROC) dlsym(handle, "XGetInputFocus");
+    if (!XGetInputFocus) { return (0); }
+
+    XGetKeyboardMapping = (PFN_XGetKeyboardMapping_PROC) dlsym(handle, "XGetKeyboardMapping");
+    if (!XGetKeyboardMapping) { return (0); }
+
+    XGetSelectionOwner = (PFN_XGetSelectionOwner_PROC) dlsym(handle, "XGetSelectionOwner");
+    if (!XGetSelectionOwner) { return (0); }
+
+    XGetVisualInfo = (PFN_XGetVisualInfo_PROC) dlsym(handle, "XGetVisualInfo");
+    if (!XGetVisualInfo) { return (0); }
+
+    XGetWMNormalHints = (PFN_XGetWMNormalHints_PROC) dlsym(handle, "XGetWMNormalHints");
+    if (!XGetWMNormalHints) { return (0); }
+
+    XGetWindowAttributes = (PFN_XGetWindowAttributes_PROC) dlsym(handle, "XGetWindowAttributes");
+    if (!XGetWindowAttributes) { return (0); }
+
+    XGetWindowProperty = (PFN_XGetWindowProperty_PROC) dlsym(handle, "XGetWindowProperty");
+    if (!XGetWindowProperty) { return (0); }
+
+    XGrabPointer = (PFN_XGrabPointer_PROC) dlsym(handle, "XGrabPointer");
+    if (!XGrabPointer) { return (0); }
+
+    XIconifyWindow = (PFN_XIconifyWindow_PROC) dlsym(handle, "XIconifyWindow");
+    if (!XIconifyWindow) { return (0); }
+
+    XInitThreads = (PFN_XInitThreads_PROC) dlsym(handle, "XInitThreads");
+    if (!XInitThreads) { return (0); }
+
+    XInternAtom = (PFN_XInternAtom_PROC) dlsym(handle, "XInternAtom");
+    if (!XInternAtom) { return (0); }
+
+    XLookupString = (PFN_XLookupString_PROC) dlsym(handle, "XLookupString");
+    if (!XLookupString) { return (0); }
+
+    XMapRaised = (PFN_XMapRaised_PROC) dlsym(handle, "XMapRaised");
+    if (!XMapRaised) { return (0); }
+
+    XMapWindow = (PFN_XMapWindow_PROC) dlsym(handle, "XMapWindow");
+    if (!XMapWindow) { return (0); }
+
+    XMatchVisualInfo = (PFN_XMatchVisualInfo_PROC) dlsym(handle, "XMatchVisualInfo");
+    if (!XMatchVisualInfo) { return (0); }
+
+    XMoveResizeWindow = (PFN_XMoveResizeWindow_PROC) dlsym(handle, "XMoveResizeWindow");
+    if (!XMoveResizeWindow) { return (0); }
+
+    XMoveWindow = (PFN_XMoveWindow_PROC) dlsym(handle, "XMoveWindow");
+    if (!XMoveWindow) { return (0); }
+
+    XNextEvent = (PFN_XNextEvent_PROC) dlsym(handle, "XNextEvent");
+    if (!XNextEvent) { return (0); }
+
+    XOpenDisplay = (PFN_XOpenDisplay_PROC) dlsym(handle, "XOpenDisplay");
+    if (!XOpenDisplay) { return (0); }
+
+    XPeekEvent = (PFN_XPeekEvent_PROC) dlsym(handle, "XPeekEvent");
+    if (!XPeekEvent) { return (0); }
+
+    XPending = (PFN_XPending_PROC) dlsym(handle, "XPending");
+    if (!XPending) { return (0); }
+
+    XQueryExtension = (PFN_XQueryExtension_PROC) dlsym(handle, "XQueryExtension");
+    if (!XQueryExtension) { return (0); }
+
+    XQueryPointer = (PFN_XQueryPointer_PROC) dlsym(handle, "XQueryPointer");
+    if (!XQueryPointer) { return (0); }
+
+    XRaiseWindow = (PFN_XRaiseWindow_PROC) dlsym(handle, "XRaiseWindow");
+    if (!XRaiseWindow) { return (0); }
+
+    XRegisterIMInstantiateCallback = (PFN_XRegisterIMInstantiateCallback_PROC) dlsym(handle, "XRegisterIMInstantiateCallback");
+    if (!XRegisterIMInstantiateCallback) { return (0); }
+
+    XResizeWindow = (PFN_XResizeWindow_PROC) dlsym(handle, "XResizeWindow");
+    if (!XResizeWindow) { return (0); }
+
+    XSaveContext = (PFN_XSaveContext_PROC) dlsym(handle, "XSaveContext");
+    if (!XSaveContext) { return (0); }
+
+    XSelectInput = (PFN_XSelectInput_PROC) dlsym(handle, "XSelectInput");
+    if (!XSelectInput) { return (0); }
+
+    XSendEvent = (PFN_XSendEvent_PROC) dlsym(handle, "XSendEvent");
+    if (!XSendEvent) { return (0); }
+
+    XSetClassHint = (PFN_XSetClassHint_PROC) dlsym(handle, "XSetClassHint");
+    if (!XSetClassHint) { return (0); }
+
+    XSetErrorHandler = (PFN_XSetErrorHandler_PROC) dlsym(handle, "XSetErrorHandler");
+    if (!XSetErrorHandler) { return (0); }
+
+    XSetInputFocus = (PFN_XSetInputFocus_PROC) dlsym(handle, "XSetInputFocus");
+    if (!XSetInputFocus) { return (0); }
+
+    XSetLocaleModifiers = (PFN_XSetLocaleModifiers_PROC) dlsym(handle, "XSetLocaleModifiers");
+    if (!XSetLocaleModifiers) { return (0); }
+
+    XSetSelectionOwner = (PFN_XSetSelectionOwner_PROC) dlsym(handle, "XSetSelectionOwner");
+    if (!XSetSelectionOwner) { return (0); }
+
+    XSetWMHints = (PFN_XSetWMHints_PROC) dlsym(handle, "XSetWMHints");
+    if (!XSetWMHints) { return (0); }
+
+    XSetWMNormalHints = (PFN_XSetWMNormalHints_PROC) dlsym(handle, "XSetWMNormalHints");
+    if (!XSetWMNormalHints) { return (0); }
+
+    XSetWMProtocols = (PFN_XSetWMProtocols_PROC) dlsym(handle, "XSetWMProtocols");
+    if (!XSetWMProtocols) { return (0); }
+
+    XStoreName = (PFN_XStoreName_PROC) dlsym(handle, "XStoreName");
+    if (!XStoreName) { return (0); }
+
+    XSupportsLocale = (PFN_XSupportsLocale_PROC) dlsym(handle, "XSupportsLocale");
+    if (!XSupportsLocale) { return (0); }
+
+    XSync = (PFN_XSync_PROC) dlsym(handle, "XSync");
+    if (!XSync) { return (0); }
+
+    XTranslateCoordinates = (PFN_XTranslateCoordinates_PROC) dlsym(handle, "XTranslateCoordinates");
+    if (!XTranslateCoordinates) { return (0); }
+
+    XUndefineCursor = (PFN_XUndefineCursor_PROC) dlsym(handle, "XUndefineCursor");
+    if (!XUndefineCursor) { return (0); }
+
+    XUngrabPointer = (PFN_XUngrabPointer_PROC) dlsym(handle, "XUngrabPointer");
+    if (!XUngrabPointer) { return (0); }
+
+    XUnmapWindow = (PFN_XUnmapWindow_PROC) dlsym(handle, "XUnmapWindow");
+    if (!XUnmapWindow) { return (0); }
+
+    XVisualIDFromVisual = (PFN_XVisualIDFromVisual_PROC) dlsym(handle, "XVisualIDFromVisual");
+    if (!XVisualIDFromVisual) { return (0); }
+
+    XWarpPointer = (PFN_XWarpPointer_PROC) dlsym(handle, "XWarpPointer");
+    if (!XWarpPointer) { return (0); }
+
+    XWindowEvent = (PFN_XWindowEvent_PROC) dlsym(handle, "XWindowEvent");
+    if (!XWindowEvent) { return (0); }
+
+    XkbKeycodeToKeysym = (PFN_XkbKeycodeToKeysym_PROC) dlsym(handle, "XkbKeycodeToKeysym");
+    if (!XkbKeycodeToKeysym) { return (0); }
+
+    XkbSetDetectableAutoRepeat = (PFN_XkbSetDetectableAutoRepeat_PROC) dlsym(handle, "XkbSetDetectableAutoRepeat");
+    if (!XkbSetDetectableAutoRepeat) { return (0); }
+
+    /* set '__window_h.x11->handle' member */ 
+    __window_h.x11->handle = handle;
+
+    /* success */
     return (1);
 }
 
 
+WININT int __winUnloadX11(void);
+
 WINDEF int winQuit(void) {
-    /* release X11 resources */
+    /* close all the open windows */
+    t_window curr = __window_h.window_list,
+             next = 0;
+    while (curr) {
+        next = curr->next;
+        winDestroyWindow(curr);
+        curr = next;
+    }
+
+    /* release event queue */
+    free(__window_h.event_queue.arr);
+    __window_h.event_queue = (struct __window_h_eventQueue) { 0 };
+
+    /* release xlib resources */
     XCloseDisplay(__window_h.x11->xlib.dpy);
 
-    /* release library resources */
+    /* release x11 symbols */
+    if (!__winUnloadX11()) { return (0); }
+    
+    /* release x11 */
     free(__window_h.x11), __window_h.x11 = 0;
     
+    /* success */
+    return (1);
+}
+
+WININT int __winUnloadX11(void) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    dlclose(__window_h.x11->handle), __window_h.x11->handle = 0;
+
     /* success */
     return (1);
 }
@@ -1966,7 +1827,10 @@ WINDEF void *winGetProperty(const uint32_t prop) {
     /* return nothing */
     return (0);
 }
+
 /* windowing functions */
+
+WININT int __winCreateWindowX11(t_window, Display *, Window, Window, const size_t, const size_t);
 
 WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const char *t, const uint32_t f) {
     /* null-check */
@@ -1976,7 +1840,13 @@ WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const 
     t_window result = calloc(1, sizeof(struct s_window));
     if (!result) { return (0); }
 
-    /* ... */
+    /* process 'result' window object */
+    if (!__winCreateWindowX11(result, __window_h.x11->xlib.dpy,
+                                      __window_h.x11->xlib.root,
+                                      __window_h.x11->xlib.root, w, h)
+    ) {
+        return (0);
+    }
 
     /* update window flags */
     winSetWindowFlag(result, f);
@@ -1985,8 +1855,8 @@ WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const 
     winSetWindowTitle(result, t);
 
     /* update window dimension properites */
-    winGetWindowPosition(result, &result->attr.x, &result->attr.y);
-    winGetWindowSize(result, &result->attr.w, &result->attr.h);
+    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
+    winGetWindowSize(result, &result->siz_w, &result->siz_h);
 
     /* add the result to the '__window_h.window_list' linked list */
     result->next = __window_h.window_list;
@@ -2008,7 +1878,13 @@ WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w,
     t_window result = calloc(1, sizeof(struct s_window));
     if (!result) { return (0); }
 
-    /* ... */
+    /* process 'result' window object */
+    if (!__winCreateWindowX11(result, __window_h.x11->xlib.dpy,
+                                      __window_h.x11->xlib.root,
+                                      parent->x11->xlib.client, w, h)
+    ) {
+        return (0);
+    }
 
     /* update window flags */
     winSetWindowFlag(result, f);
@@ -2017,8 +1893,8 @@ WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w,
     winSetWindowTitle(result, t);
 
     /* update window dimension properites */
-    winGetWindowPosition(result, &result->attr.x, &result->attr.y);
-    winGetWindowSize(result, &result->attr.w, &result->attr.h);
+    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
+    winGetWindowSize(result, &result->siz_w, &result->siz_h);
 
     /* add the result to the '__window_h.window_list' linked list */
     result->next = __window_h.window_list;
@@ -2031,16 +1907,73 @@ WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w,
     return (1);
 }
 
+WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window parent, const size_t w, const size_t h) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* allocate 'win->x11' field */
+    win->x11 = calloc(1, sizeof (struct s_window_x11));
+    if (!win->x11) { return (0); }
+
+    /* get screen index */
+    int screen = DefaultScreen(dpy);
+
+    /* create visual info */
+    XVisualInfo visual_info = { 0 };
+    if (!XMatchVisualInfo(dpy, screen, 24, TrueColor, &visual_info)) {
+        return (0);
+    }
+
+    int      depth = visual_info.depth;
+    Visual *visual = visual_info.visual;
+
+    /* create XSetWindowAttributes */
+    XSetWindowAttributes attr = { 0 };
+    attr.colormap = XCreateColormap(dpy, root, visual_info.visual, AllocNone);
+    attr.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask |
+                      PointerMotionMask | ButtonPressMask | ButtonReleaseMask |
+                      ExposureMask | FocusChangeMask | VisibilityChangeMask |
+                      EnterWindowMask | LeaveWindowMask | PropertyChangeMask;
+
+    /* create window */
+    Window client = XCreateWindow(dpy, parent, 0, 0, w, h, 0, depth, InputOutput, visual, CWBorderPixel | CWColormap | CWEventMask | CWBackPixel, &attr);
+    if (!client) { return (0); }
+
+    /* select input */
+    XSelectInput(dpy, client, attr.event_mask);
+
+    /* set WM protocols atoms */
+    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.wm_protocols, 1);
+    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.wm_delete_window, 1);
+
+    /* set 'win.x11->xlib' members */
+    if (!dpy) { return (0); }
+    win->x11->xlib.dpy = dpy;
+    
+    if (!root) { return (0); }
+    win->x11->xlib.root = root;
+    
+    if (!parent) { return (0); }
+    win->x11->xlib.parent = parent;
+    
+    if (!client) { return (0); }
+    win->x11->xlib.client = client;
+
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
 
 WINDEF int winDestroyWindow(t_window win) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
     /* unlink 'win' from '__window_h.window_list' */
-    t_window *curr = __window_h->window_list;
+    t_window *curr = &__window_h.window_list;
     /* case when 'win' is the first node of '__window_h.window_list' */
     if (win == (*curr)) {
-        __window_h->window_list = (*curr)->next;
+        __window_h.window_list = (*curr)->next;
     }
     /* case when 'win' is not the first node of '__window_h.window_list' */
     else {
@@ -2058,6 +1991,7 @@ WINDEF int winDestroyWindow(t_window win) {
                    win->x11->xlib.client);
                         
     /* deallocate window object */
+    free(win->x11);
     free(win);
 
     /* success */
@@ -2066,7 +2000,119 @@ WINDEF int winDestroyWindow(t_window win) {
 }
 
 
-WINDEF int winSetWindowFlag(t_window win, const uint32_t prop) {
+WININT int __winUpdateWindowFlagsX11(t_window);
+
+WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+   
+    /* set flags */
+    win->flags = f;
+    __winUpdateWindowFlagsX11(win);
+
+    /* success */
+    return (1);
+}
+
+WININT int __winSendClientEventX11(t_window, Atom, Atom, Atom);
+
+WININT int __winUpdateWindowFlagsX11(t_window win) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* xatom references */
+    Atom     _NET_WM_STATE_FULLSCREEN = __window_h.x11->xatom._net_wm_state_fullscreen;
+    Atom         _NET_WM_STATE_HIDDEN = __window_h.x11->xatom._net_wm_state_hidden;
+    Atom _NET_WM_STATE_MAXIMIZED_HORZ = __window_h.x11->xatom._net_wm_state_maximized_horz;
+    Atom _NET_WM_STATE_MAXIMIZED_VERT = __window_h.x11->xatom._net_wm_state_maximized_vert;
+    Atom          _NET_WM_STATE_ABOVE = __window_h.x11->xatom._net_wm_state_above;
+    
+    /* properties that requires the window to be mapped */
+    if (win->mapped) {
+        /* WINDOW_FLAG_FULLSCREEN */
+        if (win->flags & WINDOW_FLAG_FULLSCREEN) {
+            __winSendClientEventX11(win, _NET_WM_STATE_ADD, _NET_WM_STATE_FULLSCREEN, 0);
+        } else {
+            __winSendClientEventX11(win, _NET_WM_STATE_REMOVE, _NET_WM_STATE_FULLSCREEN, 0);
+        }
+
+        /* WINDOW_FLAG_MINIMIZED */
+        if (win->flags & WINDOW_FLAG_MINIMIZED) {
+            __winSendClientEventX11(win, _NET_WM_STATE_ADD, _NET_WM_STATE_HIDDEN, 0);
+        } else {
+            __winSendClientEventX11(win, _NET_WM_STATE_REMOVE, _NET_WM_STATE_HIDDEN, 0);
+        }
+
+        /* WINDOW_FLAG_MAXIMIZED */
+        if (win->flags & WINDOW_FLAG_MAXIMIZED) {
+            __winSendClientEventX11(win, _NET_WM_STATE_ADD, _NET_WM_STATE_MAXIMIZED_HORZ, _NET_WM_STATE_MAXIMIZED_VERT);
+        } else {
+            __winSendClientEventX11(win, _NET_WM_STATE_REMOVE, _NET_WM_STATE_MAXIMIZED_HORZ, _NET_WM_STATE_MAXIMIZED_VERT);
+        }
+
+        /* WINDOW_FLAG_TOPMOST */
+        if (win->flags & WINDOW_FLAG_TOPMOST) {
+            __winSendClientEventX11(win, _NET_WM_STATE_ADD, _NET_WM_STATE_ABOVE, 0);
+        } else {
+            __winSendClientEventX11(win, _NET_WM_STATE_REMOVE, _NET_WM_STATE_ABOVE, 0);
+        }
+    }
+    
+    /* properties that doesn't require the window to be mapped */
+    
+    /* WINDOW_FLAG_RESIZABLE */
+    if (win->flags & WINDOW_FLAG_RESIZABLE) {
+        winSetWindowMinSize(win, 1, 1);
+        winSetWindowMaxSize(win, 0x10000000, 0x10000000);
+    } else {
+        size_t w = 0,
+               h = 0;
+        winGetWindowSize(win, &w, &h);
+        winSetWindowMinSize(win, w, h);
+        winSetWindowMaxSize(win, w, h);
+    }
+
+    /* success */
+    return (1);
+}
+
+WININT int __winSendClientEventX11(t_window win, Atom a0, Atom a1, Atom a2) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display  *dpy = win->x11->xlib.dpy;
+    Window   root = win->x11->xlib.root;
+    Window client = win->x11->xlib.client;
+	
+    /* xatom references */
+    Atom _NET_WM_STATE = __window_h.x11->xatom._net_wm_state;
+
+    /* create client event */
+    XClientMessageEvent xclient = {
+        .type = ClientMessage,
+        .display = dpy,
+        .window = client,
+        .message_type = _NET_WM_STATE,
+        .format = 32,
+        .data = { .l = {
+                [0] = a0,
+                [1] = a1,
+                [2] = a2
+            }
+        }
+    };
+
+    /* send event */
+    XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &xclient);
+
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
+
+WINDEF void *winGetWindowProperty(t_window win, const uint32_t prop) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     switch (prop) {
@@ -2077,19 +2123,9 @@ WINDEF int winSetWindowFlag(t_window win, const uint32_t prop) {
 
         default: { } break;
     }
-    /* success */
-    return (1);
-}
 
-
-WINDEF void *winGetWindowProperty(t_window win, const uint32_t f) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	(void) win;
-	(void) f;
-    /* success */
-    return (1);
+    /* return nothing */
+    return (0);
 }
 
 
@@ -2110,6 +2146,12 @@ WINDEF int winMapWindow(t_window win) {
     do {
         XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
     } while (xevent.type != MapNotify);
+    win->mapped = 1;
+
+    /* lastly, update all the configs that required mapping */
+    if (!__winUpdateWindowFlagsX11(win)) {
+        return (0);
+    }
 
     /* success */
     winFlushEvents();
@@ -2134,6 +2176,7 @@ WINDEF int winUnmapWindow(t_window win) {
     do {
         XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
     } while (xevent.type != MapNotify);
+    win->mapped = 0;
 
     /* success */
     winFlushEvents();
@@ -2149,8 +2192,14 @@ WINDEF int winGetWindowSize(t_window win, size_t *w_ptr, size_t *h_ptr) {
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
 
-    (void) w_ptr;
-    (void) h_ptr;
+    /* get window attributes */
+    XWindowAttributes attr = { 0 };
+    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
+
+    /* return values */
+    if (w_ptr) { *w_ptr = attr.width; }
+    if (h_ptr) { *h_ptr = attr.height; }
+    
     /* success */
     return (1);
 }
@@ -2164,9 +2213,11 @@ WINDEF int winSetWindowSize(t_window win, const size_t w, const size_t h) {
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
 
-    (void) w;
-    (void) h;
+    /* resize window */
+    if (!XResizeWindow(dpy, client, w, h)) { return (0); }
+    
     /* success */
+    winFlushEvents();
     return (1);
 }
 
@@ -2179,9 +2230,19 @@ WINDEF int winSetWindowMinSize(t_window win, const size_t w, const size_t h) {
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
 
-    (void) w;
-    (void) h;
+    /* get WM normal hints */
+    XSizeHints hints;
+    int64_t supp;
+    XGetWMNormalHints(dpy, client, &hints, &supp);
+
+    /* set new WM normal hints with position changed */
+    hints.flags |= PMinSize;
+    hints.min_width  = w;
+    hints.min_height = h;
+    XSetWMNormalHints(dpy, client, &hints);
+
     /* success */
+    winFlushEvents();
     return (1);
 }
 
@@ -2194,9 +2255,19 @@ WINDEF int winSetWindowMaxSize(t_window win, const size_t w, const size_t h) {
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
 
-    (void) w;
-    (void) h;
+    /* get WM normal hints */
+    XSizeHints hints;
+    int64_t supp;
+    XGetWMNormalHints(dpy, client, &hints, &supp);
+
+    /* set new WM normal hints with position changed */
+    hints.flags |= PMaxSize;
+    hints.max_width  = w;
+    hints.max_height = h;
+    XSetWMNormalHints(dpy, client, &hints);
+
     /* success */
+    winFlushEvents();
     return (1);
 }
 
@@ -2209,8 +2280,14 @@ WINDEF int winGetWindowPosition(t_window win, size_t *x_ptr, size_t *y_ptr) {
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
 
-    (void) x_ptr;
-    (void) y_ptr;
+    /* get window attributes */
+    XWindowAttributes attr = { 0 };
+    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
+
+    /* return values */
+    if (x_ptr) { *x_ptr = attr.x; }
+    if (y_ptr) { *y_ptr = attr.y; }
+    
     /* success */
     return (1);
 }
@@ -2224,9 +2301,11 @@ WINDEF int winSetWindowPosition(t_window win, const size_t x, const size_t y) {
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
 
-    (void) x;
-    (void) y;
+    /* resize window */
+    if (!XMoveWindow(dpy, client, x, y)) { return (0); }
+    
     /* success */
+    winFlushEvents();
     return (1);
 }
 
@@ -2239,7 +2318,9 @@ WINDEF int winGetWindowTitle(t_window win, char **t_ptr) {
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
 
-    (void) t_ptr;
+    /* fetch window title */
+    if (!XFetchName(dpy, client, t_ptr)) { return (0); }
+
     /* success */
     return (1);
 }
@@ -2253,7 +2334,9 @@ WINDEF int winSetWindowTitle(t_window win, const char *t) {
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
 
-    (void) t;
+    /* fetch window title */
+    if (!XStoreName(dpy, client, t)) { return (0); }
+    
     /* success */
     return (1);
 }
