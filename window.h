@@ -800,6 +800,8 @@ static struct __window_h  {
 
 typedef struct s_window_x11 *t_window_x11;
 
+typedef struct s_window_win32 *t_window_win32;
+
 struct s_window {
 
     /* platform-independent */
@@ -820,12 +822,16 @@ struct s_window {
 
     t_window_x11 x11;
 
+    t_window_win32 win32;
+
     /* ... */
 
 };
 
 
 typedef struct s_glcontext_egl *t_glcontext_egl;
+
+typedef struct s_glcontext_wgl *t_glcontext_wgl;
 
 struct s_glcontext {
 
@@ -836,6 +842,8 @@ struct s_glcontext {
     /* platform-specific */
 
     t_glcontext_egl egl;
+    
+    t_glcontext_wgl wgl;
 
     /* ... */
 
@@ -1130,6 +1138,7 @@ static const struct s_keymap g_keymap[] = {
 
     { 0, WINDOW_KEY_NONE }
 };
+
 
 typedef XClassHint *(* PFN_XAllocClassHint_PROC) (void);
 typedef XSizeHints *(* PFN_XAllocSizeHints_PROC) (void);
@@ -2441,7 +2450,7 @@ WININT int __winPollEvents(void) {
             case (KeyRelease): {
                 uint8_t  state   = (xevent.type == KeyPress) ? 1 : 0;
                 uint64_t keycode = xevent.xkey.keycode;
-                uint64_t keysym  = XkbKeycodeToKeysym(__window_h.x11->xlib.dpy, keycode, 0, state);
+                uint64_t keysym  = XkbKeycodeToKeysym(__window_h.x11->xlib.dpy, keycode, 0, 0);
 
                 uint32_t key = 0;
                 for (size_t i = 0; g_keymap[i].src; i++) {
