@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <GL/gl.h>
 #
+#define WINDOW_API_OPENGL
 #define WINDOW_IMPLEMENTATION
 #include "./../window.h"
 
@@ -16,7 +17,7 @@ int main(void) {
     winGLSetAttribute(WINDOW_GL_CONTEXT_PROFILE, 1);
 
     t_window win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", WINDOW_FLAG_API_OPENGL);
+    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", 0);
 
     t_glcontext ctx;
     winGLCreateContext(&ctx, win);

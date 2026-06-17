@@ -502,18 +502,6 @@ enum {
     
     WINDOW_FLAG_NONE = 0x00000000,
 # define WINDOW_FLAG_NONE WINDOW_FLAG_NONE
-
-    WINDOW_FLAG_API_NONE = 0x00000001,
-# define WINDOW_FLAG_API_NONE WINDOW_FLAG_API_NONE
-
-    WINDOW_FLAG_API_OPENGL = 0x00000002,
-# define WINDOW_FLAG_API_OPENGL WINDOW_FLAG_API_OPENGL
-
-    WINDOW_FLAG_API_VULKAN = 0x00000004,
-# define WINDOW_FLAG_API_VULKAN WINDOW_FLAG_API_VULKAN
-
-    WINDOW_FLAG_API_METAL = 0x00000008,
-# define WINDOW_FLAG_API_METAL WINDOW_FLAG_API_METAL
     
     WINDOW_FLAG_FULLSCREEN = 0x00000010,
 # define WINDOW_FLAG_FULLSCREEN WINDOW_FLAG_FULLSCREEN
@@ -757,14 +745,23 @@ WINDEF int winWaitTime(uint64_t);
 
 # if defined WINDOW_IMPLEMENTATION
 #
+#  /* include headers */
 #  include <stdio.h>
 #  include <stdlib.h>
 #
-#  /* WINDOW_BACKEND_X11 - Unix X11 implementation layer */
-#  if defined (WINDOW_BACKEND_X11)
+#  /* include unix headers */
+#  if defined (WINDOW_PLATFORM_LINUX) || defined (WINDOW_PLATFORM_APPLE) || defined (WINDOW_PLATFORM_BSD)
 #   include <dlfcn.h>
 #   include <unistd.h>
 #   include <sys/time.h>
+#
+#  /* include win32 headers*/
+#  elif defined (WINDOW_PLATFORM_WIN32)
+#   include <windows.h>
+#  endif
+#
+#  /* WINDOW_BACKEND_X11 - Unix X11 implementation layer */
+#  if defined (WINDOW_BACKEND_X11)
 #
 #   include <X11/X.h>
 #   include <X11/Xlib.h>
@@ -782,15 +779,15 @@ WINDEF int winWaitTime(uint64_t);
 
 /* libX11 API */
 
-static void *g_libx11_handle = 0;
+static void *g_libX11_handle = 0;
 
 WININT int __winLoadX11(void);
 
 /* ... */
 
 WININT int __winLoadX11(void) {
-    g_libx11_handle = dlopen("libX11.so", RTLD_NOW | RTLD_GLOBAL);
-    if (!g_libx11_handle) { return (0); }
+    g_libX11_handle = dlopen("libX11.so", RTLD_NOW | RTLD_GLOBAL);
+    if (!g_libX11_handle) { return (0); }
 
     /* ... */
 
@@ -800,15 +797,15 @@ WININT int __winLoadX11(void) {
 
 /* libEGL API */
 
-static void *g_libx11_handle = 0;
+static void *g_libEGL_handle = 0;
 
 WININT int __winLoadEGL(void);
 
 /* ... */
 
 WININT int __winLoadEGL(void) {
-    g_libx11_handle = dlopen("libEGL.so", RTLD_NOW | RTLD_GLOBAL);
-    if (!g_libx11_handle) { return (0); }
+    g_libEGL_handle = dlopen("libEGL.so", RTLD_NOW | RTLD_GLOBAL);
+    if (!g_libEGL_handle) { return (0); }
 
     /* ... */
 
