@@ -2066,10 +2066,17 @@ WINDEF int winDestroyWindow(t_window win) {
 }
 
 
-WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
+WINDEF int winSetWindowFlag(t_window win, const uint32_t prop) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    switch (prop) {
+        case (WINDOW_PROP_WINDOW_X11_DISPLAY): { return (win->x11->xlib.dpy); }
+        case (WINDOW_PROP_WINDOW_X11_ROOT_ID): { return (&win->x11->xlib.root); }
+        case (WINDOW_PROP_WINDOW_X11_PARENT_ID): { return (&win->x11->xlib.parent); }
+        case (WINDOW_PROP_WINDOW_X11_CLIENT_ID): { return (&win->x11->xlib.client); }
 
+        default: { } break;
+    }
     /* success */
     return (1);
 }
@@ -2079,6 +2086,8 @@ WINDEF void *winGetWindowProperty(t_window win, const uint32_t f) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	(void) win;
+	(void) f;
     /* success */
     return (1);
 }
@@ -2088,7 +2097,22 @@ WINDEF int winMapWindow(t_window win) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* map window */
+    XMapWindow(dpy, client);
+    winFlushEvents();
+
+    /* wait for 'MapNotify' to arrive */ 
+    XEvent xevent = { 0 };
+    do {
+        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
+    } while (xevent.type != MapNotify);
+
     /* success */
+    winFlushEvents();
     return (1);
 }
 
@@ -2097,7 +2121,22 @@ WINDEF int winUnmapWindow(t_window win) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* map window */
+    XUnmapWindow(dpy, client);
+    winFlushEvents();
+
+    /* wait for 'MapNotify' to arrive */ 
+    XEvent xevent = { 0 };
+    do {
+        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
+    } while (xevent.type != MapNotify);
+
     /* success */
+    winFlushEvents();
     return (1);
 }
 
@@ -2106,6 +2145,12 @@ WINDEF int winGetWindowSize(t_window win, size_t *w_ptr, size_t *h_ptr) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    (void) w_ptr;
+    (void) h_ptr;
     /* success */
     return (1);
 }
@@ -2115,6 +2160,12 @@ WINDEF int winSetWindowSize(t_window win, const size_t w, const size_t h) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    (void) w;
+    (void) h;
     /* success */
     return (1);
 }
@@ -2124,6 +2175,12 @@ WINDEF int winSetWindowMinSize(t_window win, const size_t w, const size_t h) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    (void) w;
+    (void) h;
     /* success */
     return (1);
 }
@@ -2133,6 +2190,12 @@ WINDEF int winSetWindowMaxSize(t_window win, const size_t w, const size_t h) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    (void) w;
+    (void) h;
     /* success */
     return (1);
 }
@@ -2142,6 +2205,12 @@ WINDEF int winGetWindowPosition(t_window win, size_t *x_ptr, size_t *y_ptr) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    (void) x_ptr;
+    (void) y_ptr;
     /* success */
     return (1);
 }
@@ -2151,6 +2220,12 @@ WINDEF int winSetWindowPosition(t_window win, const size_t x, const size_t y) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    (void) x;
+    (void) y;
     /* success */
     return (1);
 }
@@ -2160,6 +2235,11 @@ WINDEF int winGetWindowTitle(t_window win, char **t_ptr) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    (void) t_ptr;
     /* success */
     return (1);
 }
@@ -2169,6 +2249,11 @@ WINDEF int winSetWindowTitle(t_window win, const char *t) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    (void) t;
     /* success */
     return (1);
 }
