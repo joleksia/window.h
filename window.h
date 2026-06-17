@@ -783,7 +783,9 @@ static struct __window_h  {
 
     /* platform-independent */
 
-    __window_h_eventQueue eventQueue;
+    struct s_window *window_list;
+
+    __window_h_eventQueue event_queue;
 
     /* platform-specific */
 
@@ -803,6 +805,9 @@ struct s_window {
     /* platform-independent */
 
     struct s_window *next;
+
+    size_t siz_w, siz_h;
+    size_t pos_x, pos_y;
 
     /* platform-specific */
 
@@ -1246,6 +1251,19 @@ struct __window_h_x11 {
         Atom _net_wm_window_opacity;
     } xatom;
 };
+
+
+typedef struct s_window_x11 *t_window_x11;
+
+struct s_window_x11 {
+    struct {
+        Display *dpy;
+        Window   root;
+        Window   parent;
+        Window   client;
+    } xlib;
+};
+
 
 WININT int __winLoadX11(void) {
     const char *names[] = { "libX11.so", "libX11.so.6", 0 };
@@ -1948,6 +1966,212 @@ WINDEF void *winGetProperty(const uint32_t prop) {
     /* return nothing */
     return (0);
 }
+/* windowing functions */
+
+WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const char *t, const uint32_t f) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* alloc new window object */
+    t_window result = calloc(1, sizeof(struct s_window));
+    if (!result) { return (0); }
+
+    /* ... */
+
+    /* update window flags */
+    winSetWindowFlag(result, f);
+
+    /* set window title */ 
+    winSetWindowTitle(result, t);
+
+    /* update window dimension properites */
+    winGetWindowPosition(result, &result->attr.x, &result->attr.y);
+    winGetWindowSize(result, &result->attr.w, &result->attr.h);
+
+    /* add the result to the '__window_h.window_list' linked list */
+    result->next = __window_h.window_list;
+    __window_h.window_list = result;
+
+    /* and return the result */
+    *win = result;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w, const size_t h, const char *t, const uint32_t f) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* alloc new window object */
+    t_window result = calloc(1, sizeof(struct s_window));
+    if (!result) { return (0); }
+
+    /* ... */
+
+    /* update window flags */
+    winSetWindowFlag(result, f);
+
+    /* set window title */ 
+    winSetWindowTitle(result, t);
+
+    /* update window dimension properites */
+    winGetWindowPosition(result, &result->attr.x, &result->attr.y);
+    winGetWindowSize(result, &result->attr.w, &result->attr.h);
+
+    /* add the result to the '__window_h.window_list' linked list */
+    result->next = __window_h.window_list;
+    __window_h.window_list = result;
+
+    /* and return the result */
+    *win = result;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winDestroyWindow(t_window win) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* unlink 'win' from '__window_h.window_list' */
+    t_window *curr = __window_h->window_list;
+    /* case when 'win' is the first node of '__window_h.window_list' */
+    if (win == (*curr)) {
+        __window_h->window_list = (*curr)->next;
+    }
+    /* case when 'win' is not the first node of '__window_h.window_list' */
+    else {
+        /* search for prepending window for 'win' */
+        while ((*curr) && (*curr)->next != win) {
+            (*curr) = (*curr)->next;
+        }
+
+        if (!(*curr)) { return (0); }
+        (*curr) = win->next;
+    }
+
+    /* destroy client */
+    XDestroyWindow(win->x11->xlib.dpy,
+                   win->x11->xlib.client);
+                        
+    /* deallocate window object */
+    free(win);
+
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
+
+WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF void *winGetWindowProperty(t_window win, const uint32_t f) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winMapWindow(t_window win) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winUnmapWindow(t_window win) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winGetWindowSize(t_window win, size_t *w_ptr, size_t *h_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowSize(t_window win, const size_t w, const size_t h) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowMinSize(t_window win, const size_t w, const size_t h) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowMaxSize(t_window win, const size_t w, const size_t h) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winGetWindowPosition(t_window win, size_t *x_ptr, size_t *y_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowPosition(t_window win, const size_t x, const size_t y) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winGetWindowTitle(t_window win, char **t_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowTitle(t_window win, const char *t) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* success */
+    return (1);
+}
 
 /* event functions */
 
@@ -2093,17 +2317,17 @@ WINDEF int winPushEvent(t_event *event) {
     if (!event)  { return (0); }
     
     /* alloc new `arr` if needed */
-    if (!__window_h.eventQueue.arr) {
+    if (!__window_h.event_queue.arr) {
         t_event *arr = malloc(WINDOW_EVENT_QUEUE_CAPACITY * sizeof(t_event));
         if (!arr) { return (0); }
 
-        __window_h.eventQueue.arr = __window_h.eventQueue.bgn = __window_h.eventQueue.end = arr;
-        __window_h.eventQueue.cap = WINDOW_EVENT_QUEUE_CAPACITY;
-        __window_h.eventQueue.cnt = 0;
+        __window_h.event_queue.arr = __window_h.event_queue.bgn = __window_h.event_queue.end = arr;
+        __window_h.event_queue.cap = WINDOW_EVENT_QUEUE_CAPACITY;
+        __window_h.event_queue.cnt = 0;
     }
 
     /* bound check */
-    if (__window_h.eventQueue.cnt >= __window_h.eventQueue.cap) {
+    if (__window_h.event_queue.cnt >= __window_h.event_queue.cap) {
         /* consider resizing
          * for now returning
          * */
@@ -2111,19 +2335,19 @@ WINDEF int winPushEvent(t_event *event) {
     }
 
     /* assign the object to the last `arr` element */
-    *__window_h.eventQueue.end = *event;
+    *__window_h.event_queue.end = *event;
     /* move the last element by one */
-    __window_h.eventQueue.end++;
+    __window_h.event_queue.end++;
     /* boundary check
      * if exceeds the `arr`, return back to start
      * */
-    size_t end = __window_h.eventQueue.end - __window_h.eventQueue.arr;
-    if (end >= __window_h.eventQueue.cap) {
-        __window_h.eventQueue.end = __window_h.eventQueue.arr;
+    size_t end = __window_h.event_queue.end - __window_h.event_queue.arr;
+    if (end >= __window_h.event_queue.cap) {
+        __window_h.event_queue.end = __window_h.event_queue.arr;
     }
 
     /* increment the count */
-    __window_h.eventQueue.cnt++;
+    __window_h.event_queue.cnt++;
 
     /* success */
     return (1);
@@ -2135,27 +2359,27 @@ WINDEF int winPopEvent(t_event *event) {
     if (!event)  { return (0); }
 
     /* check if event queue exists */
-    if (!__window_h.eventQueue.arr) { return (0); }
+    if (!__window_h.event_queue.arr) { return (0); }
 
     /* check if there's anything in the queue */
-    if (__window_h.eventQueue.cnt == 0) { return (0); }
+    if (__window_h.event_queue.cnt == 0) { return (0); }
 
     /* assign the first element to the reference */
-    *event = *__window_h.eventQueue.bgn;
+    *event = *__window_h.event_queue.bgn;
     /* zero-down the first element (safety matter) */
-    *__window_h.eventQueue.bgn = (t_event) { 0 };
+    *__window_h.event_queue.bgn = (t_event) { 0 };
     /* move the first element by one */
-    __window_h.eventQueue.bgn++;
+    __window_h.event_queue.bgn++;
     /* boundary check
      * if exceeds the `arr`, return back to start
      * */
-    size_t bgn = __window_h.eventQueue.bgn - __window_h.eventQueue.arr;
-    if (bgn >= __window_h.eventQueue.cap) {
-        __window_h.eventQueue.bgn = __window_h.eventQueue.arr;
+    size_t bgn = __window_h.event_queue.bgn - __window_h.event_queue.arr;
+    if (bgn >= __window_h.event_queue.cap) {
+        __window_h.event_queue.bgn = __window_h.event_queue.arr;
     }
 
     /* decrement the count */
-    __window_h.eventQueue.cnt--;
+    __window_h.event_queue.cnt--;
 
     /* success */
     return (1);
@@ -2170,13 +2394,13 @@ WINDEF int winPeekEvent(t_event *event) {
     *event = (t_event) { 0 };
 
     /* check if event queue exists */
-    if (!__window_h.eventQueue.arr) { return (0); }
+    if (!__window_h.event_queue.arr) { return (0); }
 
     /* check if there's anything in the queue */
-    if (__window_h.eventQueue.cnt == 0) { return (0); }
+    if (__window_h.event_queue.cnt == 0) { return (0); }
 
     /* assign the first element to the reference */
-    *event = *__window_h.eventQueue.bgn;
+    *event = *__window_h.event_queue.bgn;
 
     /* success */
     return (1);
