@@ -865,7 +865,7 @@ struct s_glcontext {
 #   define _NET_WM_STATE_ADD    1
 #   define _NET_WM_STATE_TOGGLE 2
 
-/* platform type definitions */
+/* internal type declarations */
 
 static const struct __window_h_keymap {
     uint32_t src;
@@ -1422,9 +1422,21 @@ struct s_window_x11 {
     } xlib;
 };
 
-/* platform functions */
+/* internal functions (declarations) */
 
 WININT int __winLoadX11(void);
+
+WININT int __winUnloadX11(void);
+
+WININT int __winCreateWindowX11(t_window, Display *, Window, Window, const size_t, const size_t);
+
+WININT int __winUpdateWindowFlagsX11(t_window);
+
+WININT int __winSendClientEventX11(t_window, Atom, Atom, Atom);
+
+WININT int __winPollEvents(void);
+
+/* platform functions */
 
 WINDEF int winInit(void) {
     /* initialize '__window_h' object */
@@ -1500,6 +1512,582 @@ WINDEF int winInit(void) {
     winFlushEvents();
     return (1);
 }
+
+
+WINDEF int winQuit(void) {
+    /* close all the open windows */
+    t_window curr = __window_h.window_list,
+             next = 0;
+    while (curr) {
+        next = curr->next;
+        winDestroyWindow(curr);
+        curr = next;
+    }
+
+    /* release event queue */
+    free(__window_h.event_queue.arr);
+    __window_h.event_queue = (struct __window_h_eventQueue) { 0 };
+
+    /* release xlib resources */
+    XCloseDisplay(__window_h.x11->xlib.dpy);
+
+    /* release x11 symbols */
+    if (!__winUnloadX11()) { return (0); }
+    
+    /* release x11 */
+    free(__window_h.x11), __window_h.x11 = 0;
+    
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winGetSize(size_t *w_ptr, size_t *h_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* references */
+    Display *dpy = __window_h.x11->xlib.dpy;
+    Window  root = __window_h.x11->xlib.root;
+
+    /* query attributes */
+    XWindowAttributes attr;
+    if (!XGetWindowAttributes(dpy, root, &attr)) { return (0); }
+    
+    /* assign values */
+    if (w_ptr) { *w_ptr = attr.width; }
+    if (h_ptr) { *h_ptr = attr.height; }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF void *winGetProperty(const uint32_t prop) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    switch (prop) {
+        case (WINDOW_PROP_PLATFORM_X11_DISPLAY): { return (__window_h.x11->xlib.dpy); }
+        case (WINDOW_PROP_PLATFORM_X11_ROOT_ID): { return (&__window_h.x11->xlib.root); }
+
+        default: { } break;
+    }
+
+    /* return nothing */
+    return (0);
+}
+
+/* windowing functions */
+
+WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const char *t, const uint32_t f) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* alloc new window object */
+    t_window result = calloc(1, sizeof(struct s_window));
+    if (!result) { return (0); }
+
+    /* process 'result' window object */
+    if (!__winCreateWindowX11(result, __window_h.x11->xlib.dpy,
+                                      __window_h.x11->xlib.root,
+                                      __window_h.x11->xlib.root, w, h)
+    ) {
+        return (0);
+    }
+
+    /* update window flags */
+    winSetWindowFlag(result, f);
+
+    /* set window title */ 
+    winSetWindowTitle(result, t);
+
+    /* update window dimension properites */
+    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
+    winGetWindowSize(result, &result->siz_w, &result->siz_h);
+
+    /* add the result to the '__window_h.window_list' linked list */
+    result->next = __window_h.window_list;
+    __window_h.window_list = result;
+
+    /* and return the result */
+    *win = result;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w, const size_t h, const char *t, const uint32_t f) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* alloc new window object */
+    t_window result = calloc(1, sizeof(struct s_window));
+    if (!result) { return (0); }
+
+    /* process 'result' window object */
+    if (!__winCreateWindowX11(result, __window_h.x11->xlib.dpy,
+                                      __window_h.x11->xlib.root,
+                                      parent->x11->xlib.client, w, h)
+    ) {
+        return (0);
+    }
+
+    /* update window flags */
+    winSetWindowFlag(result, f);
+
+    /* set window title */ 
+    winSetWindowTitle(result, t);
+
+    /* update window dimension properites */
+    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
+    winGetWindowSize(result, &result->siz_w, &result->siz_h);
+
+    /* add the result to the '__window_h.window_list' linked list */
+    result->next = __window_h.window_list;
+    __window_h.window_list = result;
+
+    /* and return the result */
+    *win = result;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winDestroyWindow(t_window win) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* unlink 'win' from '__window_h.window_list' */
+    t_window *curr = &__window_h.window_list;
+    /* case when 'win' is the first node of '__window_h.window_list' */
+    if (win == (*curr)) {
+        __window_h.window_list = (*curr)->next;
+    }
+    /* case when 'win' is not the first node of '__window_h.window_list' */
+    else {
+        /* search for prepending window for 'win' */
+        while ((*curr) && (*curr)->next != win) {
+            (*curr) = (*curr)->next;
+        }
+
+        if (!(*curr)) { return (0); }
+        (*curr) = win->next;
+    }
+
+    /* destroy client */
+    XDestroyWindow(win->x11->xlib.dpy,
+                   win->x11->xlib.client);
+                        
+    /* deallocate window object */
+    free(win->x11);
+    free(win);
+
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
+
+WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+   
+    /* set flags */
+    win->flags = f;
+    __winUpdateWindowFlagsX11(win);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF void *winGetWindowProperty(t_window win, const uint32_t prop) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    switch (prop) {
+        case (WINDOW_PROP_WINDOW_X11_DISPLAY): { return (win->x11->xlib.dpy); }
+        case (WINDOW_PROP_WINDOW_X11_ROOT_ID): { return (&win->x11->xlib.root); }
+        case (WINDOW_PROP_WINDOW_X11_PARENT_ID): { return (&win->x11->xlib.parent); }
+        case (WINDOW_PROP_WINDOW_X11_CLIENT_ID): { return (&win->x11->xlib.client); }
+
+        default: { } break;
+    }
+
+    /* return nothing */
+    return (0);
+}
+
+
+WINDEF int winMapWindow(t_window win) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* map window */
+    XMapWindow(dpy, client);
+    winFlushEvents();
+
+    /* wait for 'MapNotify' to arrive */ 
+    XEvent xevent = { 0 };
+    do {
+        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
+    } while (xevent.type != MapNotify);
+    win->mapped = 1;
+
+    /* lastly, update all the configs that required mapping */
+    if (!__winUpdateWindowFlagsX11(win)) {
+        return (0);
+    }
+
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
+
+WINDEF int winUnmapWindow(t_window win) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* map window */
+    XUnmapWindow(dpy, client);
+    winFlushEvents();
+
+    /* wait for 'MapNotify' to arrive */ 
+    XEvent xevent = { 0 };
+    do {
+        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
+    } while (xevent.type != MapNotify);
+    win->mapped = 0;
+
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
+
+WINDEF int winGetWindowSize(t_window win, size_t *w_ptr, size_t *h_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* get window attributes */
+    XWindowAttributes attr = { 0 };
+    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
+
+    /* return values */
+    if (w_ptr) { *w_ptr = attr.width; }
+    if (h_ptr) { *h_ptr = attr.height; }
+    
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowSize(t_window win, const size_t w, const size_t h) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* resize window */
+    if (!XResizeWindow(dpy, client, w, h)) { return (0); }
+    
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
+
+WINDEF int winSetWindowMinSize(t_window win, const size_t w, const size_t h) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* get WM normal hints */
+    XSizeHints hints;
+    int64_t supp;
+    XGetWMNormalHints(dpy, client, &hints, &supp);
+
+    /* set new WM normal hints with position changed */
+    hints.flags |= PMinSize;
+    hints.min_width  = w;
+    hints.min_height = h;
+    XSetWMNormalHints(dpy, client, &hints);
+
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
+
+WINDEF int winSetWindowMaxSize(t_window win, const size_t w, const size_t h) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* get WM normal hints */
+    XSizeHints hints;
+    int64_t supp;
+    XGetWMNormalHints(dpy, client, &hints, &supp);
+
+    /* set new WM normal hints with position changed */
+    hints.flags |= PMaxSize;
+    hints.max_width  = w;
+    hints.max_height = h;
+    XSetWMNormalHints(dpy, client, &hints);
+
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
+
+WINDEF int winGetWindowPosition(t_window win, size_t *x_ptr, size_t *y_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* get window attributes */
+    XWindowAttributes attr = { 0 };
+    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
+
+    /* return values */
+    if (x_ptr) { *x_ptr = attr.x; }
+    if (y_ptr) { *y_ptr = attr.y; }
+    
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowPosition(t_window win, const size_t x, const size_t y) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* resize window */
+    if (!XMoveWindow(dpy, client, x, y)) { return (0); }
+    
+    /* success */
+    winFlushEvents();
+    return (1);
+}
+
+
+WINDEF int winGetWindowTitle(t_window win, char **t_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* fetch window title */
+    if (!XFetchName(dpy, client, t_ptr)) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowTitle(t_window win, const char *t) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* fetch window title */
+    if (!XStoreName(dpy, client, t)) { return (0); }
+    
+    /* success */
+    return (1);
+}
+
+/* event functions */
+
+WINDEF int winPollEvents(t_event *event) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!event)  		 { return (0); }
+
+    /* poll events from platform queue */
+    if (winPopEvent(event)) { return (1); }
+
+    /* handle platform events */
+    __winPollEvents();
+
+    /* queue filled, return WINDOW_EVENT_NONE */
+    *event = (t_event) { 0 };
+    return (0);
+}
+
+
+WINDEF int winWaitEvents(t_event *event) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!event)  		 { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winPushEvent(t_event *event) {
+    /* null-check */
+    if (!event)  { return (0); }
+    
+    /* alloc new `arr` if needed */
+    if (!__window_h.event_queue.arr) {
+        t_event *arr = malloc(WINDOW_EVENT_QUEUE_CAPACITY * sizeof(t_event));
+        if (!arr) { return (0); }
+
+        __window_h.event_queue.arr = __window_h.event_queue.bgn = __window_h.event_queue.end = arr;
+        __window_h.event_queue.cap = WINDOW_EVENT_QUEUE_CAPACITY;
+        __window_h.event_queue.cnt = 0;
+    }
+
+    /* bound check */
+    if (__window_h.event_queue.cnt >= __window_h.event_queue.cap) {
+        /* consider resizing
+         * for now returning
+         * */
+        return (0);
+    }
+
+    /* assign the object to the last `arr` element */
+    *__window_h.event_queue.end = *event;
+    /* move the last element by one */
+    __window_h.event_queue.end++;
+    /* boundary check
+     * if exceeds the `arr`, return back to start
+     * */
+    size_t end = __window_h.event_queue.end - __window_h.event_queue.arr;
+    if (end >= __window_h.event_queue.cap) {
+        __window_h.event_queue.end = __window_h.event_queue.arr;
+    }
+
+    /* increment the count */
+    __window_h.event_queue.cnt++;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winPopEvent(t_event *event) {
+    /* null-check */
+    if (!event)  { return (0); }
+
+    /* check if event queue exists */
+    if (!__window_h.event_queue.arr) { return (0); }
+
+    /* check if there's anything in the queue */
+    if (__window_h.event_queue.cnt == 0) { return (0); }
+
+    /* assign the first element to the reference */
+    *event = *__window_h.event_queue.bgn;
+    /* zero-down the first element (safety matter) */
+    *__window_h.event_queue.bgn = (t_event) { 0 };
+    /* move the first element by one */
+    __window_h.event_queue.bgn++;
+    /* boundary check
+     * if exceeds the `arr`, return back to start
+     * */
+    size_t bgn = __window_h.event_queue.bgn - __window_h.event_queue.arr;
+    if (bgn >= __window_h.event_queue.cap) {
+        __window_h.event_queue.bgn = __window_h.event_queue.arr;
+    }
+
+    /* decrement the count */
+    __window_h.event_queue.cnt--;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winPeekEvent(t_event *event) {
+    /* null-check */
+    if (!event)  { return (0); }
+
+    /* zero-down the event */
+    *event = (t_event) { 0 };
+
+    /* check if event queue exists */
+    if (!__window_h.event_queue.arr) { return (0); }
+
+    /* check if there's anything in the queue */
+    if (__window_h.event_queue.cnt == 0) { return (0); }
+
+    /* assign the first element to the reference */
+    *event = *__window_h.event_queue.bgn;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winFlushEvents(void) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* flush */
+    if (!XFlush(__window_h.x11->xlib.dpy)) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+/* timing functions */
+
+WINDEF uint64_t winGetTime(void) {
+    struct timeval t;
+    if (gettimeofday(&t, 0) == -1) {
+        return (0);
+    }
+
+    return (t.tv_sec * 1000 + t.tv_usec / 1000);
+}
+
+
+WINDEF int winWaitTime(uint64_t ms) {
+    uint64_t t = winGetTime();
+    if (t == 0) { return (0); }
+
+    while ((winGetTime() - t) < ms);
+    return (1);
+}
+
+/* internal functions (definitions) */
 
 WININT int __winLoadX11(void) {
     const char *names[] = { "libX11.so", "libX11.so.6", 0 };
@@ -1762,35 +2350,6 @@ WININT int __winLoadX11(void) {
 }
 
 
-WININT int __winUnloadX11(void);
-
-WINDEF int winQuit(void) {
-    /* close all the open windows */
-    t_window curr = __window_h.window_list,
-             next = 0;
-    while (curr) {
-        next = curr->next;
-        winDestroyWindow(curr);
-        curr = next;
-    }
-
-    /* release event queue */
-    free(__window_h.event_queue.arr);
-    __window_h.event_queue = (struct __window_h_eventQueue) { 0 };
-
-    /* release xlib resources */
-    XCloseDisplay(__window_h.x11->xlib.dpy);
-
-    /* release x11 symbols */
-    if (!__winUnloadX11()) { return (0); }
-    
-    /* release x11 */
-    free(__window_h.x11), __window_h.x11 = 0;
-    
-    /* success */
-    return (1);
-}
-
 WININT int __winUnloadX11(void) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
@@ -1801,120 +2360,6 @@ WININT int __winUnloadX11(void) {
     return (1);
 }
 
-
-WINDEF int winGetSize(size_t *w_ptr, size_t *h_ptr) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* references */
-    Display *dpy = __window_h.x11->xlib.dpy;
-    Window  root = __window_h.x11->xlib.root;
-
-    /* query attributes */
-    XWindowAttributes attr;
-    if (!XGetWindowAttributes(dpy, root, &attr)) { return (0); }
-    
-    /* assign values */
-    if (w_ptr) { *w_ptr = attr.width; }
-    if (h_ptr) { *h_ptr = attr.height; }
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF void *winGetProperty(const uint32_t prop) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    switch (prop) {
-        case (WINDOW_PROP_PLATFORM_X11_DISPLAY): { return (__window_h.x11->xlib.dpy); }
-        case (WINDOW_PROP_PLATFORM_X11_ROOT_ID): { return (&__window_h.x11->xlib.root); }
-
-        default: { } break;
-    }
-
-    /* return nothing */
-    return (0);
-}
-
-/* windowing functions */
-
-WININT int __winCreateWindowX11(t_window, Display *, Window, Window, const size_t, const size_t);
-
-WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const char *t, const uint32_t f) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-    /* alloc new window object */
-    t_window result = calloc(1, sizeof(struct s_window));
-    if (!result) { return (0); }
-
-    /* process 'result' window object */
-    if (!__winCreateWindowX11(result, __window_h.x11->xlib.dpy,
-                                      __window_h.x11->xlib.root,
-                                      __window_h.x11->xlib.root, w, h)
-    ) {
-        return (0);
-    }
-
-    /* update window flags */
-    winSetWindowFlag(result, f);
-
-    /* set window title */ 
-    winSetWindowTitle(result, t);
-
-    /* update window dimension properites */
-    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
-    winGetWindowSize(result, &result->siz_w, &result->siz_h);
-
-    /* add the result to the '__window_h.window_list' linked list */
-    result->next = __window_h.window_list;
-    __window_h.window_list = result;
-
-    /* and return the result */
-    *win = result;
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w, const size_t h, const char *t, const uint32_t f) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-    /* alloc new window object */
-    t_window result = calloc(1, sizeof(struct s_window));
-    if (!result) { return (0); }
-
-    /* process 'result' window object */
-    if (!__winCreateWindowX11(result, __window_h.x11->xlib.dpy,
-                                      __window_h.x11->xlib.root,
-                                      parent->x11->xlib.client, w, h)
-    ) {
-        return (0);
-    }
-
-    /* update window flags */
-    winSetWindowFlag(result, f);
-
-    /* set window title */ 
-    winSetWindowTitle(result, t);
-
-    /* update window dimension properites */
-    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
-    winGetWindowSize(result, &result->siz_w, &result->siz_h);
-
-    /* add the result to the '__window_h.window_list' linked list */
-    result->next = __window_h.window_list;
-    __window_h.window_list = result;
-
-    /* and return the result */
-    *win = result;
-
-    /* success */
-    return (1);
-}
 
 WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window parent, const size_t w, const size_t h) {
     /* null-check */
@@ -1973,57 +2418,6 @@ WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window 
     return (1);
 }
 
-
-WINDEF int winDestroyWindow(t_window win) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-    /* unlink 'win' from '__window_h.window_list' */
-    t_window *curr = &__window_h.window_list;
-    /* case when 'win' is the first node of '__window_h.window_list' */
-    if (win == (*curr)) {
-        __window_h.window_list = (*curr)->next;
-    }
-    /* case when 'win' is not the first node of '__window_h.window_list' */
-    else {
-        /* search for prepending window for 'win' */
-        while ((*curr) && (*curr)->next != win) {
-            (*curr) = (*curr)->next;
-        }
-
-        if (!(*curr)) { return (0); }
-        (*curr) = win->next;
-    }
-
-    /* destroy client */
-    XDestroyWindow(win->x11->xlib.dpy,
-                   win->x11->xlib.client);
-                        
-    /* deallocate window object */
-    free(win->x11);
-    free(win);
-
-    /* success */
-    winFlushEvents();
-    return (1);
-}
-
-
-WININT int __winUpdateWindowFlagsX11(t_window);
-
-WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-   
-    /* set flags */
-    win->flags = f;
-    __winUpdateWindowFlagsX11(win);
-
-    /* success */
-    return (1);
-}
-
-WININT int __winSendClientEventX11(t_window, Atom, Atom, Atom);
 
 WININT int __winUpdateWindowFlagsX11(t_window win) {
     /* null-check */
@@ -2085,6 +2479,7 @@ WININT int __winUpdateWindowFlagsX11(t_window win) {
     return (1);
 }
 
+
 WININT int __winSendClientEventX11(t_window win, Atom a0, Atom a1, Atom a2) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
@@ -2121,255 +2516,6 @@ WININT int __winSendClientEventX11(t_window win, Atom a0, Atom a1, Atom a2) {
 }
 
 
-WINDEF void *winGetWindowProperty(t_window win, const uint32_t prop) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    switch (prop) {
-        case (WINDOW_PROP_WINDOW_X11_DISPLAY): { return (win->x11->xlib.dpy); }
-        case (WINDOW_PROP_WINDOW_X11_ROOT_ID): { return (&win->x11->xlib.root); }
-        case (WINDOW_PROP_WINDOW_X11_PARENT_ID): { return (&win->x11->xlib.parent); }
-        case (WINDOW_PROP_WINDOW_X11_CLIENT_ID): { return (&win->x11->xlib.client); }
-
-        default: { } break;
-    }
-
-    /* return nothing */
-    return (0);
-}
-
-
-WINDEF int winMapWindow(t_window win) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* map window */
-    XMapWindow(dpy, client);
-    winFlushEvents();
-
-    /* wait for 'MapNotify' to arrive */ 
-    XEvent xevent = { 0 };
-    do {
-        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
-    } while (xevent.type != MapNotify);
-    win->mapped = 1;
-
-    /* lastly, update all the configs that required mapping */
-    if (!__winUpdateWindowFlagsX11(win)) {
-        return (0);
-    }
-
-    /* success */
-    winFlushEvents();
-    return (1);
-}
-
-
-WINDEF int winUnmapWindow(t_window win) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* map window */
-    XUnmapWindow(dpy, client);
-    winFlushEvents();
-
-    /* wait for 'MapNotify' to arrive */ 
-    XEvent xevent = { 0 };
-    do {
-        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
-    } while (xevent.type != MapNotify);
-    win->mapped = 0;
-
-    /* success */
-    winFlushEvents();
-    return (1);
-}
-
-
-WINDEF int winGetWindowSize(t_window win, size_t *w_ptr, size_t *h_ptr) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* get window attributes */
-    XWindowAttributes attr = { 0 };
-    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
-
-    /* return values */
-    if (w_ptr) { *w_ptr = attr.width; }
-    if (h_ptr) { *h_ptr = attr.height; }
-    
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winSetWindowSize(t_window win, const size_t w, const size_t h) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* resize window */
-    if (!XResizeWindow(dpy, client, w, h)) { return (0); }
-    
-    /* success */
-    winFlushEvents();
-    return (1);
-}
-
-
-WINDEF int winSetWindowMinSize(t_window win, const size_t w, const size_t h) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* get WM normal hints */
-    XSizeHints hints;
-    int64_t supp;
-    XGetWMNormalHints(dpy, client, &hints, &supp);
-
-    /* set new WM normal hints with position changed */
-    hints.flags |= PMinSize;
-    hints.min_width  = w;
-    hints.min_height = h;
-    XSetWMNormalHints(dpy, client, &hints);
-
-    /* success */
-    winFlushEvents();
-    return (1);
-}
-
-
-WINDEF int winSetWindowMaxSize(t_window win, const size_t w, const size_t h) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* get WM normal hints */
-    XSizeHints hints;
-    int64_t supp;
-    XGetWMNormalHints(dpy, client, &hints, &supp);
-
-    /* set new WM normal hints with position changed */
-    hints.flags |= PMaxSize;
-    hints.max_width  = w;
-    hints.max_height = h;
-    XSetWMNormalHints(dpy, client, &hints);
-
-    /* success */
-    winFlushEvents();
-    return (1);
-}
-
-
-WINDEF int winGetWindowPosition(t_window win, size_t *x_ptr, size_t *y_ptr) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* get window attributes */
-    XWindowAttributes attr = { 0 };
-    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
-
-    /* return values */
-    if (x_ptr) { *x_ptr = attr.x; }
-    if (y_ptr) { *y_ptr = attr.y; }
-    
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winSetWindowPosition(t_window win, const size_t x, const size_t y) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* resize window */
-    if (!XMoveWindow(dpy, client, x, y)) { return (0); }
-    
-    /* success */
-    winFlushEvents();
-    return (1);
-}
-
-
-WINDEF int winGetWindowTitle(t_window win, char **t_ptr) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* fetch window title */
-    if (!XFetchName(dpy, client, t_ptr)) { return (0); }
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winSetWindowTitle(t_window win, const char *t) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-	/* xlib references */
-	Display *dpy   = win->x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-
-    /* fetch window title */
-    if (!XStoreName(dpy, client, t)) { return (0); }
-    
-    /* success */
-    return (1);
-}
-
-/* event functions */
-
-WININT int __winPollEvents(void);
-
-WINDEF int winPollEvents(t_event *event) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    if (!event)  		 { return (0); }
-
-    /* poll events from platform queue */
-    if (winPopEvent(event)) { return (1); }
-
-    /* handle platform events */
-    __winPollEvents();
-
-    /* queue filled, return WINDOW_EVENT_NONE */
-    *event = (t_event) { 0 };
-    return (0);
-}
-    
 WININT int __winPollEvents(void) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
@@ -2480,143 +2626,6 @@ WININT int __winPollEvents(void) {
     }
 
     /* success */
-    return (1);
-}
-
-
-WINDEF int winWaitEvents(t_event *event) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    if (!event)  		 { return (0); }
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winPushEvent(t_event *event) {
-    /* null-check */
-    if (!event)  { return (0); }
-    
-    /* alloc new `arr` if needed */
-    if (!__window_h.event_queue.arr) {
-        t_event *arr = malloc(WINDOW_EVENT_QUEUE_CAPACITY * sizeof(t_event));
-        if (!arr) { return (0); }
-
-        __window_h.event_queue.arr = __window_h.event_queue.bgn = __window_h.event_queue.end = arr;
-        __window_h.event_queue.cap = WINDOW_EVENT_QUEUE_CAPACITY;
-        __window_h.event_queue.cnt = 0;
-    }
-
-    /* bound check */
-    if (__window_h.event_queue.cnt >= __window_h.event_queue.cap) {
-        /* consider resizing
-         * for now returning
-         * */
-        return (0);
-    }
-
-    /* assign the object to the last `arr` element */
-    *__window_h.event_queue.end = *event;
-    /* move the last element by one */
-    __window_h.event_queue.end++;
-    /* boundary check
-     * if exceeds the `arr`, return back to start
-     * */
-    size_t end = __window_h.event_queue.end - __window_h.event_queue.arr;
-    if (end >= __window_h.event_queue.cap) {
-        __window_h.event_queue.end = __window_h.event_queue.arr;
-    }
-
-    /* increment the count */
-    __window_h.event_queue.cnt++;
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winPopEvent(t_event *event) {
-    /* null-check */
-    if (!event)  { return (0); }
-
-    /* check if event queue exists */
-    if (!__window_h.event_queue.arr) { return (0); }
-
-    /* check if there's anything in the queue */
-    if (__window_h.event_queue.cnt == 0) { return (0); }
-
-    /* assign the first element to the reference */
-    *event = *__window_h.event_queue.bgn;
-    /* zero-down the first element (safety matter) */
-    *__window_h.event_queue.bgn = (t_event) { 0 };
-    /* move the first element by one */
-    __window_h.event_queue.bgn++;
-    /* boundary check
-     * if exceeds the `arr`, return back to start
-     * */
-    size_t bgn = __window_h.event_queue.bgn - __window_h.event_queue.arr;
-    if (bgn >= __window_h.event_queue.cap) {
-        __window_h.event_queue.bgn = __window_h.event_queue.arr;
-    }
-
-    /* decrement the count */
-    __window_h.event_queue.cnt--;
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winPeekEvent(t_event *event) {
-    /* null-check */
-    if (!event)  { return (0); }
-
-    /* zero-down the event */
-    *event = (t_event) { 0 };
-
-    /* check if event queue exists */
-    if (!__window_h.event_queue.arr) { return (0); }
-
-    /* check if there's anything in the queue */
-    if (__window_h.event_queue.cnt == 0) { return (0); }
-
-    /* assign the first element to the reference */
-    *event = *__window_h.event_queue.bgn;
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winFlushEvents(void) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    
-    /* flush */
-    if (!XFlush(__window_h.x11->xlib.dpy)) { return (0); }
-
-    /* success */
-    return (1);
-}
-
-/* timing functions */
-
-WINDEF uint64_t winGetTime(void) {
-    struct timeval t;
-    if (gettimeofday(&t, 0) == -1) {
-        return (0);
-    }
-
-    return (t.tv_sec * 1000 + t.tv_usec / 1000);
-}
-
-
-WINDEF int winWaitTime(uint64_t ms) {
-    uint64_t t = winGetTime();
-    if (t == 0) { return (0); }
-
-    while ((winGetTime() - t) < ms);
     return (1);
 }
 
