@@ -59,6 +59,7 @@
 #  if !defined (WINDOW_BACKEND_X11) && !defined (WINDOW_BACKEND_WAYLAND)
 #   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 */
 #
+#   /* define default backend if WINDOW_API_OPENGL is defined */
 #   if defined (WINDOW_API_OPENGL)
 #    define WINDOW_BACKEND_GL_EGL 1 /* by default window.h picks EGL */
 #   endif 
@@ -72,6 +73,7 @@
 #  define WINDOW_PLATFORM "win32"
 #  define WINDOW_PLATFORM_WIN32 1
 #
+#  /* define default backend if WINDOW_API_OPENGL is defined */
 #  if defined (WINDOW_API_OPENGL)
 #   define WINDOW_BACKEND_GL_WGL 1 /* by default window.h picks WGL */
 #  endif
@@ -83,6 +85,7 @@
 #  if !defined (WINDOW_BACKEND_X11) && !defined (WINDOW_BACKEND_WAYLAND)
 #   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 */
 #
+#   /* define default backend if WINDOW_API_OPENGL is defined */
 #   if defined (WINDOW_API_OPENGL)
 #    define WINDOW_BACKEND_GL_EGL 1 /* by default window.h picks EGL */
 #   endif 
@@ -879,279 +882,6 @@ struct s_glcontext {
 
 /* internal type declarations */
 
-static const struct __window_h_keymap {
-    uint32_t src;
-    uint32_t kc;
-    uint32_t ks;
-} __window_h_keymap[] = {
-    
-    { XK_Escape, WINDOW_KEYCODE_ESCAPE, 0 },
-    
-    { XK_F1, WINDOW_KEYCODE_F1, 0 },
-    
-    { XK_F2, WINDOW_KEYCODE_F2, 0 },
-    
-    { XK_F3, WINDOW_KEYCODE_F3, 0 },
-    
-    { XK_F4, WINDOW_KEYCODE_F4, 0 },
-    
-    { XK_F5, WINDOW_KEYCODE_F5, 0 },
-    
-    { XK_F6, WINDOW_KEYCODE_F6, 0 },
-    
-    { XK_F7, WINDOW_KEYCODE_F7, 0 },
-    
-    { XK_F8, WINDOW_KEYCODE_F8, 0 },
-    
-    { XK_F9, WINDOW_KEYCODE_F9, 0 },
-    
-    { XK_F10, WINDOW_KEYCODE_F10, 0 },
-    
-    { XK_F11, WINDOW_KEYCODE_F11, 0 },
-    
-    { XK_F12, WINDOW_KEYCODE_F12, 0 },
-    
-    { XK_grave, WINDOW_KEYCODE_GRAVE, 0 }, 
-    { XK_asciitilde, WINDOW_KEYCODE_GRAVE, 0 },
-    
-    { XK_1, WINDOW_KEYCODE_ONE, 0 },       
-    { XK_exclam, WINDOW_KEYCODE_ONE, 0 },
-    
-    { XK_2, WINDOW_KEYCODE_TWO, 0 },       
-    { XK_at, WINDOW_KEYCODE_TWO, 0 },
-    
-    { XK_3, WINDOW_KEYCODE_THREE, 0 },     
-    { XK_numbersign, WINDOW_KEYCODE_THREE, 0 },
-    
-    { XK_4, WINDOW_KEYCODE_FOUR, 0 },      
-    { XK_dollar, WINDOW_KEYCODE_FOUR, 0 },
-    
-    { XK_5, WINDOW_KEYCODE_FIVE, 0 },      
-    { XK_percent, WINDOW_KEYCODE_FIVE, 0 },
-    
-    { XK_6, WINDOW_KEYCODE_SIX, 0 },       
-    { XK_asciicircum, WINDOW_KEYCODE_SIX, 0 },
-    
-    { XK_7, WINDOW_KEYCODE_SEVEN, 0 },     
-    { XK_ampersand, WINDOW_KEYCODE_SEVEN, 0 },
-    
-    { XK_8, WINDOW_KEYCODE_EIGHT, 0 },     
-    { XK_asterisk, WINDOW_KEYCODE_EIGHT, 0 },
-    
-    { XK_9, WINDOW_KEYCODE_NINE, 0 },      
-    { XK_parenleft, WINDOW_KEYCODE_NINE, 0 },
-    
-    { XK_0, WINDOW_KEYCODE_ZERO, 0 },      
-    { XK_parenright, WINDOW_KEYCODE_ZERO, 0 },
-    
-    { XK_minus, WINDOW_KEYCODE_DASH, 0 },  
-    { XK_underscore, WINDOW_KEYCODE_DASH, 0 },
-    
-    { XK_equal, WINDOW_KEYCODE_EQUAL, 0 },
-    { XK_plus, WINDOW_KEYCODE_EQUAL, 0 },
-    
-    { XK_BackSpace, WINDOW_KEYCODE_BACKSPACE, 0 },
-    
-    { XK_Tab, WINDOW_KEYCODE_TAB, 0 },
-    
-    { XK_Q, WINDOW_KEYCODE_Q, 0 },
-    { XK_q, WINDOW_KEYCODE_Q, 0 },
-    
-    { XK_W, WINDOW_KEYCODE_W, 0 },
-    { XK_w, WINDOW_KEYCODE_W, 0 },
-    
-    { XK_E, WINDOW_KEYCODE_E, 0 },
-    { XK_e, WINDOW_KEYCODE_E, 0 },
-    
-    { XK_R, WINDOW_KEYCODE_R, 0 },
-    { XK_r, WINDOW_KEYCODE_R, 0 },
-    
-    { XK_T, WINDOW_KEYCODE_T, 0 },
-    { XK_t, WINDOW_KEYCODE_T, 0 },
-    
-    { XK_Y, WINDOW_KEYCODE_Y, 0 },
-    { XK_y, WINDOW_KEYCODE_Y, 0 },
-    
-    { XK_U, WINDOW_KEYCODE_U, 0 },
-    { XK_u, WINDOW_KEYCODE_U, 0 },
-    
-    { XK_I, WINDOW_KEYCODE_I, 0 },
-    { XK_i, WINDOW_KEYCODE_I, 0 },
-    
-    { XK_O, WINDOW_KEYCODE_O, 0 },
-    { XK_o, WINDOW_KEYCODE_O, 0 },
-    
-    { XK_P, WINDOW_KEYCODE_P, 0 },
-    { XK_p, WINDOW_KEYCODE_P, 0 },
-    
-    { XK_bracketleft, WINDOW_KEYCODE_OBRACE, 0 },
-    { XK_braceleft, WINDOW_KEYCODE_OBRACE, 0 },
-    
-    { XK_bracketright, WINDOW_KEYCODE_CBRACE, 0 },
-    { XK_braceright, WINDOW_KEYCODE_CBRACE, 0 },
-
-    { XK_Caps_Lock, WINDOW_KEYCODE_CAPSLOCK, 0 },
-
-    { XK_A, WINDOW_KEYCODE_A, 0 },
-    { XK_a, WINDOW_KEYCODE_A, 0 },
-
-    { XK_S, WINDOW_KEYCODE_S, 0 },
-    { XK_s, WINDOW_KEYCODE_S, 0 },
-
-    { XK_D, WINDOW_KEYCODE_D, 0 },
-    { XK_d, WINDOW_KEYCODE_D, 0 },
-
-    { XK_F, WINDOW_KEYCODE_F, 0 },
-    { XK_f, WINDOW_KEYCODE_F, 0 },
-
-    { XK_G, WINDOW_KEYCODE_G, 0 },
-    { XK_g, WINDOW_KEYCODE_G, 0 },
-
-    { XK_H, WINDOW_KEYCODE_H, 0 },
-    { XK_h, WINDOW_KEYCODE_H, 0 },
-
-    { XK_J, WINDOW_KEYCODE_J, 0 },
-    { XK_j, WINDOW_KEYCODE_J, 0 },
-
-    { XK_K, WINDOW_KEYCODE_K, 0 },
-    { XK_k, WINDOW_KEYCODE_K, 0 },
-
-    { XK_L, WINDOW_KEYCODE_L, 0 },
-    { XK_l, WINDOW_KEYCODE_L, 0 },
-
-    { XK_semicolon, WINDOW_KEYCODE_SEMICOLON, 0 },
-    { XK_colon, WINDOW_KEYCODE_SEMICOLON, 0 },
-
-    { XK_apostrophe, WINDOW_KEYCODE_QUOTE, 0 },
-    { XK_quotedbl, WINDOW_KEYCODE_QUOTE, 0 },
-
-    { XK_backslash, WINDOW_KEYCODE_BACKSLASH, 0 },
-    { XK_bar, WINDOW_KEYCODE_BACKSLASH, 0 },
-
-    { XK_Return, WINDOW_KEYCODE_ENTER, 0 },
-
-    { XK_Shift_L, WINDOW_KEYCODE_LSHIFT, 0 },
-    
-    { XK_Z, WINDOW_KEYCODE_Z, 0 },
-    { XK_z, WINDOW_KEYCODE_Z, 0 },
-    
-    { XK_X, WINDOW_KEYCODE_X, 0 },
-    { XK_x, WINDOW_KEYCODE_X, 0 },
-    
-    { XK_C, WINDOW_KEYCODE_C, 0 },
-    { XK_c, WINDOW_KEYCODE_C, 0 },
-    
-    { XK_V, WINDOW_KEYCODE_V, 0 },
-    { XK_v, WINDOW_KEYCODE_V, 0 },
-    
-    { XK_B, WINDOW_KEYCODE_B, 0 },
-    { XK_b, WINDOW_KEYCODE_B, 0 },
-    
-    { XK_N, WINDOW_KEYCODE_N, 0 },
-    { XK_n, WINDOW_KEYCODE_N, 0 },
-    
-    { XK_M, WINDOW_KEYCODE_M, 0 },
-    { XK_m, WINDOW_KEYCODE_M, 0 },
-    
-    { XK_comma, WINDOW_KEYCODE_COMMA, 0 },
-    { XK_less, WINDOW_KEYCODE_COMMA, 0 },
-    
-    { XK_period, WINDOW_KEYCODE_PERIOD, 0 },
-    { XK_greater, WINDOW_KEYCODE_PERIOD, 0 },
-    
-    { XK_slash, WINDOW_KEYCODE_SLASH, 0 },
-    { XK_question, WINDOW_KEYCODE_SLASH, 0 },
-    
-    { XK_Shift_R, WINDOW_KEYCODE_RSHIFT, 0 },
-    
-    { XK_Control_L, WINDOW_KEYCODE_LCTRL, 0 },
-    
-    { XK_Super_L, WINDOW_KEYCODE_MOD, 0 },
-    
-    { XK_Alt_L, WINDOW_KEYCODE_LALT, 0 },
-    
-    { XK_space, WINDOW_KEYCODE_SPACE, 0 },
-    
-    { XK_Alt_R, WINDOW_KEYCODE_RALT, 0 },
-    
-    { XK_Control_R, WINDOW_KEYCODE_RCTRL, 0 },
-
-    { XK_Print, WINDOW_KEYCODE_PRINTSCREEN, 0 },
-    
-    { XK_Scroll_Lock, WINDOW_KEYCODE_SCROLLLOCK, 0 },
-    
-    { XK_Pause, WINDOW_KEYCODE_PAUSE, 0 },
-
-    { XK_Insert, WINDOW_KEYCODE_INSERT, 0 },
-    
-    { XK_Home, WINDOW_KEYCODE_HOME, 0 },
-    
-    { XK_Prior, WINDOW_KEYCODE_PAGEUP, 0 },
-
-    { XK_Delete, WINDOW_KEYCODE_DELETE, 0 },
-    
-    { XK_End, WINDOW_KEYCODE_END, 0 },
-    
-    { XK_Next, WINDOW_KEYCODE_PAGEDOWN, 0 },
-
-    { XK_Up, WINDOW_KEYCODE_UP, 0 },
-    
-    { XK_Left, WINDOW_KEYCODE_LEFT, 0 },
-    
-    { XK_Down, WINDOW_KEYCODE_DOWN, 0 },
-    
-    { XK_Right, WINDOW_KEYCODE_RIGHT, 0 },
-
-    { XK_Num_Lock, WINDOW_KEYCODE_NUMLOCK, 0 },
-    
-    { XK_KP_Divide, WINDOW_KEYCODE_NUMSLASH, 0 },
-    
-    { XK_KP_Multiply, WINDOW_KEYCODE_NUMSTAR, 0 },
-    
-    { XK_KP_Subtract, WINDOW_KEYCODE_NUMDASH, 0 },
-    
-    { XK_KP_Home, WINDOW_KEYCODE_NUM7, 0 },
-    { XK_KP_7, WINDOW_KEYCODE_NUM7, 0 },
-    
-    { XK_KP_Up, WINDOW_KEYCODE_NUM8, 0 },
-    { XK_KP_8, WINDOW_KEYCODE_NUM8, 0 },
-    
-    { XK_KP_Prior, WINDOW_KEYCODE_NUM9, 0 },
-    { XK_KP_9, WINDOW_KEYCODE_NUM9, 0 },
-    
-    { XK_KP_Left, WINDOW_KEYCODE_NUM4, 0 },
-    { XK_KP_4, WINDOW_KEYCODE_NUM4, 0 },
-    
-    { XK_KP_Begin, WINDOW_KEYCODE_NUM5, 0 },
-    { XK_KP_5, WINDOW_KEYCODE_NUM5, 0 },
-    
-    { XK_KP_Right, WINDOW_KEYCODE_NUM6, 0 },
-    { XK_KP_6, WINDOW_KEYCODE_NUM6, 0 },
-    
-    { XK_KP_End, WINDOW_KEYCODE_NUM1, 0 },
-    { XK_KP_1, WINDOW_KEYCODE_NUM1, 0 },
-    
-    { XK_KP_Down, WINDOW_KEYCODE_NUM2, 0 },
-    { XK_KP_2, WINDOW_KEYCODE_NUM2, 0 },
-    
-    { XK_KP_Next, WINDOW_KEYCODE_NUM3, 0 },
-    { XK_KP_3, WINDOW_KEYCODE_NUM3, 0 },
-    
-    { XK_KP_Insert, WINDOW_KEYCODE_NUM0, 0 },
-    { XK_KP_0, WINDOW_KEYCODE_NUM0, 0 },
-    
-    { XK_KP_Delete, WINDOW_KEYCODE_NUMSEP, 0 },
-    
-    { XK_KP_Add, WINDOW_KEYCODE_NUMPLUS, 0 },
-    
-    { XK_KP_Enter, WINDOW_KEYCODE_NUMENTER, 0 },
-
-    /* ... */
-
-    { 0, WINDOW_KEYCODE_NONE, 0 }
-};
-
-
 typedef XClassHint *(* PFN_XAllocClassHint_PROC) (void);
 typedef XSizeHints *(* PFN_XAllocSizeHints_PROC) (void);
 typedef XWMHints *(* PFN_XAllocWMHints_PROC) (void);
@@ -1440,6 +1170,827 @@ WININT int __winLoadX11(void);
 
 WININT int __winUnloadX11(void);
 
+/* internal functions (definitions) */
+
+WININT int __winLoadX11(void) {
+    /* alloc '__window_h.x11' field */
+    if (!__window_h.x11) {
+        __window_h.x11 = calloc(1, sizeof(struct __window_h_x11));
+        if (!__window_h.x11) {
+            return (0);
+        }
+    }
+
+    /* try to load handle */
+    const char  *names[] = { "libX11.so", "libX11.so.6", 0 };
+    static void *handle  = 0;
+    if (!handle) {
+        for (const char **name = names; *name; name++) {
+            handle = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
+            if (handle) { break; }
+        }
+
+        /* check if handle loaded */
+        if (!handle) { return (0); }
+    }
+
+    /* load libX11 symbols */
+    XAllocClassHint = (PFN_XAllocClassHint_PROC) dlsym(handle, "XAllocClassHint");
+    if (!XAllocClassHint) { return (0); }
+
+    XAllocSizeHints = (PFN_XAllocSizeHints_PROC) dlsym(handle, "XAllocSizeHints");
+    if (!XAllocSizeHints) { return (0); }
+
+    XAllocWMHints = (PFN_XAllocWMHints_PROC) dlsym(handle, "XAllocWMHints");
+    if (!XAllocWMHints) { return (0); }
+
+    XChangeProperty = (PFN_XChangeProperty_PROC) dlsym(handle, "XChangeProperty");
+    if (!XChangeProperty) { return (0); }
+
+    XChangeWindowAttributes = (PFN_XChangeWindowAttributes_PROC) dlsym(handle, "XChangeWindowAttributes");
+    if (!XChangeWindowAttributes) { return (0); }
+
+    XCheckIfEvent = (PFN_XCheckIfEvent_PROC) dlsym(handle, "XCheckIfEvent");
+    if (!XCheckIfEvent) { return (0); }
+
+    XCheckTypedWindowEvent = (PFN_XCheckTypedWindowEvent_PROC) dlsym(handle, "XCheckTypedWindowEvent");
+    if (!XCheckTypedWindowEvent) { return (0); }
+
+    XCloseDisplay = (PFN_XCloseDisplay_PROC) dlsym(handle, "XCloseDisplay");
+    if (!XCloseDisplay) { return (0); }
+
+    XConvertSelection = (PFN_XConvertSelection_PROC) dlsym(handle, "XConvertSelection");
+    if (!XConvertSelection) { return (0); }
+
+    XCreateColormap = (PFN_XCreateColormap_PROC) dlsym(handle, "XCreateColormap");
+    if (!XCreateColormap) { return (0); }
+
+    XCreateFontCursor = (PFN_XCreateFontCursor_PROC) dlsym(handle, "XCreateFontCursor");
+    if (!XCreateFontCursor) { return (0); }
+
+    XCreateRegion = (PFN_XCreateRegion_PROC) dlsym(handle, "XCreateRegion");
+    if (!XCreateRegion) { return (0); }
+
+    XCreateWindow = (PFN_XCreateWindow_PROC) dlsym(handle, "XCreateWindow");
+    if (!XCreateWindow) { return (0); }
+
+    XDefineCursor = (PFN_XDefineCursor_PROC) dlsym(handle, "XDefineCursor");
+    if (!XDefineCursor) { return (0); }
+
+    XDeleteContext = (PFN_XDeleteContext_PROC) dlsym(handle, "XDeleteContext");
+    if (!XDeleteContext) { return (0); }
+
+    XDeleteProperty = (PFN_XDeleteProperty_PROC) dlsym(handle, "XDeleteProperty");
+    if (!XDeleteProperty) { return (0); }
+
+    XDestroyRegion = (PFN_XDestroyRegion_PROC) dlsym(handle, "XDestroyRegion");
+    if (!XDestroyRegion) { return (0); }
+
+    XDestroyWindow = (PFN_XDestroyWindow_PROC) dlsym(handle, "XDestroyWindow");
+    if (!XDestroyWindow) { return (0); }
+
+    XDisplayKeycodes = (PFN_XDisplayKeycodes_PROC) dlsym(handle, "XDisplayKeycodes");
+    if (!XDisplayKeycodes) { return (0); }
+
+    XEventsQueued = (PFN_XEventsQueued_PROC) dlsym(handle, "XEventsQueued");
+    if (!XEventsQueued) { return (0); }
+
+    XFetchName = (PFN_XFetchName_PROC) dlsym(handle, "XFetchName");
+    if (!XFetchName) { return (0); }
+
+    XFilterEvent = (PFN_XFilterEvent_PROC) dlsym(handle, "XFilterEvent");
+    if (!XFilterEvent) { return (0); }
+
+    XFindContext = (PFN_XFindContext_PROC) dlsym(handle, "XFindContext");
+    if (!XFindContext) { return (0); }
+
+    XFlush = (PFN_XFlush_PROC) dlsym(handle, "XFlush");
+    if (!XFlush) { return (0); }
+
+    XFree = (PFN_XFree_PROC) dlsym(handle, "XFree");
+    if (!XFree) { return (0); }
+
+    XFreeColormap = (PFN_XFreeColormap_PROC) dlsym(handle, "XFreeColormap");
+    if (!XFreeColormap) { return (0); }
+
+    XFreeCursor = (PFN_XFreeCursor_PROC) dlsym(handle, "XFreeCursor");
+    if (!XFreeCursor) { return (0); }
+
+    XFreeEventData = (PFN_XFreeEventData_PROC) dlsym(handle, "XFreeEventData");
+    if (!XFreeEventData) { return (0); }
+
+    XGetErrorText = (PFN_XGetErrorText_PROC) dlsym(handle, "XGetErrorText");
+    if (!XGetErrorText) { return (0); }
+
+    XGetEventData = (PFN_XGetEventData_PROC) dlsym(handle, "XGetEventData");
+    if (!XGetEventData) { return (0); }
+
+    XGetInputFocus = (PFN_XGetInputFocus_PROC) dlsym(handle, "XGetInputFocus");
+    if (!XGetInputFocus) { return (0); }
+
+    XGetKeyboardMapping = (PFN_XGetKeyboardMapping_PROC) dlsym(handle, "XGetKeyboardMapping");
+    if (!XGetKeyboardMapping) { return (0); }
+
+    XGetSelectionOwner = (PFN_XGetSelectionOwner_PROC) dlsym(handle, "XGetSelectionOwner");
+    if (!XGetSelectionOwner) { return (0); }
+
+    XGetVisualInfo = (PFN_XGetVisualInfo_PROC) dlsym(handle, "XGetVisualInfo");
+    if (!XGetVisualInfo) { return (0); }
+
+    XGetWMNormalHints = (PFN_XGetWMNormalHints_PROC) dlsym(handle, "XGetWMNormalHints");
+    if (!XGetWMNormalHints) { return (0); }
+
+    XGetWindowAttributes = (PFN_XGetWindowAttributes_PROC) dlsym(handle, "XGetWindowAttributes");
+    if (!XGetWindowAttributes) { return (0); }
+
+    XGetWindowProperty = (PFN_XGetWindowProperty_PROC) dlsym(handle, "XGetWindowProperty");
+    if (!XGetWindowProperty) { return (0); }
+
+    XGrabPointer = (PFN_XGrabPointer_PROC) dlsym(handle, "XGrabPointer");
+    if (!XGrabPointer) { return (0); }
+
+    XIconifyWindow = (PFN_XIconifyWindow_PROC) dlsym(handle, "XIconifyWindow");
+    if (!XIconifyWindow) { return (0); }
+
+    XInitThreads = (PFN_XInitThreads_PROC) dlsym(handle, "XInitThreads");
+    if (!XInitThreads) { return (0); }
+
+    XInternAtom = (PFN_XInternAtom_PROC) dlsym(handle, "XInternAtom");
+    if (!XInternAtom) { return (0); }
+
+    XLookupString = (PFN_XLookupString_PROC) dlsym(handle, "XLookupString");
+    if (!XLookupString) { return (0); }
+
+    XMapRaised = (PFN_XMapRaised_PROC) dlsym(handle, "XMapRaised");
+    if (!XMapRaised) { return (0); }
+
+    XMapWindow = (PFN_XMapWindow_PROC) dlsym(handle, "XMapWindow");
+    if (!XMapWindow) { return (0); }
+
+    XMatchVisualInfo = (PFN_XMatchVisualInfo_PROC) dlsym(handle, "XMatchVisualInfo");
+    if (!XMatchVisualInfo) { return (0); }
+
+    XMoveResizeWindow = (PFN_XMoveResizeWindow_PROC) dlsym(handle, "XMoveResizeWindow");
+    if (!XMoveResizeWindow) { return (0); }
+
+    XMoveWindow = (PFN_XMoveWindow_PROC) dlsym(handle, "XMoveWindow");
+    if (!XMoveWindow) { return (0); }
+
+    XNextEvent = (PFN_XNextEvent_PROC) dlsym(handle, "XNextEvent");
+    if (!XNextEvent) { return (0); }
+
+    XOpenDisplay = (PFN_XOpenDisplay_PROC) dlsym(handle, "XOpenDisplay");
+    if (!XOpenDisplay) { return (0); }
+
+    XPeekEvent = (PFN_XPeekEvent_PROC) dlsym(handle, "XPeekEvent");
+    if (!XPeekEvent) { return (0); }
+
+    XPending = (PFN_XPending_PROC) dlsym(handle, "XPending");
+    if (!XPending) { return (0); }
+
+    XQueryExtension = (PFN_XQueryExtension_PROC) dlsym(handle, "XQueryExtension");
+    if (!XQueryExtension) { return (0); }
+
+    XQueryPointer = (PFN_XQueryPointer_PROC) dlsym(handle, "XQueryPointer");
+    if (!XQueryPointer) { return (0); }
+
+    XRaiseWindow = (PFN_XRaiseWindow_PROC) dlsym(handle, "XRaiseWindow");
+    if (!XRaiseWindow) { return (0); }
+
+    XRegisterIMInstantiateCallback = (PFN_XRegisterIMInstantiateCallback_PROC) dlsym(handle, "XRegisterIMInstantiateCallback");
+    if (!XRegisterIMInstantiateCallback) { return (0); }
+
+    XResizeWindow = (PFN_XResizeWindow_PROC) dlsym(handle, "XResizeWindow");
+    if (!XResizeWindow) { return (0); }
+
+    XSaveContext = (PFN_XSaveContext_PROC) dlsym(handle, "XSaveContext");
+    if (!XSaveContext) { return (0); }
+
+    XSelectInput = (PFN_XSelectInput_PROC) dlsym(handle, "XSelectInput");
+    if (!XSelectInput) { return (0); }
+
+    XSendEvent = (PFN_XSendEvent_PROC) dlsym(handle, "XSendEvent");
+    if (!XSendEvent) { return (0); }
+
+    XSetClassHint = (PFN_XSetClassHint_PROC) dlsym(handle, "XSetClassHint");
+    if (!XSetClassHint) { return (0); }
+
+    XSetErrorHandler = (PFN_XSetErrorHandler_PROC) dlsym(handle, "XSetErrorHandler");
+    if (!XSetErrorHandler) { return (0); }
+
+    XSetInputFocus = (PFN_XSetInputFocus_PROC) dlsym(handle, "XSetInputFocus");
+    if (!XSetInputFocus) { return (0); }
+
+    XSetLocaleModifiers = (PFN_XSetLocaleModifiers_PROC) dlsym(handle, "XSetLocaleModifiers");
+    if (!XSetLocaleModifiers) { return (0); }
+
+    XSetSelectionOwner = (PFN_XSetSelectionOwner_PROC) dlsym(handle, "XSetSelectionOwner");
+    if (!XSetSelectionOwner) { return (0); }
+
+    XSetWMHints = (PFN_XSetWMHints_PROC) dlsym(handle, "XSetWMHints");
+    if (!XSetWMHints) { return (0); }
+
+    XSetWMNormalHints = (PFN_XSetWMNormalHints_PROC) dlsym(handle, "XSetWMNormalHints");
+    if (!XSetWMNormalHints) { return (0); }
+
+    XSetWMProtocols = (PFN_XSetWMProtocols_PROC) dlsym(handle, "XSetWMProtocols");
+    if (!XSetWMProtocols) { return (0); }
+
+    XStoreName = (PFN_XStoreName_PROC) dlsym(handle, "XStoreName");
+    if (!XStoreName) { return (0); }
+
+    XSupportsLocale = (PFN_XSupportsLocale_PROC) dlsym(handle, "XSupportsLocale");
+    if (!XSupportsLocale) { return (0); }
+
+    XSync = (PFN_XSync_PROC) dlsym(handle, "XSync");
+    if (!XSync) { return (0); }
+
+    XTranslateCoordinates = (PFN_XTranslateCoordinates_PROC) dlsym(handle, "XTranslateCoordinates");
+    if (!XTranslateCoordinates) { return (0); }
+
+    XUndefineCursor = (PFN_XUndefineCursor_PROC) dlsym(handle, "XUndefineCursor");
+    if (!XUndefineCursor) { return (0); }
+
+    XUngrabPointer = (PFN_XUngrabPointer_PROC) dlsym(handle, "XUngrabPointer");
+    if (!XUngrabPointer) { return (0); }
+
+    XUnmapWindow = (PFN_XUnmapWindow_PROC) dlsym(handle, "XUnmapWindow");
+    if (!XUnmapWindow) { return (0); }
+
+    XVisualIDFromVisual = (PFN_XVisualIDFromVisual_PROC) dlsym(handle, "XVisualIDFromVisual");
+    if (!XVisualIDFromVisual) { return (0); }
+
+    XWarpPointer = (PFN_XWarpPointer_PROC) dlsym(handle, "XWarpPointer");
+    if (!XWarpPointer) { return (0); }
+
+    XWindowEvent = (PFN_XWindowEvent_PROC) dlsym(handle, "XWindowEvent");
+    if (!XWindowEvent) { return (0); }
+
+    XkbKeycodeToKeysym = (PFN_XkbKeycodeToKeysym_PROC) dlsym(handle, "XkbKeycodeToKeysym");
+    if (!XkbKeycodeToKeysym) { return (0); }
+
+    XkbSetDetectableAutoRepeat = (PFN_XkbSetDetectableAutoRepeat_PROC) dlsym(handle, "XkbSetDetectableAutoRepeat");
+    if (!XkbSetDetectableAutoRepeat) { return (0); }
+
+    /* set '__window_h.x11->handle' member */ 
+    __window_h.x11->handle = handle;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winUnloadX11(void) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* release '__window_h.x11->handle' field */
+    dlclose(__window_h.x11->handle), __window_h.x11->handle = 0;
+
+    /* release '__window_h.x11' */
+    free(__window_h.x11);
+
+    /* success */
+    return (1);
+}
+
+#  endif /* WINDOW_BACKEND_X11 */
+#
+#  /* WINDOW_BACKEND_WAYLAND - Unix Wayland implementation layer */
+#  if defined (WINDOW_BACKEND_WAYLAND)
+#   include <unistd.h>
+#   include <sys/time.h>
+#
+#   include <wayland-util.h>
+#   include <wayland-version.h>
+#   include <wayland-client.h>
+#   include <wayland-client-core.h>
+#   include <wayland-client-protocol.h>
+
+/* ... */
+
+#  endif /* WINDOW_BACKEND_WAYLAND */
+#
+#  /* WINDOW_PLATFORM_WIN32 - Windows Win32 implementation layer */
+#  if defined (WINDOW_PLATFORM_WIN32)
+#   include <windows.h>
+
+/* ... */
+
+#  endif /* WINDOW_PLATFORM_WIN32 */
+#
+#  /* WINDOW_BACKEND_GL_EGL - EGL implementation layer */
+#  if defined (WINDOW_BACKEND_GL_EGL)
+#
+#   include <EGL/egl.h>
+
+/* internal type declarations */
+
+typedef EGLBoolean (* PFN_eglChooseConfig_PROC) (EGLDisplay, const EGLint *, EGLConfig *, EGLint, EGLint *);
+typedef EGLBoolean (* PFN_eglCopyBuffers_PROC) (EGLDisplay, EGLSurface, EGLNativePixmapType);
+typedef EGLContext (* PFN_eglCreateContext_PROC) (EGLDisplay, EGLConfig, EGLContext, const EGLint *);
+typedef EGLSurface (* PFN_eglCreatePbufferSurface_PROC) (EGLDisplay, EGLConfig, const EGLint *);
+typedef EGLSurface (* PFN_eglCreatePixmapSurface_PROC) (EGLDisplay, EGLConfig, EGLNativePixmapType, const EGLint *);
+typedef EGLSurface (* PFN_eglCreateWindowSurface_PROC) (EGLDisplay, EGLConfig, EGLNativeWindowType, const EGLint *);
+typedef EGLBoolean (* PFN_eglDestroyContext_PROC) (EGLDisplay, EGLContext);
+typedef EGLBoolean (* PFN_eglDestroySurface_PROC) (EGLDisplay, EGLSurface);
+typedef EGLBoolean (* PFN_eglGetConfigAttrib_PROC) (EGLDisplay, EGLConfig, EGLint, EGLint *);
+typedef EGLBoolean (* PFN_eglGetConfigs_PROC) (EGLDisplay, EGLConfig *configs, EGLint, EGLint *);
+typedef EGLDisplay (* PFN_eglGetCurrentDisplay_PROC) (void);
+typedef EGLSurface (* PFN_eglGetCurrentSurface_PROC) (EGLint);
+typedef EGLDisplay (* PFN_eglGetDisplay_PROC) (EGLNativeDisplayType);
+typedef EGLint (* PFN_eglGetError_PROC) (void);
+typedef __eglMustCastToProperFunctionPointerType (* PFN_eglGetProcAddress_PROC) (const char *);
+typedef EGLBoolean (* PFN_eglInitialize_PROC) (EGLDisplay, EGLint *, EGLint *);
+typedef EGLBoolean (* PFN_eglMakeCurrent_PROC) (EGLDisplay, EGLSurface, EGLSurface, EGLContext);
+typedef EGLBoolean (* PFN_eglQueryContext_PROC) (EGLDisplay, EGLContext, EGLint, EGLint *);
+typedef const char *(* PFN_eglQueryString_PROC) (EGLDisplay, EGLint);
+typedef EGLBoolean (* PFN_eglQuerySurface_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint *);
+typedef EGLBoolean (* PFN_eglSwapBuffers_PROC) (EGLDisplay, EGLSurface);
+typedef EGLBoolean (* PFN_eglTerminate_PROC) (EGLDisplay);
+typedef EGLBoolean (* PFN_eglWaitGL_PROC) (void);
+typedef EGLBoolean (* PFN_eglWaitNative_PROC) (EGLint);
+typedef EGLBoolean (* PFN_eglBindTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
+typedef EGLBoolean (* PFN_eglReleaseTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
+typedef EGLBoolean (* PFN_eglSurfaceAttrib_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint);
+typedef EGLBoolean (* PFN_eglSwapInterval_PROC) (EGLDisplay, EGLint);
+typedef EGLBoolean (* PFN_eglBindAPI_PROC) (EGLenum);
+typedef EGLenum (* PFN_eglQueryAPI_PROC) (void);
+typedef EGLSurface (* PFN_eglCreatePbufferFromClientBuffer_PROC) (EGLDisplay, EGLenum, EGLClientBuffer, EGLConfig, const EGLint *);
+typedef EGLBoolean (* PFN_eglReleaseThread_PROC) (void);
+typedef EGLBoolean (* PFN_eglWaitClient_PROC) (void);
+typedef EGLContext (* PFN_eglGetCurrentContext_PROC) (void);
+typedef EGLSync (* PFN_eglCreateSync_PROC) (EGLDisplay, EGLenum, const EGLAttrib *);
+typedef EGLBoolean (* PFN_eglDestroySync_PROC) (EGLDisplay, EGLSync);
+typedef EGLint (* PFN_eglClientWaitSync_PROC) (EGLDisplay, EGLSync, EGLint, EGLTime);
+typedef EGLBoolean (* PFN_eglGetSyncAttrib_PROC) (EGLDisplay, EGLSync, EGLint, EGLAttrib *);
+typedef EGLImage (* PFN_eglCreateImage_PROC) (EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLAttrib *);
+typedef EGLBoolean (* PFN_eglDestroyImage_PROC) (EGLDisplay, EGLImage);
+typedef EGLDisplay (* PFN_eglGetPlatformDisplay_PROC) (EGLenum, void *, const EGLAttrib *);
+typedef EGLSurface (* PFN_eglCreatePlatformWindowSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
+typedef EGLSurface (* PFN_eglCreatePlatformPixmapSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
+typedef EGLBoolean (* PFN_eglWaitSync_PROC) (EGLDisplay, EGLSync, EGLint);
+
+#   define eglChooseConfig __window_h.egl->ChooseConfig
+#   define eglCopyBuffers __window_h.egl->CopyBuffers
+#   define eglCreateContext __window_h.egl->CreateContext
+#   define eglCreatePbufferSurface __window_h.egl->CreatePbufferSurface
+#   define eglCreatePixmapSurface __window_h.egl->CreatePixmapSurface
+#   define eglCreateWindowSurface __window_h.egl->CreateWindowSurface
+#   define eglDestroyContext __window_h.egl->DestroyContext
+#   define eglDestroySurface __window_h.egl->DestroySurface
+#   define eglGetConfigAttrib __window_h.egl->GetConfigAttrib
+#   define eglGetConfigs __window_h.egl->GetConfigs
+#   define eglGetCurrentDisplay __window_h.egl->GetCurrentDisplay
+#   define eglGetCurrentSurface __window_h.egl->GetCurrentSurface
+#   define eglGetDisplay __window_h.egl->GetDisplay
+#   define eglGetError __window_h.egl->GetError
+#   define eglGetProcAddress __window_h.egl->GetProcAddress
+#   define eglInitialize __window_h.egl->Initialize
+#   define eglMakeCurrent __window_h.egl->MakeCurrent
+#   define eglQueryContext __window_h.egl->QueryContext
+#   define eglQueryString __window_h.egl->QueryString
+#   define eglQuerySurface __window_h.egl->QuerySurface
+#   define eglSwapBuffers __window_h.egl->SwapBuffers
+#   define eglTerminate __window_h.egl->Terminate
+#   define eglWaitGL __window_h.egl->WaitGL
+#   define eglWaitNative __window_h.egl->WaitNative
+#   define eglBindTexImage __window_h.egl->BindTexImage
+#   define eglReleaseTexImage __window_h.egl->ReleaseTexImage
+#   define eglSurfaceAttrib __window_h.egl->SurfaceAttrib
+#   define eglSwapInterval __window_h.egl->SwapInterval
+#   define eglBindAPI __window_h.egl->BindAPI
+#   define eglQueryAPI __window_h.egl->QueryAPI
+#   define eglCreatePbufferFromClientBuffer __window_h.egl->CreatePbufferFromClientBuffer
+#   define eglReleaseThread __window_h.egl->ReleaseThread
+#   define eglWaitClient __window_h.egl->WaitClient
+#   define eglGetCurrentContext __window_h.egl->GetCurrentContext
+#   define eglCreateSync __window_h.egl->CreateSync
+#   define eglDestroySync __window_h.egl->DestroySync
+#   define eglClientWaitSync __window_h.egl->ClientWaitSync
+#   define eglGetSyncAttrib __window_h.egl->GetSyncAttrib
+#   define eglCreateImage __window_h.egl->CreateImage
+#   define eglDestroyImage __window_h.egl->DestroyImage
+#   define eglGetPlatformDisplay __window_h.egl->GetPlatformDisplay
+#   define eglCreatePlatformWindowSurface __window_h.egl->CreatePlatformWindowSurface
+#   define eglCreatePlatformPixmapSurface __window_h.egl->CreatePlatformPixmapSurface
+#   define eglWaitSync __window_h.egl->WaitSync
+
+typedef struct __window_h_egl *__window_h_egl;
+
+struct __window_h_egl {
+    EGLDisplay dpy;
+
+    /* libEGL */
+    void *handle;
+    PFN_eglChooseConfig_PROC ChooseConfig;
+    PFN_eglCopyBuffers_PROC CopyBuffers;
+    PFN_eglCreateContext_PROC CreateContext;
+    PFN_eglCreatePbufferSurface_PROC CreatePbufferSurface;
+    PFN_eglCreatePixmapSurface_PROC CreatePixmapSurface;
+    PFN_eglCreateWindowSurface_PROC CreateWindowSurface;
+    PFN_eglDestroyContext_PROC DestroyContext;
+    PFN_eglDestroySurface_PROC DestroySurface;
+    PFN_eglGetConfigAttrib_PROC GetConfigAttrib;
+    PFN_eglGetConfigs_PROC GetConfigs;
+    PFN_eglGetCurrentDisplay_PROC GetCurrentDisplay;
+    PFN_eglGetCurrentSurface_PROC GetCurrentSurface;
+    PFN_eglGetDisplay_PROC GetDisplay;
+    PFN_eglGetError_PROC GetError;
+    PFN_eglGetProcAddress_PROC GetProcAddress;
+    PFN_eglInitialize_PROC Initialize;
+    PFN_eglMakeCurrent_PROC MakeCurrent;
+    PFN_eglQueryContext_PROC QueryContext;
+    PFN_eglQueryString_PROC QueryString;
+    PFN_eglQuerySurface_PROC QuerySurface;
+    PFN_eglSwapBuffers_PROC SwapBuffers;
+    PFN_eglTerminate_PROC Terminate;
+    PFN_eglWaitGL_PROC WaitGL;
+    PFN_eglWaitNative_PROC WaitNative;
+    PFN_eglBindTexImage_PROC BindTexImage;
+    PFN_eglReleaseTexImage_PROC ReleaseTexImage;
+    PFN_eglSurfaceAttrib_PROC SurfaceAttrib;
+    PFN_eglSwapInterval_PROC SwapInterval;
+    PFN_eglBindAPI_PROC BindAPI;
+    PFN_eglQueryAPI_PROC QueryAPI;
+    PFN_eglCreatePbufferFromClientBuffer_PROC CreatePbufferFromClientBuffer;
+    PFN_eglReleaseThread_PROC ReleaseThread;
+    PFN_eglWaitClient_PROC WaitClient;
+    PFN_eglGetCurrentContext_PROC GetCurrentContext;
+    PFN_eglCreateSync_PROC CreateSync;
+    PFN_eglDestroySync_PROC DestroySync;
+    PFN_eglClientWaitSync_PROC ClientWaitSync;
+    PFN_eglGetSyncAttrib_PROC GetSyncAttrib;
+    PFN_eglCreateImage_PROC CreateImage;
+    PFN_eglDestroyImage_PROC DestroyImage;
+    PFN_eglGetPlatformDisplay_PROC GetPlatformDisplay;
+    PFN_eglCreatePlatformWindowSurface_PROC CreatePlatformWindowSurface;
+    PFN_eglCreatePlatformPixmapSurface_PROC CreatePlatformPixmapSurface;
+    PFN_eglWaitSync_PROC WaitSync;
+};
+
+
+typedef struct s_glcontext_egl *t_glcontext_egl;
+
+struct s_glcontext_egl {
+    EGLDisplay dpy;
+    EGLConfig  config;
+    EGLSurface surface;
+    EGLContext context;
+};
+
+/* internal functions (declarations) */
+
+WININT int __winLoadEGL(void);
+
+WININT int __winUnloadEGL(void);
+
+/* internal functions (definitions) */
+
+WININT int __winLoadEGL(void) {
+    /* alloc '__window_h.egl' field */
+    if (!__window_h.egl) {
+        __window_h.egl = calloc(1, sizeof(struct __window_h_egl));
+        if (!__window_h.egl) {
+            return (0);
+        }
+    }
+
+    /* try to load handle */
+    const char  *names[] = { "libEGL.so", "libEGL.so.1, libEGL.so.1.1.0", 0 };
+    static void *handle  = 0;
+    if (!handle) {
+        for (const char **name = names; *name; name++) {
+            handle = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
+            if (handle) { break; }
+        }
+
+        /* check if handle loaded */
+        if (!handle) { return (0); }
+    }
+
+    /* load libEGL symbols */
+    XAllocClassHint = (PFN_XAllocClassHint_PROC) dlsym(handle, "XAllocClassHint");
+    if (!XAllocClassHint) { return (0); }
+
+    /* set '__window_h.egl->handle' member */ 
+    __window_h.egl->handle = handle;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winUnloadEGL(void) {
+    /* null-check */
+    if (!__window_h.egl) { return (0); }
+
+    /* release '__window_h.egl->handle' field */
+    dlclose(__window_h.egl->handle), __window_h.egl->handle = 0;
+
+    /* release '__window_h.egl' */
+    free(__window_h.egl);
+
+    /* success */
+    return (1);
+}
+
+#  endif /* WINDOW_BACKEND_GL_EGL */
+#
+#  /* WINDOW_BACKEND_GL_WGL - WGL implementation layer */
+#  if defined (WINDOW_BACKEND_GL_WGL)
+
+/* internal type declarations */
+
+typedef struct s_glcontext_wgl *t_glcontext_wgl;
+
+struct s_glcontext_wgl {
+
+    /* ... */
+
+};
+
+#  endif /* WINDOW_BACKEND_GL_WGL */
+#
+#  /* WINDOW_BACKEND_X11 - X11 implementation */
+#  if defined (WINDOW_BACKEND_X11)
+
+/* internal type declarations */
+
+static const struct __window_h_keymap {
+    uint32_t src;
+    uint32_t kc;
+    uint32_t ks;
+} __window_h_keymap[] = {
+    
+    { XK_Escape, WINDOW_KEYCODE_ESCAPE, 0 },
+    
+    { XK_F1, WINDOW_KEYCODE_F1, 0 },
+    
+    { XK_F2, WINDOW_KEYCODE_F2, 0 },
+    
+    { XK_F3, WINDOW_KEYCODE_F3, 0 },
+    
+    { XK_F4, WINDOW_KEYCODE_F4, 0 },
+    
+    { XK_F5, WINDOW_KEYCODE_F5, 0 },
+    
+    { XK_F6, WINDOW_KEYCODE_F6, 0 },
+    
+    { XK_F7, WINDOW_KEYCODE_F7, 0 },
+    
+    { XK_F8, WINDOW_KEYCODE_F8, 0 },
+    
+    { XK_F9, WINDOW_KEYCODE_F9, 0 },
+    
+    { XK_F10, WINDOW_KEYCODE_F10, 0 },
+    
+    { XK_F11, WINDOW_KEYCODE_F11, 0 },
+    
+    { XK_F12, WINDOW_KEYCODE_F12, 0 },
+    
+    { XK_grave, WINDOW_KEYCODE_GRAVE, 0 }, 
+    { XK_asciitilde, WINDOW_KEYCODE_GRAVE, 0 },
+    
+    { XK_1, WINDOW_KEYCODE_ONE, 0 },       
+    { XK_exclam, WINDOW_KEYCODE_ONE, 0 },
+    
+    { XK_2, WINDOW_KEYCODE_TWO, 0 },       
+    { XK_at, WINDOW_KEYCODE_TWO, 0 },
+    
+    { XK_3, WINDOW_KEYCODE_THREE, 0 },     
+    { XK_numbersign, WINDOW_KEYCODE_THREE, 0 },
+    
+    { XK_4, WINDOW_KEYCODE_FOUR, 0 },      
+    { XK_dollar, WINDOW_KEYCODE_FOUR, 0 },
+    
+    { XK_5, WINDOW_KEYCODE_FIVE, 0 },      
+    { XK_percent, WINDOW_KEYCODE_FIVE, 0 },
+    
+    { XK_6, WINDOW_KEYCODE_SIX, 0 },       
+    { XK_asciicircum, WINDOW_KEYCODE_SIX, 0 },
+    
+    { XK_7, WINDOW_KEYCODE_SEVEN, 0 },     
+    { XK_ampersand, WINDOW_KEYCODE_SEVEN, 0 },
+    
+    { XK_8, WINDOW_KEYCODE_EIGHT, 0 },     
+    { XK_asterisk, WINDOW_KEYCODE_EIGHT, 0 },
+    
+    { XK_9, WINDOW_KEYCODE_NINE, 0 },      
+    { XK_parenleft, WINDOW_KEYCODE_NINE, 0 },
+    
+    { XK_0, WINDOW_KEYCODE_ZERO, 0 },      
+    { XK_parenright, WINDOW_KEYCODE_ZERO, 0 },
+    
+    { XK_minus, WINDOW_KEYCODE_DASH, 0 },  
+    { XK_underscore, WINDOW_KEYCODE_DASH, 0 },
+    
+    { XK_equal, WINDOW_KEYCODE_EQUAL, 0 },
+    { XK_plus, WINDOW_KEYCODE_EQUAL, 0 },
+    
+    { XK_BackSpace, WINDOW_KEYCODE_BACKSPACE, 0 },
+    
+    { XK_Tab, WINDOW_KEYCODE_TAB, 0 },
+    
+    { XK_Q, WINDOW_KEYCODE_Q, 0 },
+    { XK_q, WINDOW_KEYCODE_Q, 0 },
+    
+    { XK_W, WINDOW_KEYCODE_W, 0 },
+    { XK_w, WINDOW_KEYCODE_W, 0 },
+    
+    { XK_E, WINDOW_KEYCODE_E, 0 },
+    { XK_e, WINDOW_KEYCODE_E, 0 },
+    
+    { XK_R, WINDOW_KEYCODE_R, 0 },
+    { XK_r, WINDOW_KEYCODE_R, 0 },
+    
+    { XK_T, WINDOW_KEYCODE_T, 0 },
+    { XK_t, WINDOW_KEYCODE_T, 0 },
+    
+    { XK_Y, WINDOW_KEYCODE_Y, 0 },
+    { XK_y, WINDOW_KEYCODE_Y, 0 },
+    
+    { XK_U, WINDOW_KEYCODE_U, 0 },
+    { XK_u, WINDOW_KEYCODE_U, 0 },
+    
+    { XK_I, WINDOW_KEYCODE_I, 0 },
+    { XK_i, WINDOW_KEYCODE_I, 0 },
+    
+    { XK_O, WINDOW_KEYCODE_O, 0 },
+    { XK_o, WINDOW_KEYCODE_O, 0 },
+    
+    { XK_P, WINDOW_KEYCODE_P, 0 },
+    { XK_p, WINDOW_KEYCODE_P, 0 },
+    
+    { XK_bracketleft, WINDOW_KEYCODE_OBRACE, 0 },
+    { XK_braceleft, WINDOW_KEYCODE_OBRACE, 0 },
+    
+    { XK_bracketright, WINDOW_KEYCODE_CBRACE, 0 },
+    { XK_braceright, WINDOW_KEYCODE_CBRACE, 0 },
+
+    { XK_Caps_Lock, WINDOW_KEYCODE_CAPSLOCK, 0 },
+
+    { XK_A, WINDOW_KEYCODE_A, 0 },
+    { XK_a, WINDOW_KEYCODE_A, 0 },
+
+    { XK_S, WINDOW_KEYCODE_S, 0 },
+    { XK_s, WINDOW_KEYCODE_S, 0 },
+
+    { XK_D, WINDOW_KEYCODE_D, 0 },
+    { XK_d, WINDOW_KEYCODE_D, 0 },
+
+    { XK_F, WINDOW_KEYCODE_F, 0 },
+    { XK_f, WINDOW_KEYCODE_F, 0 },
+
+    { XK_G, WINDOW_KEYCODE_G, 0 },
+    { XK_g, WINDOW_KEYCODE_G, 0 },
+
+    { XK_H, WINDOW_KEYCODE_H, 0 },
+    { XK_h, WINDOW_KEYCODE_H, 0 },
+
+    { XK_J, WINDOW_KEYCODE_J, 0 },
+    { XK_j, WINDOW_KEYCODE_J, 0 },
+
+    { XK_K, WINDOW_KEYCODE_K, 0 },
+    { XK_k, WINDOW_KEYCODE_K, 0 },
+
+    { XK_L, WINDOW_KEYCODE_L, 0 },
+    { XK_l, WINDOW_KEYCODE_L, 0 },
+
+    { XK_semicolon, WINDOW_KEYCODE_SEMICOLON, 0 },
+    { XK_colon, WINDOW_KEYCODE_SEMICOLON, 0 },
+
+    { XK_apostrophe, WINDOW_KEYCODE_QUOTE, 0 },
+    { XK_quotedbl, WINDOW_KEYCODE_QUOTE, 0 },
+
+    { XK_backslash, WINDOW_KEYCODE_BACKSLASH, 0 },
+    { XK_bar, WINDOW_KEYCODE_BACKSLASH, 0 },
+
+    { XK_Return, WINDOW_KEYCODE_ENTER, 0 },
+
+    { XK_Shift_L, WINDOW_KEYCODE_LSHIFT, 0 },
+    
+    { XK_Z, WINDOW_KEYCODE_Z, 0 },
+    { XK_z, WINDOW_KEYCODE_Z, 0 },
+    
+    { XK_X, WINDOW_KEYCODE_X, 0 },
+    { XK_x, WINDOW_KEYCODE_X, 0 },
+    
+    { XK_C, WINDOW_KEYCODE_C, 0 },
+    { XK_c, WINDOW_KEYCODE_C, 0 },
+    
+    { XK_V, WINDOW_KEYCODE_V, 0 },
+    { XK_v, WINDOW_KEYCODE_V, 0 },
+    
+    { XK_B, WINDOW_KEYCODE_B, 0 },
+    { XK_b, WINDOW_KEYCODE_B, 0 },
+    
+    { XK_N, WINDOW_KEYCODE_N, 0 },
+    { XK_n, WINDOW_KEYCODE_N, 0 },
+    
+    { XK_M, WINDOW_KEYCODE_M, 0 },
+    { XK_m, WINDOW_KEYCODE_M, 0 },
+    
+    { XK_comma, WINDOW_KEYCODE_COMMA, 0 },
+    { XK_less, WINDOW_KEYCODE_COMMA, 0 },
+    
+    { XK_period, WINDOW_KEYCODE_PERIOD, 0 },
+    { XK_greater, WINDOW_KEYCODE_PERIOD, 0 },
+    
+    { XK_slash, WINDOW_KEYCODE_SLASH, 0 },
+    { XK_question, WINDOW_KEYCODE_SLASH, 0 },
+    
+    { XK_Shift_R, WINDOW_KEYCODE_RSHIFT, 0 },
+    
+    { XK_Control_L, WINDOW_KEYCODE_LCTRL, 0 },
+    
+    { XK_Super_L, WINDOW_KEYCODE_MOD, 0 },
+    
+    { XK_Alt_L, WINDOW_KEYCODE_LALT, 0 },
+    
+    { XK_space, WINDOW_KEYCODE_SPACE, 0 },
+    
+    { XK_Alt_R, WINDOW_KEYCODE_RALT, 0 },
+    
+    { XK_Control_R, WINDOW_KEYCODE_RCTRL, 0 },
+
+    { XK_Print, WINDOW_KEYCODE_PRINTSCREEN, 0 },
+    
+    { XK_Scroll_Lock, WINDOW_KEYCODE_SCROLLLOCK, 0 },
+    
+    { XK_Pause, WINDOW_KEYCODE_PAUSE, 0 },
+
+    { XK_Insert, WINDOW_KEYCODE_INSERT, 0 },
+    
+    { XK_Home, WINDOW_KEYCODE_HOME, 0 },
+    
+    { XK_Prior, WINDOW_KEYCODE_PAGEUP, 0 },
+
+    { XK_Delete, WINDOW_KEYCODE_DELETE, 0 },
+    
+    { XK_End, WINDOW_KEYCODE_END, 0 },
+    
+    { XK_Next, WINDOW_KEYCODE_PAGEDOWN, 0 },
+
+    { XK_Up, WINDOW_KEYCODE_UP, 0 },
+    
+    { XK_Left, WINDOW_KEYCODE_LEFT, 0 },
+    
+    { XK_Down, WINDOW_KEYCODE_DOWN, 0 },
+    
+    { XK_Right, WINDOW_KEYCODE_RIGHT, 0 },
+
+    { XK_Num_Lock, WINDOW_KEYCODE_NUMLOCK, 0 },
+    
+    { XK_KP_Divide, WINDOW_KEYCODE_NUMSLASH, 0 },
+    
+    { XK_KP_Multiply, WINDOW_KEYCODE_NUMSTAR, 0 },
+    
+    { XK_KP_Subtract, WINDOW_KEYCODE_NUMDASH, 0 },
+    
+    { XK_KP_Home, WINDOW_KEYCODE_NUM7, 0 },
+    { XK_KP_7, WINDOW_KEYCODE_NUM7, 0 },
+    
+    { XK_KP_Up, WINDOW_KEYCODE_NUM8, 0 },
+    { XK_KP_8, WINDOW_KEYCODE_NUM8, 0 },
+    
+    { XK_KP_Prior, WINDOW_KEYCODE_NUM9, 0 },
+    { XK_KP_9, WINDOW_KEYCODE_NUM9, 0 },
+    
+    { XK_KP_Left, WINDOW_KEYCODE_NUM4, 0 },
+    { XK_KP_4, WINDOW_KEYCODE_NUM4, 0 },
+    
+    { XK_KP_Begin, WINDOW_KEYCODE_NUM5, 0 },
+    { XK_KP_5, WINDOW_KEYCODE_NUM5, 0 },
+    
+    { XK_KP_Right, WINDOW_KEYCODE_NUM6, 0 },
+    { XK_KP_6, WINDOW_KEYCODE_NUM6, 0 },
+    
+    { XK_KP_End, WINDOW_KEYCODE_NUM1, 0 },
+    { XK_KP_1, WINDOW_KEYCODE_NUM1, 0 },
+    
+    { XK_KP_Down, WINDOW_KEYCODE_NUM2, 0 },
+    { XK_KP_2, WINDOW_KEYCODE_NUM2, 0 },
+    
+    { XK_KP_Next, WINDOW_KEYCODE_NUM3, 0 },
+    { XK_KP_3, WINDOW_KEYCODE_NUM3, 0 },
+    
+    { XK_KP_Insert, WINDOW_KEYCODE_NUM0, 0 },
+    { XK_KP_0, WINDOW_KEYCODE_NUM0, 0 },
+    
+    { XK_KP_Delete, WINDOW_KEYCODE_NUMSEP, 0 },
+    
+    { XK_KP_Add, WINDOW_KEYCODE_NUMPLUS, 0 },
+    
+    { XK_KP_Enter, WINDOW_KEYCODE_NUMENTER, 0 },
+
+    /* ... */
+
+    { 0, WINDOW_KEYCODE_NONE, 0 }
+};
+
+/* internal functions (declarations) */
+
 WININT int __winCreateWindowX11(t_window, Display *, Window, Window, const size_t, const size_t);
 
 WININT int __winUpdateWindowFlagsX11(t_window);
@@ -1453,10 +2004,6 @@ WININT int __winPollEvents(void);
 WINDEF int winInit(void) {
     /* initialize '__window_h' object */
     __window_h = (struct __window_h) { 0 };
-
-    /* allocate '__window_h.x11' field */
-    __window_h.x11 = calloc(1, sizeof(struct __window_h_x11));
-    if (!__window_h.x11) { return (0); }
 
     /* load libX11 library */
     if (!__winLoadX11()) { return (0); }
@@ -1543,11 +2090,8 @@ WINDEF int winQuit(void) {
     /* release xlib resources */
     XCloseDisplay(__window_h.x11->xlib.dpy);
 
-    /* release x11 symbols */
+    /* release '__window_h.x11' */
     if (!__winUnloadX11()) { return (0); }
-    
-    /* release x11 */
-    free(__window_h.x11), __window_h.x11 = 0;
     
     /* success */
     return (1);
@@ -2101,278 +2645,6 @@ WINDEF int winWaitTime(uint64_t ms) {
 
 /* internal functions (definitions) */
 
-WININT int __winLoadX11(void) {
-    const char *names[] = { "libX11.so", "libX11.so.6", 0 };
-
-    /* try to load handle */
-    static void *handle = 0;
-    if (!handle) {
-        for (const char **name = names; *name; name++) {
-            handle = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
-            if (handle) { break; }
-        }
-
-        /* check if handle loaded */
-        if (!handle) { return (0); }
-    }
-
-    /* load libX11 symbols */
-    XAllocClassHint = (PFN_XAllocClassHint_PROC) dlsym(handle, "XAllocClassHint");
-    if (!XAllocClassHint) { return (0); }
-
-    XAllocSizeHints = (PFN_XAllocSizeHints_PROC) dlsym(handle, "XAllocSizeHints");
-    if (!XAllocSizeHints) { return (0); }
-
-    XAllocWMHints = (PFN_XAllocWMHints_PROC) dlsym(handle, "XAllocWMHints");
-    if (!XAllocWMHints) { return (0); }
-
-    XChangeProperty = (PFN_XChangeProperty_PROC) dlsym(handle, "XChangeProperty");
-    if (!XChangeProperty) { return (0); }
-
-    XChangeWindowAttributes = (PFN_XChangeWindowAttributes_PROC) dlsym(handle, "XChangeWindowAttributes");
-    if (!XChangeWindowAttributes) { return (0); }
-
-    XCheckIfEvent = (PFN_XCheckIfEvent_PROC) dlsym(handle, "XCheckIfEvent");
-    if (!XCheckIfEvent) { return (0); }
-
-    XCheckTypedWindowEvent = (PFN_XCheckTypedWindowEvent_PROC) dlsym(handle, "XCheckTypedWindowEvent");
-    if (!XCheckTypedWindowEvent) { return (0); }
-
-    XCloseDisplay = (PFN_XCloseDisplay_PROC) dlsym(handle, "XCloseDisplay");
-    if (!XCloseDisplay) { return (0); }
-
-    XConvertSelection = (PFN_XConvertSelection_PROC) dlsym(handle, "XConvertSelection");
-    if (!XConvertSelection) { return (0); }
-
-    XCreateColormap = (PFN_XCreateColormap_PROC) dlsym(handle, "XCreateColormap");
-    if (!XCreateColormap) { return (0); }
-
-    XCreateFontCursor = (PFN_XCreateFontCursor_PROC) dlsym(handle, "XCreateFontCursor");
-    if (!XCreateFontCursor) { return (0); }
-
-    XCreateRegion = (PFN_XCreateRegion_PROC) dlsym(handle, "XCreateRegion");
-    if (!XCreateRegion) { return (0); }
-
-    XCreateWindow = (PFN_XCreateWindow_PROC) dlsym(handle, "XCreateWindow");
-    if (!XCreateWindow) { return (0); }
-
-    XDefineCursor = (PFN_XDefineCursor_PROC) dlsym(handle, "XDefineCursor");
-    if (!XDefineCursor) { return (0); }
-
-    XDeleteContext = (PFN_XDeleteContext_PROC) dlsym(handle, "XDeleteContext");
-    if (!XDeleteContext) { return (0); }
-
-    XDeleteProperty = (PFN_XDeleteProperty_PROC) dlsym(handle, "XDeleteProperty");
-    if (!XDeleteProperty) { return (0); }
-
-    XDestroyRegion = (PFN_XDestroyRegion_PROC) dlsym(handle, "XDestroyRegion");
-    if (!XDestroyRegion) { return (0); }
-
-    XDestroyWindow = (PFN_XDestroyWindow_PROC) dlsym(handle, "XDestroyWindow");
-    if (!XDestroyWindow) { return (0); }
-
-    XDisplayKeycodes = (PFN_XDisplayKeycodes_PROC) dlsym(handle, "XDisplayKeycodes");
-    if (!XDisplayKeycodes) { return (0); }
-
-    XEventsQueued = (PFN_XEventsQueued_PROC) dlsym(handle, "XEventsQueued");
-    if (!XEventsQueued) { return (0); }
-
-    XFetchName = (PFN_XFetchName_PROC) dlsym(handle, "XFetchName");
-    if (!XFetchName) { return (0); }
-
-    XFilterEvent = (PFN_XFilterEvent_PROC) dlsym(handle, "XFilterEvent");
-    if (!XFilterEvent) { return (0); }
-
-    XFindContext = (PFN_XFindContext_PROC) dlsym(handle, "XFindContext");
-    if (!XFindContext) { return (0); }
-
-    XFlush = (PFN_XFlush_PROC) dlsym(handle, "XFlush");
-    if (!XFlush) { return (0); }
-
-    XFree = (PFN_XFree_PROC) dlsym(handle, "XFree");
-    if (!XFree) { return (0); }
-
-    XFreeColormap = (PFN_XFreeColormap_PROC) dlsym(handle, "XFreeColormap");
-    if (!XFreeColormap) { return (0); }
-
-    XFreeCursor = (PFN_XFreeCursor_PROC) dlsym(handle, "XFreeCursor");
-    if (!XFreeCursor) { return (0); }
-
-    XFreeEventData = (PFN_XFreeEventData_PROC) dlsym(handle, "XFreeEventData");
-    if (!XFreeEventData) { return (0); }
-
-    XGetErrorText = (PFN_XGetErrorText_PROC) dlsym(handle, "XGetErrorText");
-    if (!XGetErrorText) { return (0); }
-
-    XGetEventData = (PFN_XGetEventData_PROC) dlsym(handle, "XGetEventData");
-    if (!XGetEventData) { return (0); }
-
-    XGetInputFocus = (PFN_XGetInputFocus_PROC) dlsym(handle, "XGetInputFocus");
-    if (!XGetInputFocus) { return (0); }
-
-    XGetKeyboardMapping = (PFN_XGetKeyboardMapping_PROC) dlsym(handle, "XGetKeyboardMapping");
-    if (!XGetKeyboardMapping) { return (0); }
-
-    XGetSelectionOwner = (PFN_XGetSelectionOwner_PROC) dlsym(handle, "XGetSelectionOwner");
-    if (!XGetSelectionOwner) { return (0); }
-
-    XGetVisualInfo = (PFN_XGetVisualInfo_PROC) dlsym(handle, "XGetVisualInfo");
-    if (!XGetVisualInfo) { return (0); }
-
-    XGetWMNormalHints = (PFN_XGetWMNormalHints_PROC) dlsym(handle, "XGetWMNormalHints");
-    if (!XGetWMNormalHints) { return (0); }
-
-    XGetWindowAttributes = (PFN_XGetWindowAttributes_PROC) dlsym(handle, "XGetWindowAttributes");
-    if (!XGetWindowAttributes) { return (0); }
-
-    XGetWindowProperty = (PFN_XGetWindowProperty_PROC) dlsym(handle, "XGetWindowProperty");
-    if (!XGetWindowProperty) { return (0); }
-
-    XGrabPointer = (PFN_XGrabPointer_PROC) dlsym(handle, "XGrabPointer");
-    if (!XGrabPointer) { return (0); }
-
-    XIconifyWindow = (PFN_XIconifyWindow_PROC) dlsym(handle, "XIconifyWindow");
-    if (!XIconifyWindow) { return (0); }
-
-    XInitThreads = (PFN_XInitThreads_PROC) dlsym(handle, "XInitThreads");
-    if (!XInitThreads) { return (0); }
-
-    XInternAtom = (PFN_XInternAtom_PROC) dlsym(handle, "XInternAtom");
-    if (!XInternAtom) { return (0); }
-
-    XLookupString = (PFN_XLookupString_PROC) dlsym(handle, "XLookupString");
-    if (!XLookupString) { return (0); }
-
-    XMapRaised = (PFN_XMapRaised_PROC) dlsym(handle, "XMapRaised");
-    if (!XMapRaised) { return (0); }
-
-    XMapWindow = (PFN_XMapWindow_PROC) dlsym(handle, "XMapWindow");
-    if (!XMapWindow) { return (0); }
-
-    XMatchVisualInfo = (PFN_XMatchVisualInfo_PROC) dlsym(handle, "XMatchVisualInfo");
-    if (!XMatchVisualInfo) { return (0); }
-
-    XMoveResizeWindow = (PFN_XMoveResizeWindow_PROC) dlsym(handle, "XMoveResizeWindow");
-    if (!XMoveResizeWindow) { return (0); }
-
-    XMoveWindow = (PFN_XMoveWindow_PROC) dlsym(handle, "XMoveWindow");
-    if (!XMoveWindow) { return (0); }
-
-    XNextEvent = (PFN_XNextEvent_PROC) dlsym(handle, "XNextEvent");
-    if (!XNextEvent) { return (0); }
-
-    XOpenDisplay = (PFN_XOpenDisplay_PROC) dlsym(handle, "XOpenDisplay");
-    if (!XOpenDisplay) { return (0); }
-
-    XPeekEvent = (PFN_XPeekEvent_PROC) dlsym(handle, "XPeekEvent");
-    if (!XPeekEvent) { return (0); }
-
-    XPending = (PFN_XPending_PROC) dlsym(handle, "XPending");
-    if (!XPending) { return (0); }
-
-    XQueryExtension = (PFN_XQueryExtension_PROC) dlsym(handle, "XQueryExtension");
-    if (!XQueryExtension) { return (0); }
-
-    XQueryPointer = (PFN_XQueryPointer_PROC) dlsym(handle, "XQueryPointer");
-    if (!XQueryPointer) { return (0); }
-
-    XRaiseWindow = (PFN_XRaiseWindow_PROC) dlsym(handle, "XRaiseWindow");
-    if (!XRaiseWindow) { return (0); }
-
-    XRegisterIMInstantiateCallback = (PFN_XRegisterIMInstantiateCallback_PROC) dlsym(handle, "XRegisterIMInstantiateCallback");
-    if (!XRegisterIMInstantiateCallback) { return (0); }
-
-    XResizeWindow = (PFN_XResizeWindow_PROC) dlsym(handle, "XResizeWindow");
-    if (!XResizeWindow) { return (0); }
-
-    XSaveContext = (PFN_XSaveContext_PROC) dlsym(handle, "XSaveContext");
-    if (!XSaveContext) { return (0); }
-
-    XSelectInput = (PFN_XSelectInput_PROC) dlsym(handle, "XSelectInput");
-    if (!XSelectInput) { return (0); }
-
-    XSendEvent = (PFN_XSendEvent_PROC) dlsym(handle, "XSendEvent");
-    if (!XSendEvent) { return (0); }
-
-    XSetClassHint = (PFN_XSetClassHint_PROC) dlsym(handle, "XSetClassHint");
-    if (!XSetClassHint) { return (0); }
-
-    XSetErrorHandler = (PFN_XSetErrorHandler_PROC) dlsym(handle, "XSetErrorHandler");
-    if (!XSetErrorHandler) { return (0); }
-
-    XSetInputFocus = (PFN_XSetInputFocus_PROC) dlsym(handle, "XSetInputFocus");
-    if (!XSetInputFocus) { return (0); }
-
-    XSetLocaleModifiers = (PFN_XSetLocaleModifiers_PROC) dlsym(handle, "XSetLocaleModifiers");
-    if (!XSetLocaleModifiers) { return (0); }
-
-    XSetSelectionOwner = (PFN_XSetSelectionOwner_PROC) dlsym(handle, "XSetSelectionOwner");
-    if (!XSetSelectionOwner) { return (0); }
-
-    XSetWMHints = (PFN_XSetWMHints_PROC) dlsym(handle, "XSetWMHints");
-    if (!XSetWMHints) { return (0); }
-
-    XSetWMNormalHints = (PFN_XSetWMNormalHints_PROC) dlsym(handle, "XSetWMNormalHints");
-    if (!XSetWMNormalHints) { return (0); }
-
-    XSetWMProtocols = (PFN_XSetWMProtocols_PROC) dlsym(handle, "XSetWMProtocols");
-    if (!XSetWMProtocols) { return (0); }
-
-    XStoreName = (PFN_XStoreName_PROC) dlsym(handle, "XStoreName");
-    if (!XStoreName) { return (0); }
-
-    XSupportsLocale = (PFN_XSupportsLocale_PROC) dlsym(handle, "XSupportsLocale");
-    if (!XSupportsLocale) { return (0); }
-
-    XSync = (PFN_XSync_PROC) dlsym(handle, "XSync");
-    if (!XSync) { return (0); }
-
-    XTranslateCoordinates = (PFN_XTranslateCoordinates_PROC) dlsym(handle, "XTranslateCoordinates");
-    if (!XTranslateCoordinates) { return (0); }
-
-    XUndefineCursor = (PFN_XUndefineCursor_PROC) dlsym(handle, "XUndefineCursor");
-    if (!XUndefineCursor) { return (0); }
-
-    XUngrabPointer = (PFN_XUngrabPointer_PROC) dlsym(handle, "XUngrabPointer");
-    if (!XUngrabPointer) { return (0); }
-
-    XUnmapWindow = (PFN_XUnmapWindow_PROC) dlsym(handle, "XUnmapWindow");
-    if (!XUnmapWindow) { return (0); }
-
-    XVisualIDFromVisual = (PFN_XVisualIDFromVisual_PROC) dlsym(handle, "XVisualIDFromVisual");
-    if (!XVisualIDFromVisual) { return (0); }
-
-    XWarpPointer = (PFN_XWarpPointer_PROC) dlsym(handle, "XWarpPointer");
-    if (!XWarpPointer) { return (0); }
-
-    XWindowEvent = (PFN_XWindowEvent_PROC) dlsym(handle, "XWindowEvent");
-    if (!XWindowEvent) { return (0); }
-
-    XkbKeycodeToKeysym = (PFN_XkbKeycodeToKeysym_PROC) dlsym(handle, "XkbKeycodeToKeysym");
-    if (!XkbKeycodeToKeysym) { return (0); }
-
-    XkbSetDetectableAutoRepeat = (PFN_XkbSetDetectableAutoRepeat_PROC) dlsym(handle, "XkbSetDetectableAutoRepeat");
-    if (!XkbSetDetectableAutoRepeat) { return (0); }
-
-    /* set '__window_h.x11->handle' member */ 
-    __window_h.x11->handle = handle;
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winUnloadX11(void) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-    dlclose(__window_h.x11->handle), __window_h.x11->handle = 0;
-
-    /* success */
-    return (1);
-}
-
-
 WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window parent, const size_t w, const size_t h) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
@@ -2665,19 +2937,5 @@ WININT int __winPollEvents(void) {
 /* ... */
 
 #  endif /* WINDOW_PLATFORM_WIN32 */
-#
-#  /* WINDOW_BACKEND_GL_EGL - EGL implementation layer */
-#  if defined (WINDOW_BACKEND_GL_EGL)
-
-/* ... */
-
-#  endif /* WINDOW_BACKEND_GL_EGL */
-#
-#  /* WINDOW_BACKEND_GL_WGL - WGL implementation layer */
-#  if defined (WINDOW_BACKEND_GL_WGL)
-
-/* ... */
-
-#  endif /* WINDOW_BACKEND_GL_WGL */
 # endif /* WINDOW_IMPLEMENTATION */
 #endif /* _window_h_ */
