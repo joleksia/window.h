@@ -767,6 +767,7 @@ WINDEF int winWaitTime(uint64_t);
 #  /* include headers */
 #  include <stdio.h>
 #  include <stdlib.h>
+#  include <string.h>
 #
 #  /* include unix headers */
 #  if defined (WINDOW_PLATFORM_LINUX) || defined (WINDOW_PLATFORM_APPLE) || defined (WINDOW_PLATFORM_BSD)
@@ -1573,7 +1574,7 @@ typedef int32_t EGLint;
 #    define EGL_CONFIG_ID 0x3028
 #    define EGL_CORE_NATIVE_ENGINE 0x305B
 #    define EGL_DEPTH_SIZE 0x3025
-#    define EGL_DONT_CARE EGL_CAST(EGLint,-1)
+#    define EGL_DONT_CARE ((EGLint) -1)
 #    define EGL_DRAW 0x3059
 #    define EGL_EXTENSIONS 0x3055
 #    define EGL_FALSE 0
@@ -1871,9 +1872,9 @@ struct __window_h_egl {
     EGLDisplay dpy;
 
     struct {
-        int32_t  config[32];
-        int32_t surface[32];
-        int32_t context[32];
+        int surface[16];
+        int context[32];
+        int  config[64];
     } attr;
 
     /* libEGL */
@@ -1964,9 +1965,52 @@ WININT int __winLoadEGL(void) {
     __window_h.egl->dpy = dpy;
 
     /* set '__window_h.egl->attr' defaults */
-    __window_h.egl->attr.config[0] = EGL_NONE;
-    __window_h.egl->attr.surface[0] = EGL_NONE;
-    __window_h.egl->attr.context[0] = EGL_NONE;
+    int attr_surface[16] = { EGL_NONE };
+
+    memcpy(__window_h.egl->attr.surface, attr_surface, sizeof(attr_surface));
+    
+    int attr_context[32] = { EGL_CONTEXT_MAJOR_VERSION, 1,
+                             EGL_CONTEXT_MINOR_VERSION, 0,
+                             EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+                             EGL_CONTEXT_OPENGL_DEBUG, EGL_FALSE,
+                             EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_FALSE,
+                             EGL_CONTEXT_OPENGL_ROBUST_ACCESS, EGL_FALSE,
+                             EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY, EGL_NO_RESET_NOTIFICATION,
+                             EGL_NONE };
+
+    memcpy(__window_h.egl->attr.context, attr_context, sizeof(attr_context));
+    
+    int attr_config[64] = { EGL_ALPHA_MASK_SIZE, 0,
+                            EGL_ALPHA_SIZE, 0,
+                            EGL_BIND_TO_TEXTURE_RGB, EGL_DONT_CARE,
+                            EGL_BIND_TO_TEXTURE_RGBA, EGL_DONT_CARE,
+                            EGL_BLUE_SIZE, 0,
+                            EGL_BUFFER_SIZE, 0,
+                            EGL_COLOR_BUFFER_TYPE, EGL_RGB_BUFFER,
+                            EGL_CONFIG_CAVEAT, EGL_DONT_CARE,
+                            EGL_CONFIG_ID, EGL_DONT_CARE,
+                            EGL_CONFORMANT, 0,
+                            EGL_DEPTH_SIZE, 0,
+                            EGL_GREEN_SIZE, 0,
+                            EGL_LEVEL, 0,
+                            EGL_LUMINANCE_SIZE, 0,
+                            EGL_MATCH_NATIVE_PIXMAP, EGL_NONE,
+                            EGL_NATIVE_RENDERABLE, EGL_DONT_CARE,
+                            EGL_MAX_SWAP_INTERVAL, EGL_DONT_CARE,
+                            EGL_MIN_SWAP_INTERVAL, EGL_DONT_CARE,
+                            EGL_RED_SIZE, 0,
+                            EGL_SAMPLE_BUFFERS, 0,
+                            EGL_SAMPLES, 0,
+                            EGL_STENCIL_SIZE, 0,
+                            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
+                            EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+                            EGL_TRANSPARENT_TYPE, EGL_NONE,
+                            EGL_TRANSPARENT_RED_VALUE, EGL_DONT_CARE,
+                            EGL_TRANSPARENT_GREEN_VALUE, EGL_DONT_CARE,
+                            EGL_TRANSPARENT_BLUE_VALUE, EGL_DONT_CARE,
+                            EGL_NONE };
+
+    memcpy(__window_h.egl->attr.config, attr_config, sizeof(attr_config));
 
     /* success */
     return (1);
