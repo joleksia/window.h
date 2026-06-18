@@ -2135,7 +2135,7 @@ WINDEF int winInit(void) {
     /* initialize '__window_h' object */
     __window_h = (struct __window_h) { 0 };
 
-    /* load libX11 library */
+    /* load '__window_h.x11' */
     if (!__winLoadX11()) { return (0); }
 
     /* initialize '__window_h.x11' members */
@@ -2192,6 +2192,24 @@ WINDEF int winInit(void) {
     __window_h.x11->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
     __window_h.x11->xatom._net_wm_window_opacity = _net_wm_window_opacity;
     
+#   if defined (WINDOW_API_OPENGL)
+#    if defined (WINDOW_BACKEND_GL_EGL)
+    /* load '__window_h.x11' */
+    if (!__winLoadEGL()) { return (0); }
+
+    /* get EGL display from X11 display */
+    EGLDisplay egldpy = eglGetDisplay(__window_h.x11->xlib.dpy);
+    if (egldpy == EGL_NO_DISPLAY) { return (0); }
+   
+    /* initialize EGL */
+    if (!eglInitialize(egldpy, 0, 0)) { return (0); }
+    if (!eglBindAPI(EGL_OPENGL_API))  { return (0); }
+
+    /* set '__window_h.egl' members */
+    __window_h.egl->dpy = egldpy;
+#    endif /* WINDOW_BACKEND_GL_EGL */
+#   endif /* WINDOW_API_OPENGL */
+    
     /* set keyboard input repeating */
     Bool supported;
     XkbSetDetectableAutoRepeat(dpy, True, &supported);
@@ -2220,7 +2238,14 @@ WINDEF int winQuit(void) {
     /* release xlib resources */
     XCloseDisplay(__window_h.x11->xlib.dpy);
 
-    /* release '__window_h.x11' */
+#   if defined (WINDOW_API_OPENGL)
+#    if defined (WINDOW_BACKEND_GL_EGL)
+    /* unload '__window_h.egl' */
+    if (!__winUnloadEGL()) { return (0); }
+#    endif /* WINDOW_BACKEND_GL_EGL */
+#   endif /* WINDOW_API_OPENGL */
+    
+    /* unload '__window_h.x11' */
     if (!__winUnloadX11()) { return (0); }
     
     /* success */
@@ -2630,25 +2655,9 @@ WINDEF int winGLCreateContext(t_glcontext *ctx, t_window win) {
 #   else
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
     if (!ctx) { return (0); }
     if (!win) { return (0); }
-
-    /* check if EGL is already loaded */
-    if (!__window_h.egl) {
-        /* if not, load and initialize EGL */
-        if (!__winLoadEGL()) { return (0); }
-
-        /* get EGL display from X11 display */
-        EGLDisplay dpy = eglGetDisplay(__window_h.x11->xlib.dpy);
-        if (dpy == EGL_NO_DISPLAY) { return (0); }
-       
-        /* initialize EGL */
-        if (!eglInitialize(dpy, 0, 0))   { return (0); }
-        if (!eglBindAPI(EGL_OPENGL_API)) { return (0); }
-
-        /* set '__window_h.egl' members */
-        __window_h.egl->dpy = dpy;
-    }
 
     /* references */
     EGLDisplay dpy = __window_h.egl->dpy;
