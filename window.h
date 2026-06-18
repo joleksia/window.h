@@ -533,9 +533,6 @@ enum {
     WINDOW_FLAG_TOPMOST = 0x00000010,
 # define WINDOW_FLAG_TOPMOST WINDOW_FLAG_TOPMOST
     
-    WINDOW_FLAG_TRANSPARENT = 0x00000020,
-# define WINDOW_FLAG_TRANSPARENT WINDOW_FLAG_TRANSPARENT
-    
     WINDOW_FLAG_UNDECORATED = 0x00000040,
 # define WINDOW_FLAG_UNDECORATED WINDOW_FLAG_UNDECORATED
 
@@ -1065,7 +1062,6 @@ struct __window_h_x11 {
         Atom _net_wm_state_hidden;
         Atom _net_wm_state_maximized_horz;
         Atom _net_wm_state_maximized_vert;
-        Atom _net_wm_window_opacity;
     } xatom;
 
     /* libX11 */
@@ -1224,9 +1220,6 @@ WININT int __winLoadX11(void) {
     Atom _net_wm_state_maximized_vert = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
     if (!_net_wm_state_maximized_vert) { return (0); }
 
-    Atom _net_wm_window_opacity = XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False);
-    if (!_net_wm_window_opacity) { return (0); }
-
     /* set '__window_h.x11->xatom' members */ 
     __window_h.x11->xatom.wm_protocols = wm_protocols;
     __window_h.x11->xatom.wm_delete_window = wm_delete_window;
@@ -1237,7 +1230,6 @@ WININT int __winLoadX11(void) {
     __window_h.x11->xatom._net_wm_state_hidden = _net_wm_state_hidden;
     __window_h.x11->xatom._net_wm_state_maximized_horz = _net_wm_state_maximized_horz;
     __window_h.x11->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
-    __window_h.x11->xatom._net_wm_window_opacity = _net_wm_window_opacity;
 
     /* success */
     return (1);
@@ -1548,10 +1540,86 @@ WININT int __winUnloadX11(void) {
 #
 #  /* WINDOW_BACKEND_GL_EGL - EGL implementation layer */
 #  if defined (WINDOW_BACKEND_GL_EGL)
-#
-#   include <EGL/egl.h>
 
-/* internal type declarations */
+typedef Display *EGLNativeDisplayType;
+typedef Pixmap   EGLNativePixmapType;
+typedef Window   EGLNativeWindowType;
+
+typedef EGLNativeDisplayType NativeDisplayType;
+typedef EGLNativePixmapType  NativePixmapType;
+typedef EGLNativeWindowType  NativeWindowType;
+
+typedef int32_t EGLint;
+
+#   if !defined (EGL_VERSION_1_0)
+#    define EGL_VERSION_1_0 1
+#
+#    define EGL_ALPHA_SIZE 0x3021
+#    define EGL_BAD_ACCESS 0x3002
+#    define EGL_BAD_ALLOC 0x3003
+#    define EGL_BAD_ATTRIBUTE 0x3004
+#    define EGL_BAD_CONFIG 0x3005
+#    define EGL_BAD_CONTEXT 0x3006
+#    define EGL_BAD_CURRENT_SURFACE 0x3007
+#    define EGL_BAD_DISPLAY 0x3008
+#    define EGL_BAD_MATCH 0x3009
+#    define EGL_BAD_NATIVE_PIXMAP 0x300A
+#    define EGL_BAD_NATIVE_WINDOW 0x300B
+#    define EGL_BAD_PARAMETER 0x300C
+#    define EGL_BAD_SURFACE 0x300D
+#    define EGL_BLUE_SIZE 0x3022
+#    define EGL_BUFFER_SIZE 0x3020
+#    define EGL_CONFIG_CAVEAT 0x3027
+#    define EGL_CONFIG_ID 0x3028
+#    define EGL_CORE_NATIVE_ENGINE 0x305B
+#    define EGL_DEPTH_SIZE 0x3025
+#    define EGL_DONT_CARE EGL_CAST(EGLint,-1)
+#    define EGL_DRAW 0x3059
+#    define EGL_EXTENSIONS 0x3055
+#    define EGL_FALSE 0
+#    define EGL_GREEN_SIZE 0x3023
+#    define EGL_HEIGHT 0x3056
+#    define EGL_LARGEST_PBUFFER 0x3058
+#    define EGL_LEVEL 0x3029
+#    define EGL_MAX_PBUFFER_HEIGHT 0x302A
+#    define EGL_MAX_PBUFFER_PIXELS 0x302B
+#    define EGL_MAX_PBUFFER_WIDTH 0x302C
+#    define EGL_NATIVE_RENDERABLE 0x302D
+#    define EGL_NATIVE_VISUAL_ID 0x302E
+#    define EGL_NATIVE_VISUAL_TYPE 0x302F
+#    define EGL_NONE 0x3038
+#    define EGL_NON_CONFORMANT_CONFIG 0x3051
+#    define EGL_NOT_INITIALIZED 0x3001
+#    define EGL_NO_CONTEXT ((EGLContext) 0)
+#    define EGL_NO_DISPLAY ((EGLDisplay) 0)
+#    define EGL_NO_SURFACE ((EGLSurface) 0)
+#    define EGL_PBUFFER_BIT 0x0001
+#    define EGL_PIXMAP_BIT 0x0002
+#    define EGL_READ 0x305A
+#    define EGL_RED_SIZE 0x3024
+#    define EGL_SAMPLES 0x3031
+#    define EGL_SAMPLE_BUFFERS 0x3032
+#    define EGL_SLOW_CONFIG 0x3050
+#    define EGL_STENCIL_SIZE 0x3026
+#    define EGL_SUCCESS 0x3000
+#    define EGL_SURFACE_TYPE 0x3033
+#    define EGL_TRANSPARENT_BLUE_VALUE 0x3035
+#    define EGL_TRANSPARENT_GREEN_VALUE 0x3036
+#    define EGL_TRANSPARENT_RED_VALUE 0x3037
+#    define EGL_TRANSPARENT_RGB 0x3052
+#    define EGL_TRANSPARENT_TYPE 0x3034
+#    define EGL_TRUE 1
+#    define EGL_VENDOR 0x3053
+#    define EGL_VERSION 0x3054
+#    define EGL_WIDTH 0x3057
+#    define EGL_WINDOW_BIT 0x0004
+
+typedef unsigned int EGLBoolean;
+typedef void *EGLDisplay;
+typedef void *EGLConfig;
+typedef void *EGLSurface;
+typedef void *EGLContext;
+typedef void (*__eglMustCastToProperFunctionPointerType)(void);
 
 typedef EGLBoolean (* PFN_eglChooseConfig_PROC) (EGLDisplay, const EGLint *, EGLConfig *, EGLint, EGLint *);
 typedef EGLBoolean (* PFN_eglCopyBuffers_PROC) (EGLDisplay, EGLSurface, EGLNativePixmapType);
@@ -1577,16 +1645,202 @@ typedef EGLBoolean (* PFN_eglSwapBuffers_PROC) (EGLDisplay, EGLSurface);
 typedef EGLBoolean (* PFN_eglTerminate_PROC) (EGLDisplay);
 typedef EGLBoolean (* PFN_eglWaitGL_PROC) (void);
 typedef EGLBoolean (* PFN_eglWaitNative_PROC) (EGLint);
+
+#    define eglChooseConfig __window_h.egl->ChooseConfig
+#    define eglCopyBuffers __window_h.egl->CopyBuffers
+#    define eglCreateContext __window_h.egl->CreateContext
+#    define eglCreatePbufferSurface __window_h.egl->CreatePbufferSurface
+#    define eglCreatePixmapSurface __window_h.egl->CreatePixmapSurface
+#    define eglCreateWindowSurface __window_h.egl->CreateWindowSurface
+#    define eglDestroyContext __window_h.egl->DestroyContext
+#    define eglDestroySurface __window_h.egl->DestroySurface
+#    define eglGetConfigAttrib __window_h.egl->GetConfigAttrib
+#    define eglGetConfigs __window_h.egl->GetConfigs
+#    define eglGetCurrentDisplay __window_h.egl->GetCurrentDisplay
+#    define eglGetCurrentSurface __window_h.egl->GetCurrentSurface
+#    define eglGetDisplay __window_h.egl->GetDisplay
+#    define eglGetError __window_h.egl->GetError
+#    define eglGetProcAddress __window_h.egl->GetProcAddress
+#    define eglInitialize __window_h.egl->Initialize
+#    define eglMakeCurrent __window_h.egl->MakeCurrent
+#    define eglQueryContext __window_h.egl->QueryContext
+#    define eglQueryString __window_h.egl->QueryString
+#    define eglQuerySurface __window_h.egl->QuerySurface
+#    define eglSwapBuffers __window_h.egl->SwapBuffers
+#    define eglTerminate __window_h.egl->Terminate
+#    define eglWaitGL __window_h.egl->WaitGL
+#    define eglWaitNative __window_h.egl->WaitNative
+#
+#   endif /* EGL_VERSION_1_0 */
+#
+#   if !defined (EGL_VERSION_1_1)
+#    define EGL_VERSION_1_1 1
+#
+#    define EGL_BACK_BUFFER 0x3084
+#    define EGL_BIND_TO_TEXTURE_RGB 0x3039
+#    define EGL_BIND_TO_TEXTURE_RGBA 0x303A
+#    define EGL_CONTEXT_LOST 0x300E
+#    define EGL_MIN_SWAP_INTERVAL 0x303B
+#    define EGL_MAX_SWAP_INTERVAL 0x303C
+#    define EGL_MIPMAP_TEXTURE 0x3082
+#    define EGL_MIPMAP_LEVEL 0x3083
+#    define EGL_NO_TEXTURE 0x305C
+#    define EGL_TEXTURE_2D 0x305F
+#    define EGL_TEXTURE_FORMAT 0x3080
+#    define EGL_TEXTURE_RGB 0x305D
+#    define EGL_TEXTURE_RGBA 0x305E
+#    define EGL_TEXTURE_TARGET 0x3081
+
 typedef EGLBoolean (* PFN_eglBindTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
 typedef EGLBoolean (* PFN_eglReleaseTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
 typedef EGLBoolean (* PFN_eglSurfaceAttrib_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint);
 typedef EGLBoolean (* PFN_eglSwapInterval_PROC) (EGLDisplay, EGLint);
+
+#    define eglBindTexImage __window_h.egl->BindTexImage
+#    define eglReleaseTexImage __window_h.egl->ReleaseTexImage
+#    define eglSurfaceAttrib __window_h.egl->SurfaceAttrib
+#    define eglSwapInterval __window_h.egl->SwapInterval
+#
+#   endif /* EGL_VERSION_1_1 */
+#
+#   if !defined (EGL_VERSION_1_2)
+#    define EGL_VERSION_1_2 1
+#
+#    define EGL_ALPHA_FORMAT 0x3088
+#    define EGL_ALPHA_FORMAT_NONPRE 0x308B
+#    define EGL_ALPHA_FORMAT_PRE 0x308C
+#    define EGL_ALPHA_MASK_SIZE 0x303E
+#    define EGL_BUFFER_PRESERVED 0x3094
+#    define EGL_BUFFER_DESTROYED 0x3095
+#    define EGL_CLIENT_APIS 0x308D
+#    define EGL_COLORSPACE 0x3087
+#    define EGL_COLORSPACE_sRGB 0x3089
+#    define EGL_COLORSPACE_LINEAR 0x308A
+#    define EGL_COLOR_BUFFER_TYPE 0x303F
+#    define EGL_CONTEXT_CLIENT_TYPE 0x3097
+#    define EGL_DISPLAY_SCALING 10000
+#    define EGL_HORIZONTAL_RESOLUTION 0x3090
+#    define EGL_LUMINANCE_BUFFER 0x308F
+#    define EGL_LUMINANCE_SIZE 0x303D
+#    define EGL_OPENGL_ES_BIT 0x0001
+#    define EGL_OPENVG_BIT 0x0002
+#    define EGL_OPENGL_ES_API 0x30A0
+#    define EGL_OPENVG_API 0x30A1
+#    define EGL_OPENVG_IMAGE 0x3096
+#    define EGL_PIXEL_ASPECT_RATIO 0x3092
+#    define EGL_RENDERABLE_TYPE 0x3040
+#    define EGL_RENDER_BUFFER 0x3086
+#    define EGL_RGB_BUFFER 0x308E
+#    define EGL_SINGLE_BUFFER 0x3085
+#    define EGL_SWAP_BEHAVIOR 0x3093
+#    define EGL_UNKNOWN ((EGLint) -1)
+#    define EGL_VERTICAL_RESOLUTION 0x3091
+
+typedef unsigned int EGLenum;
+typedef void *EGLClientBuffer;
+
 typedef EGLBoolean (* PFN_eglBindAPI_PROC) (EGLenum);
 typedef EGLenum (* PFN_eglQueryAPI_PROC) (void);
 typedef EGLSurface (* PFN_eglCreatePbufferFromClientBuffer_PROC) (EGLDisplay, EGLenum, EGLClientBuffer, EGLConfig, const EGLint *);
 typedef EGLBoolean (* PFN_eglReleaseThread_PROC) (void);
 typedef EGLBoolean (* PFN_eglWaitClient_PROC) (void);
+
+#    define eglBindAPI __window_h.egl->BindAPI
+#    define eglQueryAPI __window_h.egl->QueryAPI
+#    define eglCreatePbufferFromClientBuffer __window_h.egl->CreatePbufferFromClientBuffer
+#    define eglReleaseThread __window_h.egl->ReleaseThread
+#    define eglWaitClient __window_h.egl->WaitClient
+#
+#   endif /* EGL_VERSION_1_2 */
+#
+#   if !defined (EGL_VERSION_1_3)
+#    define EGL_VERSION_1_3 1
+#
+#    define EGL_CONFORMANT 0x3042
+#    define EGL_CONTEXT_CLIENT_VERSION 0x3098
+#    define EGL_MATCH_NATIVE_PIXMAP 0x3041
+#    define EGL_OPENGL_ES2_BIT 0x0004
+#    define EGL_VG_ALPHA_FORMAT 0x3088
+#    define EGL_VG_ALPHA_FORMAT_NONPRE 0x308B
+#    define EGL_VG_ALPHA_FORMAT_PRE 0x308C
+#    define EGL_VG_ALPHA_FORMAT_PRE_BIT 0x0040
+#    define EGL_VG_COLORSPACE 0x3087
+#    define EGL_VG_COLORSPACE_sRGB 0x3089
+#    define EGL_VG_COLORSPACE_LINEAR 0x308A
+#    define EGL_VG_COLORSPACE_LINEAR_BIT 0x0020
+#
+#   endif /* EGL_VERSION_1_3 */
+#
+#   if !defined (EGL_VERSION_1_4)
+#    define EGL_VERSION_1_4 1
+#
+#    define EGL_DEFAULT_DISPLAY ((EGLNativeDisplayType) 0)
+#    define EGL_MULTISAMPLE_RESOLVE_BOX_BIT 0x0200
+#    define EGL_MULTISAMPLE_RESOLVE 0x3099
+#    define EGL_MULTISAMPLE_RESOLVE_DEFAULT 0x309A
+#    define EGL_MULTISAMPLE_RESOLVE_BOX 0x309B
+#    define EGL_OPENGL_API 0x30A2
+#    define EGL_OPENGL_BIT 0x0008
+#    define EGL_SWAP_BEHAVIOR_PRESERVED_BIT 0x0400
+
 typedef EGLContext (* PFN_eglGetCurrentContext_PROC) (void);
+
+#    define eglGetCurrentContext __window_h.egl->GetCurrentContext
+#
+#   endif /* EGL_VERSION_1_4 */
+#
+#   if !defined (EGL_VERSION_1_5)
+#    define EGL_VERSION_1_5 1
+#
+#    define EGL_CONTEXT_MAJOR_VERSION 0x3098
+#    define EGL_CONTEXT_MINOR_VERSION 0x30FB
+#    define EGL_CONTEXT_OPENGL_PROFILE_MASK 0x30FD
+#    define EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY 0x31BD
+#    define EGL_NO_RESET_NOTIFICATION 0x31BE
+#    define EGL_LOSE_CONTEXT_ON_RESET 0x31BF
+#    define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT 0x00000001
+#    define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT 0x00000002
+#    define EGL_CONTEXT_OPENGL_DEBUG 0x31B0
+#    define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE 0x31B1
+#    define EGL_CONTEXT_OPENGL_ROBUST_ACCESS 0x31B2
+#    define EGL_OPENGL_ES3_BIT 0x00000040
+#    define EGL_CL_EVENT_HANDLE 0x309C
+#    define EGL_SYNC_CL_EVENT 0x30FE
+#    define EGL_SYNC_CL_EVENT_COMPLETE 0x30FF
+#    define EGL_SYNC_PRIOR_COMMANDS_COMPLETE 0x30F0
+#    define EGL_SYNC_TYPE 0x30F7
+#    define EGL_SYNC_STATUS 0x30F1
+#    define EGL_SYNC_CONDITION 0x30F8
+#    define EGL_SIGNALED 0x30F2
+#    define EGL_UNSIGNALED 0x30F3
+#    define EGL_SYNC_FLUSH_COMMANDS_BIT 0x0001
+#    define EGL_FOREVER 0xFFFFFFFFFFFFFFFFull
+#    define EGL_TIMEOUT_EXPIRED 0x30F5
+#    define EGL_CONDITION_SATISFIED 0x30F6
+#    define EGL_NO_SYNC ((EGLSync) 0)
+#    define EGL_SYNC_FENCE 0x30F9
+#    define EGL_GL_COLORSPACE 0x309D
+#    define EGL_GL_COLORSPACE_SRGB 0x3089
+#    define EGL_GL_COLORSPACE_LINEAR 0x308A
+#    define EGL_GL_RENDERBUFFER 0x30B9
+#    define EGL_GL_TEXTURE_2D 0x30B1
+#    define EGL_GL_TEXTURE_LEVEL 0x30BC
+#    define EGL_GL_TEXTURE_3D 0x30B2
+#    define EGL_GL_TEXTURE_ZOFFSET 0x30BD
+#    define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_X 0x30B3
+#    define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_X 0x30B4
+#    define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Y 0x30B5
+#    define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y 0x30B6
+#    define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Z 0x30B7
+#    define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 0x30B8
+#    define EGL_IMAGE_PRESERVED 0x30D2
+#    define EGL_NO_IMAGE ((EGLImage) 0)
+
+typedef void *EGLSync;
+typedef intptr_t EGLAttrib;
+typedef khronos_utime_nanoseconds_t EGLTime;
+typedef void *EGLImage;
+
 typedef EGLSync (* PFN_eglCreateSync_PROC) (EGLDisplay, EGLenum, const EGLAttrib *);
 typedef EGLBoolean (* PFN_eglDestroySync_PROC) (EGLDisplay, EGLSync);
 typedef EGLint (* PFN_eglClientWaitSync_PROC) (EGLDisplay, EGLSync, EGLint, EGLTime);
@@ -1598,50 +1852,18 @@ typedef EGLSurface (* PFN_eglCreatePlatformWindowSurface_PROC) (EGLDisplay, EGLC
 typedef EGLSurface (* PFN_eglCreatePlatformPixmapSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
 typedef EGLBoolean (* PFN_eglWaitSync_PROC) (EGLDisplay, EGLSync, EGLint);
 
-#   define eglChooseConfig __window_h.egl->ChooseConfig
-#   define eglCopyBuffers __window_h.egl->CopyBuffers
-#   define eglCreateContext __window_h.egl->CreateContext
-#   define eglCreatePbufferSurface __window_h.egl->CreatePbufferSurface
-#   define eglCreatePixmapSurface __window_h.egl->CreatePixmapSurface
-#   define eglCreateWindowSurface __window_h.egl->CreateWindowSurface
-#   define eglDestroyContext __window_h.egl->DestroyContext
-#   define eglDestroySurface __window_h.egl->DestroySurface
-#   define eglGetConfigAttrib __window_h.egl->GetConfigAttrib
-#   define eglGetConfigs __window_h.egl->GetConfigs
-#   define eglGetCurrentDisplay __window_h.egl->GetCurrentDisplay
-#   define eglGetCurrentSurface __window_h.egl->GetCurrentSurface
-#   define eglGetDisplay __window_h.egl->GetDisplay
-#   define eglGetError __window_h.egl->GetError
-#   define eglGetProcAddress __window_h.egl->GetProcAddress
-#   define eglInitialize __window_h.egl->Initialize
-#   define eglMakeCurrent __window_h.egl->MakeCurrent
-#   define eglQueryContext __window_h.egl->QueryContext
-#   define eglQueryString __window_h.egl->QueryString
-#   define eglQuerySurface __window_h.egl->QuerySurface
-#   define eglSwapBuffers __window_h.egl->SwapBuffers
-#   define eglTerminate __window_h.egl->Terminate
-#   define eglWaitGL __window_h.egl->WaitGL
-#   define eglWaitNative __window_h.egl->WaitNative
-#   define eglBindTexImage __window_h.egl->BindTexImage
-#   define eglReleaseTexImage __window_h.egl->ReleaseTexImage
-#   define eglSurfaceAttrib __window_h.egl->SurfaceAttrib
-#   define eglSwapInterval __window_h.egl->SwapInterval
-#   define eglBindAPI __window_h.egl->BindAPI
-#   define eglQueryAPI __window_h.egl->QueryAPI
-#   define eglCreatePbufferFromClientBuffer __window_h.egl->CreatePbufferFromClientBuffer
-#   define eglReleaseThread __window_h.egl->ReleaseThread
-#   define eglWaitClient __window_h.egl->WaitClient
-#   define eglGetCurrentContext __window_h.egl->GetCurrentContext
-#   define eglCreateSync __window_h.egl->CreateSync
-#   define eglDestroySync __window_h.egl->DestroySync
-#   define eglClientWaitSync __window_h.egl->ClientWaitSync
-#   define eglGetSyncAttrib __window_h.egl->GetSyncAttrib
-#   define eglCreateImage __window_h.egl->CreateImage
-#   define eglDestroyImage __window_h.egl->DestroyImage
-#   define eglGetPlatformDisplay __window_h.egl->GetPlatformDisplay
-#   define eglCreatePlatformWindowSurface __window_h.egl->CreatePlatformWindowSurface
-#   define eglCreatePlatformPixmapSurface __window_h.egl->CreatePlatformPixmapSurface
-#   define eglWaitSync __window_h.egl->WaitSync
+#    define eglCreateSync __window_h.egl->CreateSync
+#    define eglDestroySync __window_h.egl->DestroySync
+#    define eglClientWaitSync __window_h.egl->ClientWaitSync
+#    define eglGetSyncAttrib __window_h.egl->GetSyncAttrib
+#    define eglCreateImage __window_h.egl->CreateImage
+#    define eglDestroyImage __window_h.egl->DestroyImage
+#    define eglGetPlatformDisplay __window_h.egl->GetPlatformDisplay
+#    define eglCreatePlatformWindowSurface __window_h.egl->CreatePlatformWindowSurface
+#    define eglCreatePlatformPixmapSurface __window_h.egl->CreatePlatformPixmapSurface
+#    define eglWaitSync __window_h.egl->WaitSync
+#
+#   endif /* EGL_VERSION_1_5 */
 
 typedef struct __window_h_egl *__window_h_egl;
 
@@ -3105,8 +3327,17 @@ WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window 
 WININT int __winUpdateWindowFlagsX11(t_window win) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
-    
+
+    /* attr references */
+    uint8_t mapped = win->mapped;
+    uint32_t flags = win->flags;
+
+	/* xlib references */
+	Display  *dpy = win->x11->xlib.dpy;
+    Window client = win->x11->xlib.client;
+
     /* xatom references */
+    Atom              _MOTIF_WM_HINTS = __window_h.x11->xatom._motif_wm_hints;
     Atom     _NET_WM_STATE_FULLSCREEN = __window_h.x11->xatom._net_wm_state_fullscreen;
     Atom         _NET_WM_STATE_HIDDEN = __window_h.x11->xatom._net_wm_state_hidden;
     Atom _NET_WM_STATE_MAXIMIZED_HORZ = __window_h.x11->xatom._net_wm_state_maximized_horz;
@@ -3114,30 +3345,30 @@ WININT int __winUpdateWindowFlagsX11(t_window win) {
     Atom          _NET_WM_STATE_ABOVE = __window_h.x11->xatom._net_wm_state_above;
     
     /* properties that requires the window to be mapped */
-    if (win->mapped) {
+    if (mapped) {
         /* WINDOW_FLAG_FULLSCREEN */
-        if (win->flags & WINDOW_FLAG_FULLSCREEN) {
+        if (flags & WINDOW_FLAG_FULLSCREEN) {
             __winSendClientEventX11(win, _NET_WM_STATE_ADD, _NET_WM_STATE_FULLSCREEN, 0);
         } else {
             __winSendClientEventX11(win, _NET_WM_STATE_REMOVE, _NET_WM_STATE_FULLSCREEN, 0);
         }
 
         /* WINDOW_FLAG_MINIMIZED */
-        if (win->flags & WINDOW_FLAG_MINIMIZED) {
+        if (flags & WINDOW_FLAG_MINIMIZED) {
             __winSendClientEventX11(win, _NET_WM_STATE_ADD, _NET_WM_STATE_HIDDEN, 0);
         } else {
             __winSendClientEventX11(win, _NET_WM_STATE_REMOVE, _NET_WM_STATE_HIDDEN, 0);
         }
 
         /* WINDOW_FLAG_MAXIMIZED */
-        if (win->flags & WINDOW_FLAG_MAXIMIZED) {
+        if (flags & WINDOW_FLAG_MAXIMIZED) {
             __winSendClientEventX11(win, _NET_WM_STATE_ADD, _NET_WM_STATE_MAXIMIZED_HORZ, _NET_WM_STATE_MAXIMIZED_VERT);
         } else {
             __winSendClientEventX11(win, _NET_WM_STATE_REMOVE, _NET_WM_STATE_MAXIMIZED_HORZ, _NET_WM_STATE_MAXIMIZED_VERT);
         }
 
         /* WINDOW_FLAG_TOPMOST */
-        if (win->flags & WINDOW_FLAG_TOPMOST) {
+        if (flags & WINDOW_FLAG_TOPMOST) {
             __winSendClientEventX11(win, _NET_WM_STATE_ADD, _NET_WM_STATE_ABOVE, 0);
         } else {
             __winSendClientEventX11(win, _NET_WM_STATE_REMOVE, _NET_WM_STATE_ABOVE, 0);
@@ -3147,7 +3378,7 @@ WININT int __winUpdateWindowFlagsX11(t_window win) {
     /* properties that doesn't require the window to be mapped */
     
     /* WINDOW_FLAG_RESIZABLE */
-    if (win->flags & WINDOW_FLAG_RESIZABLE) {
+    if (flags & WINDOW_FLAG_RESIZABLE) {
         winSetWindowMinSize(win, 1, 1);
         winSetWindowMaxSize(win, 0x10000000, 0x10000000);
     } else {
@@ -3156,6 +3387,19 @@ WININT int __winUpdateWindowFlagsX11(t_window win) {
         winGetWindowSize(win, &w, &h);
         winSetWindowMinSize(win, w, h);
         winSetWindowMaxSize(win, w, h);
+    }
+
+    /* WINDOW_FLAG_UNDECORATED*/
+    if (flags & WINDOW_FLAG_UNDECORATED) {
+        long mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = _NET_WM_STATE_REMOVE;
+        XChangeProperty(dpy, client, _MOTIF_WM_HINTS, _MOTIF_WM_HINTS, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
+    } else {
+        long mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = _NET_WM_STATE_ADD;
+        XChangeProperty(dpy, client, _MOTIF_WM_HINTS, _MOTIF_WM_HINTS, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
     }
 
     /* success */
