@@ -884,6 +884,279 @@ struct s_glcontext {
 #   define _NET_WM_STATE_ADD    1
 #   define _NET_WM_STATE_TOGGLE 2
 
+static const struct __window_h_keymap {
+    uint32_t src;
+    uint32_t kc;
+    uint32_t ks;
+} __window_h_keymap[] = {
+    
+    { XK_Escape, WINDOW_KEYCODE_ESCAPE, 0 },
+    
+    { XK_F1, WINDOW_KEYCODE_F1, 0 },
+    
+    { XK_F2, WINDOW_KEYCODE_F2, 0 },
+    
+    { XK_F3, WINDOW_KEYCODE_F3, 0 },
+    
+    { XK_F4, WINDOW_KEYCODE_F4, 0 },
+    
+    { XK_F5, WINDOW_KEYCODE_F5, 0 },
+    
+    { XK_F6, WINDOW_KEYCODE_F6, 0 },
+    
+    { XK_F7, WINDOW_KEYCODE_F7, 0 },
+    
+    { XK_F8, WINDOW_KEYCODE_F8, 0 },
+    
+    { XK_F9, WINDOW_KEYCODE_F9, 0 },
+    
+    { XK_F10, WINDOW_KEYCODE_F10, 0 },
+    
+    { XK_F11, WINDOW_KEYCODE_F11, 0 },
+    
+    { XK_F12, WINDOW_KEYCODE_F12, 0 },
+    
+    { XK_grave, WINDOW_KEYCODE_GRAVE, 0 }, 
+    { XK_asciitilde, WINDOW_KEYCODE_GRAVE, 0 },
+    
+    { XK_1, WINDOW_KEYCODE_ONE, 0 },       
+    { XK_exclam, WINDOW_KEYCODE_ONE, 0 },
+    
+    { XK_2, WINDOW_KEYCODE_TWO, 0 },       
+    { XK_at, WINDOW_KEYCODE_TWO, 0 },
+    
+    { XK_3, WINDOW_KEYCODE_THREE, 0 },     
+    { XK_numbersign, WINDOW_KEYCODE_THREE, 0 },
+    
+    { XK_4, WINDOW_KEYCODE_FOUR, 0 },      
+    { XK_dollar, WINDOW_KEYCODE_FOUR, 0 },
+    
+    { XK_5, WINDOW_KEYCODE_FIVE, 0 },      
+    { XK_percent, WINDOW_KEYCODE_FIVE, 0 },
+    
+    { XK_6, WINDOW_KEYCODE_SIX, 0 },       
+    { XK_asciicircum, WINDOW_KEYCODE_SIX, 0 },
+    
+    { XK_7, WINDOW_KEYCODE_SEVEN, 0 },     
+    { XK_ampersand, WINDOW_KEYCODE_SEVEN, 0 },
+    
+    { XK_8, WINDOW_KEYCODE_EIGHT, 0 },     
+    { XK_asterisk, WINDOW_KEYCODE_EIGHT, 0 },
+    
+    { XK_9, WINDOW_KEYCODE_NINE, 0 },      
+    { XK_parenleft, WINDOW_KEYCODE_NINE, 0 },
+    
+    { XK_0, WINDOW_KEYCODE_ZERO, 0 },      
+    { XK_parenright, WINDOW_KEYCODE_ZERO, 0 },
+    
+    { XK_minus, WINDOW_KEYCODE_DASH, 0 },  
+    { XK_underscore, WINDOW_KEYCODE_DASH, 0 },
+    
+    { XK_equal, WINDOW_KEYCODE_EQUAL, 0 },
+    { XK_plus, WINDOW_KEYCODE_EQUAL, 0 },
+    
+    { XK_BackSpace, WINDOW_KEYCODE_BACKSPACE, 0 },
+    
+    { XK_Tab, WINDOW_KEYCODE_TAB, 0 },
+    
+    { XK_Q, WINDOW_KEYCODE_Q, 0 },
+    { XK_q, WINDOW_KEYCODE_Q, 0 },
+    
+    { XK_W, WINDOW_KEYCODE_W, 0 },
+    { XK_w, WINDOW_KEYCODE_W, 0 },
+    
+    { XK_E, WINDOW_KEYCODE_E, 0 },
+    { XK_e, WINDOW_KEYCODE_E, 0 },
+    
+    { XK_R, WINDOW_KEYCODE_R, 0 },
+    { XK_r, WINDOW_KEYCODE_R, 0 },
+    
+    { XK_T, WINDOW_KEYCODE_T, 0 },
+    { XK_t, WINDOW_KEYCODE_T, 0 },
+    
+    { XK_Y, WINDOW_KEYCODE_Y, 0 },
+    { XK_y, WINDOW_KEYCODE_Y, 0 },
+    
+    { XK_U, WINDOW_KEYCODE_U, 0 },
+    { XK_u, WINDOW_KEYCODE_U, 0 },
+    
+    { XK_I, WINDOW_KEYCODE_I, 0 },
+    { XK_i, WINDOW_KEYCODE_I, 0 },
+    
+    { XK_O, WINDOW_KEYCODE_O, 0 },
+    { XK_o, WINDOW_KEYCODE_O, 0 },
+    
+    { XK_P, WINDOW_KEYCODE_P, 0 },
+    { XK_p, WINDOW_KEYCODE_P, 0 },
+    
+    { XK_bracketleft, WINDOW_KEYCODE_OBRACE, 0 },
+    { XK_braceleft, WINDOW_KEYCODE_OBRACE, 0 },
+    
+    { XK_bracketright, WINDOW_KEYCODE_CBRACE, 0 },
+    { XK_braceright, WINDOW_KEYCODE_CBRACE, 0 },
+
+    { XK_Caps_Lock, WINDOW_KEYCODE_CAPSLOCK, 0 },
+
+    { XK_A, WINDOW_KEYCODE_A, 0 },
+    { XK_a, WINDOW_KEYCODE_A, 0 },
+
+    { XK_S, WINDOW_KEYCODE_S, 0 },
+    { XK_s, WINDOW_KEYCODE_S, 0 },
+
+    { XK_D, WINDOW_KEYCODE_D, 0 },
+    { XK_d, WINDOW_KEYCODE_D, 0 },
+
+    { XK_F, WINDOW_KEYCODE_F, 0 },
+    { XK_f, WINDOW_KEYCODE_F, 0 },
+
+    { XK_G, WINDOW_KEYCODE_G, 0 },
+    { XK_g, WINDOW_KEYCODE_G, 0 },
+
+    { XK_H, WINDOW_KEYCODE_H, 0 },
+    { XK_h, WINDOW_KEYCODE_H, 0 },
+
+    { XK_J, WINDOW_KEYCODE_J, 0 },
+    { XK_j, WINDOW_KEYCODE_J, 0 },
+
+    { XK_K, WINDOW_KEYCODE_K, 0 },
+    { XK_k, WINDOW_KEYCODE_K, 0 },
+
+    { XK_L, WINDOW_KEYCODE_L, 0 },
+    { XK_l, WINDOW_KEYCODE_L, 0 },
+
+    { XK_semicolon, WINDOW_KEYCODE_SEMICOLON, 0 },
+    { XK_colon, WINDOW_KEYCODE_SEMICOLON, 0 },
+
+    { XK_apostrophe, WINDOW_KEYCODE_QUOTE, 0 },
+    { XK_quotedbl, WINDOW_KEYCODE_QUOTE, 0 },
+
+    { XK_backslash, WINDOW_KEYCODE_BACKSLASH, 0 },
+    { XK_bar, WINDOW_KEYCODE_BACKSLASH, 0 },
+
+    { XK_Return, WINDOW_KEYCODE_ENTER, 0 },
+
+    { XK_Shift_L, WINDOW_KEYCODE_LSHIFT, 0 },
+    
+    { XK_Z, WINDOW_KEYCODE_Z, 0 },
+    { XK_z, WINDOW_KEYCODE_Z, 0 },
+    
+    { XK_X, WINDOW_KEYCODE_X, 0 },
+    { XK_x, WINDOW_KEYCODE_X, 0 },
+    
+    { XK_C, WINDOW_KEYCODE_C, 0 },
+    { XK_c, WINDOW_KEYCODE_C, 0 },
+    
+    { XK_V, WINDOW_KEYCODE_V, 0 },
+    { XK_v, WINDOW_KEYCODE_V, 0 },
+    
+    { XK_B, WINDOW_KEYCODE_B, 0 },
+    { XK_b, WINDOW_KEYCODE_B, 0 },
+    
+    { XK_N, WINDOW_KEYCODE_N, 0 },
+    { XK_n, WINDOW_KEYCODE_N, 0 },
+    
+    { XK_M, WINDOW_KEYCODE_M, 0 },
+    { XK_m, WINDOW_KEYCODE_M, 0 },
+    
+    { XK_comma, WINDOW_KEYCODE_COMMA, 0 },
+    { XK_less, WINDOW_KEYCODE_COMMA, 0 },
+    
+    { XK_period, WINDOW_KEYCODE_PERIOD, 0 },
+    { XK_greater, WINDOW_KEYCODE_PERIOD, 0 },
+    
+    { XK_slash, WINDOW_KEYCODE_SLASH, 0 },
+    { XK_question, WINDOW_KEYCODE_SLASH, 0 },
+    
+    { XK_Shift_R, WINDOW_KEYCODE_RSHIFT, 0 },
+    
+    { XK_Control_L, WINDOW_KEYCODE_LCTRL, 0 },
+    
+    { XK_Super_L, WINDOW_KEYCODE_MOD, 0 },
+    
+    { XK_Alt_L, WINDOW_KEYCODE_LALT, 0 },
+    
+    { XK_space, WINDOW_KEYCODE_SPACE, 0 },
+    
+    { XK_Alt_R, WINDOW_KEYCODE_RALT, 0 },
+    
+    { XK_Control_R, WINDOW_KEYCODE_RCTRL, 0 },
+
+    { XK_Print, WINDOW_KEYCODE_PRINTSCREEN, 0 },
+    
+    { XK_Scroll_Lock, WINDOW_KEYCODE_SCROLLLOCK, 0 },
+    
+    { XK_Pause, WINDOW_KEYCODE_PAUSE, 0 },
+
+    { XK_Insert, WINDOW_KEYCODE_INSERT, 0 },
+    
+    { XK_Home, WINDOW_KEYCODE_HOME, 0 },
+    
+    { XK_Prior, WINDOW_KEYCODE_PAGEUP, 0 },
+
+    { XK_Delete, WINDOW_KEYCODE_DELETE, 0 },
+    
+    { XK_End, WINDOW_KEYCODE_END, 0 },
+    
+    { XK_Next, WINDOW_KEYCODE_PAGEDOWN, 0 },
+
+    { XK_Up, WINDOW_KEYCODE_UP, 0 },
+    
+    { XK_Left, WINDOW_KEYCODE_LEFT, 0 },
+    
+    { XK_Down, WINDOW_KEYCODE_DOWN, 0 },
+    
+    { XK_Right, WINDOW_KEYCODE_RIGHT, 0 },
+
+    { XK_Num_Lock, WINDOW_KEYCODE_NUMLOCK, 0 },
+    
+    { XK_KP_Divide, WINDOW_KEYCODE_NUMSLASH, 0 },
+    
+    { XK_KP_Multiply, WINDOW_KEYCODE_NUMSTAR, 0 },
+    
+    { XK_KP_Subtract, WINDOW_KEYCODE_NUMDASH, 0 },
+    
+    { XK_KP_Home, WINDOW_KEYCODE_NUM7, 0 },
+    { XK_KP_7, WINDOW_KEYCODE_NUM7, 0 },
+    
+    { XK_KP_Up, WINDOW_KEYCODE_NUM8, 0 },
+    { XK_KP_8, WINDOW_KEYCODE_NUM8, 0 },
+    
+    { XK_KP_Prior, WINDOW_KEYCODE_NUM9, 0 },
+    { XK_KP_9, WINDOW_KEYCODE_NUM9, 0 },
+    
+    { XK_KP_Left, WINDOW_KEYCODE_NUM4, 0 },
+    { XK_KP_4, WINDOW_KEYCODE_NUM4, 0 },
+    
+    { XK_KP_Begin, WINDOW_KEYCODE_NUM5, 0 },
+    { XK_KP_5, WINDOW_KEYCODE_NUM5, 0 },
+    
+    { XK_KP_Right, WINDOW_KEYCODE_NUM6, 0 },
+    { XK_KP_6, WINDOW_KEYCODE_NUM6, 0 },
+    
+    { XK_KP_End, WINDOW_KEYCODE_NUM1, 0 },
+    { XK_KP_1, WINDOW_KEYCODE_NUM1, 0 },
+    
+    { XK_KP_Down, WINDOW_KEYCODE_NUM2, 0 },
+    { XK_KP_2, WINDOW_KEYCODE_NUM2, 0 },
+    
+    { XK_KP_Next, WINDOW_KEYCODE_NUM3, 0 },
+    { XK_KP_3, WINDOW_KEYCODE_NUM3, 0 },
+    
+    { XK_KP_Insert, WINDOW_KEYCODE_NUM0, 0 },
+    { XK_KP_0, WINDOW_KEYCODE_NUM0, 0 },
+    
+    { XK_KP_Delete, WINDOW_KEYCODE_NUMSEP, 0 },
+    
+    { XK_KP_Add, WINDOW_KEYCODE_NUMPLUS, 0 },
+    
+    { XK_KP_Enter, WINDOW_KEYCODE_NUMENTER, 0 },
+
+    /* ... */
+
+    { 0, WINDOW_KEYCODE_NONE, 0 }
+};
+
+
 /* internal type declarations */
 
 typedef XClassHint *(* PFN_XAllocClassHint_PROC) (void);
@@ -2208,280 +2481,6 @@ struct s_glcontext_wgl {
 #
 #  /* WINDOW_BACKEND_X11 - X11 implementation */
 #  if defined (WINDOW_BACKEND_X11)
-
-/* internal type declarations */
-
-static const struct __window_h_keymap {
-    uint32_t src;
-    uint32_t kc;
-    uint32_t ks;
-} __window_h_keymap[] = {
-    
-    { XK_Escape, WINDOW_KEYCODE_ESCAPE, 0 },
-    
-    { XK_F1, WINDOW_KEYCODE_F1, 0 },
-    
-    { XK_F2, WINDOW_KEYCODE_F2, 0 },
-    
-    { XK_F3, WINDOW_KEYCODE_F3, 0 },
-    
-    { XK_F4, WINDOW_KEYCODE_F4, 0 },
-    
-    { XK_F5, WINDOW_KEYCODE_F5, 0 },
-    
-    { XK_F6, WINDOW_KEYCODE_F6, 0 },
-    
-    { XK_F7, WINDOW_KEYCODE_F7, 0 },
-    
-    { XK_F8, WINDOW_KEYCODE_F8, 0 },
-    
-    { XK_F9, WINDOW_KEYCODE_F9, 0 },
-    
-    { XK_F10, WINDOW_KEYCODE_F10, 0 },
-    
-    { XK_F11, WINDOW_KEYCODE_F11, 0 },
-    
-    { XK_F12, WINDOW_KEYCODE_F12, 0 },
-    
-    { XK_grave, WINDOW_KEYCODE_GRAVE, 0 }, 
-    { XK_asciitilde, WINDOW_KEYCODE_GRAVE, 0 },
-    
-    { XK_1, WINDOW_KEYCODE_ONE, 0 },       
-    { XK_exclam, WINDOW_KEYCODE_ONE, 0 },
-    
-    { XK_2, WINDOW_KEYCODE_TWO, 0 },       
-    { XK_at, WINDOW_KEYCODE_TWO, 0 },
-    
-    { XK_3, WINDOW_KEYCODE_THREE, 0 },     
-    { XK_numbersign, WINDOW_KEYCODE_THREE, 0 },
-    
-    { XK_4, WINDOW_KEYCODE_FOUR, 0 },      
-    { XK_dollar, WINDOW_KEYCODE_FOUR, 0 },
-    
-    { XK_5, WINDOW_KEYCODE_FIVE, 0 },      
-    { XK_percent, WINDOW_KEYCODE_FIVE, 0 },
-    
-    { XK_6, WINDOW_KEYCODE_SIX, 0 },       
-    { XK_asciicircum, WINDOW_KEYCODE_SIX, 0 },
-    
-    { XK_7, WINDOW_KEYCODE_SEVEN, 0 },     
-    { XK_ampersand, WINDOW_KEYCODE_SEVEN, 0 },
-    
-    { XK_8, WINDOW_KEYCODE_EIGHT, 0 },     
-    { XK_asterisk, WINDOW_KEYCODE_EIGHT, 0 },
-    
-    { XK_9, WINDOW_KEYCODE_NINE, 0 },      
-    { XK_parenleft, WINDOW_KEYCODE_NINE, 0 },
-    
-    { XK_0, WINDOW_KEYCODE_ZERO, 0 },      
-    { XK_parenright, WINDOW_KEYCODE_ZERO, 0 },
-    
-    { XK_minus, WINDOW_KEYCODE_DASH, 0 },  
-    { XK_underscore, WINDOW_KEYCODE_DASH, 0 },
-    
-    { XK_equal, WINDOW_KEYCODE_EQUAL, 0 },
-    { XK_plus, WINDOW_KEYCODE_EQUAL, 0 },
-    
-    { XK_BackSpace, WINDOW_KEYCODE_BACKSPACE, 0 },
-    
-    { XK_Tab, WINDOW_KEYCODE_TAB, 0 },
-    
-    { XK_Q, WINDOW_KEYCODE_Q, 0 },
-    { XK_q, WINDOW_KEYCODE_Q, 0 },
-    
-    { XK_W, WINDOW_KEYCODE_W, 0 },
-    { XK_w, WINDOW_KEYCODE_W, 0 },
-    
-    { XK_E, WINDOW_KEYCODE_E, 0 },
-    { XK_e, WINDOW_KEYCODE_E, 0 },
-    
-    { XK_R, WINDOW_KEYCODE_R, 0 },
-    { XK_r, WINDOW_KEYCODE_R, 0 },
-    
-    { XK_T, WINDOW_KEYCODE_T, 0 },
-    { XK_t, WINDOW_KEYCODE_T, 0 },
-    
-    { XK_Y, WINDOW_KEYCODE_Y, 0 },
-    { XK_y, WINDOW_KEYCODE_Y, 0 },
-    
-    { XK_U, WINDOW_KEYCODE_U, 0 },
-    { XK_u, WINDOW_KEYCODE_U, 0 },
-    
-    { XK_I, WINDOW_KEYCODE_I, 0 },
-    { XK_i, WINDOW_KEYCODE_I, 0 },
-    
-    { XK_O, WINDOW_KEYCODE_O, 0 },
-    { XK_o, WINDOW_KEYCODE_O, 0 },
-    
-    { XK_P, WINDOW_KEYCODE_P, 0 },
-    { XK_p, WINDOW_KEYCODE_P, 0 },
-    
-    { XK_bracketleft, WINDOW_KEYCODE_OBRACE, 0 },
-    { XK_braceleft, WINDOW_KEYCODE_OBRACE, 0 },
-    
-    { XK_bracketright, WINDOW_KEYCODE_CBRACE, 0 },
-    { XK_braceright, WINDOW_KEYCODE_CBRACE, 0 },
-
-    { XK_Caps_Lock, WINDOW_KEYCODE_CAPSLOCK, 0 },
-
-    { XK_A, WINDOW_KEYCODE_A, 0 },
-    { XK_a, WINDOW_KEYCODE_A, 0 },
-
-    { XK_S, WINDOW_KEYCODE_S, 0 },
-    { XK_s, WINDOW_KEYCODE_S, 0 },
-
-    { XK_D, WINDOW_KEYCODE_D, 0 },
-    { XK_d, WINDOW_KEYCODE_D, 0 },
-
-    { XK_F, WINDOW_KEYCODE_F, 0 },
-    { XK_f, WINDOW_KEYCODE_F, 0 },
-
-    { XK_G, WINDOW_KEYCODE_G, 0 },
-    { XK_g, WINDOW_KEYCODE_G, 0 },
-
-    { XK_H, WINDOW_KEYCODE_H, 0 },
-    { XK_h, WINDOW_KEYCODE_H, 0 },
-
-    { XK_J, WINDOW_KEYCODE_J, 0 },
-    { XK_j, WINDOW_KEYCODE_J, 0 },
-
-    { XK_K, WINDOW_KEYCODE_K, 0 },
-    { XK_k, WINDOW_KEYCODE_K, 0 },
-
-    { XK_L, WINDOW_KEYCODE_L, 0 },
-    { XK_l, WINDOW_KEYCODE_L, 0 },
-
-    { XK_semicolon, WINDOW_KEYCODE_SEMICOLON, 0 },
-    { XK_colon, WINDOW_KEYCODE_SEMICOLON, 0 },
-
-    { XK_apostrophe, WINDOW_KEYCODE_QUOTE, 0 },
-    { XK_quotedbl, WINDOW_KEYCODE_QUOTE, 0 },
-
-    { XK_backslash, WINDOW_KEYCODE_BACKSLASH, 0 },
-    { XK_bar, WINDOW_KEYCODE_BACKSLASH, 0 },
-
-    { XK_Return, WINDOW_KEYCODE_ENTER, 0 },
-
-    { XK_Shift_L, WINDOW_KEYCODE_LSHIFT, 0 },
-    
-    { XK_Z, WINDOW_KEYCODE_Z, 0 },
-    { XK_z, WINDOW_KEYCODE_Z, 0 },
-    
-    { XK_X, WINDOW_KEYCODE_X, 0 },
-    { XK_x, WINDOW_KEYCODE_X, 0 },
-    
-    { XK_C, WINDOW_KEYCODE_C, 0 },
-    { XK_c, WINDOW_KEYCODE_C, 0 },
-    
-    { XK_V, WINDOW_KEYCODE_V, 0 },
-    { XK_v, WINDOW_KEYCODE_V, 0 },
-    
-    { XK_B, WINDOW_KEYCODE_B, 0 },
-    { XK_b, WINDOW_KEYCODE_B, 0 },
-    
-    { XK_N, WINDOW_KEYCODE_N, 0 },
-    { XK_n, WINDOW_KEYCODE_N, 0 },
-    
-    { XK_M, WINDOW_KEYCODE_M, 0 },
-    { XK_m, WINDOW_KEYCODE_M, 0 },
-    
-    { XK_comma, WINDOW_KEYCODE_COMMA, 0 },
-    { XK_less, WINDOW_KEYCODE_COMMA, 0 },
-    
-    { XK_period, WINDOW_KEYCODE_PERIOD, 0 },
-    { XK_greater, WINDOW_KEYCODE_PERIOD, 0 },
-    
-    { XK_slash, WINDOW_KEYCODE_SLASH, 0 },
-    { XK_question, WINDOW_KEYCODE_SLASH, 0 },
-    
-    { XK_Shift_R, WINDOW_KEYCODE_RSHIFT, 0 },
-    
-    { XK_Control_L, WINDOW_KEYCODE_LCTRL, 0 },
-    
-    { XK_Super_L, WINDOW_KEYCODE_MOD, 0 },
-    
-    { XK_Alt_L, WINDOW_KEYCODE_LALT, 0 },
-    
-    { XK_space, WINDOW_KEYCODE_SPACE, 0 },
-    
-    { XK_Alt_R, WINDOW_KEYCODE_RALT, 0 },
-    
-    { XK_Control_R, WINDOW_KEYCODE_RCTRL, 0 },
-
-    { XK_Print, WINDOW_KEYCODE_PRINTSCREEN, 0 },
-    
-    { XK_Scroll_Lock, WINDOW_KEYCODE_SCROLLLOCK, 0 },
-    
-    { XK_Pause, WINDOW_KEYCODE_PAUSE, 0 },
-
-    { XK_Insert, WINDOW_KEYCODE_INSERT, 0 },
-    
-    { XK_Home, WINDOW_KEYCODE_HOME, 0 },
-    
-    { XK_Prior, WINDOW_KEYCODE_PAGEUP, 0 },
-
-    { XK_Delete, WINDOW_KEYCODE_DELETE, 0 },
-    
-    { XK_End, WINDOW_KEYCODE_END, 0 },
-    
-    { XK_Next, WINDOW_KEYCODE_PAGEDOWN, 0 },
-
-    { XK_Up, WINDOW_KEYCODE_UP, 0 },
-    
-    { XK_Left, WINDOW_KEYCODE_LEFT, 0 },
-    
-    { XK_Down, WINDOW_KEYCODE_DOWN, 0 },
-    
-    { XK_Right, WINDOW_KEYCODE_RIGHT, 0 },
-
-    { XK_Num_Lock, WINDOW_KEYCODE_NUMLOCK, 0 },
-    
-    { XK_KP_Divide, WINDOW_KEYCODE_NUMSLASH, 0 },
-    
-    { XK_KP_Multiply, WINDOW_KEYCODE_NUMSTAR, 0 },
-    
-    { XK_KP_Subtract, WINDOW_KEYCODE_NUMDASH, 0 },
-    
-    { XK_KP_Home, WINDOW_KEYCODE_NUM7, 0 },
-    { XK_KP_7, WINDOW_KEYCODE_NUM7, 0 },
-    
-    { XK_KP_Up, WINDOW_KEYCODE_NUM8, 0 },
-    { XK_KP_8, WINDOW_KEYCODE_NUM8, 0 },
-    
-    { XK_KP_Prior, WINDOW_KEYCODE_NUM9, 0 },
-    { XK_KP_9, WINDOW_KEYCODE_NUM9, 0 },
-    
-    { XK_KP_Left, WINDOW_KEYCODE_NUM4, 0 },
-    { XK_KP_4, WINDOW_KEYCODE_NUM4, 0 },
-    
-    { XK_KP_Begin, WINDOW_KEYCODE_NUM5, 0 },
-    { XK_KP_5, WINDOW_KEYCODE_NUM5, 0 },
-    
-    { XK_KP_Right, WINDOW_KEYCODE_NUM6, 0 },
-    { XK_KP_6, WINDOW_KEYCODE_NUM6, 0 },
-    
-    { XK_KP_End, WINDOW_KEYCODE_NUM1, 0 },
-    { XK_KP_1, WINDOW_KEYCODE_NUM1, 0 },
-    
-    { XK_KP_Down, WINDOW_KEYCODE_NUM2, 0 },
-    { XK_KP_2, WINDOW_KEYCODE_NUM2, 0 },
-    
-    { XK_KP_Next, WINDOW_KEYCODE_NUM3, 0 },
-    { XK_KP_3, WINDOW_KEYCODE_NUM3, 0 },
-    
-    { XK_KP_Insert, WINDOW_KEYCODE_NUM0, 0 },
-    { XK_KP_0, WINDOW_KEYCODE_NUM0, 0 },
-    
-    { XK_KP_Delete, WINDOW_KEYCODE_NUMSEP, 0 },
-    
-    { XK_KP_Add, WINDOW_KEYCODE_NUMPLUS, 0 },
-    
-    { XK_KP_Enter, WINDOW_KEYCODE_NUMENTER, 0 },
-
-    /* ... */
-
-    { 0, WINDOW_KEYCODE_NONE, 0 }
-};
 
 /* internal functions (declarations) */
 
