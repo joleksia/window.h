@@ -1168,6 +1168,8 @@ struct s_window_x11 {
 
 WININT int __winLoadX11(void);
 
+WININT int __winLoadX11Symbols(void);
+
 WININT int __winUnloadX11(void);
 
 /* internal functions (definitions) */
@@ -1180,6 +1182,71 @@ WININT int __winLoadX11(void) {
             return (0);
         }
     }
+
+    /* try to load libX11 symbols */
+    if (!__winLoadX11Symbols()) { return (0); }
+    
+    /* get '__window_h.x11->xlib' members */
+    Display *dpy = XOpenDisplay(0);
+    if (!dpy) { return (0); }
+    Window root = DefaultRootWindow(dpy);
+    if (!root) { return (0); }
+
+    /* set '__window_h.x11->xlib' members */ 
+    __window_h.x11->xlib.dpy  = dpy;
+    __window_h.x11->xlib.root = root;
+    
+    /* get '__window_h.x11->xatom' members  */ 
+    Atom wm_protocols = XInternAtom(dpy, "WM_PROTOCOLS", False);
+    if (!wm_protocols) { return (0); }
+    
+    Atom wm_delete_window = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+    if (!wm_delete_window) { return (0); }
+    
+    Atom _motif_wm_hints = XInternAtom(dpy, "_MOTIF_WM_HINTS", False);
+    if (!_motif_wm_hints) { return (0); }
+
+    Atom _net_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
+    if (!_net_wm_state) { return (0); }
+
+    Atom _net_wm_state_above = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", False);
+    if (!_net_wm_state_above) { return (0); }
+
+    Atom _net_wm_state_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
+    if (!_net_wm_state_fullscreen) { return (0); }
+
+    Atom _net_wm_state_hidden = XInternAtom(dpy, "_NET_WM_STATE_HIDDEN", False);
+    if (!_net_wm_state_hidden) { return (0); }
+
+    Atom _net_wm_state_maximized_horz = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+    if (!_net_wm_state_maximized_horz) { return (0); }
+
+    Atom _net_wm_state_maximized_vert = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+    if (!_net_wm_state_maximized_vert) { return (0); }
+
+    Atom _net_wm_window_opacity = XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False);
+    if (!_net_wm_window_opacity) { return (0); }
+
+    /* set '__window_h.x11->xatom' members */ 
+    __window_h.x11->xatom.wm_protocols = wm_protocols;
+    __window_h.x11->xatom.wm_delete_window = wm_delete_window;
+    __window_h.x11->xatom._motif_wm_hints = _motif_wm_hints;
+    __window_h.x11->xatom._net_wm_state = _net_wm_state;
+    __window_h.x11->xatom._net_wm_state_above = _net_wm_state_above;
+    __window_h.x11->xatom._net_wm_state_fullscreen = _net_wm_state_fullscreen;
+    __window_h.x11->xatom._net_wm_state_hidden = _net_wm_state_hidden;
+    __window_h.x11->xatom._net_wm_state_maximized_horz = _net_wm_state_maximized_horz;
+    __window_h.x11->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
+    __window_h.x11->xatom._net_wm_window_opacity = _net_wm_window_opacity;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winLoadX11Symbols(void) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
 
     /* try to load handle */
     const char  *names[] = { "libX11.so", "libX11.so.6", 0 };
@@ -1643,6 +1710,8 @@ struct s_glcontext_egl {
 
 WININT int __winLoadEGL(void);
 
+WININT int __winLoadEGLSymbols(void);
+
 WININT int __winUnloadEGL(void);
 
 /* internal functions (definitions) */
@@ -1655,6 +1724,25 @@ WININT int __winLoadEGL(void) {
             return (0);
         }
     }
+
+    /* try to load libEGL symbols */
+    if (!__winLoadEGLSymbols()) { return (0); }
+    
+    /* get '__window_h.egl' members */
+    EGLDisplay dpy = eglGetDisplay(__window_h.x11->xlib.dpy);
+    if (dpy == EGL_NO_DISPLAY) { return (0); }
+
+    /* set '__window_h.egl' members */
+    __window_h.egl->dpy = dpy;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winLoadEGLSymbols(void) {
+    /* null-check */
+    if (!__window_h.egl) { return (0); }
 
     /* try to load handle */
     const char  *names[] = { "libEGL.so", "libEGL.so.1, libEGL.so.1.1.0", 0 };
@@ -1801,7 +1889,6 @@ WININT int __winLoadEGL(void) {
 
     eglWaitSync = (PFN_eglWaitSync_PROC) dlsym(handle, "eglWaitSync");
     if (!eglWaitSync) { return (0); }
-
 
     /* set '__window_h.egl->handle' member */ 
     __window_h.egl->handle = handle;
@@ -2138,82 +2225,27 @@ WINDEF int winInit(void) {
     /* load '__window_h.x11' */
     if (!__winLoadX11()) { return (0); }
 
-    /* initialize '__window_h.x11' members */
-    Display *dpy = XOpenDisplay(0);
-    if (!dpy) { return (0); }
-
-    Window root = DefaultRootWindow(dpy);
-    if (!root) { return (0); }
-
-    /* set '__window_h.x11->xlib' members */ 
-    __window_h.x11->xlib.dpy  = dpy;
-    __window_h.x11->xlib.root = root;
-    
-    /* get X11 atoms */ 
-    Atom wm_protocols = XInternAtom(dpy, "WM_PROTOCOLS", False);
-    if (!wm_protocols) { return (0); }
-    
-    Atom wm_delete_window = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-    if (!wm_delete_window) { return (0); }
-    
-    Atom _motif_wm_hints = XInternAtom(dpy, "_MOTIF_WM_HINTS", False);
-    if (!_motif_wm_hints) { return (0); }
-
-    Atom _net_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
-    if (!_net_wm_state) { return (0); }
-
-    Atom _net_wm_state_above = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", False);
-    if (!_net_wm_state_above) { return (0); }
-
-    Atom _net_wm_state_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
-    if (!_net_wm_state_fullscreen) { return (0); }
-
-    Atom _net_wm_state_hidden = XInternAtom(dpy, "_NET_WM_STATE_HIDDEN", False);
-    if (!_net_wm_state_hidden) { return (0); }
-
-    Atom _net_wm_state_maximized_horz = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
-    if (!_net_wm_state_maximized_horz) { return (0); }
-
-    Atom _net_wm_state_maximized_vert = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
-    if (!_net_wm_state_maximized_vert) { return (0); }
-
-    Atom _net_wm_window_opacity = XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False);
-    if (!_net_wm_window_opacity) { return (0); }
-
-    /* set '__window_h.x11->xatom' members */ 
-    __window_h.x11->xatom.wm_protocols = wm_protocols;
-    __window_h.x11->xatom.wm_delete_window = wm_delete_window;
-    __window_h.x11->xatom._motif_wm_hints = _motif_wm_hints;
-    __window_h.x11->xatom._net_wm_state = _net_wm_state;
-    __window_h.x11->xatom._net_wm_state_above = _net_wm_state_above;
-    __window_h.x11->xatom._net_wm_state_fullscreen = _net_wm_state_fullscreen;
-    __window_h.x11->xatom._net_wm_state_hidden = _net_wm_state_hidden;
-    __window_h.x11->xatom._net_wm_state_maximized_horz = _net_wm_state_maximized_horz;
-    __window_h.x11->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
-    __window_h.x11->xatom._net_wm_window_opacity = _net_wm_window_opacity;
-    
-#   if defined (WINDOW_API_OPENGL)
-#    if defined (WINDOW_BACKEND_GL_EGL)
-    /* load '__window_h.x11' */
-    if (!__winLoadEGL()) { return (0); }
-
-    /* get EGL display from X11 display */
-    EGLDisplay egldpy = eglGetDisplay(__window_h.x11->xlib.dpy);
-    if (egldpy == EGL_NO_DISPLAY) { return (0); }
-   
-    /* initialize EGL */
-    if (!eglInitialize(egldpy, 0, 0)) { return (0); }
-    if (!eglBindAPI(EGL_OPENGL_API))  { return (0); }
-
-    /* set '__window_h.egl' members */
-    __window_h.egl->dpy = egldpy;
-#    endif /* WINDOW_BACKEND_GL_EGL */
-#   endif /* WINDOW_API_OPENGL */
+	/* xlib references */
+	Display *dpy = __window_h.x11->xlib.dpy;
     
     /* set keyboard input repeating */
     Bool supported;
     XkbSetDetectableAutoRepeat(dpy, True, &supported);
     if (!supported) { return (0); }
+    
+#   if defined (WINDOW_API_OPENGL)
+#    if defined (WINDOW_BACKEND_GL_EGL)
+    /* load '__window_h.x11' */
+    if (!__winLoadEGL()) { return (0); }
+  
+    /* egl references */
+    EGLDisplay egldpy = __window_h.egl->dpy;
+
+    /* initialize EGL */
+    if (!eglInitialize(egldpy, 0, 0)) { return (0); }
+    if (!eglBindAPI(EGL_OPENGL_API))  { return (0); }
+#    endif /* WINDOW_BACKEND_GL_EGL */
+#   endif /* WINDOW_API_OPENGL */
 
     /* success */
     winFlushEvents();
