@@ -1156,166 +1156,2424 @@ static const struct __window_h_keymap {
     { 0, WINDOW_KEYCODE_NONE, 0 }
 };
 
+/* libX11: Xlib.h */
 
-/* internal type declarations */
+typedef int (* PFN_XActivateScreenSaver_PROC) (Display *);
+PFN_XActivateScreenSaver_PROC XActivateScreenSaver_PROC = 0;
+#   define XActivateScreenSaver XActivateScreenSaver_PROC
+
+typedef int (* PFN_XAddConnectionWatch_PROC) (Display *, XConnectionWatchProc, XPointer);
+PFN_XAddConnectionWatch_PROC XAddConnectionWatch_PROC = 0;
+#   define XAddConnectionWatch XAddConnectionWatch_PROC
+
+typedef XExtCodes *(* PFN_XAddExtension_PROC) (Display *);
+PFN_XAddExtension_PROC XAddExtension_PROC = 0;
+#   define XAddExtension XAddExtension_PROC
+
+typedef int (* PFN_XAddHost_PROC) (Display *, XHostAddress *);
+PFN_XAddHost_PROC XAddHost_PROC = 0;
+#   define XAddHost XAddHost_PROC
+
+typedef int (* PFN_XAddHosts_PROC) (Display *, XHostAddress *, int);
+PFN_XAddHosts_PROC XAddHosts_PROC = 0;
+#   define XAddHosts XAddHosts_PROC
+
+typedef int (* PFN_XAddToExtensionList_PROC) (struct _XExtData **, XExtData *);
+PFN_XAddToExtensionList_PROC XAddToExtensionList_PROC = 0;
+#   define XAddToExtensionList XAddToExtensionList_PROC
+
+typedef int (* PFN_XAddToSaveSet_PROC) (Display *, Window);
+PFN_XAddToSaveSet_PROC XAddToSaveSet_PROC = 0;
+#   define XAddToSaveSet XAddToSaveSet_PROC
+
+typedef unsigned long (* PFN_XAllPlanes_PROC) (void);
+PFN_XAllPlanes_PROC XAllPlanes_PROC = 0;
+#   define XAllPlanes XAllPlanes_PROC
+
+typedef int (* PFN_XAllocColor_PROC) (Display *, Colormap, XColor *);
+PFN_XAllocColor_PROC XAllocColor_PROC = 0;
+#   define XAllocColor XAllocColor_PROC
+
+typedef int (* PFN_XAllocColorCells_PROC) (Display *, Colormap, int, unsigned long *, unsigned int, unsigned long *, unsigned int);
+PFN_XAllocColorCells_PROC XAllocColorCells_PROC = 0;
+#   define XAllocColorCells XAllocColorCells_PROC
+
+typedef int (* PFN_XAllocColorPlanes_PROC) (Display *, Colormap, int, unsigned long *, int, int, int, int, unsigned long *, unsigned long *, unsigned long *);
+PFN_XAllocColorPlanes_PROC XAllocColorPlanes_PROC = 0;
+#   define XAllocColorPlanes XAllocColorPlanes_PROC
+
+typedef int (* PFN_XAllocNamedColor_PROC) (Display *, Colormap, const char *, XColor *, XColor *);
+PFN_XAllocNamedColor_PROC XAllocNamedColor_PROC = 0;
+#   define XAllocNamedColor XAllocNamedColor_PROC
+
+typedef int (* PFN_XAllowEvents_PROC) (Display *, int, Time);
+PFN_XAllowEvents_PROC XAllowEvents_PROC = 0;
+#   define XAllowEvents XAllowEvents_PROC
+
+typedef int (* PFN_XAutoRepeatOff_PROC) (Display *);
+PFN_XAutoRepeatOff_PROC XAutoRepeatOff_PROC = 0;
+#   define XAutoRepeatOff XAutoRepeatOff_PROC
+
+typedef int (* PFN_XAutoRepeatOn_PROC) (Display *);
+PFN_XAutoRepeatOn_PROC XAutoRepeatOn_PROC = 0;
+#   define XAutoRepeatOn XAutoRepeatOn_PROC
+
+typedef char *(* PFN_XBaseFontNameListOfFontSet_PROC) (XFontSet);
+PFN_XBaseFontNameListOfFontSet_PROC XBaseFontNameListOfFontSet_PROC = 0;
+#   define XBaseFontNameListOfFontSet XBaseFontNameListOfFontSet_PROC
+
+typedef int (* PFN_XBell_PROC) (Display *, int);
+PFN_XBell_PROC XBell_PROC = 0;
+#   define XBell XBell_PROC
+
+typedef int (* PFN_XBitmapBitOrder_PROC) (Display *);
+PFN_XBitmapBitOrder_PROC XBitmapBitOrder_PROC = 0;
+#   define XBitmapBitOrder XBitmapBitOrder_PROC
+
+typedef int (* PFN_XBitmapPad_PROC) (Display *);
+PFN_XBitmapPad_PROC XBitmapPad_PROC = 0;
+#   define XBitmapPad XBitmapPad_PROC
+
+typedef int (* PFN_XBitmapUnit_PROC) (Display *);
+PFN_XBitmapUnit_PROC XBitmapUnit_PROC = 0;
+#   define XBitmapUnit XBitmapUnit_PROC
+
+typedef unsigned long (* PFN_XBlackPixel_PROC) (Display *, int);
+PFN_XBlackPixel_PROC XBlackPixel_PROC = 0;
+#   define XBlackPixel XBlackPixel_PROC
+
+typedef unsigned long (* PFN_XBlackPixelOfScreen_PROC) (Screen *);
+PFN_XBlackPixelOfScreen_PROC XBlackPixelOfScreen_PROC = 0;
+#   define XBlackPixelOfScreen XBlackPixelOfScreen_PROC
+
+typedef int (* PFN_XCellsOfScreen_PROC) (Screen *);
+PFN_XCellsOfScreen_PROC XCellsOfScreen_PROC = 0;
+#   define XCellsOfScreen XCellsOfScreen_PROC
+
+typedef int (* PFN_XChangeActivePointerGrab_PROC) (Display *, unsigned int, Cursor, Time);
+PFN_XChangeActivePointerGrab_PROC XChangeActivePointerGrab_PROC = 0;
+#   define XChangeActivePointerGrab XChangeActivePointerGrab_PROC
+
+typedef int (* PFN_XChangeGC_PROC) (Display *, GC, unsigned long, XGCValues *);
+PFN_XChangeGC_PROC XChangeGC_PROC = 0;
+#   define XChangeGC XChangeGC_PROC
+
+typedef int (* PFN_XChangeKeyboardControl_PROC) (Display *, unsigned long, XKeyboardControl *);
+PFN_XChangeKeyboardControl_PROC XChangeKeyboardControl_PROC = 0;
+#   define XChangeKeyboardControl XChangeKeyboardControl_PROC
+
+typedef int (* PFN_XChangeKeyboardMapping_PROC) (Display *, int, int, KeySym *, int);
+PFN_XChangeKeyboardMapping_PROC XChangeKeyboardMapping_PROC = 0;
+#   define XChangeKeyboardMapping XChangeKeyboardMapping_PROC
+
+typedef int (* PFN_XChangePointerControl_PROC) (Display *, int, int, int, int, int);
+PFN_XChangePointerControl_PROC XChangePointerControl_PROC = 0;
+#   define XChangePointerControl XChangePointerControl_PROC
+
+typedef int (* PFN_XChangeProperty_PROC) (Display *, Window, Atom, Atom, int, int, const unsigned char *, int);
+PFN_XChangeProperty_PROC XChangeProperty_PROC = 0;
+#   define XChangeProperty XChangeProperty_PROC
+
+typedef int (* PFN_XChangeSaveSet_PROC) (Display *, Window, int);
+PFN_XChangeSaveSet_PROC XChangeSaveSet_PROC = 0;
+#   define XChangeSaveSet XChangeSaveSet_PROC
+
+typedef int (* PFN_XChangeWindowAttributes_PROC) (Display *, Window, unsigned long, XSetWindowAttributes *);
+PFN_XChangeWindowAttributes_PROC XChangeWindowAttributes_PROC = 0;
+#   define XChangeWindowAttributes XChangeWindowAttributes_PROC
+
+typedef int (* PFN_XCheckIfEvent_PROC) (Display *, XEvent *, int (*)(Display *, XEvent *, XPointer), XPointer);
+PFN_XCheckIfEvent_PROC XCheckIfEvent_PROC = 0;
+#   define XCheckIfEvent XCheckIfEvent_PROC
+
+typedef int (* PFN_XCheckMaskEvent_PROC) (Display *, long, XEvent *);
+PFN_XCheckMaskEvent_PROC XCheckMaskEvent_PROC = 0;
+#   define XCheckMaskEvent XCheckMaskEvent_PROC
+
+typedef int (* PFN_XCheckTypedEvent_PROC) (Display *, int, XEvent *);
+PFN_XCheckTypedEvent_PROC XCheckTypedEvent_PROC = 0;
+#   define XCheckTypedEvent XCheckTypedEvent_PROC
+
+typedef int (* PFN_XCheckTypedWindowEvent_PROC) (Display *, Window, int, XEvent *);
+PFN_XCheckTypedWindowEvent_PROC XCheckTypedWindowEvent_PROC = 0;
+#   define XCheckTypedWindowEvent XCheckTypedWindowEvent_PROC
+
+typedef int (* PFN_XCheckWindowEvent_PROC) (Display *, Window, long, XEvent *);
+PFN_XCheckWindowEvent_PROC XCheckWindowEvent_PROC = 0;
+#   define XCheckWindowEvent XCheckWindowEvent_PROC
+
+typedef int (* PFN_XCirculateSubwindows_PROC) (Display *, Window, int);
+PFN_XCirculateSubwindows_PROC XCirculateSubwindows_PROC = 0;
+#   define XCirculateSubwindows XCirculateSubwindows_PROC
+
+typedef int (* PFN_XCirculateSubwindowsDown_PROC) (Display *, Window);
+PFN_XCirculateSubwindowsDown_PROC XCirculateSubwindowsDown_PROC = 0;
+#   define XCirculateSubwindowsDown XCirculateSubwindowsDown_PROC
+
+typedef int (* PFN_XCirculateSubwindowsUp_PROC) (Display *, Window);
+PFN_XCirculateSubwindowsUp_PROC XCirculateSubwindowsUp_PROC = 0;
+#   define XCirculateSubwindowsUp XCirculateSubwindowsUp_PROC
+
+typedef int (* PFN_XClearArea_PROC) (Display *, Window, int, int, unsigned int, unsigned int, int);
+PFN_XClearArea_PROC XClearArea_PROC = 0;
+#   define XClearArea XClearArea_PROC
+
+typedef int (* PFN_XClearWindow_PROC) (Display *, Window);
+PFN_XClearWindow_PROC XClearWindow_PROC = 0;
+#   define XClearWindow XClearWindow_PROC
+
+typedef int (* PFN_XCloseDisplay_PROC) (Display *);
+PFN_XCloseDisplay_PROC XCloseDisplay_PROC = 0;
+#   define XCloseDisplay XCloseDisplay_PROC
+
+typedef int (* PFN_XCloseIM_PROC) (XIM);
+PFN_XCloseIM_PROC XCloseIM_PROC = 0;
+#   define XCloseIM XCloseIM_PROC
+
+typedef int (* PFN_XCloseOM_PROC) (XOM);
+PFN_XCloseOM_PROC XCloseOM_PROC = 0;
+#   define XCloseOM XCloseOM_PROC
+
+typedef int (* PFN_XConfigureWindow_PROC) (Display *, Window, unsigned int, XWindowChanges *);
+PFN_XConfigureWindow_PROC XConfigureWindow_PROC = 0;
+#   define XConfigureWindow XConfigureWindow_PROC
+
+typedef int (* PFN_XConnectionNumber_PROC) (Display *);
+PFN_XConnectionNumber_PROC XConnectionNumber_PROC = 0;
+#   define XConnectionNumber XConnectionNumber_PROC
+
+typedef int (* PFN_XContextDependentDrawing_PROC) (XFontSet);
+PFN_XContextDependentDrawing_PROC XContextDependentDrawing_PROC = 0;
+#   define XContextDependentDrawing XContextDependentDrawing_PROC
+
+typedef int (* PFN_XContextualDrawing_PROC) (XFontSet);
+PFN_XContextualDrawing_PROC XContextualDrawing_PROC = 0;
+#   define XContextualDrawing XContextualDrawing_PROC
+
+typedef int (* PFN_XConvertSelection_PROC) (Display *, Atom, Atom, Atom, Window, Time);
+PFN_XConvertSelection_PROC XConvertSelection_PROC = 0;
+#   define XConvertSelection XConvertSelection_PROC
+
+typedef int (* PFN_XCopyArea_PROC) (Display *, Drawable, Drawable, GC, int, int, unsigned int, unsigned int, int, int);
+PFN_XCopyArea_PROC XCopyArea_PROC = 0;
+#   define XCopyArea XCopyArea_PROC
+
+typedef Colormap (* PFN_XCopyColormapAndFree_PROC) (Display *, Colormap);
+PFN_XCopyColormapAndFree_PROC XCopyColormapAndFree_PROC = 0;
+#   define XCopyColormapAndFree XCopyColormapAndFree_PROC
+
+typedef int (* PFN_XCopyGC_PROC) (Display *, GC, unsigned long, GC);
+PFN_XCopyGC_PROC XCopyGC_PROC = 0;
+#   define XCopyGC XCopyGC_PROC
+
+typedef int (* PFN_XCopyPlane_PROC) (Display *, Drawable, Drawable, GC, int, int, unsigned int, unsigned int, int, int, unsigned long);
+PFN_XCopyPlane_PROC XCopyPlane_PROC = 0;
+#   define XCopyPlane XCopyPlane_PROC
+
+typedef Pixmap (* PFN_XCreateBitmapFromData_PROC) (Display *, Drawable, const char *, unsigned int, unsigned int);
+PFN_XCreateBitmapFromData_PROC XCreateBitmapFromData_PROC = 0;
+#   define XCreateBitmapFromData XCreateBitmapFromData_PROC
+
+typedef Colormap (* PFN_XCreateColormap_PROC) (Display *, Window, Visual *, int);
+PFN_XCreateColormap_PROC XCreateColormap_PROC = 0;
+#   define XCreateColormap XCreateColormap_PROC
+
+typedef Cursor (* PFN_XCreateFontCursor_PROC) (Display *, unsigned int);
+PFN_XCreateFontCursor_PROC XCreateFontCursor_PROC = 0;
+#   define XCreateFontCursor XCreateFontCursor_PROC
+
+typedef XFontSet (* PFN_XCreateFontSet_PROC) (Display *, const char *, char ***, int *, char **);
+PFN_XCreateFontSet_PROC XCreateFontSet_PROC = 0;
+#   define XCreateFontSet XCreateFontSet_PROC
+
+typedef GC (* PFN_XCreateGC_PROC) (Display *, Drawable, unsigned long, XGCValues *);
+PFN_XCreateGC_PROC XCreateGC_PROC = 0;
+#   define XCreateGC XCreateGC_PROC
+
+typedef Cursor (* PFN_XCreateGlyphCursor_PROC) (Display *, Font, Font, unsigned int, unsigned int, const XColor *, const XColor *);
+PFN_XCreateGlyphCursor_PROC XCreateGlyphCursor_PROC = 0;
+#   define XCreateGlyphCursor XCreateGlyphCursor_PROC
+
+typedef XIC (* PFN_XCreateIC_PROC) (XIM, ...);
+PFN_XCreateIC_PROC XCreateIC_PROC = 0;
+#   define XCreateIC XCreateIC_PROC
+
+typedef XImage *(* PFN_XCreateImage_PROC) (Display *, Visual *, unsigned int, int, int, char *, unsigned int, unsigned int, int, int);
+PFN_XCreateImage_PROC XCreateImage_PROC = 0;
+#   define XCreateImage XCreateImage_PROC
+
+typedef XOC (* PFN_XCreateOC_PROC) (XOM, ...);
+PFN_XCreateOC_PROC XCreateOC_PROC = 0;
+#   define XCreateOC XCreateOC_PROC
+
+typedef Pixmap (* PFN_XCreatePixmap_PROC) (Display *, Drawable, unsigned int, unsigned int, unsigned int);
+PFN_XCreatePixmap_PROC XCreatePixmap_PROC = 0;
+#   define XCreatePixmap XCreatePixmap_PROC
+
+typedef Cursor (* PFN_XCreatePixmapCursor_PROC) (Display *, Pixmap, Pixmap, XColor *, XColor *, unsigned int, unsigned int);
+PFN_XCreatePixmapCursor_PROC XCreatePixmapCursor_PROC = 0;
+#   define XCreatePixmapCursor XCreatePixmapCursor_PROC
+
+typedef Pixmap (* PFN_XCreatePixmapFromBitmapData_PROC) (Display *, Drawable, char *, unsigned int, unsigned int, unsigned long, unsigned long, unsigned int);
+PFN_XCreatePixmapFromBitmapData_PROC XCreatePixmapFromBitmapData_PROC = 0;
+#   define XCreatePixmapFromBitmapData XCreatePixmapFromBitmapData_PROC
+
+typedef Window (* PFN_XCreateSimpleWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int, unsigned int, unsigned long, unsigned long);
+PFN_XCreateSimpleWindow_PROC XCreateSimpleWindow_PROC = 0;
+#   define XCreateSimpleWindow XCreateSimpleWindow_PROC
+
+typedef Window (* PFN_XCreateWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual *, unsigned long, XSetWindowAttributes *);
+PFN_XCreateWindow_PROC XCreateWindow_PROC = 0;
+#   define XCreateWindow XCreateWindow_PROC
+
+typedef Colormap (* PFN_XDefaultColormap_PROC) (Display *, int);
+PFN_XDefaultColormap_PROC XDefaultColormap_PROC = 0;
+#   define XDefaultColormap XDefaultColormap_PROC
+
+typedef Colormap (* PFN_XDefaultColormapOfScreen_PROC) (Screen *);
+PFN_XDefaultColormapOfScreen_PROC XDefaultColormapOfScreen_PROC = 0;
+#   define XDefaultColormapOfScreen XDefaultColormapOfScreen_PROC
+
+typedef int (* PFN_XDefaultDepth_PROC) (Display *, int);
+PFN_XDefaultDepth_PROC XDefaultDepth_PROC = 0;
+#   define XDefaultDepth XDefaultDepth_PROC
+
+typedef int (* PFN_XDefaultDepthOfScreen_PROC) (Screen *);
+PFN_XDefaultDepthOfScreen_PROC XDefaultDepthOfScreen_PROC = 0;
+#   define XDefaultDepthOfScreen XDefaultDepthOfScreen_PROC
+
+typedef GC (* PFN_XDefaultGC_PROC) (Display *, int);
+PFN_XDefaultGC_PROC XDefaultGC_PROC = 0;
+#   define XDefaultGC XDefaultGC_PROC
+
+typedef GC (* PFN_XDefaultGCOfScreen_PROC) (Screen *);
+PFN_XDefaultGCOfScreen_PROC XDefaultGCOfScreen_PROC = 0;
+#   define XDefaultGCOfScreen XDefaultGCOfScreen_PROC
+
+typedef Window (* PFN_XDefaultRootWindow_PROC) (Display *);
+PFN_XDefaultRootWindow_PROC XDefaultRootWindow_PROC = 0;
+#   define XDefaultRootWindow XDefaultRootWindow_PROC
+
+typedef int (* PFN_XDefaultScreen_PROC) (Display *);
+PFN_XDefaultScreen_PROC XDefaultScreen_PROC = 0;
+#   define XDefaultScreen XDefaultScreen_PROC
+
+typedef Screen *(* PFN_XDefaultScreenOfDisplay_PROC) (Display *);
+PFN_XDefaultScreenOfDisplay_PROC XDefaultScreenOfDisplay_PROC = 0;
+#   define XDefaultScreenOfDisplay XDefaultScreenOfDisplay_PROC
+
+typedef Visual *(* PFN_XDefaultVisual_PROC) (Display *, int);
+PFN_XDefaultVisual_PROC XDefaultVisual_PROC = 0;
+#   define XDefaultVisual XDefaultVisual_PROC
+
+typedef Visual *(* PFN_XDefaultVisualOfScreen_PROC) (Screen *);
+PFN_XDefaultVisualOfScreen_PROC XDefaultVisualOfScreen_PROC = 0;
+#   define XDefaultVisualOfScreen XDefaultVisualOfScreen_PROC
+
+typedef int (* PFN_XDefineCursor_PROC) (Display *, Window, Cursor);
+PFN_XDefineCursor_PROC XDefineCursor_PROC = 0;
+#   define XDefineCursor XDefineCursor_PROC
+
+typedef XModifierKeymap *(* PFN_XDeleteModifiermapEntry_PROC) (XModifierKeymap *, KeyCode, int);
+PFN_XDeleteModifiermapEntry_PROC XDeleteModifiermapEntry_PROC = 0;
+#   define XDeleteModifiermapEntry XDeleteModifiermapEntry_PROC
+
+typedef int (* PFN_XDeleteProperty_PROC) (Display *, Window, Atom);
+PFN_XDeleteProperty_PROC XDeleteProperty_PROC = 0;
+#   define XDeleteProperty XDeleteProperty_PROC
+
+typedef void (* PFN_XDestroyIC_PROC) (XIC);
+PFN_XDestroyIC_PROC XDestroyIC_PROC = 0;
+#   define XDestroyIC XDestroyIC_PROC
+
+typedef void (* PFN_XDestroyOC_PROC) (XOC);
+PFN_XDestroyOC_PROC XDestroyOC_PROC = 0;
+#   define XDestroyOC XDestroyOC_PROC
+
+typedef int (* PFN_XDestroySubwindows_PROC) (Display *, Window);
+PFN_XDestroySubwindows_PROC XDestroySubwindows_PROC = 0;
+#   define XDestroySubwindows XDestroySubwindows_PROC
+
+typedef int (* PFN_XDestroyWindow_PROC) (Display *, Window);
+PFN_XDestroyWindow_PROC XDestroyWindow_PROC = 0;
+#   define XDestroyWindow XDestroyWindow_PROC
+
+typedef int (* PFN_XDirectionalDependentDrawing_PROC) (XFontSet);
+PFN_XDirectionalDependentDrawing_PROC XDirectionalDependentDrawing_PROC = 0;
+#   define XDirectionalDependentDrawing XDirectionalDependentDrawing_PROC
+
+typedef int (* PFN_XDisableAccessControl_PROC) (Display *);
+PFN_XDisableAccessControl_PROC XDisableAccessControl_PROC = 0;
+#   define XDisableAccessControl XDisableAccessControl_PROC
+
+typedef int (* PFN_XDisplayCells_PROC) (Display *, int);
+PFN_XDisplayCells_PROC XDisplayCells_PROC = 0;
+#   define XDisplayCells XDisplayCells_PROC
+
+typedef int (* PFN_XDisplayHeight_PROC) (Display *, int);
+PFN_XDisplayHeight_PROC XDisplayHeight_PROC = 0;
+#   define XDisplayHeight XDisplayHeight_PROC
+
+typedef int (* PFN_XDisplayHeightMM_PROC) (Display *, int);
+PFN_XDisplayHeightMM_PROC XDisplayHeightMM_PROC = 0;
+#   define XDisplayHeightMM XDisplayHeightMM_PROC
+
+typedef int (* PFN_XDisplayKeycodes_PROC) (Display *, int *, int *);
+PFN_XDisplayKeycodes_PROC XDisplayKeycodes_PROC = 0;
+#   define XDisplayKeycodes XDisplayKeycodes_PROC
+
+typedef unsigned long (* PFN_XDisplayMotionBufferSize_PROC) (Display *);
+PFN_XDisplayMotionBufferSize_PROC XDisplayMotionBufferSize_PROC = 0;
+#   define XDisplayMotionBufferSize XDisplayMotionBufferSize_PROC
+
+typedef char *(* PFN_XDisplayName_PROC) (const char *);
+PFN_XDisplayName_PROC XDisplayName_PROC = 0;
+#   define XDisplayName XDisplayName_PROC
+
+typedef Display *(* PFN_XDisplayOfIM_PROC) (XIM);
+PFN_XDisplayOfIM_PROC XDisplayOfIM_PROC = 0;
+#   define XDisplayOfIM XDisplayOfIM_PROC
+
+typedef Display *(* PFN_XDisplayOfOM_PROC) (XOM);
+PFN_XDisplayOfOM_PROC XDisplayOfOM_PROC = 0;
+#   define XDisplayOfOM XDisplayOfOM_PROC
+
+typedef Display *(* PFN_XDisplayOfScreen_PROC) (Screen *);
+PFN_XDisplayOfScreen_PROC XDisplayOfScreen_PROC = 0;
+#   define XDisplayOfScreen XDisplayOfScreen_PROC
+
+typedef int (* PFN_XDisplayPlanes_PROC) (Display *, int);
+PFN_XDisplayPlanes_PROC XDisplayPlanes_PROC = 0;
+#   define XDisplayPlanes XDisplayPlanes_PROC
+
+typedef char *(* PFN_XDisplayString_PROC) (Display *);
+PFN_XDisplayString_PROC XDisplayString_PROC = 0;
+#   define XDisplayString XDisplayString_PROC
+
+typedef int (* PFN_XDisplayWidth_PROC) (Display *, int);
+PFN_XDisplayWidth_PROC XDisplayWidth_PROC = 0;
+#   define XDisplayWidth XDisplayWidth_PROC
+
+typedef int (* PFN_XDisplayWidthMM_PROC) (Display *, int);
+PFN_XDisplayWidthMM_PROC XDisplayWidthMM_PROC = 0;
+#   define XDisplayWidthMM XDisplayWidthMM_PROC
+
+typedef int (* PFN_XDoesBackingStore_PROC) (Screen *);
+PFN_XDoesBackingStore_PROC XDoesBackingStore_PROC = 0;
+#   define XDoesBackingStore XDoesBackingStore_PROC
+
+typedef int (* PFN_XDoesSaveUnders_PROC) (Screen *);
+PFN_XDoesSaveUnders_PROC XDoesSaveUnders_PROC = 0;
+#   define XDoesSaveUnders XDoesSaveUnders_PROC
+
+typedef int (* PFN_XDrawArc_PROC) (Display *, Drawable, GC, int, int, unsigned int, unsigned int, int, int);
+PFN_XDrawArc_PROC XDrawArc_PROC = 0;
+#   define XDrawArc XDrawArc_PROC
+
+typedef int (* PFN_XDrawArcs_PROC) (Display *, Drawable, GC, XArc *, int);
+PFN_XDrawArcs_PROC XDrawArcs_PROC = 0;
+#   define XDrawArcs XDrawArcs_PROC
+
+typedef int (* PFN_XDrawImageString_PROC) (Display *, Drawable, GC, int, int, const char *, int);
+PFN_XDrawImageString_PROC XDrawImageString_PROC = 0;
+#   define XDrawImageString XDrawImageString_PROC
+
+typedef int (* PFN_XDrawImageString16_PROC) (Display *, Drawable, GC, int, int, const XChar2b *, int);
+PFN_XDrawImageString16_PROC XDrawImageString16_PROC = 0;
+#   define XDrawImageString16 XDrawImageString16_PROC
+
+typedef int (* PFN_XDrawLine_PROC) (Display *, Drawable, GC, int, int, int, int);
+PFN_XDrawLine_PROC XDrawLine_PROC = 0;
+#   define XDrawLine XDrawLine_PROC
+
+typedef int (* PFN_XDrawLines_PROC) (Display *, Drawable, GC, XPoint *, int, int);
+PFN_XDrawLines_PROC XDrawLines_PROC = 0;
+#   define XDrawLines XDrawLines_PROC
+
+typedef int (* PFN_XDrawPoint_PROC) (Display *, Drawable, GC, int, int);
+PFN_XDrawPoint_PROC XDrawPoint_PROC = 0;
+#   define XDrawPoint XDrawPoint_PROC
+
+typedef int (* PFN_XDrawPoints_PROC) (Display *, Drawable, GC, XPoint *, int, int);
+PFN_XDrawPoints_PROC XDrawPoints_PROC = 0;
+#   define XDrawPoints XDrawPoints_PROC
+
+typedef int (* PFN_XDrawRectangle_PROC) (Display *, Drawable, GC, int, int, unsigned int, unsigned int);
+PFN_XDrawRectangle_PROC XDrawRectangle_PROC = 0;
+#   define XDrawRectangle XDrawRectangle_PROC
+
+typedef int (* PFN_XDrawRectangles_PROC) (Display *, Drawable, GC, XRectangle *, int);
+PFN_XDrawRectangles_PROC XDrawRectangles_PROC = 0;
+#   define XDrawRectangles XDrawRectangles_PROC
+
+typedef int (* PFN_XDrawSegments_PROC) (Display *, Drawable, GC, XSegment *, int);
+PFN_XDrawSegments_PROC XDrawSegments_PROC = 0;
+#   define XDrawSegments XDrawSegments_PROC
+
+typedef int (* PFN_XDrawString_PROC) (Display *, Drawable, GC, int, int, const char *, int);
+PFN_XDrawString_PROC XDrawString_PROC = 0;
+#   define XDrawString XDrawString_PROC
+
+typedef int (* PFN_XDrawString16_PROC) (Display *, Drawable, GC, int, int, const XChar2b *, int);
+PFN_XDrawString16_PROC XDrawString16_PROC = 0;
+#   define XDrawString16 XDrawString16_PROC
+
+typedef int (* PFN_XDrawText_PROC) (Display *, Drawable, GC, int, int, XTextItem *, int);
+PFN_XDrawText_PROC XDrawText_PROC = 0;
+#   define XDrawText XDrawText_PROC
+
+typedef int (* PFN_XDrawText16_PROC) (Display *, Drawable, GC, int, int, XTextItem16 *, int);
+PFN_XDrawText16_PROC XDrawText16_PROC = 0;
+#   define XDrawText16 XDrawText16_PROC
+
+typedef XExtData **(* PFN_XEHeadOfExtensionList_PROC) (XEDataObject);
+PFN_XEHeadOfExtensionList_PROC XEHeadOfExtensionList_PROC = 0;
+#   define XEHeadOfExtensionList XEHeadOfExtensionList_PROC
+
+typedef int (* PFN_XEnableAccessControl_PROC) (Display *);
+PFN_XEnableAccessControl_PROC XEnableAccessControl_PROC = 0;
+#   define XEnableAccessControl XEnableAccessControl_PROC
+
+typedef long (* PFN_XEventMaskOfScreen_PROC) (Screen *);
+PFN_XEventMaskOfScreen_PROC XEventMaskOfScreen_PROC = 0;
+#   define XEventMaskOfScreen XEventMaskOfScreen_PROC
+
+typedef int (* PFN_XEventsQueued_PROC) (Display *, int);
+PFN_XEventsQueued_PROC XEventsQueued_PROC = 0;
+#   define XEventsQueued XEventsQueued_PROC
+
+typedef long (* PFN_XExtendedMaxRequestSize_PROC) (Display *);
+PFN_XExtendedMaxRequestSize_PROC XExtendedMaxRequestSize_PROC = 0;
+#   define XExtendedMaxRequestSize XExtendedMaxRequestSize_PROC
+
+typedef XFontSetExtents *(* PFN_XExtentsOfFontSet_PROC) (XFontSet);
+PFN_XExtentsOfFontSet_PROC XExtentsOfFontSet_PROC = 0;
+#   define XExtentsOfFontSet XExtentsOfFontSet_PROC
+
+typedef char *(* PFN_XFetchBuffer_PROC) (Display *, int *, int);
+PFN_XFetchBuffer_PROC XFetchBuffer_PROC = 0;
+#   define XFetchBuffer XFetchBuffer_PROC
+
+typedef char *(* PFN_XFetchBytes_PROC) (Display *, int *);
+PFN_XFetchBytes_PROC XFetchBytes_PROC = 0;
+#   define XFetchBytes XFetchBytes_PROC
+
+typedef int (* PFN_XFetchName_PROC) (Display *, Window, char **);
+PFN_XFetchName_PROC XFetchName_PROC = 0;
+#   define XFetchName XFetchName_PROC
+
+typedef int (* PFN_XFillArc_PROC) (Display *, Drawable, GC, int, int, unsigned int, unsigned int, int, int);
+PFN_XFillArc_PROC XFillArc_PROC = 0;
+#   define XFillArc XFillArc_PROC
+
+typedef int (* PFN_XFillArcs_PROC) (Display *, Drawable, GC, XArc *, int);
+PFN_XFillArcs_PROC XFillArcs_PROC = 0;
+#   define XFillArcs XFillArcs_PROC
+
+typedef int (* PFN_XFillPolygon_PROC) (Display *, Drawable, GC, XPoint *, int, int, int);
+PFN_XFillPolygon_PROC XFillPolygon_PROC = 0;
+#   define XFillPolygon XFillPolygon_PROC
+
+typedef int (* PFN_XFillRectangle_PROC) (Display *, Drawable, GC, int, int, unsigned int, unsigned int);
+PFN_XFillRectangle_PROC XFillRectangle_PROC = 0;
+#   define XFillRectangle XFillRectangle_PROC
+
+typedef int (* PFN_XFillRectangles_PROC) (Display *, Drawable, GC, XRectangle *, int);
+PFN_XFillRectangles_PROC XFillRectangles_PROC = 0;
+#   define XFillRectangles XFillRectangles_PROC
+
+typedef int (* PFN_XFilterEvent_PROC) (XEvent *, Window);
+PFN_XFilterEvent_PROC XFilterEvent_PROC = 0;
+#   define XFilterEvent XFilterEvent_PROC
+
+typedef XExtData *(* PFN_XFindOnExtensionList_PROC) (XExtData **, int);
+PFN_XFindOnExtensionList_PROC XFindOnExtensionList_PROC = 0;
+#   define XFindOnExtensionList XFindOnExtensionList_PROC
+
+typedef int (* PFN_XFlush_PROC) (Display *);
+PFN_XFlush_PROC XFlush_PROC = 0;
+#   define XFlush XFlush_PROC
+
+typedef void (* PFN_XFlushGC_PROC) (Display *, GC);
+PFN_XFlushGC_PROC XFlushGC_PROC = 0;
+#   define XFlushGC XFlushGC_PROC
+
+typedef int (* PFN_XFontsOfFontSet_PROC) (XFontSet, XFontStruct ***, char ***);
+PFN_XFontsOfFontSet_PROC XFontsOfFontSet_PROC = 0;
+#   define XFontsOfFontSet XFontsOfFontSet_PROC
+
+typedef int (* PFN_XForceScreenSaver_PROC) (Display *, int);
+PFN_XForceScreenSaver_PROC XForceScreenSaver_PROC = 0;
+#   define XForceScreenSaver XForceScreenSaver_PROC
+
+typedef int (* PFN_XFree_PROC) (void *);
+PFN_XFree_PROC XFree_PROC = 0;
+#   define XFree XFree_PROC
+
+typedef int (* PFN_XFreeColormap_PROC) (Display *, Colormap);
+PFN_XFreeColormap_PROC XFreeColormap_PROC = 0;
+#   define XFreeColormap XFreeColormap_PROC
+
+typedef int (* PFN_XFreeColors_PROC) (Display *, Colormap, unsigned long *, int, unsigned long);
+PFN_XFreeColors_PROC XFreeColors_PROC = 0;
+#   define XFreeColors XFreeColors_PROC
+
+typedef int (* PFN_XFreeCursor_PROC) (Display *, Cursor);
+PFN_XFreeCursor_PROC XFreeCursor_PROC = 0;
+#   define XFreeCursor XFreeCursor_PROC
+
+typedef void (* PFN_XFreeEventData_PROC) (Display *, XGenericEventCookie *);
+PFN_XFreeEventData_PROC XFreeEventData_PROC = 0;
+#   define XFreeEventData XFreeEventData_PROC
+
+typedef int (* PFN_XFreeExtensionList_PROC) (char **);
+PFN_XFreeExtensionList_PROC XFreeExtensionList_PROC = 0;
+#   define XFreeExtensionList XFreeExtensionList_PROC
+
+typedef int (* PFN_XFreeFont_PROC) (Display *, XFontStruct *);
+PFN_XFreeFont_PROC XFreeFont_PROC = 0;
+#   define XFreeFont XFreeFont_PROC
+
+typedef int (* PFN_XFreeFontInfo_PROC) (char **, XFontStruct *, int);
+PFN_XFreeFontInfo_PROC XFreeFontInfo_PROC = 0;
+#   define XFreeFontInfo XFreeFontInfo_PROC
+
+typedef int (* PFN_XFreeFontNames_PROC) (char **);
+PFN_XFreeFontNames_PROC XFreeFontNames_PROC = 0;
+#   define XFreeFontNames XFreeFontNames_PROC
+
+typedef int (* PFN_XFreeFontPath_PROC) (char **);
+PFN_XFreeFontPath_PROC XFreeFontPath_PROC = 0;
+#   define XFreeFontPath XFreeFontPath_PROC
+
+typedef void (* PFN_XFreeFontSet_PROC) (Display *, XFontSet);
+PFN_XFreeFontSet_PROC XFreeFontSet_PROC = 0;
+#   define XFreeFontSet XFreeFontSet_PROC
+
+typedef int (* PFN_XFreeGC_PROC) (Display *, GC);
+PFN_XFreeGC_PROC XFreeGC_PROC = 0;
+#   define XFreeGC XFreeGC_PROC
+
+typedef int (* PFN_XFreeModifiermap_PROC) (XModifierKeymap *);
+PFN_XFreeModifiermap_PROC XFreeModifiermap_PROC = 0;
+#   define XFreeModifiermap XFreeModifiermap_PROC
+
+typedef int (* PFN_XFreePixmap_PROC) (Display *, Pixmap);
+PFN_XFreePixmap_PROC XFreePixmap_PROC = 0;
+#   define XFreePixmap XFreePixmap_PROC
+
+typedef void (* PFN_XFreeStringList_PROC) (char **);
+PFN_XFreeStringList_PROC XFreeStringList_PROC = 0;
+#   define XFreeStringList XFreeStringList_PROC
+
+typedef int (* PFN_XFreeThreads_PROC) (void);
+PFN_XFreeThreads_PROC XFreeThreads_PROC = 0;
+#   define XFreeThreads XFreeThreads_PROC
+
+typedef GContext (* PFN_XGContextFromGC_PROC) (GC);
+PFN_XGContextFromGC_PROC XGContextFromGC_PROC = 0;
+#   define XGContextFromGC XGContextFromGC_PROC
+
+typedef int (* PFN_XGeometry_PROC) (Display *, int, const char *, const char *, unsigned int, unsigned int, unsigned int, int, int, int *, int *, int *, int *);
+PFN_XGeometry_PROC XGeometry_PROC = 0;
+#   define XGeometry XGeometry_PROC
+
+typedef char *(* PFN_XGetAtomName_PROC) (Display *, Atom);
+PFN_XGetAtomName_PROC XGetAtomName_PROC = 0;
+#   define XGetAtomName XGetAtomName_PROC
+
+typedef int (* PFN_XGetAtomNames_PROC) (Display *, Atom *, int, char **);
+PFN_XGetAtomNames_PROC XGetAtomNames_PROC = 0;
+#   define XGetAtomNames XGetAtomNames_PROC
+
+typedef int (* PFN_XGetCommand_PROC) (Display *, Window, char ***, int *);
+PFN_XGetCommand_PROC XGetCommand_PROC = 0;
+#   define XGetCommand XGetCommand_PROC
+
+typedef char *(* PFN_XGetDefault_PROC) (Display *, const char *, const char *);
+PFN_XGetDefault_PROC XGetDefault_PROC = 0;
+#   define XGetDefault XGetDefault_PROC
+
+typedef int (* PFN_XGetErrorDatabaseText_PROC) (Display *, const char *, const char *, const char *, char *, int);
+PFN_XGetErrorDatabaseText_PROC XGetErrorDatabaseText_PROC = 0;
+#   define XGetErrorDatabaseText XGetErrorDatabaseText_PROC
+
+typedef int (* PFN_XGetErrorText_PROC) (Display *, int, char *, int);
+PFN_XGetErrorText_PROC XGetErrorText_PROC = 0;
+#   define XGetErrorText XGetErrorText_PROC
+
+typedef int (* PFN_XGetEventData_PROC) (Display *, XGenericEventCookie *);
+PFN_XGetEventData_PROC XGetEventData_PROC = 0;
+#   define XGetEventData XGetEventData_PROC
+
+typedef char **(* PFN_XGetFontPath_PROC) (Display *, int *);
+PFN_XGetFontPath_PROC XGetFontPath_PROC = 0;
+#   define XGetFontPath XGetFontPath_PROC
+
+typedef int (* PFN_XGetFontProperty_PROC) (XFontStruct *, Atom, unsigned long *);
+PFN_XGetFontProperty_PROC XGetFontProperty_PROC = 0;
+#   define XGetFontProperty XGetFontProperty_PROC
+
+typedef int (* PFN_XGetGCValues_PROC) (Display *, GC, unsigned long, XGCValues *);
+PFN_XGetGCValues_PROC XGetGCValues_PROC = 0;
+#   define XGetGCValues XGetGCValues_PROC
+
+typedef int (* PFN_XGetGeometry_PROC) (Display *, Drawable, Window *, int *, int *, unsigned int *, unsigned int *, unsigned int *, unsigned int *);
+PFN_XGetGeometry_PROC XGetGeometry_PROC = 0;
+#   define XGetGeometry XGetGeometry_PROC
+
+typedef char *(* PFN_XGetICValues_PROC) (XIC, ...);
+PFN_XGetICValues_PROC XGetICValues_PROC = 0;
+#   define XGetICValues XGetICValues_PROC
+
+typedef char *(* PFN_XGetIMValues_PROC) (XIM, ...);
+PFN_XGetIMValues_PROC XGetIMValues_PROC = 0;
+#   define XGetIMValues XGetIMValues_PROC
+
+typedef int (* PFN_XGetIconName_PROC) (Display *, Window, char **);
+PFN_XGetIconName_PROC XGetIconName_PROC = 0;
+#   define XGetIconName XGetIconName_PROC
+
+typedef XImage *(* PFN_XGetImage_PROC) (Display *, Drawable, int, int, unsigned int, unsigned int, unsigned long, int);
+PFN_XGetImage_PROC XGetImage_PROC = 0;
+#   define XGetImage XGetImage_PROC
+
+typedef int (* PFN_XGetInputFocus_PROC) (Display *, Window *, int *);
+PFN_XGetInputFocus_PROC XGetInputFocus_PROC = 0;
+#   define XGetInputFocus XGetInputFocus_PROC
+
+typedef int (* PFN_XGetKeyboardControl_PROC) (Display *, XKeyboardState *);
+PFN_XGetKeyboardControl_PROC XGetKeyboardControl_PROC = 0;
+#   define XGetKeyboardControl XGetKeyboardControl_PROC
+
+typedef KeySym *(* PFN_XGetKeyboardMapping_PROC) (Display *, KeyCode, int, int *);
+PFN_XGetKeyboardMapping_PROC XGetKeyboardMapping_PROC = 0;
+#   define XGetKeyboardMapping XGetKeyboardMapping_PROC
+
+typedef XModifierKeymap *(* PFN_XGetModifierMapping_PROC) (Display *);
+PFN_XGetModifierMapping_PROC XGetModifierMapping_PROC = 0;
+#   define XGetModifierMapping XGetModifierMapping_PROC
+
+typedef XTimeCoord *(* PFN_XGetMotionEvents_PROC) (Display *, Window, Time, Time, int *);
+PFN_XGetMotionEvents_PROC XGetMotionEvents_PROC = 0;
+#   define XGetMotionEvents XGetMotionEvents_PROC
+
+typedef char *(* PFN_XGetOCValues_PROC) (XOC, ...);
+PFN_XGetOCValues_PROC XGetOCValues_PROC = 0;
+#   define XGetOCValues XGetOCValues_PROC
+
+typedef char *(* PFN_XGetOMValues_PROC) (XOM, ...);
+PFN_XGetOMValues_PROC XGetOMValues_PROC = 0;
+#   define XGetOMValues XGetOMValues_PROC
+
+typedef int (* PFN_XGetPointerControl_PROC) (Display *, int *, int *, int *);
+PFN_XGetPointerControl_PROC XGetPointerControl_PROC = 0;
+#   define XGetPointerControl XGetPointerControl_PROC
+
+typedef int (* PFN_XGetPointerMapping_PROC) (Display *, unsigned char *, int);
+PFN_XGetPointerMapping_PROC XGetPointerMapping_PROC = 0;
+#   define XGetPointerMapping XGetPointerMapping_PROC
+
+typedef int (* PFN_XGetScreenSaver_PROC) (Display *, int *, int *, int *, int *);
+PFN_XGetScreenSaver_PROC XGetScreenSaver_PROC = 0;
+#   define XGetScreenSaver XGetScreenSaver_PROC
+
+typedef Window (* PFN_XGetSelectionOwner_PROC) (Display *, Atom);
+PFN_XGetSelectionOwner_PROC XGetSelectionOwner_PROC = 0;
+#   define XGetSelectionOwner XGetSelectionOwner_PROC
+
+typedef XImage *(* PFN_XGetSubImage_PROC) (Display *, Drawable, int, int, unsigned int, unsigned int, unsigned long, int, XImage *, int, int);
+PFN_XGetSubImage_PROC XGetSubImage_PROC = 0;
+#   define XGetSubImage XGetSubImage_PROC
+
+typedef int (* PFN_XGetTransientForHint_PROC) (Display *, Window, Window *);
+PFN_XGetTransientForHint_PROC XGetTransientForHint_PROC = 0;
+#   define XGetTransientForHint XGetTransientForHint_PROC
+
+typedef int (* PFN_XGetWMColormapWindows_PROC) (Display *, Window, Window **, int *);
+PFN_XGetWMColormapWindows_PROC XGetWMColormapWindows_PROC = 0;
+#   define XGetWMColormapWindows XGetWMColormapWindows_PROC
+
+typedef int (* PFN_XGetWMProtocols_PROC) (Display *, Window, Atom **, int *);
+PFN_XGetWMProtocols_PROC XGetWMProtocols_PROC = 0;
+#   define XGetWMProtocols XGetWMProtocols_PROC
+
+typedef int (* PFN_XGetWindowAttributes_PROC) (Display *, Window, XWindowAttributes *);
+PFN_XGetWindowAttributes_PROC XGetWindowAttributes_PROC = 0;
+#   define XGetWindowAttributes XGetWindowAttributes_PROC
+
+typedef int (* PFN_XGetWindowProperty_PROC) (Display *, Window, Atom, long, long, int, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
+PFN_XGetWindowProperty_PROC XGetWindowProperty_PROC = 0;
+#   define XGetWindowProperty XGetWindowProperty_PROC
+
+typedef int (* PFN_XGrabButton_PROC) (Display *, unsigned int, unsigned int, Window, int, unsigned int, int, int, Window, Cursor);
+PFN_XGrabButton_PROC XGrabButton_PROC = 0;
+#   define XGrabButton XGrabButton_PROC
+
+typedef int (* PFN_XGrabKey_PROC) (Display *, int, unsigned int, Window, int, int, int);
+PFN_XGrabKey_PROC XGrabKey_PROC = 0;
+#   define XGrabKey XGrabKey_PROC
+
+typedef int (* PFN_XGrabKeyboard_PROC) (Display *, Window, int, int, int, Time);
+PFN_XGrabKeyboard_PROC XGrabKeyboard_PROC = 0;
+#   define XGrabKeyboard XGrabKeyboard_PROC
+
+typedef int (* PFN_XGrabPointer_PROC) (Display *, Window, int, unsigned int, int, int, Window, Cursor, Time);
+PFN_XGrabPointer_PROC XGrabPointer_PROC = 0;
+#   define XGrabPointer XGrabPointer_PROC
+
+typedef int (* PFN_XGrabServer_PROC) (Display *);
+PFN_XGrabServer_PROC XGrabServer_PROC = 0;
+#   define XGrabServer XGrabServer_PROC
+
+typedef int (* PFN_XHeightMMOfScreen_PROC) (Screen *);
+PFN_XHeightMMOfScreen_PROC XHeightMMOfScreen_PROC = 0;
+#   define XHeightMMOfScreen XHeightMMOfScreen_PROC
+
+typedef int (* PFN_XHeightOfScreen_PROC) (Screen *);
+PFN_XHeightOfScreen_PROC XHeightOfScreen_PROC = 0;
+#   define XHeightOfScreen XHeightOfScreen_PROC
+
+typedef XIM (* PFN_XIMOfIC_PROC) (XIC);
+PFN_XIMOfIC_PROC XIMOfIC_PROC = 0;
+#   define XIMOfIC XIMOfIC_PROC
+
+typedef int (* PFN_XIconifyWindow_PROC) (Display *, Window, int);
+PFN_XIconifyWindow_PROC XIconifyWindow_PROC = 0;
+#   define XIconifyWindow XIconifyWindow_PROC
+
+typedef int (* PFN_XIfEvent_PROC) (Display *, XEvent *, int (*)(Display *, XEvent *, XPointer), XPointer);
+PFN_XIfEvent_PROC XIfEvent_PROC = 0;
+#   define XIfEvent XIfEvent_PROC
+
+typedef int (* PFN_XImageByteOrder_PROC) (Display *);
+PFN_XImageByteOrder_PROC XImageByteOrder_PROC = 0;
+#   define XImageByteOrder XImageByteOrder_PROC
+
+typedef XExtCodes *(* PFN_XInitExtension_PROC) (Display *, const char *);
+PFN_XInitExtension_PROC XInitExtension_PROC = 0;
+#   define XInitExtension XInitExtension_PROC
+
+typedef int (* PFN_XInitImage_PROC) (XImage *);
+PFN_XInitImage_PROC XInitImage_PROC = 0;
+#   define XInitImage XInitImage_PROC
+
+typedef int (* PFN_XInitThreads_PROC) (void);
+PFN_XInitThreads_PROC XInitThreads_PROC = 0;
+#   define XInitThreads XInitThreads_PROC
+
+typedef XModifierKeymap *(* PFN_XInsertModifiermapEntry_PROC) (XModifierKeymap *, KeyCode, int);
+PFN_XInsertModifiermapEntry_PROC XInsertModifiermapEntry_PROC = 0;
+#   define XInsertModifiermapEntry XInsertModifiermapEntry_PROC
+
+typedef int (* PFN_XInstallColormap_PROC) (Display *, Colormap);
+PFN_XInstallColormap_PROC XInstallColormap_PROC = 0;
+#   define XInstallColormap XInstallColormap_PROC
+
+typedef Atom (* PFN_XInternAtom_PROC) (Display *, const char *, int);
+PFN_XInternAtom_PROC XInternAtom_PROC = 0;
+#   define XInternAtom XInternAtom_PROC
+
+typedef int (* PFN_XInternAtoms_PROC) (Display *, char **, int, int, Atom *);
+PFN_XInternAtoms_PROC XInternAtoms_PROC = 0;
+#   define XInternAtoms XInternAtoms_PROC
+
+typedef int (* PFN_XInternalConnectionNumbers_PROC) (Display *, int **, int *);
+PFN_XInternalConnectionNumbers_PROC XInternalConnectionNumbers_PROC = 0;
+#   define XInternalConnectionNumbers XInternalConnectionNumbers_PROC
+
+typedef KeySym (* PFN_XKeycodeToKeysym_PROC) (Display *, KeyCode, int);
+PFN_XKeycodeToKeysym_PROC XKeycodeToKeysym_PROC = 0;
+#   define XKeycodeToKeysym XKeycodeToKeysym_PROC
+
+typedef KeyCode (* PFN_XKeysymToKeycode_PROC) (Display *, KeySym);
+PFN_XKeysymToKeycode_PROC XKeysymToKeycode_PROC = 0;
+#   define XKeysymToKeycode XKeysymToKeycode_PROC
+
+typedef char *(* PFN_XKeysymToString_PROC) (KeySym);
+PFN_XKeysymToString_PROC XKeysymToString_PROC = 0;
+#   define XKeysymToString XKeysymToString_PROC
+
+typedef int (* PFN_XKillClient_PROC) (Display *, XID);
+PFN_XKillClient_PROC XKillClient_PROC = 0;
+#   define XKillClient XKillClient_PROC
+
+typedef unsigned long (* PFN_XLastKnownRequestProcessed_PROC) (Display *);
+PFN_XLastKnownRequestProcessed_PROC XLastKnownRequestProcessed_PROC = 0;
+#   define XLastKnownRequestProcessed XLastKnownRequestProcessed_PROC
+
+typedef int *(* PFN_XListDepths_PROC) (Display *, int, int *);
+PFN_XListDepths_PROC XListDepths_PROC = 0;
+#   define XListDepths XListDepths_PROC
+
+typedef char **(* PFN_XListExtensions_PROC) (Display *, int *);
+PFN_XListExtensions_PROC XListExtensions_PROC = 0;
+#   define XListExtensions XListExtensions_PROC
+
+typedef char **(* PFN_XListFonts_PROC) (Display *, const char *, int, int *);
+PFN_XListFonts_PROC XListFonts_PROC = 0;
+#   define XListFonts XListFonts_PROC
+
+typedef char **(* PFN_XListFontsWithInfo_PROC) (Display *, const char *, int, int *, XFontStruct **);
+PFN_XListFontsWithInfo_PROC XListFontsWithInfo_PROC = 0;
+#   define XListFontsWithInfo XListFontsWithInfo_PROC
+
+typedef XHostAddress *(* PFN_XListHosts_PROC) (Display *, int *, int *);
+PFN_XListHosts_PROC XListHosts_PROC = 0;
+#   define XListHosts XListHosts_PROC
+
+typedef Colormap *(* PFN_XListInstalledColormaps_PROC) (Display *, Window, int *);
+PFN_XListInstalledColormaps_PROC XListInstalledColormaps_PROC = 0;
+#   define XListInstalledColormaps XListInstalledColormaps_PROC
+
+typedef XPixmapFormatValues *(* PFN_XListPixmapFormats_PROC) (Display *, int *);
+PFN_XListPixmapFormats_PROC XListPixmapFormats_PROC = 0;
+#   define XListPixmapFormats XListPixmapFormats_PROC
+
+typedef Atom *(* PFN_XListProperties_PROC) (Display *, Window, int *);
+PFN_XListProperties_PROC XListProperties_PROC = 0;
+#   define XListProperties XListProperties_PROC
+
+typedef Font (* PFN_XLoadFont_PROC) (Display *, const char *);
+PFN_XLoadFont_PROC XLoadFont_PROC = 0;
+#   define XLoadFont XLoadFont_PROC
+
+typedef XFontStruct *(* PFN_XLoadQueryFont_PROC) (Display *, const char *);
+PFN_XLoadQueryFont_PROC XLoadQueryFont_PROC = 0;
+#   define XLoadQueryFont XLoadQueryFont_PROC
+
+typedef char *(* PFN_XLocaleOfFontSet_PROC) (XFontSet);
+PFN_XLocaleOfFontSet_PROC XLocaleOfFontSet_PROC = 0;
+#   define XLocaleOfFontSet XLocaleOfFontSet_PROC
+
+typedef char *(* PFN_XLocaleOfIM_PROC) (XIM);
+PFN_XLocaleOfIM_PROC XLocaleOfIM_PROC = 0;
+#   define XLocaleOfIM XLocaleOfIM_PROC
+
+typedef char *(* PFN_XLocaleOfOM_PROC) (XOM);
+PFN_XLocaleOfOM_PROC XLocaleOfOM_PROC = 0;
+#   define XLocaleOfOM XLocaleOfOM_PROC
+
+typedef void (* PFN_XLockDisplay_PROC) (Display *);
+PFN_XLockDisplay_PROC XLockDisplay_PROC = 0;
+#   define XLockDisplay XLockDisplay_PROC
+
+typedef int (* PFN_XLookupColor_PROC) (Display *, Colormap, const char *, XColor *, XColor *);
+PFN_XLookupColor_PROC XLookupColor_PROC = 0;
+#   define XLookupColor XLookupColor_PROC
+
+typedef KeySym (* PFN_XLookupKeysym_PROC) (XKeyEvent *, int);
+PFN_XLookupKeysym_PROC XLookupKeysym_PROC = 0;
+#   define XLookupKeysym XLookupKeysym_PROC
+
+typedef int (* PFN_XLowerWindow_PROC) (Display *, Window);
+PFN_XLowerWindow_PROC XLowerWindow_PROC = 0;
+#   define XLowerWindow XLowerWindow_PROC
+
+typedef int (* PFN_XMapRaised_PROC) (Display *, Window);
+PFN_XMapRaised_PROC XMapRaised_PROC = 0;
+#   define XMapRaised XMapRaised_PROC
+
+typedef int (* PFN_XMapSubwindows_PROC) (Display *, Window);
+PFN_XMapSubwindows_PROC XMapSubwindows_PROC = 0;
+#   define XMapSubwindows XMapSubwindows_PROC
+
+typedef int (* PFN_XMapWindow_PROC) (Display *, Window);
+PFN_XMapWindow_PROC XMapWindow_PROC = 0;
+#   define XMapWindow XMapWindow_PROC
+
+typedef int (* PFN_XMaskEvent_PROC) (Display *, long, XEvent *);
+PFN_XMaskEvent_PROC XMaskEvent_PROC = 0;
+#   define XMaskEvent XMaskEvent_PROC
+
+typedef int (* PFN_XMaxCmapsOfScreen_PROC) (Screen *);
+PFN_XMaxCmapsOfScreen_PROC XMaxCmapsOfScreen_PROC = 0;
+#   define XMaxCmapsOfScreen XMaxCmapsOfScreen_PROC
+
+typedef long (* PFN_XMaxRequestSize_PROC) (Display *);
+PFN_XMaxRequestSize_PROC XMaxRequestSize_PROC = 0;
+#   define XMaxRequestSize XMaxRequestSize_PROC
+
+typedef int (* PFN_XMinCmapsOfScreen_PROC) (Screen *);
+PFN_XMinCmapsOfScreen_PROC XMinCmapsOfScreen_PROC = 0;
+#   define XMinCmapsOfScreen XMinCmapsOfScreen_PROC
+
+typedef int (* PFN_XMoveResizeWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int);
+PFN_XMoveResizeWindow_PROC XMoveResizeWindow_PROC = 0;
+#   define XMoveResizeWindow XMoveResizeWindow_PROC
+
+typedef int (* PFN_XMoveWindow_PROC) (Display *, Window, int, int);
+PFN_XMoveWindow_PROC XMoveWindow_PROC = 0;
+#   define XMoveWindow XMoveWindow_PROC
+
+typedef XModifierKeymap *(* PFN_XNewModifiermap_PROC) (int);
+PFN_XNewModifiermap_PROC XNewModifiermap_PROC = 0;
+#   define XNewModifiermap XNewModifiermap_PROC
+
+typedef int (* PFN_XNextEvent_PROC) (Display *, XEvent *);
+PFN_XNextEvent_PROC XNextEvent_PROC = 0;
+#   define XNextEvent XNextEvent_PROC
+
+typedef unsigned long (* PFN_XNextRequest_PROC) (Display *);
+PFN_XNextRequest_PROC XNextRequest_PROC = 0;
+#   define XNextRequest XNextRequest_PROC
+
+typedef int (* PFN_XNoOp_PROC) (Display *);
+PFN_XNoOp_PROC XNoOp_PROC = 0;
+#   define XNoOp XNoOp_PROC
+
+typedef XOM (* PFN_XOMOfOC_PROC) (XOC);
+PFN_XOMOfOC_PROC XOMOfOC_PROC = 0;
+#   define XOMOfOC XOMOfOC_PROC
+
+typedef Display *(* PFN_XOpenDisplay_PROC) (const char *);
+PFN_XOpenDisplay_PROC XOpenDisplay_PROC = 0;
+#   define XOpenDisplay XOpenDisplay_PROC
+
+typedef XIM (* PFN_XOpenIM_PROC) (Display *, struct _XrmHashBucketRec *, char *, char *);
+PFN_XOpenIM_PROC XOpenIM_PROC = 0;
+#   define XOpenIM XOpenIM_PROC
+
+typedef XOM (* PFN_XOpenOM_PROC) (Display *, struct _XrmHashBucketRec *, const char *, const char *);
+PFN_XOpenOM_PROC XOpenOM_PROC = 0;
+#   define XOpenOM XOpenOM_PROC
+
+typedef int (* PFN_XParseColor_PROC) (Display *, Colormap, const char *, XColor *);
+PFN_XParseColor_PROC XParseColor_PROC = 0;
+#   define XParseColor XParseColor_PROC
+
+typedef int (* PFN_XParseGeometry_PROC) (const char *, int *, int *, unsigned int *, unsigned int *);
+PFN_XParseGeometry_PROC XParseGeometry_PROC = 0;
+#   define XParseGeometry XParseGeometry_PROC
+
+typedef int (* PFN_XPeekEvent_PROC) (Display *, XEvent *);
+PFN_XPeekEvent_PROC XPeekEvent_PROC = 0;
+#   define XPeekEvent XPeekEvent_PROC
+
+typedef int (* PFN_XPeekIfEvent_PROC) (Display *, XEvent *, int (*)(Display *, XEvent *, XPointer), XPointer);
+PFN_XPeekIfEvent_PROC XPeekIfEvent_PROC = 0;
+#   define XPeekIfEvent XPeekIfEvent_PROC
+
+typedef int (* PFN_XPending_PROC) (Display *);
+PFN_XPending_PROC XPending_PROC = 0;
+#   define XPending XPending_PROC
+
+typedef int (* PFN_XPlanesOfScreen_PROC) (Screen *);
+PFN_XPlanesOfScreen_PROC XPlanesOfScreen_PROC = 0;
+#   define XPlanesOfScreen XPlanesOfScreen_PROC
+
+typedef void (* PFN_XProcessInternalConnection_PROC) (Display *, int);
+PFN_XProcessInternalConnection_PROC XProcessInternalConnection_PROC = 0;
+#   define XProcessInternalConnection XProcessInternalConnection_PROC
+
+typedef int (* PFN_XProtocolRevision_PROC) (Display *);
+PFN_XProtocolRevision_PROC XProtocolRevision_PROC = 0;
+#   define XProtocolRevision XProtocolRevision_PROC
+
+typedef int (* PFN_XProtocolVersion_PROC) (Display *);
+PFN_XProtocolVersion_PROC XProtocolVersion_PROC = 0;
+#   define XProtocolVersion XProtocolVersion_PROC
+
+typedef int (* PFN_XPutBackEvent_PROC) (Display *, XEvent *);
+PFN_XPutBackEvent_PROC XPutBackEvent_PROC = 0;
+#   define XPutBackEvent XPutBackEvent_PROC
+
+typedef int (* PFN_XPutImage_PROC) (Display *, Drawable, GC, XImage *, int, int, int, int, unsigned int, unsigned int);
+PFN_XPutImage_PROC XPutImage_PROC = 0;
+#   define XPutImage XPutImage_PROC
+
+typedef int (* PFN_XQLength_PROC) (Display *);
+PFN_XQLength_PROC XQLength_PROC = 0;
+#   define XQLength XQLength_PROC
+
+typedef int (* PFN_XQueryBestCursor_PROC) (Display *, Drawable, unsigned int, unsigned int, unsigned int *, unsigned int *);
+PFN_XQueryBestCursor_PROC XQueryBestCursor_PROC = 0;
+#   define XQueryBestCursor XQueryBestCursor_PROC
+
+typedef int (* PFN_XQueryBestSize_PROC) (Display *, int, Drawable, unsigned int, unsigned int, unsigned int *, unsigned int *);
+PFN_XQueryBestSize_PROC XQueryBestSize_PROC = 0;
+#   define XQueryBestSize XQueryBestSize_PROC
+
+typedef int (* PFN_XQueryBestStipple_PROC) (Display *, Drawable, unsigned int, unsigned int, unsigned int *, unsigned int *);
+PFN_XQueryBestStipple_PROC XQueryBestStipple_PROC = 0;
+#   define XQueryBestStipple XQueryBestStipple_PROC
+
+typedef int (* PFN_XQueryBestTile_PROC) (Display *, Drawable, unsigned int, unsigned int, unsigned int *, unsigned int *);
+PFN_XQueryBestTile_PROC XQueryBestTile_PROC = 0;
+#   define XQueryBestTile XQueryBestTile_PROC
+
+typedef int (* PFN_XQueryColor_PROC) (Display *, Colormap, XColor *);
+PFN_XQueryColor_PROC XQueryColor_PROC = 0;
+#   define XQueryColor XQueryColor_PROC
+
+typedef int (* PFN_XQueryColors_PROC) (Display *, Colormap, XColor *, int);
+PFN_XQueryColors_PROC XQueryColors_PROC = 0;
+#   define XQueryColors XQueryColors_PROC
+
+typedef int (* PFN_XQueryExtension_PROC) (Display *, const char *, int *, int *, int *);
+PFN_XQueryExtension_PROC XQueryExtension_PROC = 0;
+#   define XQueryExtension XQueryExtension_PROC
+
+typedef XFontStruct *(* PFN_XQueryFont_PROC) (Display *, XID);
+PFN_XQueryFont_PROC XQueryFont_PROC = 0;
+#   define XQueryFont XQueryFont_PROC
+
+typedef int (* PFN_XQueryKeymap_PROC) (Display *, char[32]);
+PFN_XQueryKeymap_PROC XQueryKeymap_PROC = 0;
+#   define XQueryKeymap XQueryKeymap_PROC
+
+typedef int (* PFN_XQueryPointer_PROC) (Display *, Window, Window *, Window *, int *, int *, int *, int *, unsigned int *);
+PFN_XQueryPointer_PROC XQueryPointer_PROC = 0;
+#   define XQueryPointer XQueryPointer_PROC
+
+typedef int (* PFN_XQueryTextExtents_PROC) (Display *, XID, const char *, int, int *, int *, int *, XCharStruct *);
+PFN_XQueryTextExtents_PROC XQueryTextExtents_PROC = 0;
+#   define XQueryTextExtents XQueryTextExtents_PROC
+
+typedef int (* PFN_XQueryTextExtents16_PROC) (Display *, XID, const XChar2b *, int, int *, int *, int *, XCharStruct *);
+PFN_XQueryTextExtents16_PROC XQueryTextExtents16_PROC = 0;
+#   define XQueryTextExtents16 XQueryTextExtents16_PROC
+
+typedef int (* PFN_XQueryTree_PROC) (Display *, Window, Window *, Window *, Window **, unsigned int *);
+PFN_XQueryTree_PROC XQueryTree_PROC = 0;
+#   define XQueryTree XQueryTree_PROC
+
+typedef int (* PFN_XRaiseWindow_PROC) (Display *, Window);
+PFN_XRaiseWindow_PROC XRaiseWindow_PROC = 0;
+#   define XRaiseWindow XRaiseWindow_PROC
+
+typedef int (* PFN_XReadBitmapFile_PROC) (Display *, Drawable, const char *, unsigned int *, unsigned int *, Pixmap *, int *, int *);
+PFN_XReadBitmapFile_PROC XReadBitmapFile_PROC = 0;
+#   define XReadBitmapFile XReadBitmapFile_PROC
+
+typedef int (* PFN_XReadBitmapFileData_PROC) (const char *, unsigned int *, unsigned int *, unsigned char **, int *, int *);
+PFN_XReadBitmapFileData_PROC XReadBitmapFileData_PROC = 0;
+#   define XReadBitmapFileData XReadBitmapFileData_PROC
+
+typedef int (* PFN_XRebindKeysym_PROC) (Display *, KeySym, KeySym *, int, const unsigned char *, int);
+PFN_XRebindKeysym_PROC XRebindKeysym_PROC = 0;
+#   define XRebindKeysym XRebindKeysym_PROC
+
+typedef int (* PFN_XRecolorCursor_PROC) (Display *, Cursor, XColor *, XColor *);
+PFN_XRecolorCursor_PROC XRecolorCursor_PROC = 0;
+#   define XRecolorCursor XRecolorCursor_PROC
+
+typedef int (* PFN_XReconfigureWMWindow_PROC) (Display *, Window, int, unsigned int, XWindowChanges *);
+PFN_XReconfigureWMWindow_PROC XReconfigureWMWindow_PROC = 0;
+#   define XReconfigureWMWindow XReconfigureWMWindow_PROC
+
+typedef int (* PFN_XRefreshKeyboardMapping_PROC) (XMappingEvent *);
+PFN_XRefreshKeyboardMapping_PROC XRefreshKeyboardMapping_PROC = 0;
+#   define XRefreshKeyboardMapping XRefreshKeyboardMapping_PROC
+
+typedef int (* PFN_XRegisterIMInstantiateCallback_PROC) (Display *, struct _XrmHashBucketRec *, char *, char *, XIDProc, XPointer);
+PFN_XRegisterIMInstantiateCallback_PROC XRegisterIMInstantiateCallback_PROC = 0;
+#   define XRegisterIMInstantiateCallback XRegisterIMInstantiateCallback_PROC
+
+typedef void (* PFN_XRemoveConnectionWatch_PROC) (Display *, XConnectionWatchProc, XPointer);
+PFN_XRemoveConnectionWatch_PROC XRemoveConnectionWatch_PROC = 0;
+#   define XRemoveConnectionWatch XRemoveConnectionWatch_PROC
+
+typedef int (* PFN_XRemoveFromSaveSet_PROC) (Display *, Window);
+PFN_XRemoveFromSaveSet_PROC XRemoveFromSaveSet_PROC = 0;
+#   define XRemoveFromSaveSet XRemoveFromSaveSet_PROC
+
+typedef int (* PFN_XRemoveHost_PROC) (Display *, XHostAddress *);
+PFN_XRemoveHost_PROC XRemoveHost_PROC = 0;
+#   define XRemoveHost XRemoveHost_PROC
+
+typedef int (* PFN_XRemoveHosts_PROC) (Display *, XHostAddress *, int);
+PFN_XRemoveHosts_PROC XRemoveHosts_PROC = 0;
+#   define XRemoveHosts XRemoveHosts_PROC
+
+typedef int (* PFN_XReparentWindow_PROC) (Display *, Window, Window, int, int);
+PFN_XReparentWindow_PROC XReparentWindow_PROC = 0;
+#   define XReparentWindow XReparentWindow_PROC
+
+typedef int (* PFN_XResetScreenSaver_PROC) (Display *);
+PFN_XResetScreenSaver_PROC XResetScreenSaver_PROC = 0;
+#   define XResetScreenSaver XResetScreenSaver_PROC
+
+typedef int (* PFN_XResizeWindow_PROC) (Display *, Window, unsigned int, unsigned int);
+PFN_XResizeWindow_PROC XResizeWindow_PROC = 0;
+#   define XResizeWindow XResizeWindow_PROC
+
+typedef char *(* PFN_XResourceManagerString_PROC) (Display *);
+PFN_XResourceManagerString_PROC XResourceManagerString_PROC = 0;
+#   define XResourceManagerString XResourceManagerString_PROC
+
+typedef int (* PFN_XRestackWindows_PROC) (Display *, Window *, int);
+PFN_XRestackWindows_PROC XRestackWindows_PROC = 0;
+#   define XRestackWindows XRestackWindows_PROC
+
+typedef Window (* PFN_XRootWindow_PROC) (Display *, int);
+PFN_XRootWindow_PROC XRootWindow_PROC = 0;
+#   define XRootWindow XRootWindow_PROC
+
+typedef Window (* PFN_XRootWindowOfScreen_PROC) (Screen *);
+PFN_XRootWindowOfScreen_PROC XRootWindowOfScreen_PROC = 0;
+#   define XRootWindowOfScreen XRootWindowOfScreen_PROC
+
+typedef int (* PFN_XRotateBuffers_PROC) (Display *, int);
+PFN_XRotateBuffers_PROC XRotateBuffers_PROC = 0;
+#   define XRotateBuffers XRotateBuffers_PROC
+
+typedef int (* PFN_XRotateWindowProperties_PROC) (Display *, Window, Atom *, int, int);
+PFN_XRotateWindowProperties_PROC XRotateWindowProperties_PROC = 0;
+#   define XRotateWindowProperties XRotateWindowProperties_PROC
+
+typedef int (* PFN_XScreenCount_PROC) (Display *);
+PFN_XScreenCount_PROC XScreenCount_PROC = 0;
+#   define XScreenCount XScreenCount_PROC
+
+typedef int (* PFN_XScreenNumberOfScreen_PROC) (Screen *);
+PFN_XScreenNumberOfScreen_PROC XScreenNumberOfScreen_PROC = 0;
+#   define XScreenNumberOfScreen XScreenNumberOfScreen_PROC
+
+typedef Screen *(* PFN_XScreenOfDisplay_PROC) (Display *, int);
+PFN_XScreenOfDisplay_PROC XScreenOfDisplay_PROC = 0;
+#   define XScreenOfDisplay XScreenOfDisplay_PROC
+
+typedef char *(* PFN_XScreenResourceString_PROC) (Screen *);
+PFN_XScreenResourceString_PROC XScreenResourceString_PROC = 0;
+#   define XScreenResourceString XScreenResourceString_PROC
+
+typedef int (* PFN_XSelectInput_PROC) (Display *, Window, long);
+PFN_XSelectInput_PROC XSelectInput_PROC = 0;
+#   define XSelectInput XSelectInput_PROC
+
+typedef int (* PFN_XSendEvent_PROC) (Display *, Window, int, long, XEvent *);
+PFN_XSendEvent_PROC XSendEvent_PROC = 0;
+#   define XSendEvent XSendEvent_PROC
+
+typedef char *(* PFN_XServerVendor_PROC) (Display *);
+PFN_XServerVendor_PROC XServerVendor_PROC = 0;
+#   define XServerVendor XServerVendor_PROC
+
+typedef int (* PFN_XSetAccessControl_PROC) (Display *, int);
+PFN_XSetAccessControl_PROC XSetAccessControl_PROC = 0;
+#   define XSetAccessControl XSetAccessControl_PROC
+
+typedef int (* PFN_XSetArcMode_PROC) (Display *, GC, int);
+PFN_XSetArcMode_PROC XSetArcMode_PROC = 0;
+#   define XSetArcMode XSetArcMode_PROC
+
+typedef void (* PFN_XSetAuthorization_PROC) (char *, int, char *, int);
+PFN_XSetAuthorization_PROC XSetAuthorization_PROC = 0;
+#   define XSetAuthorization XSetAuthorization_PROC
+
+typedef int (* PFN_XSetBackground_PROC) (Display *, GC, unsigned long);
+PFN_XSetBackground_PROC XSetBackground_PROC = 0;
+#   define XSetBackground XSetBackground_PROC
+
+typedef int (* PFN_XSetClipMask_PROC) (Display *, GC, Pixmap);
+PFN_XSetClipMask_PROC XSetClipMask_PROC = 0;
+#   define XSetClipMask XSetClipMask_PROC
+
+typedef int (* PFN_XSetClipOrigin_PROC) (Display *, GC, int, int);
+PFN_XSetClipOrigin_PROC XSetClipOrigin_PROC = 0;
+#   define XSetClipOrigin XSetClipOrigin_PROC
+
+typedef int (* PFN_XSetClipRectangles_PROC) (Display *, GC, int, int, XRectangle *, int, int);
+PFN_XSetClipRectangles_PROC XSetClipRectangles_PROC = 0;
+#   define XSetClipRectangles XSetClipRectangles_PROC
+
+typedef int (* PFN_XSetCloseDownMode_PROC) (Display *, int);
+PFN_XSetCloseDownMode_PROC XSetCloseDownMode_PROC = 0;
+#   define XSetCloseDownMode XSetCloseDownMode_PROC
+
+typedef int (* PFN_XSetCommand_PROC) (Display *, Window, char **, int);
+PFN_XSetCommand_PROC XSetCommand_PROC = 0;
+#   define XSetCommand XSetCommand_PROC
+
+typedef int (* PFN_XSetDashes_PROC) (Display *, GC, int, const char *, int);
+PFN_XSetDashes_PROC XSetDashes_PROC = 0;
+#   define XSetDashes XSetDashes_PROC
+
+typedef XErrorHandler (* PFN_XSetErrorHandler_PROC) (XErrorHandler);
+PFN_XSetErrorHandler_PROC XSetErrorHandler_PROC = 0;
+#   define XSetErrorHandler XSetErrorHandler_PROC
+
+typedef int (* PFN_XSetFillRule_PROC) (Display *, GC, int);
+PFN_XSetFillRule_PROC XSetFillRule_PROC = 0;
+#   define XSetFillRule XSetFillRule_PROC
+
+typedef int (* PFN_XSetFillStyle_PROC) (Display *, GC, int);
+PFN_XSetFillStyle_PROC XSetFillStyle_PROC = 0;
+#   define XSetFillStyle XSetFillStyle_PROC
+
+typedef int (* PFN_XSetFont_PROC) (Display *, GC, Font);
+PFN_XSetFont_PROC XSetFont_PROC = 0;
+#   define XSetFont XSetFont_PROC
+
+typedef int (* PFN_XSetFontPath_PROC) (Display *, char **, int);
+PFN_XSetFontPath_PROC XSetFontPath_PROC = 0;
+#   define XSetFontPath XSetFontPath_PROC
+
+typedef int (* PFN_XSetForeground_PROC) (Display *, GC, unsigned long);
+PFN_XSetForeground_PROC XSetForeground_PROC = 0;
+#   define XSetForeground XSetForeground_PROC
+
+typedef int (* PFN_XSetFunction_PROC) (Display *, GC, int);
+PFN_XSetFunction_PROC XSetFunction_PROC = 0;
+#   define XSetFunction XSetFunction_PROC
+
+typedef int (* PFN_XSetGraphicsExposures_PROC) (Display *, GC, int);
+PFN_XSetGraphicsExposures_PROC XSetGraphicsExposures_PROC = 0;
+#   define XSetGraphicsExposures XSetGraphicsExposures_PROC
+
+typedef void (* PFN_XSetICFocus_PROC) (XIC);
+PFN_XSetICFocus_PROC XSetICFocus_PROC = 0;
+#   define XSetICFocus XSetICFocus_PROC
+
+typedef char *(* PFN_XSetICValues_PROC) (XIC, ...);
+PFN_XSetICValues_PROC XSetICValues_PROC = 0;
+#   define XSetICValues XSetICValues_PROC
+
+typedef char *(* PFN_XSetIMValues_PROC) (XIM, ...);
+PFN_XSetIMValues_PROC XSetIMValues_PROC = 0;
+#   define XSetIMValues XSetIMValues_PROC
+
+typedef void (* PFN_XSetIOErrorExitHandler_PROC) (Display *, XIOErrorExitHandler, void *);
+PFN_XSetIOErrorExitHandler_PROC XSetIOErrorExitHandler_PROC = 0;
+#   define XSetIOErrorExitHandler XSetIOErrorExitHandler_PROC
+
+typedef XIOErrorHandler (* PFN_XSetIOErrorHandler_PROC) (XIOErrorHandler);
+PFN_XSetIOErrorHandler_PROC XSetIOErrorHandler_PROC = 0;
+#   define XSetIOErrorHandler XSetIOErrorHandler_PROC
+
+typedef int (* PFN_XSetIconName_PROC) (Display *, Window, const char *);
+PFN_XSetIconName_PROC XSetIconName_PROC = 0;
+#   define XSetIconName XSetIconName_PROC
+
+typedef int (* PFN_XSetInputFocus_PROC) (Display *, Window, int, Time);
+PFN_XSetInputFocus_PROC XSetInputFocus_PROC = 0;
+#   define XSetInputFocus XSetInputFocus_PROC
+
+typedef int (* PFN_XSetLineAttributes_PROC) (Display *, GC, unsigned int, int, int, int);
+PFN_XSetLineAttributes_PROC XSetLineAttributes_PROC = 0;
+#   define XSetLineAttributes XSetLineAttributes_PROC
+
+typedef char *(* PFN_XSetLocaleModifiers_PROC) (const char *);
+PFN_XSetLocaleModifiers_PROC XSetLocaleModifiers_PROC = 0;
+#   define XSetLocaleModifiers XSetLocaleModifiers_PROC
+
+typedef int (* PFN_XSetModifierMapping_PROC) (Display *, XModifierKeymap *);
+PFN_XSetModifierMapping_PROC XSetModifierMapping_PROC = 0;
+#   define XSetModifierMapping XSetModifierMapping_PROC
+
+typedef char *(* PFN_XSetOCValues_PROC) (XOC, ...);
+PFN_XSetOCValues_PROC XSetOCValues_PROC = 0;
+#   define XSetOCValues XSetOCValues_PROC
+
+typedef char *(* PFN_XSetOMValues_PROC) (XOM, ...);
+PFN_XSetOMValues_PROC XSetOMValues_PROC = 0;
+#   define XSetOMValues XSetOMValues_PROC
+
+typedef int (* PFN_XSetPlaneMask_PROC) (Display *, GC, unsigned long);
+PFN_XSetPlaneMask_PROC XSetPlaneMask_PROC = 0;
+#   define XSetPlaneMask XSetPlaneMask_PROC
+
+typedef int (* PFN_XSetPointerMapping_PROC) (Display *, const unsigned char *, int);
+PFN_XSetPointerMapping_PROC XSetPointerMapping_PROC = 0;
+#   define XSetPointerMapping XSetPointerMapping_PROC
+
+typedef int (* PFN_XSetScreenSaver_PROC) (Display *, int, int, int, int);
+PFN_XSetScreenSaver_PROC XSetScreenSaver_PROC = 0;
+#   define XSetScreenSaver XSetScreenSaver_PROC
+
+typedef int (* PFN_XSetSelectionOwner_PROC) (Display *, Atom, Window, Time);
+PFN_XSetSelectionOwner_PROC XSetSelectionOwner_PROC = 0;
+#   define XSetSelectionOwner XSetSelectionOwner_PROC
+
+typedef int (* PFN_XSetState_PROC) (Display *, GC, unsigned long, unsigned long, int, unsigned long);
+PFN_XSetState_PROC XSetState_PROC = 0;
+#   define XSetState XSetState_PROC
+
+typedef int (* PFN_XSetStipple_PROC) (Display *, GC, Pixmap);
+PFN_XSetStipple_PROC XSetStipple_PROC = 0;
+#   define XSetStipple XSetStipple_PROC
+
+typedef int (* PFN_XSetSubwindowMode_PROC) (Display *, GC, int);
+PFN_XSetSubwindowMode_PROC XSetSubwindowMode_PROC = 0;
+#   define XSetSubwindowMode XSetSubwindowMode_PROC
+
+typedef int (* PFN_XSetTSOrigin_PROC) (Display *, GC, int, int);
+PFN_XSetTSOrigin_PROC XSetTSOrigin_PROC = 0;
+#   define XSetTSOrigin XSetTSOrigin_PROC
+
+typedef int (* PFN_XSetTile_PROC) (Display *, GC, Pixmap);
+PFN_XSetTile_PROC XSetTile_PROC = 0;
+#   define XSetTile XSetTile_PROC
+
+typedef int (* PFN_XSetTransientForHint_PROC) (Display *, Window, Window);
+PFN_XSetTransientForHint_PROC XSetTransientForHint_PROC = 0;
+#   define XSetTransientForHint XSetTransientForHint_PROC
+
+typedef int (* PFN_XSetWMColormapWindows_PROC) (Display *, Window, Window *, int);
+PFN_XSetWMColormapWindows_PROC XSetWMColormapWindows_PROC = 0;
+#   define XSetWMColormapWindows XSetWMColormapWindows_PROC
+
+typedef int (* PFN_XSetWMProtocols_PROC) (Display *, Window, Atom *, int);
+PFN_XSetWMProtocols_PROC XSetWMProtocols_PROC = 0;
+#   define XSetWMProtocols XSetWMProtocols_PROC
+
+typedef int (* PFN_XSetWindowBackground_PROC) (Display *, Window, unsigned long);
+PFN_XSetWindowBackground_PROC XSetWindowBackground_PROC = 0;
+#   define XSetWindowBackground XSetWindowBackground_PROC
+
+typedef int (* PFN_XSetWindowBackgroundPixmap_PROC) (Display *, Window, Pixmap);
+PFN_XSetWindowBackgroundPixmap_PROC XSetWindowBackgroundPixmap_PROC = 0;
+#   define XSetWindowBackgroundPixmap XSetWindowBackgroundPixmap_PROC
+
+typedef int (* PFN_XSetWindowBorder_PROC) (Display *, Window, unsigned long);
+PFN_XSetWindowBorder_PROC XSetWindowBorder_PROC = 0;
+#   define XSetWindowBorder XSetWindowBorder_PROC
+
+typedef int (* PFN_XSetWindowBorderPixmap_PROC) (Display *, Window, Pixmap);
+PFN_XSetWindowBorderPixmap_PROC XSetWindowBorderPixmap_PROC = 0;
+#   define XSetWindowBorderPixmap XSetWindowBorderPixmap_PROC
+
+typedef int (* PFN_XSetWindowBorderWidth_PROC) (Display *, Window, unsigned int);
+PFN_XSetWindowBorderWidth_PROC XSetWindowBorderWidth_PROC = 0;
+#   define XSetWindowBorderWidth XSetWindowBorderWidth_PROC
+
+typedef int (* PFN_XSetWindowColormap_PROC) (Display *, Window, Colormap);
+PFN_XSetWindowColormap_PROC XSetWindowColormap_PROC = 0;
+#   define XSetWindowColormap XSetWindowColormap_PROC
+
+typedef int (* PFN_XStoreBuffer_PROC) (Display *, const char *, int, int);
+PFN_XStoreBuffer_PROC XStoreBuffer_PROC = 0;
+#   define XStoreBuffer XStoreBuffer_PROC
+
+typedef int (* PFN_XStoreBytes_PROC) (Display *, const char *, int);
+PFN_XStoreBytes_PROC XStoreBytes_PROC = 0;
+#   define XStoreBytes XStoreBytes_PROC
+
+typedef int (* PFN_XStoreColor_PROC) (Display *, Colormap, XColor *);
+PFN_XStoreColor_PROC XStoreColor_PROC = 0;
+#   define XStoreColor XStoreColor_PROC
+
+typedef int (* PFN_XStoreColors_PROC) (Display *, Colormap, XColor *, int);
+PFN_XStoreColors_PROC XStoreColors_PROC = 0;
+#   define XStoreColors XStoreColors_PROC
+
+typedef int (* PFN_XStoreName_PROC) (Display *, Window, const char *);
+PFN_XStoreName_PROC XStoreName_PROC = 0;
+#   define XStoreName XStoreName_PROC
+
+typedef int (* PFN_XStoreNamedColor_PROC) (Display *, Colormap, const char *, unsigned long, int);
+PFN_XStoreNamedColor_PROC XStoreNamedColor_PROC = 0;
+#   define XStoreNamedColor XStoreNamedColor_PROC
+
+typedef KeySym (* PFN_XStringToKeysym_PROC) (const char *);
+PFN_XStringToKeysym_PROC XStringToKeysym_PROC = 0;
+#   define XStringToKeysym XStringToKeysym_PROC
+
+typedef int (* PFN_XSupportsLocale_PROC) (void);
+PFN_XSupportsLocale_PROC XSupportsLocale_PROC = 0;
+#   define XSupportsLocale XSupportsLocale_PROC
+
+typedef int (* PFN_XSync_PROC) (Display *, int);
+PFN_XSync_PROC XSync_PROC = 0;
+#   define XSync XSync_PROC
+
+typedef int (* PFN_XTextExtents_PROC) (XFontStruct *, const char *, int, int *, int *, int *, XCharStruct *);
+PFN_XTextExtents_PROC XTextExtents_PROC = 0;
+#   define XTextExtents XTextExtents_PROC
+
+typedef int (* PFN_XTextExtents16_PROC) (XFontStruct *, const XChar2b *, int, int *, int *, int *, XCharStruct *);
+PFN_XTextExtents16_PROC XTextExtents16_PROC = 0;
+#   define XTextExtents16 XTextExtents16_PROC
+
+typedef int (* PFN_XTextWidth_PROC) (XFontStruct *, const char *, int);
+PFN_XTextWidth_PROC XTextWidth_PROC = 0;
+#   define XTextWidth XTextWidth_PROC
+
+typedef int (* PFN_XTextWidth16_PROC) (XFontStruct *, const XChar2b *, int);
+PFN_XTextWidth16_PROC XTextWidth16_PROC = 0;
+#   define XTextWidth16 XTextWidth16_PROC
+
+typedef int (* PFN_XTranslateCoordinates_PROC) (Display *, Window, Window, int, int, int *, int *, Window *);
+PFN_XTranslateCoordinates_PROC XTranslateCoordinates_PROC = 0;
+#   define XTranslateCoordinates XTranslateCoordinates_PROC
+
+typedef int (* PFN_XUndefineCursor_PROC) (Display *, Window);
+PFN_XUndefineCursor_PROC XUndefineCursor_PROC = 0;
+#   define XUndefineCursor XUndefineCursor_PROC
+
+typedef int (* PFN_XUngrabButton_PROC) (Display *, unsigned int, unsigned int, Window);
+PFN_XUngrabButton_PROC XUngrabButton_PROC = 0;
+#   define XUngrabButton XUngrabButton_PROC
+
+typedef int (* PFN_XUngrabKey_PROC) (Display *, int, unsigned int, Window);
+PFN_XUngrabKey_PROC XUngrabKey_PROC = 0;
+#   define XUngrabKey XUngrabKey_PROC
+
+typedef int (* PFN_XUngrabKeyboard_PROC) (Display *, Time);
+PFN_XUngrabKeyboard_PROC XUngrabKeyboard_PROC = 0;
+#   define XUngrabKeyboard XUngrabKeyboard_PROC
+
+typedef int (* PFN_XUngrabPointer_PROC) (Display *, Time);
+PFN_XUngrabPointer_PROC XUngrabPointer_PROC = 0;
+#   define XUngrabPointer XUngrabPointer_PROC
+
+typedef int (* PFN_XUngrabServer_PROC) (Display *);
+PFN_XUngrabServer_PROC XUngrabServer_PROC = 0;
+#   define XUngrabServer XUngrabServer_PROC
+
+typedef int (* PFN_XUninstallColormap_PROC) (Display *, Colormap);
+PFN_XUninstallColormap_PROC XUninstallColormap_PROC = 0;
+#   define XUninstallColormap XUninstallColormap_PROC
+
+typedef int (* PFN_XUnloadFont_PROC) (Display *, Font);
+PFN_XUnloadFont_PROC XUnloadFont_PROC = 0;
+#   define XUnloadFont XUnloadFont_PROC
+
+typedef void (* PFN_XUnlockDisplay_PROC) (Display *);
+PFN_XUnlockDisplay_PROC XUnlockDisplay_PROC = 0;
+#   define XUnlockDisplay XUnlockDisplay_PROC
+
+typedef int (* PFN_XUnmapSubwindows_PROC) (Display *, Window);
+PFN_XUnmapSubwindows_PROC XUnmapSubwindows_PROC = 0;
+#   define XUnmapSubwindows XUnmapSubwindows_PROC
+
+typedef int (* PFN_XUnmapWindow_PROC) (Display *, Window);
+PFN_XUnmapWindow_PROC XUnmapWindow_PROC = 0;
+#   define XUnmapWindow XUnmapWindow_PROC
+
+typedef int (* PFN_XUnregisterIMInstantiateCallback_PROC) (Display *, struct _XrmHashBucketRec *, char *, char *, XIDProc, XPointer);
+PFN_XUnregisterIMInstantiateCallback_PROC XUnregisterIMInstantiateCallback_PROC = 0;
+#   define XUnregisterIMInstantiateCallback XUnregisterIMInstantiateCallback_PROC
+
+typedef void (* PFN_XUnsetICFocus_PROC) (XIC);
+PFN_XUnsetICFocus_PROC XUnsetICFocus_PROC = 0;
+#   define XUnsetICFocus XUnsetICFocus_PROC
+
+typedef XVaNestedList (* PFN_XVaCreateNestedList_PROC) (int, ...);
+PFN_XVaCreateNestedList_PROC XVaCreateNestedList_PROC = 0;
+#   define XVaCreateNestedList XVaCreateNestedList_PROC
+
+typedef int (* PFN_XVendorRelease_PROC) (Display *);
+PFN_XVendorRelease_PROC XVendorRelease_PROC = 0;
+#   define XVendorRelease XVendorRelease_PROC
+
+typedef VisualID (* PFN_XVisualIDFromVisual_PROC) (Visual *);
+PFN_XVisualIDFromVisual_PROC XVisualIDFromVisual_PROC = 0;
+#   define XVisualIDFromVisual XVisualIDFromVisual_PROC
+
+typedef int (* PFN_XWarpPointer_PROC) (Display *, Window, Window, int, int, unsigned int, unsigned int, int, int);
+PFN_XWarpPointer_PROC XWarpPointer_PROC = 0;
+#   define XWarpPointer XWarpPointer_PROC
+
+typedef unsigned long (* PFN_XWhitePixel_PROC) (Display *, int);
+PFN_XWhitePixel_PROC XWhitePixel_PROC = 0;
+#   define XWhitePixel XWhitePixel_PROC
+
+typedef unsigned long (* PFN_XWhitePixelOfScreen_PROC) (Screen *);
+PFN_XWhitePixelOfScreen_PROC XWhitePixelOfScreen_PROC = 0;
+#   define XWhitePixelOfScreen XWhitePixelOfScreen_PROC
+
+typedef int (* PFN_XWidthMMOfScreen_PROC) (Screen *);
+PFN_XWidthMMOfScreen_PROC XWidthMMOfScreen_PROC = 0;
+#   define XWidthMMOfScreen XWidthMMOfScreen_PROC
+
+typedef int (* PFN_XWidthOfScreen_PROC) (Screen *);
+PFN_XWidthOfScreen_PROC XWidthOfScreen_PROC = 0;
+#   define XWidthOfScreen XWidthOfScreen_PROC
+
+typedef int (* PFN_XWindowEvent_PROC) (Display *, Window, long, XEvent *);
+PFN_XWindowEvent_PROC XWindowEvent_PROC = 0;
+#   define XWindowEvent XWindowEvent_PROC
+
+typedef int (* PFN_XWithdrawWindow_PROC) (Display *, Window, int);
+PFN_XWithdrawWindow_PROC XWithdrawWindow_PROC = 0;
+#   define XWithdrawWindow XWithdrawWindow_PROC
+
+typedef int (* PFN_XWriteBitmapFile_PROC) (Display *, const char *, Pixmap, unsigned int, unsigned int, int, int);
+PFN_XWriteBitmapFile_PROC XWriteBitmapFile_PROC = 0;
+#   define XWriteBitmapFile XWriteBitmapFile_PROC
+
+typedef void (* PFN_XmbDrawImageString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const char *, int);
+PFN_XmbDrawImageString_PROC XmbDrawImageString_PROC = 0;
+#   define XmbDrawImageString XmbDrawImageString_PROC
+
+typedef void (* PFN_XmbDrawString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const char *, int);
+PFN_XmbDrawString_PROC XmbDrawString_PROC = 0;
+#   define XmbDrawString XmbDrawString_PROC
+
+typedef void (* PFN_XmbDrawText_PROC) (Display *, Drawable, GC, int, int, XmbTextItem *, int);
+PFN_XmbDrawText_PROC XmbDrawText_PROC = 0;
+#   define XmbDrawText XmbDrawText_PROC
+
+typedef int (* PFN_XmbLookupString_PROC) (XIC, XKeyPressedEvent *, char *, int, KeySym *, int *);
+PFN_XmbLookupString_PROC XmbLookupString_PROC = 0;
+#   define XmbLookupString XmbLookupString_PROC
+
+typedef char *(* PFN_XmbResetIC_PROC) (XIC);
+PFN_XmbResetIC_PROC XmbResetIC_PROC = 0;
+#   define XmbResetIC XmbResetIC_PROC
+
+typedef int (* PFN_XmbTextEscapement_PROC) (XFontSet, const char *, int);
+PFN_XmbTextEscapement_PROC XmbTextEscapement_PROC = 0;
+#   define XmbTextEscapement XmbTextEscapement_PROC
+
+typedef int (* PFN_XmbTextExtents_PROC) (XFontSet, const char *, int, XRectangle *, XRectangle *);
+PFN_XmbTextExtents_PROC XmbTextExtents_PROC = 0;
+#   define XmbTextExtents XmbTextExtents_PROC
+
+typedef int (* PFN_XmbTextPerCharExtents_PROC) (XFontSet, const char *, int, XRectangle *, XRectangle *, int, int *, XRectangle *, XRectangle *);
+PFN_XmbTextPerCharExtents_PROC XmbTextPerCharExtents_PROC = 0;
+#   define XmbTextPerCharExtents XmbTextPerCharExtents_PROC
+
+typedef void (* PFN_XrmInitialize_PROC) (void);
+PFN_XrmInitialize_PROC XrmInitialize_PROC = 0;
+#   define XrmInitialize XrmInitialize_PROC
+
+typedef void (* PFN_Xutf8DrawImageString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const char *, int);
+PFN_Xutf8DrawImageString_PROC Xutf8DrawImageString_PROC = 0;
+#   define Xutf8DrawImageString Xutf8DrawImageString_PROC
+
+typedef void (* PFN_Xutf8DrawString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const char *, int);
+PFN_Xutf8DrawString_PROC Xutf8DrawString_PROC = 0;
+#   define Xutf8DrawString Xutf8DrawString_PROC
+
+typedef void (* PFN_Xutf8DrawText_PROC) (Display *, Drawable, GC, int, int, XmbTextItem *, int);
+PFN_Xutf8DrawText_PROC Xutf8DrawText_PROC = 0;
+#   define Xutf8DrawText Xutf8DrawText_PROC
+
+typedef int (* PFN_Xutf8LookupString_PROC) (XIC, XKeyPressedEvent *, char *, int, KeySym *, int *);
+PFN_Xutf8LookupString_PROC Xutf8LookupString_PROC = 0;
+#   define Xutf8LookupString Xutf8LookupString_PROC
+
+typedef char *(* PFN_Xutf8ResetIC_PROC) (XIC);
+PFN_Xutf8ResetIC_PROC Xutf8ResetIC_PROC = 0;
+#   define Xutf8ResetIC Xutf8ResetIC_PROC
+
+typedef int (* PFN_Xutf8TextEscapement_PROC) (XFontSet, const char *, int);
+PFN_Xutf8TextEscapement_PROC Xutf8TextEscapement_PROC = 0;
+#   define Xutf8TextEscapement Xutf8TextEscapement_PROC
+
+typedef int (* PFN_Xutf8TextExtents_PROC) (XFontSet, const char *, int, XRectangle *, XRectangle *);
+PFN_Xutf8TextExtents_PROC Xutf8TextExtents_PROC = 0;
+#   define Xutf8TextExtents Xutf8TextExtents_PROC
+
+typedef int (* PFN_Xutf8TextPerCharExtents_PROC) (XFontSet, const char *, int, XRectangle *, XRectangle *, int, int *, XRectangle *, XRectangle *);
+PFN_Xutf8TextPerCharExtents_PROC Xutf8TextPerCharExtents_PROC = 0;
+#   define Xutf8TextPerCharExtents Xutf8TextPerCharExtents_PROC
+
+typedef void (* PFN_XwcDrawImageString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const wchar_t *, int);
+PFN_XwcDrawImageString_PROC XwcDrawImageString_PROC = 0;
+#   define XwcDrawImageString XwcDrawImageString_PROC
+
+typedef void (* PFN_XwcDrawString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const wchar_t *, int);
+PFN_XwcDrawString_PROC XwcDrawString_PROC = 0;
+#   define XwcDrawString XwcDrawString_PROC
+
+typedef void (* PFN_XwcDrawText_PROC) (Display *, Drawable, GC, int, int, XwcTextItem *, int);
+PFN_XwcDrawText_PROC XwcDrawText_PROC = 0;
+#   define XwcDrawText XwcDrawText_PROC
+
+typedef int (* PFN_XwcLookupString_PROC) (XIC, XKeyPressedEvent *, wchar_t *, int, KeySym *, int *);
+PFN_XwcLookupString_PROC XwcLookupString_PROC = 0;
+#   define XwcLookupString XwcLookupString_PROC
+
+typedef wchar_t *(* PFN_XwcResetIC_PROC) (XIC);
+PFN_XwcResetIC_PROC XwcResetIC_PROC = 0;
+#   define XwcResetIC XwcResetIC_PROC
+
+typedef int (* PFN_XwcTextEscapement_PROC) (XFontSet, const wchar_t *, int);
+PFN_XwcTextEscapement_PROC XwcTextEscapement_PROC = 0;
+#   define XwcTextEscapement XwcTextEscapement_PROC
+
+typedef int (* PFN_XwcTextExtents_PROC) (XFontSet, const wchar_t *, int, XRectangle *, XRectangle *);
+PFN_XwcTextExtents_PROC XwcTextExtents_PROC = 0;
+#   define XwcTextExtents XwcTextExtents_PROC
+
+typedef int (* PFN_XwcTextPerCharExtents_PROC) (XFontSet, const wchar_t *, int, XRectangle *, XRectangle *, int, int *, XRectangle *, XRectangle *);
+PFN_XwcTextPerCharExtents_PROC XwcTextPerCharExtents_PROC = 0;
+#   define XwcTextPerCharExtents XwcTextPerCharExtents_PROC
+
+typedef int (* PFN__Xmblen_PROC) (char *, int);
+PFN__Xmblen_PROC _Xmblen_PROC = 0;
+#   define _Xmblen _Xmblen_PROC
+
+typedef int (* PFN__Xmbtowc_PROC) (wchar_t *, char *, int);
+PFN__Xmbtowc_PROC _Xmbtowc_PROC = 0;
+#   define _Xmbtowc _Xmbtowc_PROC
+
+typedef int (* PFN__Xwctomb_PROC) (char *, wchar_t);
+PFN__Xwctomb_PROC _Xwctomb_PROC = 0;
+#   define _Xwctomb _Xwctomb_PROC
+
+/* libX11: Xutil.h */
 
 typedef XClassHint *(* PFN_XAllocClassHint_PROC) (void);
-typedef XSizeHints *(* PFN_XAllocSizeHints_PROC) (void);
-typedef XWMHints *(* PFN_XAllocWMHints_PROC) (void);
-typedef int (* PFN_XChangeProperty_PROC) (Display *, Window, Atom, Atom, int, int, const unsigned char *, int);
-typedef int (* PFN_XChangeWindowAttributes_PROC) (Display *, Window, unsigned long, XSetWindowAttributes *);
-typedef Bool (* PFN_XCheckIfEvent_PROC) (Display *, XEvent *, Bool(*_PROC) (Display *, XEvent *, XPointer), XPointer);
-typedef Bool (* PFN_XCheckTypedWindowEvent_PROC) (Display *, Window, int, XEvent *);
-typedef int (* PFN_XCloseDisplay_PROC) (Display *);
-typedef int (* PFN_XConvertSelection_PROC) (Display *, Atom, Atom, Atom, Window, Time);
-typedef Colormap (* PFN_XCreateColormap_PROC) (Display *, Window, Visual *, int);
-typedef Cursor (* PFN_XCreateFontCursor_PROC) (Display *, unsigned int);
-typedef Region (* PFN_XCreateRegion_PROC) (void);
-typedef Window (* PFN_XCreateWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual *, unsigned long, XSetWindowAttributes *);
-typedef int (* PFN_XDefineCursor_PROC) (Display *, Window, Cursor);
-typedef int (* PFN_XDeleteContext_PROC) (Display *, XID, XContext);
-typedef int (* PFN_XDeleteProperty_PROC) (Display *, Window, Atom);
-typedef int (* PFN_XDestroyRegion_PROC) (Region);
-typedef int (* PFN_XDestroyWindow_PROC) (Display *, Window);
-typedef int (* PFN_XDisplayKeycodes_PROC) (Display *, int *, int *);
-typedef int (* PFN_XEventsQueued_PROC) (Display *, int);
-typedef Status (* PFN_XFetchName_PROC) (Display *, Window, char **);
-typedef Bool (* PFN_XFilterEvent_PROC) (XEvent *, Window);
-typedef int (* PFN_XFindContext_PROC) (Display *, XID, XContext, XPointer *);
-typedef int (* PFN_XFlush_PROC) (Display *);
-typedef int (* PFN_XFree_PROC) (void *);
-typedef int (* PFN_XFreeColormap_PROC) (Display *, Colormap);
-typedef int (* PFN_XFreeCursor_PROC) (Display *, Cursor);
-typedef void (* PFN_XFreeEventData_PROC) (Display *, XGenericEventCookie *);
-typedef int (* PFN_XGetErrorText_PROC) (Display *, int, char *, int);
-typedef Bool (* PFN_XGetEventData_PROC) (Display *, XGenericEventCookie *);
-typedef int (* PFN_XGetInputFocus_PROC) (Display *, Window *, int *);
-typedef KeySym *(* PFN_XGetKeyboardMapping_PROC) (Display *, KeyCode, int, int *);
-typedef Window (* PFN_XGetSelectionOwner_PROC) (Display *, Atom);
-typedef XVisualInfo *(* PFN_XGetVisualInfo_PROC) (Display *, long, XVisualInfo *, int *);
-typedef Status (* PFN_XGetWMNormalHints_PROC) (Display *, Window, XSizeHints *, long *);
-typedef Status (* PFN_XGetWindowAttributes_PROC) (Display *, Window, XWindowAttributes *);
-typedef int (* PFN_XGetWindowProperty_PROC) (Display *, Window, Atom, long, long, Bool, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char* *);
-typedef int (* PFN_XGrabPointer_PROC) (Display *, Window, Bool, unsigned int, int, int, Window, Cursor, Time);
-typedef Status (* PFN_XIconifyWindow_PROC) (Display *, Window, int);
-typedef Status (* PFN_XInitThreads_PROC) (void);
-typedef Atom (* PFN_XInternAtom_PROC) (Display *, const char *, Bool);
-typedef int (* PFN_XLookupString_PROC) (XKeyEvent *, char *, int, KeySym *, XComposeStatus *);
-typedef int (* PFN_XMapRaised_PROC) (Display *, Window);
-typedef int (* PFN_XMapWindow_PROC) (Display *, Window);
-typedef int (* PFN_XMoveResizeWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int);
-typedef int (* PFN_XMoveWindow_PROC) (Display *, Window, int, int);
-typedef int (* PFN_XNextEvent_PROC) (Display *, XEvent *);
-typedef Display *(* PFN_XOpenDisplay_PROC) (const char *);
-typedef int (* PFN_XPeekEvent_PROC) (Display *, XEvent *);
-typedef int (* PFN_XPending_PROC) (Display *);
-typedef Bool (* PFN_XQueryExtension_PROC) (Display *, const char *, int *, int *, int *);
-typedef Bool (* PFN_XQueryPointer_PROC) (Display *, Window, Window *, Window *, int *, int *, int *, int *, unsigned int *);
-typedef int (* PFN_XRaiseWindow_PROC) (Display *, Window);
-typedef Bool (* PFN_XRegisterIMInstantiateCallback_PROC) (Display *, void *, char *, char *, XIDProc, XPointer);
-typedef int (* PFN_XResizeWindow_PROC) (Display *, Window, unsigned int, unsigned int);
-typedef int (* PFN_XSaveContext_PROC) (Display *, XID, XContext, const char *);
-typedef int (* PFN_XSelectInput_PROC) (Display *, Window, long);
-typedef Status (* PFN_XSendEvent_PROC) (Display *, Window, Bool, long, XEvent *);
-typedef int (* PFN_XSetClassHint_PROC) (Display *, Window, XClassHint *);
-typedef XErrorHandler (* PFN_XSetErrorHandler_PROC) (XErrorHandler);
-typedef int (* PFN_XSetInputFocus_PROC) (Display *, Window, int, Time);
-typedef char *(* PFN_XSetLocaleModifiers_PROC) (const char *);
-typedef int (* PFN_XSetSelectionOwner_PROC) (Display *, Atom, Window, Time);
-typedef int (* PFN_XSetWMHints_PROC) (Display *, Window, XWMHints *);
-typedef void (* PFN_XSetWMNormalHints_PROC) (Display *, Window, XSizeHints *);
-typedef Status (* PFN_XSetWMProtocols_PROC) (Display *, Window, Atom *, int);
-typedef int (* PFN_XStoreName_PROC) (Display *, Window, _Xconst char *);
-typedef Bool (* PFN_XSupportsLocale_PROC) (void);
-typedef int (* PFN_XSync_PROC) (Display *, Bool);
-typedef Bool (* PFN_XTranslateCoordinates_PROC) (Display *, Window, Window, int, int, int *, int *, Window *);
-typedef int (* PFN_XUndefineCursor_PROC) (Display *, Window);
-typedef int (* PFN_XUngrabPointer_PROC) (Display *, Time);
-typedef int (* PFN_XUnmapWindow_PROC) (Display *, Window);
-typedef VisualID (* PFN_XVisualIDFromVisual_PROC) (Visual *);
-typedef int (* PFN_XWarpPointer_PROC) (Display *, Window, Window, int, int, unsigned int, unsigned int, int, int);
-typedef int (* PFN_XWindowEvent_PROC) (Display *, Window, long, XEvent *);
-typedef KeySym (* PFN_XkbKeycodeToKeysym_PROC) (Display *, KeyCode, int, int);
-typedef Bool (* PFN_XkbSetDetectableAutoRepeat_PROC) (Display *, Bool, Bool *);
+PFN_XAllocClassHint_PROC XAllocClassHint_PROC = 0;
+#   define XAllocClassHint XAllocClassHint_PROC
 
-#   define XAllocClassHint __window_h.x11->AllocClassHint
-#   define XAllocSizeHints __window_h.x11->AllocSizeHints
-#   define XAllocWMHints __window_h.x11->AllocWMHints
-#   define XChangeProperty __window_h.x11->ChangeProperty
-#   define XChangeWindowAttributes __window_h.x11->ChangeWindowAttributes
-#   define XCheckIfEvent __window_h.x11->CheckIfEvent
-#   define XCheckTypedWindowEvent __window_h.x11->CheckTypedWindowEvent
-#   define XCloseDisplay __window_h.x11->CloseDisplay
-#   define XConvertSelection __window_h.x11->ConvertSelection
-#   define XCreateColormap __window_h.x11->CreateColormap
-#   define XCreateFontCursor __window_h.x11->CreateFontCursor
-#   define XCreateRegion __window_h.x11->CreateRegion
-#   define XCreateWindow __window_h.x11->CreateWindow
-#   define XDefineCursor __window_h.x11->DefineCursor
-#   define XDeleteContext __window_h.x11->DeleteContext
-#   define XDeleteProperty __window_h.x11->DeleteProperty
-#   define XDestroyRegion __window_h.x11->DestroyRegion
-#   define XDestroyWindow __window_h.x11->DestroyWindow
-#   define XDisplayKeycodes __window_h.x11->DisplayKeycodes
-#   define XEventsQueued __window_h.x11->EventsQueued
-#   define XFetchName __window_h.x11->FetchName
-#   define XFilterEvent __window_h.x11->FilterEvent
-#   define XFindContext __window_h.x11->FindContext
-#   define XFlush __window_h.x11->Flush
-#   define XFree __window_h.x11->Free
-#   define XFreeColormap __window_h.x11->FreeColormap
-#   define XFreeCursor __window_h.x11->FreeCursor
-#   define XFreeEventData __window_h.x11->FreeEventData
-#   define XGetErrorText __window_h.x11->GetErrorText
-#   define XGetEventData __window_h.x11->GetEventData
-#   define XGetInputFocus __window_h.x11->GetInputFocus
-#   define XGetKeyboardMapping __window_h.x11->GetKeyboardMapping
-#   define XGetSelectionOwner __window_h.x11->GetSelectionOwner
-#   define XGetVisualInfo __window_h.x11->GetVisualInfo
-#   define XGetWMNormalHints __window_h.x11->GetWMNormalHints
-#   define XGetWindowAttributes __window_h.x11->GetWindowAttributes
-#   define XGetWindowProperty __window_h.x11->GetWindowProperty
-#   define XGrabPointer __window_h.x11->GrabPointer
-#   define XIconifyWindow __window_h.x11->IconifyWindow
-#   define XInitThreads __window_h.x11->InitThreads
-#   define XInternAtom __window_h.x11->InternAtom
-#   define XLookupString __window_h.x11->LookupString
-#   define XMapRaised __window_h.x11->MapRaised
-#   define XMapWindow __window_h.x11->MapWindow
-#   define XMoveResizeWindow __window_h.x11->MoveResizeWindow
-#   define XMoveWindow __window_h.x11->MoveWindow
-#   define XNextEvent __window_h.x11->NextEvent
-#   define XOpenDisplay __window_h.x11->OpenDisplay
-#   define XPeekEvent __window_h.x11->PeekEvent
-#   define XPending __window_h.x11->Pending
-#   define XQueryExtension __window_h.x11->QueryExtension
-#   define XQueryPointer __window_h.x11->QueryPointer
-#   define XRaiseWindow __window_h.x11->RaiseWindow
-#   define XRegisterIMInstantiateCallback __window_h.x11->RegisterIMInstantiateCallback
-#   define XResizeWindow __window_h.x11->ResizeWindow
-#   define XSaveContext __window_h.x11->SaveContext
-#   define XSelectInput __window_h.x11->SelectInput
-#   define XSendEvent __window_h.x11->SendEvent
-#   define XSetClassHint __window_h.x11->SetClassHint
-#   define XSetErrorHandler __window_h.x11->SetErrorHandler
-#   define XSetInputFocus __window_h.x11->SetInputFocus
-#   define XSetLocaleModifiers __window_h.x11->SetLocaleModifiers
-#   define XSetSelectionOwner __window_h.x11->SetSelectionOwner
-#   define XSetWMHints __window_h.x11->SetWMHints
-#   define XSetWMNormalHints __window_h.x11->SetWMNormalHints
-#   define XSetWMProtocols __window_h.x11->SetWMProtocols
-#   define XStoreName __window_h.x11->StoreName
-#   define XSupportsLocale __window_h.x11->SupportsLocale
-#   define XSync __window_h.x11->Sync
-#   define XTranslateCoordinates __window_h.x11->TranslateCoordinates
-#   define XUndefineCursor __window_h.x11->UndefineCursor
-#   define XUngrabPointer __window_h.x11->UngrabPointer
-#   define XUnmapWindow __window_h.x11->UnmapWindow
-#   define XVisualIDFromVisual __window_h.x11->VisualIDFromVisual
-#   define XWarpPointer __window_h.x11->WarpPointer
-#   define XWindowEvent __window_h.x11->WindowEvent
-#   define XkbKeycodeToKeysym __window_h.x11->kbKeycodeToKeysym
-#   define XkbSetDetectableAutoRepeat __window_h.x11->kbSetDetectableAutoRepeat
+typedef XIconSize *(* PFN_XAllocIconSize_PROC) (void);
+PFN_XAllocIconSize_PROC XAllocIconSize_PROC = 0;
+#   define XAllocIconSize XAllocIconSize_PROC
+
+typedef XSizeHints *(* PFN_XAllocSizeHints_PROC) (void);
+PFN_XAllocSizeHints_PROC XAllocSizeHints_PROC = 0;
+#   define XAllocSizeHints XAllocSizeHints_PROC
+
+typedef XStandardColormap *(* PFN_XAllocStandardColormap_PROC) (void);
+PFN_XAllocStandardColormap_PROC XAllocStandardColormap_PROC = 0;
+#   define XAllocStandardColormap XAllocStandardColormap_PROC
+
+typedef XWMHints *(* PFN_XAllocWMHints_PROC) (void);
+PFN_XAllocWMHints_PROC XAllocWMHints_PROC = 0;
+#   define XAllocWMHints XAllocWMHints_PROC
+
+typedef int (* PFN_XClipBox_PROC) (Region, XRectangle *);
+PFN_XClipBox_PROC XClipBox_PROC = 0;
+#   define XClipBox XClipBox_PROC
+
+typedef void (* PFN_XConvertCase_PROC) (KeySym, KeySym *, KeySym *);
+PFN_XConvertCase_PROC XConvertCase_PROC = 0;
+#   define XConvertCase XConvertCase_PROC
+
+typedef Region (* PFN_XCreateRegion_PROC) (void);
+PFN_XCreateRegion_PROC XCreateRegion_PROC = 0;
+#   define XCreateRegion XCreateRegion_PROC
+
+typedef const char *(* PFN_XDefaultString_PROC) (void);
+PFN_XDefaultString_PROC XDefaultString_PROC = 0;
+#   define XDefaultString XDefaultString_PROC
+
+typedef int (* PFN_XDeleteContext_PROC) (Display *, XID, XContext);
+PFN_XDeleteContext_PROC XDeleteContext_PROC = 0;
+#   define XDeleteContext XDeleteContext_PROC
+
+typedef int (* PFN_XDestroyRegion_PROC) (Region);
+PFN_XDestroyRegion_PROC XDestroyRegion_PROC = 0;
+#   define XDestroyRegion XDestroyRegion_PROC
+
+typedef int (* PFN_XEmptyRegion_PROC) (Region);
+PFN_XEmptyRegion_PROC XEmptyRegion_PROC = 0;
+#   define XEmptyRegion XEmptyRegion_PROC
+
+typedef int (* PFN_XEqualRegion_PROC) (Region, Region);
+PFN_XEqualRegion_PROC XEqualRegion_PROC = 0;
+#   define XEqualRegion XEqualRegion_PROC
+
+typedef int (* PFN_XFindContext_PROC) (Display *, XID, XContext, XPointer *);
+PFN_XFindContext_PROC XFindContext_PROC = 0;
+#   define XFindContext XFindContext_PROC
+
+typedef int (* PFN_XGetClassHint_PROC) (Display *, Window, XClassHint *);
+PFN_XGetClassHint_PROC XGetClassHint_PROC = 0;
+#   define XGetClassHint XGetClassHint_PROC
+
+typedef int (* PFN_XGetIconSizes_PROC) (Display *, Window, XIconSize **, int *);
+PFN_XGetIconSizes_PROC XGetIconSizes_PROC = 0;
+#   define XGetIconSizes XGetIconSizes_PROC
+
+typedef int (* PFN_XGetNormalHints_PROC) (Display *, Window, XSizeHints *);
+PFN_XGetNormalHints_PROC XGetNormalHints_PROC = 0;
+#   define XGetNormalHints XGetNormalHints_PROC
+
+typedef int (* PFN_XGetRGBColormaps_PROC) (Display *, Window, XStandardColormap **, int *, Atom);
+PFN_XGetRGBColormaps_PROC XGetRGBColormaps_PROC = 0;
+#   define XGetRGBColormaps XGetRGBColormaps_PROC
+
+typedef int (* PFN_XGetSizeHints_PROC) (Display *, Window, XSizeHints *, Atom);
+PFN_XGetSizeHints_PROC XGetSizeHints_PROC = 0;
+#   define XGetSizeHints XGetSizeHints_PROC
+
+typedef int (* PFN_XGetStandardColormap_PROC) (Display *, Window, XStandardColormap *, Atom);
+PFN_XGetStandardColormap_PROC XGetStandardColormap_PROC = 0;
+#   define XGetStandardColormap XGetStandardColormap_PROC
+
+typedef int (* PFN_XGetTextProperty_PROC) (Display *, Window, XTextProperty *, Atom);
+PFN_XGetTextProperty_PROC XGetTextProperty_PROC = 0;
+#   define XGetTextProperty XGetTextProperty_PROC
+
+typedef XVisualInfo *(* PFN_XGetVisualInfo_PROC) (Display *, long, XVisualInfo *, int *);
+PFN_XGetVisualInfo_PROC XGetVisualInfo_PROC = 0;
+#   define XGetVisualInfo XGetVisualInfo_PROC
+
+typedef int (* PFN_XGetWMClientMachine_PROC) (Display *, Window, XTextProperty *);
+PFN_XGetWMClientMachine_PROC XGetWMClientMachine_PROC = 0;
+#   define XGetWMClientMachine XGetWMClientMachine_PROC
+
+typedef XWMHints *(* PFN_XGetWMHints_PROC) (Display *, Window);
+PFN_XGetWMHints_PROC XGetWMHints_PROC = 0;
+#   define XGetWMHints XGetWMHints_PROC
+
+typedef int (* PFN_XGetWMIconName_PROC) (Display *, Window, XTextProperty *);
+PFN_XGetWMIconName_PROC XGetWMIconName_PROC = 0;
+#   define XGetWMIconName XGetWMIconName_PROC
+
+typedef int (* PFN_XGetWMName_PROC) (Display *, Window, XTextProperty *);
+PFN_XGetWMName_PROC XGetWMName_PROC = 0;
+#   define XGetWMName XGetWMName_PROC
+
+typedef int (* PFN_XGetWMNormalHints_PROC) (Display *, Window, XSizeHints *, long *);
+PFN_XGetWMNormalHints_PROC XGetWMNormalHints_PROC = 0;
+#   define XGetWMNormalHints XGetWMNormalHints_PROC
+
+typedef int (* PFN_XGetWMSizeHints_PROC) (Display *, Window, XSizeHints *, long *, Atom);
+PFN_XGetWMSizeHints_PROC XGetWMSizeHints_PROC = 0;
+#   define XGetWMSizeHints XGetWMSizeHints_PROC
+
+typedef int (* PFN_XGetZoomHints_PROC) (Display *, Window, XSizeHints *);
+PFN_XGetZoomHints_PROC XGetZoomHints_PROC = 0;
+#   define XGetZoomHints XGetZoomHints_PROC
+
+typedef int (* PFN_XIntersectRegion_PROC) (Region, Region, Region);
+PFN_XIntersectRegion_PROC XIntersectRegion_PROC = 0;
+#   define XIntersectRegion XIntersectRegion_PROC
+
+typedef int (* PFN_XLookupString_PROC) (XKeyEvent *, char *, int, KeySym *, XComposeStatus *);
+PFN_XLookupString_PROC XLookupString_PROC = 0;
+#   define XLookupString XLookupString_PROC
+
+typedef int (* PFN_XMatchVisualInfo_PROC) (Display *, int, int, int, XVisualInfo *);
+PFN_XMatchVisualInfo_PROC XMatchVisualInfo_PROC = 0;
+#   define XMatchVisualInfo XMatchVisualInfo_PROC
+
+typedef int (* PFN_XOffsetRegion_PROC) (Region, int, int);
+PFN_XOffsetRegion_PROC XOffsetRegion_PROC = 0;
+#   define XOffsetRegion XOffsetRegion_PROC
+
+typedef int (* PFN_XPointInRegion_PROC) (Region, int, int);
+PFN_XPointInRegion_PROC XPointInRegion_PROC = 0;
+#   define XPointInRegion XPointInRegion_PROC
+
+typedef Region (* PFN_XPolygonRegion_PROC) (XPoint *, int, int);
+PFN_XPolygonRegion_PROC XPolygonRegion_PROC = 0;
+#   define XPolygonRegion XPolygonRegion_PROC
+
+typedef int (* PFN_XRectInRegion_PROC) (Region, int, int, unsigned int, unsigned int);
+PFN_XRectInRegion_PROC XRectInRegion_PROC = 0;
+#   define XRectInRegion XRectInRegion_PROC
+
+typedef int (* PFN_XSaveContext_PROC) (Display *, XID, XContext, const char *);
+PFN_XSaveContext_PROC XSaveContext_PROC = 0;
+#   define XSaveContext XSaveContext_PROC
+
+typedef int (* PFN_XSetClassHint_PROC) (Display *, Window, XClassHint *);
+PFN_XSetClassHint_PROC XSetClassHint_PROC = 0;
+#   define XSetClassHint XSetClassHint_PROC
+
+typedef int (* PFN_XSetIconSizes_PROC) (Display *, Window, XIconSize *, int);
+PFN_XSetIconSizes_PROC XSetIconSizes_PROC = 0;
+#   define XSetIconSizes XSetIconSizes_PROC
+
+typedef int (* PFN_XSetNormalHints_PROC) (Display *, Window, XSizeHints *);
+PFN_XSetNormalHints_PROC XSetNormalHints_PROC = 0;
+#   define XSetNormalHints XSetNormalHints_PROC
+
+typedef void (* PFN_XSetRGBColormaps_PROC) (Display *, Window, XStandardColormap *, int, Atom);
+PFN_XSetRGBColormaps_PROC XSetRGBColormaps_PROC = 0;
+#   define XSetRGBColormaps XSetRGBColormaps_PROC
+
+typedef int (* PFN_XSetRegion_PROC) (Display *, GC, Region);
+PFN_XSetRegion_PROC XSetRegion_PROC = 0;
+#   define XSetRegion XSetRegion_PROC
+
+typedef int (* PFN_XSetSizeHints_PROC) (Display *, Window, XSizeHints *, Atom);
+PFN_XSetSizeHints_PROC XSetSizeHints_PROC = 0;
+#   define XSetSizeHints XSetSizeHints_PROC
+
+typedef void (* PFN_XSetStandardColormap_PROC) (Display *, Window, XStandardColormap *, Atom);
+PFN_XSetStandardColormap_PROC XSetStandardColormap_PROC = 0;
+#   define XSetStandardColormap XSetStandardColormap_PROC
+
+typedef int (* PFN_XSetStandardProperties_PROC) (Display *, Window, const char *, const char *, Pixmap, char **, int, XSizeHints *);
+PFN_XSetStandardProperties_PROC XSetStandardProperties_PROC = 0;
+#   define XSetStandardProperties XSetStandardProperties_PROC
+
+typedef void (* PFN_XSetTextProperty_PROC) (Display *, Window, XTextProperty *, Atom);
+PFN_XSetTextProperty_PROC XSetTextProperty_PROC = 0;
+#   define XSetTextProperty XSetTextProperty_PROC
+
+typedef void (* PFN_XSetWMClientMachine_PROC) (Display *, Window, XTextProperty *);
+PFN_XSetWMClientMachine_PROC XSetWMClientMachine_PROC = 0;
+#   define XSetWMClientMachine XSetWMClientMachine_PROC
+
+typedef int (* PFN_XSetWMHints_PROC) (Display *, Window, XWMHints *);
+PFN_XSetWMHints_PROC XSetWMHints_PROC = 0;
+#   define XSetWMHints XSetWMHints_PROC
+
+typedef void (* PFN_XSetWMIconName_PROC) (Display *, Window, XTextProperty *);
+PFN_XSetWMIconName_PROC XSetWMIconName_PROC = 0;
+#   define XSetWMIconName XSetWMIconName_PROC
+
+typedef void (* PFN_XSetWMName_PROC) (Display *, Window, XTextProperty *);
+PFN_XSetWMName_PROC XSetWMName_PROC = 0;
+#   define XSetWMName XSetWMName_PROC
+
+typedef void (* PFN_XSetWMNormalHints_PROC) (Display *, Window, XSizeHints *);
+PFN_XSetWMNormalHints_PROC XSetWMNormalHints_PROC = 0;
+#   define XSetWMNormalHints XSetWMNormalHints_PROC
+
+typedef void (* PFN_XSetWMProperties_PROC) (Display *, Window, XTextProperty *, XTextProperty *, char **, int, XSizeHints *, XWMHints *, XClassHint *);
+PFN_XSetWMProperties_PROC XSetWMProperties_PROC = 0;
+#   define XSetWMProperties XSetWMProperties_PROC
+
+typedef void (* PFN_XSetWMSizeHints_PROC) (Display *, Window, XSizeHints *, Atom);
+PFN_XSetWMSizeHints_PROC XSetWMSizeHints_PROC = 0;
+#   define XSetWMSizeHints XSetWMSizeHints_PROC
+
+typedef int (* PFN_XSetZoomHints_PROC) (Display *, Window, XSizeHints *);
+PFN_XSetZoomHints_PROC XSetZoomHints_PROC = 0;
+#   define XSetZoomHints XSetZoomHints_PROC
+
+typedef int (* PFN_XShrinkRegion_PROC) (Region, int, int);
+PFN_XShrinkRegion_PROC XShrinkRegion_PROC = 0;
+#   define XShrinkRegion XShrinkRegion_PROC
+
+typedef int (* PFN_XStringListToTextProperty_PROC) (char **, int, XTextProperty *);
+PFN_XStringListToTextProperty_PROC XStringListToTextProperty_PROC = 0;
+#   define XStringListToTextProperty XStringListToTextProperty_PROC
+
+typedef int (* PFN_XSubtractRegion_PROC) (Region, Region, Region);
+PFN_XSubtractRegion_PROC XSubtractRegion_PROC = 0;
+#   define XSubtractRegion XSubtractRegion_PROC
+
+typedef int (* PFN_XTextPropertyToStringList_PROC) (XTextProperty *, char ***, int *);
+PFN_XTextPropertyToStringList_PROC XTextPropertyToStringList_PROC = 0;
+#   define XTextPropertyToStringList XTextPropertyToStringList_PROC
+
+typedef int (* PFN_XUnionRectWithRegion_PROC) (XRectangle *, Region, Region);
+PFN_XUnionRectWithRegion_PROC XUnionRectWithRegion_PROC = 0;
+#   define XUnionRectWithRegion XUnionRectWithRegion_PROC
+
+typedef int (* PFN_XUnionRegion_PROC) (Region, Region, Region);
+PFN_XUnionRegion_PROC XUnionRegion_PROC = 0;
+#   define XUnionRegion XUnionRegion_PROC
+
+typedef int (* PFN_XWMGeometry_PROC) (Display *, int, const char *, const char *, unsigned int, XSizeHints *, int *, int *, int *, int *, int *);
+PFN_XWMGeometry_PROC XWMGeometry_PROC = 0;
+#   define XWMGeometry XWMGeometry_PROC
+
+typedef int (* PFN_XXorRegion_PROC) (Region, Region, Region);
+PFN_XXorRegion_PROC XXorRegion_PROC = 0;
+#   define XXorRegion XXorRegion_PROC
+
+typedef void (* PFN_XmbSetWMProperties_PROC) (Display *, Window, const char *, const char *, char **, int, XSizeHints *, XWMHints *, XClassHint *);
+PFN_XmbSetWMProperties_PROC XmbSetWMProperties_PROC = 0;
+#   define XmbSetWMProperties XmbSetWMProperties_PROC
+
+typedef int (* PFN_XmbTextListToTextProperty_PROC) (Display *, char **, int, XICCEncodingStyle, XTextProperty *);
+PFN_XmbTextListToTextProperty_PROC XmbTextListToTextProperty_PROC = 0;
+#   define XmbTextListToTextProperty XmbTextListToTextProperty_PROC
+
+typedef int (* PFN_XmbTextPropertyToTextList_PROC) (Display *, const XTextProperty *, char ***, int *);
+PFN_XmbTextPropertyToTextList_PROC XmbTextPropertyToTextList_PROC = 0;
+#   define XmbTextPropertyToTextList XmbTextPropertyToTextList_PROC
+
+typedef void (* PFN_Xutf8SetWMProperties_PROC) (Display *, Window, const char *, const char *, char **, int, XSizeHints *, XWMHints *, XClassHint *);
+PFN_Xutf8SetWMProperties_PROC Xutf8SetWMProperties_PROC = 0;
+#   define Xutf8SetWMProperties Xutf8SetWMProperties_PROC
+
+typedef int (* PFN_Xutf8TextListToTextProperty_PROC) (Display *, char **, int, XICCEncodingStyle, XTextProperty *);
+PFN_Xutf8TextListToTextProperty_PROC Xutf8TextListToTextProperty_PROC = 0;
+#   define Xutf8TextListToTextProperty Xutf8TextListToTextProperty_PROC
+
+typedef int (* PFN_Xutf8TextPropertyToTextList_PROC) (Display *, const XTextProperty *, char ***, int *);
+PFN_Xutf8TextPropertyToTextList_PROC Xutf8TextPropertyToTextList_PROC = 0;
+#   define Xutf8TextPropertyToTextList Xutf8TextPropertyToTextList_PROC
+
+typedef void (* PFN_XwcFreeStringList_PROC) (wchar_t **);
+PFN_XwcFreeStringList_PROC XwcFreeStringList_PROC = 0;
+#   define XwcFreeStringList XwcFreeStringList_PROC
+
+typedef int (* PFN_XwcTextListToTextProperty_PROC) (Display *, wchar_t **, int, XICCEncodingStyle, XTextProperty *);
+PFN_XwcTextListToTextProperty_PROC XwcTextListToTextProperty_PROC = 0;
+#   define XwcTextListToTextProperty XwcTextListToTextProperty_PROC
+
+typedef int (* PFN_XwcTextPropertyToTextList_PROC) (Display *, const XTextProperty *, wchar_t ***, int *);
+PFN_XwcTextPropertyToTextList_PROC XwcTextPropertyToTextList_PROC = 0;
+#   define XwcTextPropertyToTextList XwcTextPropertyToTextList_PROC
+
+/* libX11: XKBlib.h */
+
+typedef XkbDeviceLedInfoPtr (* PFN_XkbAddDeviceLedInfo_PROC) (XkbDeviceInfoPtr, unsigned int, unsigned int);
+PFN_XkbAddDeviceLedInfo_PROC XkbAddDeviceLedInfo_PROC = 0;
+#   define XkbAddDeviceLedInfo XkbAddDeviceLedInfo_PROC
+
+typedef XkbKeyTypePtr (* PFN_XkbAddKeyType_PROC) (XkbDescPtr, Atom, int, int, int);
+PFN_XkbAddKeyType_PROC XkbAddKeyType_PROC = 0;
+#   define XkbAddKeyType XkbAddKeyType_PROC
+
+typedef int (* PFN_XkbAllocClientMap_PROC) (XkbDescPtr, unsigned int, unsigned int);
+PFN_XkbAllocClientMap_PROC XkbAllocClientMap_PROC = 0;
+#   define XkbAllocClientMap XkbAllocClientMap_PROC
+
+typedef int (* PFN_XkbAllocCompatMap_PROC) (XkbDescPtr, unsigned int, unsigned int);
+PFN_XkbAllocCompatMap_PROC XkbAllocCompatMap_PROC = 0;
+#   define XkbAllocCompatMap XkbAllocCompatMap_PROC
+
+typedef int (* PFN_XkbAllocControls_PROC) (XkbDescPtr, unsigned int);
+PFN_XkbAllocControls_PROC XkbAllocControls_PROC = 0;
+#   define XkbAllocControls XkbAllocControls_PROC
+
+typedef XkbDeviceInfoPtr (* PFN_XkbAllocDeviceInfo_PROC) (unsigned int, unsigned int, unsigned int);
+PFN_XkbAllocDeviceInfo_PROC XkbAllocDeviceInfo_PROC = 0;
+#   define XkbAllocDeviceInfo XkbAllocDeviceInfo_PROC
+
+typedef int (* PFN_XkbAllocIndicatorMaps_PROC) (XkbDescPtr);
+PFN_XkbAllocIndicatorMaps_PROC XkbAllocIndicatorMaps_PROC = 0;
+#   define XkbAllocIndicatorMaps XkbAllocIndicatorMaps_PROC
+
+typedef XkbDescPtr (* PFN_XkbAllocKeyboard_PROC) (void);
+PFN_XkbAllocKeyboard_PROC XkbAllocKeyboard_PROC = 0;
+#   define XkbAllocKeyboard XkbAllocKeyboard_PROC
+
+typedef int (* PFN_XkbAllocNames_PROC) (XkbDescPtr, unsigned int, int, int);
+PFN_XkbAllocNames_PROC XkbAllocNames_PROC = 0;
+#   define XkbAllocNames XkbAllocNames_PROC
+
+typedef int (* PFN_XkbAllocServerMap_PROC) (XkbDescPtr, unsigned int, unsigned int);
+PFN_XkbAllocServerMap_PROC XkbAllocServerMap_PROC = 0;
+#   define XkbAllocServerMap XkbAllocServerMap_PROC
+
+typedef int (* PFN_XkbApplyCompatMapToKey_PROC) (XkbDescPtr, KeyCode, XkbChangesPtr);
+PFN_XkbApplyCompatMapToKey_PROC XkbApplyCompatMapToKey_PROC = 0;
+#   define XkbApplyCompatMapToKey XkbApplyCompatMapToKey_PROC
+
+typedef int (* PFN_XkbApplyVirtualModChanges_PROC) (XkbDescPtr, unsigned int, XkbChangesPtr);
+PFN_XkbApplyVirtualModChanges_PROC XkbApplyVirtualModChanges_PROC = 0;
+#   define XkbApplyVirtualModChanges XkbApplyVirtualModChanges_PROC
+
+typedef int (* PFN_XkbBell_PROC) (Display *, Window, int, Atom);
+PFN_XkbBell_PROC XkbBell_PROC = 0;
+#   define XkbBell XkbBell_PROC
+
+typedef int (* PFN_XkbBellEvent_PROC) (Display *, Window, int, Atom);
+PFN_XkbBellEvent_PROC XkbBellEvent_PROC = 0;
+#   define XkbBellEvent XkbBellEvent_PROC
+
+typedef int (* PFN_XkbChangeDeviceInfo_PROC) (Display *, XkbDeviceInfoPtr, XkbDeviceChangesPtr);
+PFN_XkbChangeDeviceInfo_PROC XkbChangeDeviceInfo_PROC = 0;
+#   define XkbChangeDeviceInfo XkbChangeDeviceInfo_PROC
+
+typedef int (* PFN_XkbChangeEnabledControls_PROC) (Display *, unsigned int, unsigned int, unsigned int);
+PFN_XkbChangeEnabledControls_PROC XkbChangeEnabledControls_PROC = 0;
+#   define XkbChangeEnabledControls XkbChangeEnabledControls_PROC
+
+typedef int (* PFN_XkbChangeKeycodeRange_PROC) (XkbDescPtr, int, int, XkbChangesPtr);
+PFN_XkbChangeKeycodeRange_PROC XkbChangeKeycodeRange_PROC = 0;
+#   define XkbChangeKeycodeRange XkbChangeKeycodeRange_PROC
+
+typedef int (* PFN_XkbChangeMap_PROC) (Display *, XkbDescPtr, XkbMapChangesPtr);
+PFN_XkbChangeMap_PROC XkbChangeMap_PROC = 0;
+#   define XkbChangeMap XkbChangeMap_PROC
+
+typedef int (* PFN_XkbChangeNames_PROC) (Display *, XkbDescPtr, XkbNameChangesPtr);
+PFN_XkbChangeNames_PROC XkbChangeNames_PROC = 0;
+#   define XkbChangeNames XkbChangeNames_PROC
+
+typedef int (* PFN_XkbChangeTypesOfKey_PROC) (XkbDescPtr, int, int, unsigned int, int *, XkbMapChangesPtr);
+PFN_XkbChangeTypesOfKey_PROC XkbChangeTypesOfKey_PROC = 0;
+#   define XkbChangeTypesOfKey XkbChangeTypesOfKey_PROC
+
+typedef int (* PFN_XkbComputeEffectiveMap_PROC) (XkbDescPtr, XkbKeyTypePtr, unsigned char *);
+PFN_XkbComputeEffectiveMap_PROC XkbComputeEffectiveMap_PROC = 0;
+#   define XkbComputeEffectiveMap XkbComputeEffectiveMap_PROC
+
+typedef int (* PFN_XkbCopyKeyType_PROC) (XkbKeyTypePtr, XkbKeyTypePtr);
+PFN_XkbCopyKeyType_PROC XkbCopyKeyType_PROC = 0;
+#   define XkbCopyKeyType XkbCopyKeyType_PROC
+
+typedef int (* PFN_XkbCopyKeyTypes_PROC) (XkbKeyTypePtr, XkbKeyTypePtr, int);
+PFN_XkbCopyKeyTypes_PROC XkbCopyKeyTypes_PROC = 0;
+#   define XkbCopyKeyTypes XkbCopyKeyTypes_PROC
+
+typedef int (* PFN_XkbDeviceBell_PROC) (Display *, Window, int, int, int, int, Atom);
+PFN_XkbDeviceBell_PROC XkbDeviceBell_PROC = 0;
+#   define XkbDeviceBell XkbDeviceBell_PROC
+
+typedef int (* PFN_XkbDeviceBellEvent_PROC) (Display *, Window, int, int, int, int, Atom);
+PFN_XkbDeviceBellEvent_PROC XkbDeviceBellEvent_PROC = 0;
+#   define XkbDeviceBellEvent XkbDeviceBellEvent_PROC
+
+typedef int (* PFN_XkbForceBell_PROC) (Display *, int);
+PFN_XkbForceBell_PROC XkbForceBell_PROC = 0;
+#   define XkbForceBell XkbForceBell_PROC
+
+typedef int (* PFN_XkbForceDeviceBell_PROC) (Display *, int, int, int, int);
+PFN_XkbForceDeviceBell_PROC XkbForceDeviceBell_PROC = 0;
+#   define XkbForceDeviceBell XkbForceDeviceBell_PROC
+
+typedef void (* PFN_XkbFreeClientMap_PROC) (XkbDescPtr, unsigned int, int);
+PFN_XkbFreeClientMap_PROC XkbFreeClientMap_PROC = 0;
+#   define XkbFreeClientMap XkbFreeClientMap_PROC
+
+typedef void (* PFN_XkbFreeCompatMap_PROC) (XkbDescPtr, unsigned int, int);
+PFN_XkbFreeCompatMap_PROC XkbFreeCompatMap_PROC = 0;
+#   define XkbFreeCompatMap XkbFreeCompatMap_PROC
+
+typedef void (* PFN_XkbFreeComponentList_PROC) (XkbComponentListPtr);
+PFN_XkbFreeComponentList_PROC XkbFreeComponentList_PROC = 0;
+#   define XkbFreeComponentList XkbFreeComponentList_PROC
+
+typedef void (* PFN_XkbFreeControls_PROC) (XkbDescPtr, unsigned int, int);
+PFN_XkbFreeControls_PROC XkbFreeControls_PROC = 0;
+#   define XkbFreeControls XkbFreeControls_PROC
+
+typedef void (* PFN_XkbFreeDeviceInfo_PROC) (XkbDeviceInfoPtr, unsigned int, int);
+PFN_XkbFreeDeviceInfo_PROC XkbFreeDeviceInfo_PROC = 0;
+#   define XkbFreeDeviceInfo XkbFreeDeviceInfo_PROC
+
+typedef void (* PFN_XkbFreeIndicatorMaps_PROC) (XkbDescPtr);
+PFN_XkbFreeIndicatorMaps_PROC XkbFreeIndicatorMaps_PROC = 0;
+#   define XkbFreeIndicatorMaps XkbFreeIndicatorMaps_PROC
+
+typedef void (* PFN_XkbFreeKeyboard_PROC) (XkbDescPtr, unsigned int, int);
+PFN_XkbFreeKeyboard_PROC XkbFreeKeyboard_PROC = 0;
+#   define XkbFreeKeyboard XkbFreeKeyboard_PROC
+
+typedef void (* PFN_XkbFreeNames_PROC) (XkbDescPtr, unsigned int, int);
+PFN_XkbFreeNames_PROC XkbFreeNames_PROC = 0;
+#   define XkbFreeNames XkbFreeNames_PROC
+
+typedef void (* PFN_XkbFreeServerMap_PROC) (XkbDescPtr, unsigned int, int);
+PFN_XkbFreeServerMap_PROC XkbFreeServerMap_PROC = 0;
+#   define XkbFreeServerMap XkbFreeServerMap_PROC
+
+typedef int (* PFN_XkbGetAutoRepeatRate_PROC) (Display *, unsigned int, unsigned int *, unsigned int *);
+PFN_XkbGetAutoRepeatRate_PROC XkbGetAutoRepeatRate_PROC = 0;
+#   define XkbGetAutoRepeatRate XkbGetAutoRepeatRate_PROC
+
+typedef int (* PFN_XkbGetAutoResetControls_PROC) (Display *, unsigned int *, unsigned int *);
+PFN_XkbGetAutoResetControls_PROC XkbGetAutoResetControls_PROC = 0;
+#   define XkbGetAutoResetControls XkbGetAutoResetControls_PROC
+
+typedef int (* PFN_XkbGetCompatMap_PROC) (Display *, unsigned int, XkbDescPtr);
+PFN_XkbGetCompatMap_PROC XkbGetCompatMap_PROC = 0;
+#   define XkbGetCompatMap XkbGetCompatMap_PROC
+
+typedef int (* PFN_XkbGetControls_PROC) (Display *, unsigned long, XkbDescPtr);
+PFN_XkbGetControls_PROC XkbGetControls_PROC = 0;
+#   define XkbGetControls XkbGetControls_PROC
+
+typedef int (* PFN_XkbGetDetectableAutoRepeat_PROC) (Display *, int *);
+PFN_XkbGetDetectableAutoRepeat_PROC XkbGetDetectableAutoRepeat_PROC = 0;
+#   define XkbGetDetectableAutoRepeat XkbGetDetectableAutoRepeat_PROC
+
+typedef int (* PFN_XkbGetDeviceButtonActions_PROC) (Display *, XkbDeviceInfoPtr, int, unsigned int, unsigned int);
+PFN_XkbGetDeviceButtonActions_PROC XkbGetDeviceButtonActions_PROC = 0;
+#   define XkbGetDeviceButtonActions XkbGetDeviceButtonActions_PROC
+
+typedef XkbDeviceInfoPtr (* PFN_XkbGetDeviceInfo_PROC) (Display *, unsigned int, unsigned int, unsigned int, unsigned int);
+PFN_XkbGetDeviceInfo_PROC XkbGetDeviceInfo_PROC = 0;
+#   define XkbGetDeviceInfo XkbGetDeviceInfo_PROC
+
+typedef int (* PFN_XkbGetDeviceInfoChanges_PROC) (Display *, XkbDeviceInfoPtr, XkbDeviceChangesPtr);
+PFN_XkbGetDeviceInfoChanges_PROC XkbGetDeviceInfoChanges_PROC = 0;
+#   define XkbGetDeviceInfoChanges XkbGetDeviceInfoChanges_PROC
+
+typedef int (* PFN_XkbGetDeviceLedInfo_PROC) (Display *, XkbDeviceInfoPtr, unsigned int, unsigned int, unsigned int);
+PFN_XkbGetDeviceLedInfo_PROC XkbGetDeviceLedInfo_PROC = 0;
+#   define XkbGetDeviceLedInfo XkbGetDeviceLedInfo_PROC
+
+typedef int (* PFN_XkbGetIndicatorMap_PROC) (Display *, unsigned long, XkbDescPtr);
+PFN_XkbGetIndicatorMap_PROC XkbGetIndicatorMap_PROC = 0;
+#   define XkbGetIndicatorMap XkbGetIndicatorMap_PROC
+
+typedef int (* PFN_XkbGetIndicatorState_PROC) (Display *, unsigned int, unsigned int *);
+PFN_XkbGetIndicatorState_PROC XkbGetIndicatorState_PROC = 0;
+#   define XkbGetIndicatorState XkbGetIndicatorState_PROC
+
+typedef int (* PFN_XkbGetKeyActions_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
+PFN_XkbGetKeyActions_PROC XkbGetKeyActions_PROC = 0;
+#   define XkbGetKeyActions XkbGetKeyActions_PROC
+
+typedef int (* PFN_XkbGetKeyBehaviors_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
+PFN_XkbGetKeyBehaviors_PROC XkbGetKeyBehaviors_PROC = 0;
+#   define XkbGetKeyBehaviors XkbGetKeyBehaviors_PROC
+
+typedef int (* PFN_XkbGetKeyExplicitComponents_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
+PFN_XkbGetKeyExplicitComponents_PROC XkbGetKeyExplicitComponents_PROC = 0;
+#   define XkbGetKeyExplicitComponents XkbGetKeyExplicitComponents_PROC
+
+typedef int (* PFN_XkbGetKeyModifierMap_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
+PFN_XkbGetKeyModifierMap_PROC XkbGetKeyModifierMap_PROC = 0;
+#   define XkbGetKeyModifierMap XkbGetKeyModifierMap_PROC
+
+typedef int (* PFN_XkbGetKeySyms_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
+PFN_XkbGetKeySyms_PROC XkbGetKeySyms_PROC = 0;
+#   define XkbGetKeySyms XkbGetKeySyms_PROC
+
+typedef int (* PFN_XkbGetKeyTypes_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
+PFN_XkbGetKeyTypes_PROC XkbGetKeyTypes_PROC = 0;
+#   define XkbGetKeyTypes XkbGetKeyTypes_PROC
+
+typedef int (* PFN_XkbGetKeyVirtualModMap_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
+PFN_XkbGetKeyVirtualModMap_PROC XkbGetKeyVirtualModMap_PROC = 0;
+#   define XkbGetKeyVirtualModMap XkbGetKeyVirtualModMap_PROC
+
+typedef XkbDescPtr (* PFN_XkbGetKeyboard_PROC) (Display *, unsigned int, unsigned int);
+PFN_XkbGetKeyboard_PROC XkbGetKeyboard_PROC = 0;
+#   define XkbGetKeyboard XkbGetKeyboard_PROC
+
+typedef XkbDescPtr (* PFN_XkbGetKeyboardByName_PROC) (Display *, unsigned int, XkbComponentNamesPtr, unsigned int, unsigned int, int);
+PFN_XkbGetKeyboardByName_PROC XkbGetKeyboardByName_PROC = 0;
+#   define XkbGetKeyboardByName XkbGetKeyboardByName_PROC
+
+typedef XkbDescPtr (* PFN_XkbGetMap_PROC) (Display *, unsigned int, unsigned int);
+PFN_XkbGetMap_PROC XkbGetMap_PROC = 0;
+#   define XkbGetMap XkbGetMap_PROC
+
+typedef int (* PFN_XkbGetMapChanges_PROC) (Display *, XkbDescPtr, XkbMapChangesPtr);
+PFN_XkbGetMapChanges_PROC XkbGetMapChanges_PROC = 0;
+#   define XkbGetMapChanges XkbGetMapChanges_PROC
+
+typedef int (* PFN_XkbGetNamedDeviceIndicator_PROC) (Display *, unsigned int, unsigned int, unsigned int, Atom, int *, int *, XkbIndicatorMapPtr, int *);
+PFN_XkbGetNamedDeviceIndicator_PROC XkbGetNamedDeviceIndicator_PROC = 0;
+#   define XkbGetNamedDeviceIndicator XkbGetNamedDeviceIndicator_PROC
+
+typedef int (* PFN_XkbGetNamedIndicator_PROC) (Display *, Atom, int *, int *, XkbIndicatorMapPtr, int *);
+PFN_XkbGetNamedIndicator_PROC XkbGetNamedIndicator_PROC = 0;
+#   define XkbGetNamedIndicator XkbGetNamedIndicator_PROC
+
+typedef int (* PFN_XkbGetNames_PROC) (Display *, unsigned int, XkbDescPtr);
+PFN_XkbGetNames_PROC XkbGetNames_PROC = 0;
+#   define XkbGetNames XkbGetNames_PROC
+
+typedef int (* PFN_XkbGetPerClientControls_PROC) (Display *, unsigned int *);
+PFN_XkbGetPerClientControls_PROC XkbGetPerClientControls_PROC = 0;
+#   define XkbGetPerClientControls XkbGetPerClientControls_PROC
+
+typedef int (* PFN_XkbGetState_PROC) (Display *, unsigned int, XkbStatePtr);
+PFN_XkbGetState_PROC XkbGetState_PROC = 0;
+#   define XkbGetState XkbGetState_PROC
+
+typedef int (* PFN_XkbGetUpdatedMap_PROC) (Display *, unsigned int, XkbDescPtr);
+PFN_XkbGetUpdatedMap_PROC XkbGetUpdatedMap_PROC = 0;
+#   define XkbGetUpdatedMap XkbGetUpdatedMap_PROC
+
+typedef int (* PFN_XkbGetVirtualMods_PROC) (Display *, unsigned int, XkbDescPtr);
+PFN_XkbGetVirtualMods_PROC XkbGetVirtualMods_PROC = 0;
+#   define XkbGetVirtualMods XkbGetVirtualMods_PROC
+
+typedef unsigned int (* PFN_XkbGetXlibControls_PROC) (Display *);
+PFN_XkbGetXlibControls_PROC XkbGetXlibControls_PROC = 0;
+#   define XkbGetXlibControls XkbGetXlibControls_PROC
+
+typedef int (* PFN_XkbIgnoreExtension_PROC) (int);
+PFN_XkbIgnoreExtension_PROC XkbIgnoreExtension_PROC = 0;
+#   define XkbIgnoreExtension XkbIgnoreExtension_PROC
+
+typedef int (* PFN_XkbInitCanonicalKeyTypes_PROC) (XkbDescPtr, unsigned int, int);
+PFN_XkbInitCanonicalKeyTypes_PROC XkbInitCanonicalKeyTypes_PROC = 0;
+#   define XkbInitCanonicalKeyTypes XkbInitCanonicalKeyTypes_PROC
+
+typedef int (* PFN_XkbKeyTypesForCoreSymbols_PROC) (XkbDescPtr, int, KeySym *, unsigned int, int *, KeySym *);
+PFN_XkbKeyTypesForCoreSymbols_PROC XkbKeyTypesForCoreSymbols_PROC = 0;
+#   define XkbKeyTypesForCoreSymbols XkbKeyTypesForCoreSymbols_PROC
+
+typedef KeySym (* PFN_XkbKeycodeToKeysym_PROC) (Display *, KeyCode, int, int);
+PFN_XkbKeycodeToKeysym_PROC XkbKeycodeToKeysym_PROC = 0;
+#   define XkbKeycodeToKeysym XkbKeycodeToKeysym_PROC
+
+typedef unsigned int (* PFN_XkbKeysymToModifiers_PROC) (Display *, KeySym);
+PFN_XkbKeysymToModifiers_PROC XkbKeysymToModifiers_PROC = 0;
+#   define XkbKeysymToModifiers XkbKeysymToModifiers_PROC
+
+typedef int (* PFN_XkbLatchGroup_PROC) (Display *, unsigned int, unsigned int);
+PFN_XkbLatchGroup_PROC XkbLatchGroup_PROC = 0;
+#   define XkbLatchGroup XkbLatchGroup_PROC
+
+typedef int (* PFN_XkbLatchModifiers_PROC) (Display *, unsigned int, unsigned int, unsigned int);
+PFN_XkbLatchModifiers_PROC XkbLatchModifiers_PROC = 0;
+#   define XkbLatchModifiers XkbLatchModifiers_PROC
+
+typedef int (* PFN_XkbLibraryVersion_PROC) (int *, int *);
+PFN_XkbLibraryVersion_PROC XkbLibraryVersion_PROC = 0;
+#   define XkbLibraryVersion XkbLibraryVersion_PROC
+
+typedef XkbComponentListPtr (* PFN_XkbListComponents_PROC) (Display *, unsigned int, XkbComponentNamesPtr, int *);
+PFN_XkbListComponents_PROC XkbListComponents_PROC = 0;
+#   define XkbListComponents XkbListComponents_PROC
+
+typedef int (* PFN_XkbLockGroup_PROC) (Display *, unsigned int, unsigned int);
+PFN_XkbLockGroup_PROC XkbLockGroup_PROC = 0;
+#   define XkbLockGroup XkbLockGroup_PROC
+
+typedef int (* PFN_XkbLockModifiers_PROC) (Display *, unsigned int, unsigned int, unsigned int);
+PFN_XkbLockModifiers_PROC XkbLockModifiers_PROC = 0;
+#   define XkbLockModifiers XkbLockModifiers_PROC
+
+typedef int (* PFN_XkbLookupKeyBinding_PROC) (Display *, KeySym, unsigned int, char *, int, int *);
+PFN_XkbLookupKeyBinding_PROC XkbLookupKeyBinding_PROC = 0;
+#   define XkbLookupKeyBinding XkbLookupKeyBinding_PROC
+
+typedef int (* PFN_XkbLookupKeySym_PROC) (Display *, KeyCode, unsigned int, unsigned int *, KeySym *);
+PFN_XkbLookupKeySym_PROC XkbLookupKeySym_PROC = 0;
+#   define XkbLookupKeySym XkbLookupKeySym_PROC
+
+typedef void (* PFN_XkbNoteControlsChanges_PROC) (XkbControlsChangesPtr, XkbControlsNotifyEvent *, unsigned int);
+PFN_XkbNoteControlsChanges_PROC XkbNoteControlsChanges_PROC = 0;
+#   define XkbNoteControlsChanges XkbNoteControlsChanges_PROC
+
+typedef void (* PFN_XkbNoteDeviceChanges_PROC) (XkbDeviceChangesPtr, XkbExtensionDeviceNotifyEvent *, unsigned int);
+PFN_XkbNoteDeviceChanges_PROC XkbNoteDeviceChanges_PROC = 0;
+#   define XkbNoteDeviceChanges XkbNoteDeviceChanges_PROC
+
+typedef void (* PFN_XkbNoteMapChanges_PROC) (XkbMapChangesPtr, XkbMapNotifyEvent *, unsigned int);
+PFN_XkbNoteMapChanges_PROC XkbNoteMapChanges_PROC = 0;
+#   define XkbNoteMapChanges XkbNoteMapChanges_PROC
+
+typedef void (* PFN_XkbNoteNameChanges_PROC) (XkbNameChangesPtr, XkbNamesNotifyEvent *, unsigned int);
+PFN_XkbNoteNameChanges_PROC XkbNoteNameChanges_PROC = 0;
+#   define XkbNoteNameChanges XkbNoteNameChanges_PROC
+
+typedef Display *(* PFN_XkbOpenDisplay_PROC) (const char *, int *, int *, int *, int *, int *);
+PFN_XkbOpenDisplay_PROC XkbOpenDisplay_PROC = 0;
+#   define XkbOpenDisplay XkbOpenDisplay_PROC
+
+typedef int (* PFN_XkbQueryExtension_PROC) (Display *, int *, int *, int *, int *, int *);
+PFN_XkbQueryExtension_PROC XkbQueryExtension_PROC = 0;
+#   define XkbQueryExtension XkbQueryExtension_PROC
+
+typedef int (* PFN_XkbRefreshKeyboardMapping_PROC) (XkbMapNotifyEvent *);
+PFN_XkbRefreshKeyboardMapping_PROC XkbRefreshKeyboardMapping_PROC = 0;
+#   define XkbRefreshKeyboardMapping XkbRefreshKeyboardMapping_PROC
+
+typedef int (* PFN_XkbResizeDeviceButtonActions_PROC) (XkbDeviceInfoPtr, unsigned int);
+PFN_XkbResizeDeviceButtonActions_PROC XkbResizeDeviceButtonActions_PROC = 0;
+#   define XkbResizeDeviceButtonActions XkbResizeDeviceButtonActions_PROC
+
+typedef XkbAction *(* PFN_XkbResizeKeyActions_PROC) (XkbDescPtr, int, int);
+PFN_XkbResizeKeyActions_PROC XkbResizeKeyActions_PROC = 0;
+#   define XkbResizeKeyActions XkbResizeKeyActions_PROC
+
+typedef KeySym *(* PFN_XkbResizeKeySyms_PROC) (XkbDescPtr, int, int);
+PFN_XkbResizeKeySyms_PROC XkbResizeKeySyms_PROC = 0;
+#   define XkbResizeKeySyms XkbResizeKeySyms_PROC
+
+typedef int (* PFN_XkbResizeKeyType_PROC) (XkbDescPtr, int, int, int, int);
+PFN_XkbResizeKeyType_PROC XkbResizeKeyType_PROC = 0;
+#   define XkbResizeKeyType XkbResizeKeyType_PROC
+
+typedef int (* PFN_XkbSelectEventDetails_PROC) (Display *, unsigned int, unsigned int, unsigned long, unsigned long);
+PFN_XkbSelectEventDetails_PROC XkbSelectEventDetails_PROC = 0;
+#   define XkbSelectEventDetails XkbSelectEventDetails_PROC
+
+typedef int (* PFN_XkbSelectEvents_PROC) (Display *, unsigned int, unsigned int, unsigned int);
+PFN_XkbSelectEvents_PROC XkbSelectEvents_PROC = 0;
+#   define XkbSelectEvents XkbSelectEvents_PROC
+
+typedef void (* PFN_XkbSetAtomFuncs_PROC) (XkbInternAtomFunc, XkbGetAtomNameFunc);
+PFN_XkbSetAtomFuncs_PROC XkbSetAtomFuncs_PROC = 0;
+#   define XkbSetAtomFuncs XkbSetAtomFuncs_PROC
+
+typedef int (* PFN_XkbSetAutoRepeatRate_PROC) (Display *, unsigned int, unsigned int, unsigned int);
+PFN_XkbSetAutoRepeatRate_PROC XkbSetAutoRepeatRate_PROC = 0;
+#   define XkbSetAutoRepeatRate XkbSetAutoRepeatRate_PROC
+
+typedef int (* PFN_XkbSetAutoResetControls_PROC) (Display *, unsigned int, unsigned int *, unsigned int *);
+PFN_XkbSetAutoResetControls_PROC XkbSetAutoResetControls_PROC = 0;
+#   define XkbSetAutoResetControls XkbSetAutoResetControls_PROC
+
+typedef int (* PFN_XkbSetCompatMap_PROC) (Display *, unsigned int, XkbDescPtr, int);
+PFN_XkbSetCompatMap_PROC XkbSetCompatMap_PROC = 0;
+#   define XkbSetCompatMap XkbSetCompatMap_PROC
+
+typedef int (* PFN_XkbSetControls_PROC) (Display *, unsigned long, XkbDescPtr);
+PFN_XkbSetControls_PROC XkbSetControls_PROC = 0;
+#   define XkbSetControls XkbSetControls_PROC
+
+typedef int (* PFN_XkbSetDebuggingFlags_PROC) (Display *, unsigned int, unsigned int, char *, unsigned int, unsigned int, unsigned int *, unsigned int *);
+PFN_XkbSetDebuggingFlags_PROC XkbSetDebuggingFlags_PROC = 0;
+#   define XkbSetDebuggingFlags XkbSetDebuggingFlags_PROC
+
+typedef int (* PFN_XkbSetDetectableAutoRepeat_PROC) (Display *, int, int *);
+PFN_XkbSetDetectableAutoRepeat_PROC XkbSetDetectableAutoRepeat_PROC = 0;
+#   define XkbSetDetectableAutoRepeat XkbSetDetectableAutoRepeat_PROC
+
+typedef int (* PFN_XkbSetDeviceButtonActions_PROC) (Display *, XkbDeviceInfoPtr, unsigned int, unsigned int);
+PFN_XkbSetDeviceButtonActions_PROC XkbSetDeviceButtonActions_PROC = 0;
+#   define XkbSetDeviceButtonActions XkbSetDeviceButtonActions_PROC
+
+typedef int (* PFN_XkbSetDeviceInfo_PROC) (Display *, unsigned int, XkbDeviceInfoPtr);
+PFN_XkbSetDeviceInfo_PROC XkbSetDeviceInfo_PROC = 0;
+#   define XkbSetDeviceInfo XkbSetDeviceInfo_PROC
+
+typedef int (* PFN_XkbSetDeviceLedInfo_PROC) (Display *, XkbDeviceInfoPtr, unsigned int, unsigned int, unsigned int);
+PFN_XkbSetDeviceLedInfo_PROC XkbSetDeviceLedInfo_PROC = 0;
+#   define XkbSetDeviceLedInfo XkbSetDeviceLedInfo_PROC
+
+typedef int (* PFN_XkbSetIgnoreLockMods_PROC) (Display *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int);
+PFN_XkbSetIgnoreLockMods_PROC XkbSetIgnoreLockMods_PROC = 0;
+#   define XkbSetIgnoreLockMods XkbSetIgnoreLockMods_PROC
+
+typedef int (* PFN_XkbSetIndicatorMap_PROC) (Display *, unsigned long, XkbDescPtr);
+PFN_XkbSetIndicatorMap_PROC XkbSetIndicatorMap_PROC = 0;
+#   define XkbSetIndicatorMap XkbSetIndicatorMap_PROC
+
+typedef int (* PFN_XkbSetMap_PROC) (Display *, unsigned int, XkbDescPtr);
+PFN_XkbSetMap_PROC XkbSetMap_PROC = 0;
+#   define XkbSetMap XkbSetMap_PROC
+
+typedef int (* PFN_XkbSetNamedDeviceIndicator_PROC) (Display *, unsigned int, unsigned int, unsigned int, Atom, int, int, int, XkbIndicatorMapPtr);
+PFN_XkbSetNamedDeviceIndicator_PROC XkbSetNamedDeviceIndicator_PROC = 0;
+#   define XkbSetNamedDeviceIndicator XkbSetNamedDeviceIndicator_PROC
+
+typedef int (* PFN_XkbSetNamedIndicator_PROC) (Display *, Atom, int, int, int, XkbIndicatorMapPtr);
+PFN_XkbSetNamedIndicator_PROC XkbSetNamedIndicator_PROC = 0;
+#   define XkbSetNamedIndicator XkbSetNamedIndicator_PROC
+
+typedef int (* PFN_XkbSetNames_PROC) (Display *, unsigned int, unsigned int, unsigned int, XkbDescPtr);
+PFN_XkbSetNames_PROC XkbSetNames_PROC = 0;
+#   define XkbSetNames XkbSetNames_PROC
+
+typedef int (* PFN_XkbSetPerClientControls_PROC) (Display *, unsigned int, unsigned int *);
+PFN_XkbSetPerClientControls_PROC XkbSetPerClientControls_PROC = 0;
+#   define XkbSetPerClientControls XkbSetPerClientControls_PROC
+
+typedef int (* PFN_XkbSetServerInternalMods_PROC) (Display *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int);
+PFN_XkbSetServerInternalMods_PROC XkbSetServerInternalMods_PROC = 0;
+#   define XkbSetServerInternalMods XkbSetServerInternalMods_PROC
+
+typedef unsigned int (* PFN_XkbSetXlibControls_PROC) (Display *, unsigned int, unsigned int);
+PFN_XkbSetXlibControls_PROC XkbSetXlibControls_PROC = 0;
+#   define XkbSetXlibControls XkbSetXlibControls_PROC
+
+typedef char (* PFN_XkbToControl_PROC) (char);
+PFN_XkbToControl_PROC XkbToControl_PROC = 0;
+#   define XkbToControl XkbToControl_PROC
+
+typedef int (* PFN_XkbTranslateKeyCode_PROC) (XkbDescPtr, KeyCode, unsigned int, unsigned int *, KeySym *);
+PFN_XkbTranslateKeyCode_PROC XkbTranslateKeyCode_PROC = 0;
+#   define XkbTranslateKeyCode XkbTranslateKeyCode_PROC
+
+typedef int (* PFN_XkbTranslateKeySym_PROC) (Display *, KeySym *, unsigned int, char *, int, int *);
+PFN_XkbTranslateKeySym_PROC XkbTranslateKeySym_PROC = 0;
+#   define XkbTranslateKeySym XkbTranslateKeySym_PROC
+
+typedef int (* PFN_XkbUpdateActionVirtualMods_PROC) (XkbDescPtr, XkbAction *, unsigned int);
+PFN_XkbUpdateActionVirtualMods_PROC XkbUpdateActionVirtualMods_PROC = 0;
+#   define XkbUpdateActionVirtualMods XkbUpdateActionVirtualMods_PROC
+
+typedef void (* PFN_XkbUpdateKeyTypeVirtualMods_PROC) (XkbDescPtr, XkbKeyTypePtr, unsigned int, XkbChangesPtr);
+PFN_XkbUpdateKeyTypeVirtualMods_PROC XkbUpdateKeyTypeVirtualMods_PROC = 0;
+#   define XkbUpdateKeyTypeVirtualMods XkbUpdateKeyTypeVirtualMods_PROC
+
+typedef int (* PFN_XkbUpdateMapFromCore_PROC) (XkbDescPtr, KeyCode, int, int, KeySym *, XkbChangesPtr);
+PFN_XkbUpdateMapFromCore_PROC XkbUpdateMapFromCore_PROC = 0;
+#   define XkbUpdateMapFromCore XkbUpdateMapFromCore_PROC
+
+typedef int (* PFN_XkbUseExtension_PROC) (Display *, int *, int *);
+PFN_XkbUseExtension_PROC XkbUseExtension_PROC = 0;
+#   define XkbUseExtension XkbUseExtension_PROC
+
+typedef int (* PFN_XkbVirtualModsToReal_PROC) (XkbDescPtr, unsigned int, unsigned int *);
+PFN_XkbVirtualModsToReal_PROC XkbVirtualModsToReal_PROC = 0;
+#   define XkbVirtualModsToReal XkbVirtualModsToReal_PROC
+
+typedef unsigned int (* PFN_XkbXlibControlsImplemented_PROC) (void);
+PFN_XkbXlibControlsImplemented_PROC XkbXlibControlsImplemented_PROC = 0;
+#   define XkbXlibControlsImplemented XkbXlibControlsImplemented_PROC
+
 
 typedef struct __window_h_x11 *__window_h_x11;
 
@@ -1344,84 +3602,6 @@ struct __window_h_x11 {
 
     /* libX11 */
     void *handle;
-    PFN_XAllocClassHint_PROC AllocClassHint;
-    PFN_XAllocSizeHints_PROC AllocSizeHints;
-    PFN_XAllocWMHints_PROC AllocWMHints;
-    PFN_XChangeProperty_PROC ChangeProperty;
-    PFN_XChangeWindowAttributes_PROC ChangeWindowAttributes;
-    PFN_XCheckIfEvent_PROC CheckIfEvent;
-    PFN_XCheckTypedWindowEvent_PROC CheckTypedWindowEvent;
-    PFN_XCloseDisplay_PROC CloseDisplay;
-    PFN_XConvertSelection_PROC ConvertSelection;
-    PFN_XCreateColormap_PROC CreateColormap;
-    PFN_XCreateFontCursor_PROC CreateFontCursor;
-    PFN_XCreateRegion_PROC CreateRegion;
-    PFN_XCreateWindow_PROC CreateWindow;
-    PFN_XDefineCursor_PROC DefineCursor;
-    PFN_XDeleteContext_PROC DeleteContext;
-    PFN_XDeleteProperty_PROC DeleteProperty;
-    PFN_XDestroyRegion_PROC DestroyRegion;
-    PFN_XDestroyWindow_PROC DestroyWindow;
-    PFN_XDisplayKeycodes_PROC DisplayKeycodes;
-    PFN_XEventsQueued_PROC EventsQueued;
-    PFN_XFetchName_PROC FetchName;
-    PFN_XFilterEvent_PROC FilterEvent;
-    PFN_XFindContext_PROC FindContext;
-    PFN_XFlush_PROC Flush;
-    PFN_XFree_PROC Free;
-    PFN_XFreeColormap_PROC FreeColormap;
-    PFN_XFreeCursor_PROC FreeCursor;
-    PFN_XFreeEventData_PROC FreeEventData;
-    PFN_XGetErrorText_PROC GetErrorText;
-    PFN_XGetEventData_PROC GetEventData;
-    PFN_XGetInputFocus_PROC GetInputFocus;
-    PFN_XGetKeyboardMapping_PROC GetKeyboardMapping;
-    PFN_XGetSelectionOwner_PROC GetSelectionOwner;
-    PFN_XGetVisualInfo_PROC GetVisualInfo;
-    PFN_XGetWMNormalHints_PROC GetWMNormalHints;
-    PFN_XGetWindowAttributes_PROC GetWindowAttributes;
-    PFN_XGetWindowProperty_PROC GetWindowProperty;
-    PFN_XGrabPointer_PROC GrabPointer;
-    PFN_XIconifyWindow_PROC IconifyWindow;
-    PFN_XInitThreads_PROC InitThreads;
-    PFN_XInternAtom_PROC InternAtom;
-    PFN_XLookupString_PROC LookupString;
-    PFN_XMapRaised_PROC MapRaised;
-    PFN_XMapWindow_PROC MapWindow;
-    PFN_XMoveResizeWindow_PROC MoveResizeWindow;
-    PFN_XMoveWindow_PROC MoveWindow;
-    PFN_XNextEvent_PROC NextEvent;
-    PFN_XOpenDisplay_PROC OpenDisplay;
-    PFN_XPeekEvent_PROC PeekEvent;
-    PFN_XPending_PROC Pending;
-    PFN_XQueryExtension_PROC QueryExtension;
-    PFN_XQueryPointer_PROC QueryPointer;
-    PFN_XRaiseWindow_PROC RaiseWindow;
-    PFN_XRegisterIMInstantiateCallback_PROC RegisterIMInstantiateCallback;
-    PFN_XResizeWindow_PROC ResizeWindow;
-    PFN_XSaveContext_PROC SaveContext;
-    PFN_XSelectInput_PROC SelectInput;
-    PFN_XSendEvent_PROC SendEvent;
-    PFN_XSetClassHint_PROC SetClassHint;
-    PFN_XSetErrorHandler_PROC SetErrorHandler;
-    PFN_XSetInputFocus_PROC SetInputFocus;
-    PFN_XSetLocaleModifiers_PROC SetLocaleModifiers;
-    PFN_XSetSelectionOwner_PROC SetSelectionOwner;
-    PFN_XSetWMHints_PROC SetWMHints;
-    PFN_XSetWMNormalHints_PROC SetWMNormalHints;
-    PFN_XSetWMProtocols_PROC SetWMProtocols;
-    PFN_XStoreName_PROC StoreName;
-    PFN_XSupportsLocale_PROC SupportsLocale;
-    PFN_XSync_PROC Sync;
-    PFN_XTranslateCoordinates_PROC TranslateCoordinates;
-    PFN_XUndefineCursor_PROC UndefineCursor;
-    PFN_XUngrabPointer_PROC UngrabPointer;
-    PFN_XUnmapWindow_PROC UnmapWindow;
-    PFN_XVisualIDFromVisual_PROC VisualIDFromVisual;
-    PFN_XWarpPointer_PROC WarpPointer;
-    PFN_XWindowEvent_PROC WindowEvent;
-    PFN_XkbKeycodeToKeysym_PROC kbKeycodeToKeysym;
-    PFN_XkbSetDetectableAutoRepeat_PROC kbSetDetectableAutoRepeat;
 };
 
 /* window type definitions */
@@ -1530,240 +3710,1217 @@ WININT int __winLoadX11Symbols(void) {
         if (!handle) { return (0); }
     }
 
-    /* load libX11 symbols */
-    XAllocClassHint = (PFN_XAllocClassHint_PROC) dlsym(handle, "XAllocClassHint");
-    if (!XAllocClassHint) { return (0); }
-
-    XAllocSizeHints = (PFN_XAllocSizeHints_PROC) dlsym(handle, "XAllocSizeHints");
-    if (!XAllocSizeHints) { return (0); }
-
-    XAllocWMHints = (PFN_XAllocWMHints_PROC) dlsym(handle, "XAllocWMHints");
-    if (!XAllocWMHints) { return (0); }
-
+    /* libX11: Xlib.h */
+    XActivateScreenSaver = (PFN_XActivateScreenSaver_PROC) dlsym(handle, "XActivateScreenSaver");
+    if (!XActivateScreenSaver) { return (0); }
+    XAddConnectionWatch = (PFN_XAddConnectionWatch_PROC) dlsym(handle, "XAddConnectionWatch");
+    if (!XAddConnectionWatch) { return (0); }
+    XAddExtension = (PFN_XAddExtension_PROC) dlsym(handle, "XAddExtension");
+    if (!XAddExtension) { return (0); }
+    XAddHost = (PFN_XAddHost_PROC) dlsym(handle, "XAddHost");
+    if (!XAddHost) { return (0); }
+    XAddHosts = (PFN_XAddHosts_PROC) dlsym(handle, "XAddHosts");
+    if (!XAddHosts) { return (0); }
+    XAddToExtensionList = (PFN_XAddToExtensionList_PROC) dlsym(handle, "XAddToExtensionList");
+    if (!XAddToExtensionList) { return (0); }
+    XAddToSaveSet = (PFN_XAddToSaveSet_PROC) dlsym(handle, "XAddToSaveSet");
+    if (!XAddToSaveSet) { return (0); }
+    XAllPlanes = (PFN_XAllPlanes_PROC) dlsym(handle, "XAllPlanes");
+    if (!XAllPlanes) { return (0); }
+    XAllocColor = (PFN_XAllocColor_PROC) dlsym(handle, "XAllocColor");
+    if (!XAllocColor) { return (0); }
+    XAllocColorCells = (PFN_XAllocColorCells_PROC) dlsym(handle, "XAllocColorCells");
+    if (!XAllocColorCells) { return (0); }
+    XAllocColorPlanes = (PFN_XAllocColorPlanes_PROC) dlsym(handle, "XAllocColorPlanes");
+    if (!XAllocColorPlanes) { return (0); }
+    XAllocNamedColor = (PFN_XAllocNamedColor_PROC) dlsym(handle, "XAllocNamedColor");
+    if (!XAllocNamedColor) { return (0); }
+    XAllowEvents = (PFN_XAllowEvents_PROC) dlsym(handle, "XAllowEvents");
+    if (!XAllowEvents) { return (0); }
+    XAutoRepeatOff = (PFN_XAutoRepeatOff_PROC) dlsym(handle, "XAutoRepeatOff");
+    if (!XAutoRepeatOff) { return (0); }
+    XAutoRepeatOn = (PFN_XAutoRepeatOn_PROC) dlsym(handle, "XAutoRepeatOn");
+    if (!XAutoRepeatOn) { return (0); }
+    XBaseFontNameListOfFontSet = (PFN_XBaseFontNameListOfFontSet_PROC) dlsym(handle, "XBaseFontNameListOfFontSet");
+    if (!XBaseFontNameListOfFontSet) { return (0); }
+    XBell = (PFN_XBell_PROC) dlsym(handle, "XBell");
+    if (!XBell) { return (0); }
+    XBitmapBitOrder = (PFN_XBitmapBitOrder_PROC) dlsym(handle, "XBitmapBitOrder");
+    if (!XBitmapBitOrder) { return (0); }
+    XBitmapPad = (PFN_XBitmapPad_PROC) dlsym(handle, "XBitmapPad");
+    if (!XBitmapPad) { return (0); }
+    XBitmapUnit = (PFN_XBitmapUnit_PROC) dlsym(handle, "XBitmapUnit");
+    if (!XBitmapUnit) { return (0); }
+    XBlackPixel = (PFN_XBlackPixel_PROC) dlsym(handle, "XBlackPixel");
+    if (!XBlackPixel) { return (0); }
+    XBlackPixelOfScreen = (PFN_XBlackPixelOfScreen_PROC) dlsym(handle, "XBlackPixelOfScreen");
+    if (!XBlackPixelOfScreen) { return (0); }
+    XCellsOfScreen = (PFN_XCellsOfScreen_PROC) dlsym(handle, "XCellsOfScreen");
+    if (!XCellsOfScreen) { return (0); }
+    XChangeActivePointerGrab = (PFN_XChangeActivePointerGrab_PROC) dlsym(handle, "XChangeActivePointerGrab");
+    if (!XChangeActivePointerGrab) { return (0); }
+    XChangeGC = (PFN_XChangeGC_PROC) dlsym(handle, "XChangeGC");
+    if (!XChangeGC) { return (0); }
+    XChangeKeyboardControl = (PFN_XChangeKeyboardControl_PROC) dlsym(handle, "XChangeKeyboardControl");
+    if (!XChangeKeyboardControl) { return (0); }
+    XChangeKeyboardMapping = (PFN_XChangeKeyboardMapping_PROC) dlsym(handle, "XChangeKeyboardMapping");
+    if (!XChangeKeyboardMapping) { return (0); }
+    XChangePointerControl = (PFN_XChangePointerControl_PROC) dlsym(handle, "XChangePointerControl");
+    if (!XChangePointerControl) { return (0); }
     XChangeProperty = (PFN_XChangeProperty_PROC) dlsym(handle, "XChangeProperty");
     if (!XChangeProperty) { return (0); }
-
+    XChangeSaveSet = (PFN_XChangeSaveSet_PROC) dlsym(handle, "XChangeSaveSet");
+    if (!XChangeSaveSet) { return (0); }
     XChangeWindowAttributes = (PFN_XChangeWindowAttributes_PROC) dlsym(handle, "XChangeWindowAttributes");
     if (!XChangeWindowAttributes) { return (0); }
-
     XCheckIfEvent = (PFN_XCheckIfEvent_PROC) dlsym(handle, "XCheckIfEvent");
     if (!XCheckIfEvent) { return (0); }
-
+    XCheckMaskEvent = (PFN_XCheckMaskEvent_PROC) dlsym(handle, "XCheckMaskEvent");
+    if (!XCheckMaskEvent) { return (0); }
+    XCheckTypedEvent = (PFN_XCheckTypedEvent_PROC) dlsym(handle, "XCheckTypedEvent");
+    if (!XCheckTypedEvent) { return (0); }
     XCheckTypedWindowEvent = (PFN_XCheckTypedWindowEvent_PROC) dlsym(handle, "XCheckTypedWindowEvent");
     if (!XCheckTypedWindowEvent) { return (0); }
-
+    XCheckWindowEvent = (PFN_XCheckWindowEvent_PROC) dlsym(handle, "XCheckWindowEvent");
+    if (!XCheckWindowEvent) { return (0); }
+    XCirculateSubwindows = (PFN_XCirculateSubwindows_PROC) dlsym(handle, "XCirculateSubwindows");
+    if (!XCirculateSubwindows) { return (0); }
+    XCirculateSubwindowsDown = (PFN_XCirculateSubwindowsDown_PROC) dlsym(handle, "XCirculateSubwindowsDown");
+    if (!XCirculateSubwindowsDown) { return (0); }
+    XCirculateSubwindowsUp = (PFN_XCirculateSubwindowsUp_PROC) dlsym(handle, "XCirculateSubwindowsUp");
+    if (!XCirculateSubwindowsUp) { return (0); }
+    XClearArea = (PFN_XClearArea_PROC) dlsym(handle, "XClearArea");
+    if (!XClearArea) { return (0); }
+    XClearWindow = (PFN_XClearWindow_PROC) dlsym(handle, "XClearWindow");
+    if (!XClearWindow) { return (0); }
     XCloseDisplay = (PFN_XCloseDisplay_PROC) dlsym(handle, "XCloseDisplay");
     if (!XCloseDisplay) { return (0); }
-
+    XCloseIM = (PFN_XCloseIM_PROC) dlsym(handle, "XCloseIM");
+    if (!XCloseIM) { return (0); }
+    XCloseOM = (PFN_XCloseOM_PROC) dlsym(handle, "XCloseOM");
+    if (!XCloseOM) { return (0); }
+    XConfigureWindow = (PFN_XConfigureWindow_PROC) dlsym(handle, "XConfigureWindow");
+    if (!XConfigureWindow) { return (0); }
+    XConnectionNumber = (PFN_XConnectionNumber_PROC) dlsym(handle, "XConnectionNumber");
+    if (!XConnectionNumber) { return (0); }
+    XContextDependentDrawing = (PFN_XContextDependentDrawing_PROC) dlsym(handle, "XContextDependentDrawing");
+    if (!XContextDependentDrawing) { return (0); }
+    XContextualDrawing = (PFN_XContextualDrawing_PROC) dlsym(handle, "XContextualDrawing");
+    if (!XContextualDrawing) { return (0); }
     XConvertSelection = (PFN_XConvertSelection_PROC) dlsym(handle, "XConvertSelection");
     if (!XConvertSelection) { return (0); }
-
+    XCopyArea = (PFN_XCopyArea_PROC) dlsym(handle, "XCopyArea");
+    if (!XCopyArea) { return (0); }
+    XCopyColormapAndFree = (PFN_XCopyColormapAndFree_PROC) dlsym(handle, "XCopyColormapAndFree");
+    if (!XCopyColormapAndFree) { return (0); }
+    XCopyGC = (PFN_XCopyGC_PROC) dlsym(handle, "XCopyGC");
+    if (!XCopyGC) { return (0); }
+    XCopyPlane = (PFN_XCopyPlane_PROC) dlsym(handle, "XCopyPlane");
+    if (!XCopyPlane) { return (0); }
+    XCreateBitmapFromData = (PFN_XCreateBitmapFromData_PROC) dlsym(handle, "XCreateBitmapFromData");
+    if (!XCreateBitmapFromData) { return (0); }
     XCreateColormap = (PFN_XCreateColormap_PROC) dlsym(handle, "XCreateColormap");
     if (!XCreateColormap) { return (0); }
-
     XCreateFontCursor = (PFN_XCreateFontCursor_PROC) dlsym(handle, "XCreateFontCursor");
     if (!XCreateFontCursor) { return (0); }
-
-    XCreateRegion = (PFN_XCreateRegion_PROC) dlsym(handle, "XCreateRegion");
-    if (!XCreateRegion) { return (0); }
-
+    XCreateFontSet = (PFN_XCreateFontSet_PROC) dlsym(handle, "XCreateFontSet");
+    if (!XCreateFontSet) { return (0); }
+    XCreateGC = (PFN_XCreateGC_PROC) dlsym(handle, "XCreateGC");
+    if (!XCreateGC) { return (0); }
+    XCreateGlyphCursor = (PFN_XCreateGlyphCursor_PROC) dlsym(handle, "XCreateGlyphCursor");
+    if (!XCreateGlyphCursor) { return (0); }
+    XCreateIC = (PFN_XCreateIC_PROC) dlsym(handle, "XCreateIC");
+    if (!XCreateIC) { return (0); }
+    XCreateImage = (PFN_XCreateImage_PROC) dlsym(handle, "XCreateImage");
+    if (!XCreateImage) { return (0); }
+    XCreateOC = (PFN_XCreateOC_PROC) dlsym(handle, "XCreateOC");
+    if (!XCreateOC) { return (0); }
+    XCreatePixmap = (PFN_XCreatePixmap_PROC) dlsym(handle, "XCreatePixmap");
+    if (!XCreatePixmap) { return (0); }
+    XCreatePixmapCursor = (PFN_XCreatePixmapCursor_PROC) dlsym(handle, "XCreatePixmapCursor");
+    if (!XCreatePixmapCursor) { return (0); }
+    XCreatePixmapFromBitmapData = (PFN_XCreatePixmapFromBitmapData_PROC) dlsym(handle, "XCreatePixmapFromBitmapData");
+    if (!XCreatePixmapFromBitmapData) { return (0); }
+    XCreateSimpleWindow = (PFN_XCreateSimpleWindow_PROC) dlsym(handle, "XCreateSimpleWindow");
+    if (!XCreateSimpleWindow) { return (0); }
     XCreateWindow = (PFN_XCreateWindow_PROC) dlsym(handle, "XCreateWindow");
     if (!XCreateWindow) { return (0); }
-
+    XDefaultColormap = (PFN_XDefaultColormap_PROC) dlsym(handle, "XDefaultColormap");
+    if (!XDefaultColormap) { return (0); }
+    XDefaultColormapOfScreen = (PFN_XDefaultColormapOfScreen_PROC) dlsym(handle, "XDefaultColormapOfScreen");
+    if (!XDefaultColormapOfScreen) { return (0); }
+    XDefaultDepth = (PFN_XDefaultDepth_PROC) dlsym(handle, "XDefaultDepth");
+    if (!XDefaultDepth) { return (0); }
+    XDefaultDepthOfScreen = (PFN_XDefaultDepthOfScreen_PROC) dlsym(handle, "XDefaultDepthOfScreen");
+    if (!XDefaultDepthOfScreen) { return (0); }
+    XDefaultGC = (PFN_XDefaultGC_PROC) dlsym(handle, "XDefaultGC");
+    if (!XDefaultGC) { return (0); }
+    XDefaultGCOfScreen = (PFN_XDefaultGCOfScreen_PROC) dlsym(handle, "XDefaultGCOfScreen");
+    if (!XDefaultGCOfScreen) { return (0); }
+    XDefaultRootWindow = (PFN_XDefaultRootWindow_PROC) dlsym(handle, "XDefaultRootWindow");
+    if (!XDefaultRootWindow) { return (0); }
+    XDefaultScreen = (PFN_XDefaultScreen_PROC) dlsym(handle, "XDefaultScreen");
+    if (!XDefaultScreen) { return (0); }
+    XDefaultScreenOfDisplay = (PFN_XDefaultScreenOfDisplay_PROC) dlsym(handle, "XDefaultScreenOfDisplay");
+    if (!XDefaultScreenOfDisplay) { return (0); }
+    XDefaultVisual = (PFN_XDefaultVisual_PROC) dlsym(handle, "XDefaultVisual");
+    if (!XDefaultVisual) { return (0); }
+    XDefaultVisualOfScreen = (PFN_XDefaultVisualOfScreen_PROC) dlsym(handle, "XDefaultVisualOfScreen");
+    if (!XDefaultVisualOfScreen) { return (0); }
     XDefineCursor = (PFN_XDefineCursor_PROC) dlsym(handle, "XDefineCursor");
     if (!XDefineCursor) { return (0); }
-
-    XDeleteContext = (PFN_XDeleteContext_PROC) dlsym(handle, "XDeleteContext");
-    if (!XDeleteContext) { return (0); }
-
+    XDeleteModifiermapEntry = (PFN_XDeleteModifiermapEntry_PROC) dlsym(handle, "XDeleteModifiermapEntry");
+    if (!XDeleteModifiermapEntry) { return (0); }
     XDeleteProperty = (PFN_XDeleteProperty_PROC) dlsym(handle, "XDeleteProperty");
     if (!XDeleteProperty) { return (0); }
-
-    XDestroyRegion = (PFN_XDestroyRegion_PROC) dlsym(handle, "XDestroyRegion");
-    if (!XDestroyRegion) { return (0); }
-
+    XDestroyIC = (PFN_XDestroyIC_PROC) dlsym(handle, "XDestroyIC");
+    if (!XDestroyIC) { return (0); }
+    XDestroyOC = (PFN_XDestroyOC_PROC) dlsym(handle, "XDestroyOC");
+    if (!XDestroyOC) { return (0); }
+    XDestroySubwindows = (PFN_XDestroySubwindows_PROC) dlsym(handle, "XDestroySubwindows");
+    if (!XDestroySubwindows) { return (0); }
     XDestroyWindow = (PFN_XDestroyWindow_PROC) dlsym(handle, "XDestroyWindow");
     if (!XDestroyWindow) { return (0); }
-
+    XDirectionalDependentDrawing = (PFN_XDirectionalDependentDrawing_PROC) dlsym(handle, "XDirectionalDependentDrawing");
+    if (!XDirectionalDependentDrawing) { return (0); }
+    XDisableAccessControl = (PFN_XDisableAccessControl_PROC) dlsym(handle, "XDisableAccessControl");
+    if (!XDisableAccessControl) { return (0); }
+    XDisplayCells = (PFN_XDisplayCells_PROC) dlsym(handle, "XDisplayCells");
+    if (!XDisplayCells) { return (0); }
+    XDisplayHeight = (PFN_XDisplayHeight_PROC) dlsym(handle, "XDisplayHeight");
+    if (!XDisplayHeight) { return (0); }
+    XDisplayHeightMM = (PFN_XDisplayHeightMM_PROC) dlsym(handle, "XDisplayHeightMM");
+    if (!XDisplayHeightMM) { return (0); }
     XDisplayKeycodes = (PFN_XDisplayKeycodes_PROC) dlsym(handle, "XDisplayKeycodes");
     if (!XDisplayKeycodes) { return (0); }
-
+    XDisplayMotionBufferSize = (PFN_XDisplayMotionBufferSize_PROC) dlsym(handle, "XDisplayMotionBufferSize");
+    if (!XDisplayMotionBufferSize) { return (0); }
+    XDisplayName = (PFN_XDisplayName_PROC) dlsym(handle, "XDisplayName");
+    if (!XDisplayName) { return (0); }
+    XDisplayOfIM = (PFN_XDisplayOfIM_PROC) dlsym(handle, "XDisplayOfIM");
+    if (!XDisplayOfIM) { return (0); }
+    XDisplayOfOM = (PFN_XDisplayOfOM_PROC) dlsym(handle, "XDisplayOfOM");
+    if (!XDisplayOfOM) { return (0); }
+    XDisplayOfScreen = (PFN_XDisplayOfScreen_PROC) dlsym(handle, "XDisplayOfScreen");
+    if (!XDisplayOfScreen) { return (0); }
+    XDisplayPlanes = (PFN_XDisplayPlanes_PROC) dlsym(handle, "XDisplayPlanes");
+    if (!XDisplayPlanes) { return (0); }
+    XDisplayString = (PFN_XDisplayString_PROC) dlsym(handle, "XDisplayString");
+    if (!XDisplayString) { return (0); }
+    XDisplayWidth = (PFN_XDisplayWidth_PROC) dlsym(handle, "XDisplayWidth");
+    if (!XDisplayWidth) { return (0); }
+    XDisplayWidthMM = (PFN_XDisplayWidthMM_PROC) dlsym(handle, "XDisplayWidthMM");
+    if (!XDisplayWidthMM) { return (0); }
+    XDoesBackingStore = (PFN_XDoesBackingStore_PROC) dlsym(handle, "XDoesBackingStore");
+    if (!XDoesBackingStore) { return (0); }
+    XDoesSaveUnders = (PFN_XDoesSaveUnders_PROC) dlsym(handle, "XDoesSaveUnders");
+    if (!XDoesSaveUnders) { return (0); }
+    XDrawArc = (PFN_XDrawArc_PROC) dlsym(handle, "XDrawArc");
+    if (!XDrawArc) { return (0); }
+    XDrawArcs = (PFN_XDrawArcs_PROC) dlsym(handle, "XDrawArcs");
+    if (!XDrawArcs) { return (0); }
+    XDrawImageString = (PFN_XDrawImageString_PROC) dlsym(handle, "XDrawImageString");
+    if (!XDrawImageString) { return (0); }
+    XDrawImageString16 = (PFN_XDrawImageString16_PROC) dlsym(handle, "XDrawImageString16");
+    if (!XDrawImageString16) { return (0); }
+    XDrawLine = (PFN_XDrawLine_PROC) dlsym(handle, "XDrawLine");
+    if (!XDrawLine) { return (0); }
+    XDrawLines = (PFN_XDrawLines_PROC) dlsym(handle, "XDrawLines");
+    if (!XDrawLines) { return (0); }
+    XDrawPoint = (PFN_XDrawPoint_PROC) dlsym(handle, "XDrawPoint");
+    if (!XDrawPoint) { return (0); }
+    XDrawPoints = (PFN_XDrawPoints_PROC) dlsym(handle, "XDrawPoints");
+    if (!XDrawPoints) { return (0); }
+    XDrawRectangle = (PFN_XDrawRectangle_PROC) dlsym(handle, "XDrawRectangle");
+    if (!XDrawRectangle) { return (0); }
+    XDrawRectangles = (PFN_XDrawRectangles_PROC) dlsym(handle, "XDrawRectangles");
+    if (!XDrawRectangles) { return (0); }
+    XDrawSegments = (PFN_XDrawSegments_PROC) dlsym(handle, "XDrawSegments");
+    if (!XDrawSegments) { return (0); }
+    XDrawString = (PFN_XDrawString_PROC) dlsym(handle, "XDrawString");
+    if (!XDrawString) { return (0); }
+    XDrawString16 = (PFN_XDrawString16_PROC) dlsym(handle, "XDrawString16");
+    if (!XDrawString16) { return (0); }
+    XDrawText = (PFN_XDrawText_PROC) dlsym(handle, "XDrawText");
+    if (!XDrawText) { return (0); }
+    XDrawText16 = (PFN_XDrawText16_PROC) dlsym(handle, "XDrawText16");
+    if (!XDrawText16) { return (0); }
+    XEHeadOfExtensionList = (PFN_XEHeadOfExtensionList_PROC) dlsym(handle, "XEHeadOfExtensionList");
+    if (!XEHeadOfExtensionList) { return (0); }
+    XEnableAccessControl = (PFN_XEnableAccessControl_PROC) dlsym(handle, "XEnableAccessControl");
+    if (!XEnableAccessControl) { return (0); }
+    XEventMaskOfScreen = (PFN_XEventMaskOfScreen_PROC) dlsym(handle, "XEventMaskOfScreen");
+    if (!XEventMaskOfScreen) { return (0); }
     XEventsQueued = (PFN_XEventsQueued_PROC) dlsym(handle, "XEventsQueued");
     if (!XEventsQueued) { return (0); }
-
+    XExtendedMaxRequestSize = (PFN_XExtendedMaxRequestSize_PROC) dlsym(handle, "XExtendedMaxRequestSize");
+    if (!XExtendedMaxRequestSize) { return (0); }
+    XExtentsOfFontSet = (PFN_XExtentsOfFontSet_PROC) dlsym(handle, "XExtentsOfFontSet");
+    if (!XExtentsOfFontSet) { return (0); }
+    XFetchBuffer = (PFN_XFetchBuffer_PROC) dlsym(handle, "XFetchBuffer");
+    if (!XFetchBuffer) { return (0); }
+    XFetchBytes = (PFN_XFetchBytes_PROC) dlsym(handle, "XFetchBytes");
+    if (!XFetchBytes) { return (0); }
     XFetchName = (PFN_XFetchName_PROC) dlsym(handle, "XFetchName");
     if (!XFetchName) { return (0); }
-
+    XFillArc = (PFN_XFillArc_PROC) dlsym(handle, "XFillArc");
+    if (!XFillArc) { return (0); }
+    XFillArcs = (PFN_XFillArcs_PROC) dlsym(handle, "XFillArcs");
+    if (!XFillArcs) { return (0); }
+    XFillPolygon = (PFN_XFillPolygon_PROC) dlsym(handle, "XFillPolygon");
+    if (!XFillPolygon) { return (0); }
+    XFillRectangle = (PFN_XFillRectangle_PROC) dlsym(handle, "XFillRectangle");
+    if (!XFillRectangle) { return (0); }
+    XFillRectangles = (PFN_XFillRectangles_PROC) dlsym(handle, "XFillRectangles");
+    if (!XFillRectangles) { return (0); }
     XFilterEvent = (PFN_XFilterEvent_PROC) dlsym(handle, "XFilterEvent");
     if (!XFilterEvent) { return (0); }
-
-    XFindContext = (PFN_XFindContext_PROC) dlsym(handle, "XFindContext");
-    if (!XFindContext) { return (0); }
-
+    XFindOnExtensionList = (PFN_XFindOnExtensionList_PROC) dlsym(handle, "XFindOnExtensionList");
+    if (!XFindOnExtensionList) { return (0); }
     XFlush = (PFN_XFlush_PROC) dlsym(handle, "XFlush");
     if (!XFlush) { return (0); }
-
+    XFlushGC = (PFN_XFlushGC_PROC) dlsym(handle, "XFlushGC");
+    if (!XFlushGC) { return (0); }
+    XFontsOfFontSet = (PFN_XFontsOfFontSet_PROC) dlsym(handle, "XFontsOfFontSet");
+    if (!XFontsOfFontSet) { return (0); }
+    XForceScreenSaver = (PFN_XForceScreenSaver_PROC) dlsym(handle, "XForceScreenSaver");
+    if (!XForceScreenSaver) { return (0); }
     XFree = (PFN_XFree_PROC) dlsym(handle, "XFree");
     if (!XFree) { return (0); }
-
     XFreeColormap = (PFN_XFreeColormap_PROC) dlsym(handle, "XFreeColormap");
     if (!XFreeColormap) { return (0); }
-
+    XFreeColors = (PFN_XFreeColors_PROC) dlsym(handle, "XFreeColors");
+    if (!XFreeColors) { return (0); }
     XFreeCursor = (PFN_XFreeCursor_PROC) dlsym(handle, "XFreeCursor");
     if (!XFreeCursor) { return (0); }
-
     XFreeEventData = (PFN_XFreeEventData_PROC) dlsym(handle, "XFreeEventData");
     if (!XFreeEventData) { return (0); }
-
+    XFreeExtensionList = (PFN_XFreeExtensionList_PROC) dlsym(handle, "XFreeExtensionList");
+    if (!XFreeExtensionList) { return (0); }
+    XFreeFont = (PFN_XFreeFont_PROC) dlsym(handle, "XFreeFont");
+    if (!XFreeFont) { return (0); }
+    XFreeFontInfo = (PFN_XFreeFontInfo_PROC) dlsym(handle, "XFreeFontInfo");
+    if (!XFreeFontInfo) { return (0); }
+    XFreeFontNames = (PFN_XFreeFontNames_PROC) dlsym(handle, "XFreeFontNames");
+    if (!XFreeFontNames) { return (0); }
+    XFreeFontPath = (PFN_XFreeFontPath_PROC) dlsym(handle, "XFreeFontPath");
+    if (!XFreeFontPath) { return (0); }
+    XFreeFontSet = (PFN_XFreeFontSet_PROC) dlsym(handle, "XFreeFontSet");
+    if (!XFreeFontSet) { return (0); }
+    XFreeGC = (PFN_XFreeGC_PROC) dlsym(handle, "XFreeGC");
+    if (!XFreeGC) { return (0); }
+    XFreeModifiermap = (PFN_XFreeModifiermap_PROC) dlsym(handle, "XFreeModifiermap");
+    if (!XFreeModifiermap) { return (0); }
+    XFreePixmap = (PFN_XFreePixmap_PROC) dlsym(handle, "XFreePixmap");
+    if (!XFreePixmap) { return (0); }
+    XFreeStringList = (PFN_XFreeStringList_PROC) dlsym(handle, "XFreeStringList");
+    if (!XFreeStringList) { return (0); }
+    XFreeThreads = (PFN_XFreeThreads_PROC) dlsym(handle, "XFreeThreads");
+    if (!XFreeThreads) { return (0); }
+    XGContextFromGC = (PFN_XGContextFromGC_PROC) dlsym(handle, "XGContextFromGC");
+    if (!XGContextFromGC) { return (0); }
+    XGeometry = (PFN_XGeometry_PROC) dlsym(handle, "XGeometry");
+    if (!XGeometry) { return (0); }
+    XGetAtomName = (PFN_XGetAtomName_PROC) dlsym(handle, "XGetAtomName");
+    if (!XGetAtomName) { return (0); }
+    XGetAtomNames = (PFN_XGetAtomNames_PROC) dlsym(handle, "XGetAtomNames");
+    if (!XGetAtomNames) { return (0); }
+    XGetCommand = (PFN_XGetCommand_PROC) dlsym(handle, "XGetCommand");
+    if (!XGetCommand) { return (0); }
+    XGetDefault = (PFN_XGetDefault_PROC) dlsym(handle, "XGetDefault");
+    if (!XGetDefault) { return (0); }
+    XGetErrorDatabaseText = (PFN_XGetErrorDatabaseText_PROC) dlsym(handle, "XGetErrorDatabaseText");
+    if (!XGetErrorDatabaseText) { return (0); }
     XGetErrorText = (PFN_XGetErrorText_PROC) dlsym(handle, "XGetErrorText");
     if (!XGetErrorText) { return (0); }
-
     XGetEventData = (PFN_XGetEventData_PROC) dlsym(handle, "XGetEventData");
     if (!XGetEventData) { return (0); }
-
+    XGetFontPath = (PFN_XGetFontPath_PROC) dlsym(handle, "XGetFontPath");
+    if (!XGetFontPath) { return (0); }
+    XGetFontProperty = (PFN_XGetFontProperty_PROC) dlsym(handle, "XGetFontProperty");
+    if (!XGetFontProperty) { return (0); }
+    XGetGCValues = (PFN_XGetGCValues_PROC) dlsym(handle, "XGetGCValues");
+    if (!XGetGCValues) { return (0); }
+    XGetGeometry = (PFN_XGetGeometry_PROC) dlsym(handle, "XGetGeometry");
+    if (!XGetGeometry) { return (0); }
+    XGetICValues = (PFN_XGetICValues_PROC) dlsym(handle, "XGetICValues");
+    if (!XGetICValues) { return (0); }
+    XGetIMValues = (PFN_XGetIMValues_PROC) dlsym(handle, "XGetIMValues");
+    if (!XGetIMValues) { return (0); }
+    XGetIconName = (PFN_XGetIconName_PROC) dlsym(handle, "XGetIconName");
+    if (!XGetIconName) { return (0); }
+    XGetImage = (PFN_XGetImage_PROC) dlsym(handle, "XGetImage");
+    if (!XGetImage) { return (0); }
     XGetInputFocus = (PFN_XGetInputFocus_PROC) dlsym(handle, "XGetInputFocus");
     if (!XGetInputFocus) { return (0); }
-
+    XGetKeyboardControl = (PFN_XGetKeyboardControl_PROC) dlsym(handle, "XGetKeyboardControl");
+    if (!XGetKeyboardControl) { return (0); }
     XGetKeyboardMapping = (PFN_XGetKeyboardMapping_PROC) dlsym(handle, "XGetKeyboardMapping");
     if (!XGetKeyboardMapping) { return (0); }
-
+    XGetModifierMapping = (PFN_XGetModifierMapping_PROC) dlsym(handle, "XGetModifierMapping");
+    if (!XGetModifierMapping) { return (0); }
+    XGetMotionEvents = (PFN_XGetMotionEvents_PROC) dlsym(handle, "XGetMotionEvents");
+    if (!XGetMotionEvents) { return (0); }
+    XGetOCValues = (PFN_XGetOCValues_PROC) dlsym(handle, "XGetOCValues");
+    if (!XGetOCValues) { return (0); }
+    XGetOMValues = (PFN_XGetOMValues_PROC) dlsym(handle, "XGetOMValues");
+    if (!XGetOMValues) { return (0); }
+    XGetPointerControl = (PFN_XGetPointerControl_PROC) dlsym(handle, "XGetPointerControl");
+    if (!XGetPointerControl) { return (0); }
+    XGetPointerMapping = (PFN_XGetPointerMapping_PROC) dlsym(handle, "XGetPointerMapping");
+    if (!XGetPointerMapping) { return (0); }
+    XGetScreenSaver = (PFN_XGetScreenSaver_PROC) dlsym(handle, "XGetScreenSaver");
+    if (!XGetScreenSaver) { return (0); }
     XGetSelectionOwner = (PFN_XGetSelectionOwner_PROC) dlsym(handle, "XGetSelectionOwner");
     if (!XGetSelectionOwner) { return (0); }
-
-    XGetVisualInfo = (PFN_XGetVisualInfo_PROC) dlsym(handle, "XGetVisualInfo");
-    if (!XGetVisualInfo) { return (0); }
-
-    XGetWMNormalHints = (PFN_XGetWMNormalHints_PROC) dlsym(handle, "XGetWMNormalHints");
-    if (!XGetWMNormalHints) { return (0); }
-
+    XGetSubImage = (PFN_XGetSubImage_PROC) dlsym(handle, "XGetSubImage");
+    if (!XGetSubImage) { return (0); }
+    XGetTransientForHint = (PFN_XGetTransientForHint_PROC) dlsym(handle, "XGetTransientForHint");
+    if (!XGetTransientForHint) { return (0); }
+    XGetWMColormapWindows = (PFN_XGetWMColormapWindows_PROC) dlsym(handle, "XGetWMColormapWindows");
+    if (!XGetWMColormapWindows) { return (0); }
+    XGetWMProtocols = (PFN_XGetWMProtocols_PROC) dlsym(handle, "XGetWMProtocols");
+    if (!XGetWMProtocols) { return (0); }
     XGetWindowAttributes = (PFN_XGetWindowAttributes_PROC) dlsym(handle, "XGetWindowAttributes");
     if (!XGetWindowAttributes) { return (0); }
-
     XGetWindowProperty = (PFN_XGetWindowProperty_PROC) dlsym(handle, "XGetWindowProperty");
     if (!XGetWindowProperty) { return (0); }
-
+    XGrabButton = (PFN_XGrabButton_PROC) dlsym(handle, "XGrabButton");
+    if (!XGrabButton) { return (0); }
+    XGrabKey = (PFN_XGrabKey_PROC) dlsym(handle, "XGrabKey");
+    if (!XGrabKey) { return (0); }
+    XGrabKeyboard = (PFN_XGrabKeyboard_PROC) dlsym(handle, "XGrabKeyboard");
+    if (!XGrabKeyboard) { return (0); }
     XGrabPointer = (PFN_XGrabPointer_PROC) dlsym(handle, "XGrabPointer");
     if (!XGrabPointer) { return (0); }
-
+    XGrabServer = (PFN_XGrabServer_PROC) dlsym(handle, "XGrabServer");
+    if (!XGrabServer) { return (0); }
+    XHeightMMOfScreen = (PFN_XHeightMMOfScreen_PROC) dlsym(handle, "XHeightMMOfScreen");
+    if (!XHeightMMOfScreen) { return (0); }
+    XHeightOfScreen = (PFN_XHeightOfScreen_PROC) dlsym(handle, "XHeightOfScreen");
+    if (!XHeightOfScreen) { return (0); }
+    XIMOfIC = (PFN_XIMOfIC_PROC) dlsym(handle, "XIMOfIC");
+    if (!XIMOfIC) { return (0); }
     XIconifyWindow = (PFN_XIconifyWindow_PROC) dlsym(handle, "XIconifyWindow");
     if (!XIconifyWindow) { return (0); }
-
+    XIfEvent = (PFN_XIfEvent_PROC) dlsym(handle, "XIfEvent");
+    if (!XIfEvent) { return (0); }
+    XImageByteOrder = (PFN_XImageByteOrder_PROC) dlsym(handle, "XImageByteOrder");
+    if (!XImageByteOrder) { return (0); }
+    XInitExtension = (PFN_XInitExtension_PROC) dlsym(handle, "XInitExtension");
+    if (!XInitExtension) { return (0); }
+    XInitImage = (PFN_XInitImage_PROC) dlsym(handle, "XInitImage");
+    if (!XInitImage) { return (0); }
     XInitThreads = (PFN_XInitThreads_PROC) dlsym(handle, "XInitThreads");
     if (!XInitThreads) { return (0); }
-
+    XInsertModifiermapEntry = (PFN_XInsertModifiermapEntry_PROC) dlsym(handle, "XInsertModifiermapEntry");
+    if (!XInsertModifiermapEntry) { return (0); }
+    XInstallColormap = (PFN_XInstallColormap_PROC) dlsym(handle, "XInstallColormap");
+    if (!XInstallColormap) { return (0); }
     XInternAtom = (PFN_XInternAtom_PROC) dlsym(handle, "XInternAtom");
     if (!XInternAtom) { return (0); }
-
-    XLookupString = (PFN_XLookupString_PROC) dlsym(handle, "XLookupString");
-    if (!XLookupString) { return (0); }
-
+    XInternAtoms = (PFN_XInternAtoms_PROC) dlsym(handle, "XInternAtoms");
+    if (!XInternAtoms) { return (0); }
+    XInternalConnectionNumbers = (PFN_XInternalConnectionNumbers_PROC) dlsym(handle, "XInternalConnectionNumbers");
+    if (!XInternalConnectionNumbers) { return (0); }
+    XKeycodeToKeysym = (PFN_XKeycodeToKeysym_PROC) dlsym(handle, "XKeycodeToKeysym");
+    if (!XKeycodeToKeysym) { return (0); }
+    XKeysymToKeycode = (PFN_XKeysymToKeycode_PROC) dlsym(handle, "XKeysymToKeycode");
+    if (!XKeysymToKeycode) { return (0); }
+    XKeysymToString = (PFN_XKeysymToString_PROC) dlsym(handle, "XKeysymToString");
+    if (!XKeysymToString) { return (0); }
+    XKillClient = (PFN_XKillClient_PROC) dlsym(handle, "XKillClient");
+    if (!XKillClient) { return (0); }
+    XLastKnownRequestProcessed = (PFN_XLastKnownRequestProcessed_PROC) dlsym(handle, "XLastKnownRequestProcessed");
+    if (!XLastKnownRequestProcessed) { return (0); }
+    XListDepths = (PFN_XListDepths_PROC) dlsym(handle, "XListDepths");
+    if (!XListDepths) { return (0); }
+    XListExtensions = (PFN_XListExtensions_PROC) dlsym(handle, "XListExtensions");
+    if (!XListExtensions) { return (0); }
+    XListFonts = (PFN_XListFonts_PROC) dlsym(handle, "XListFonts");
+    if (!XListFonts) { return (0); }
+    XListFontsWithInfo = (PFN_XListFontsWithInfo_PROC) dlsym(handle, "XListFontsWithInfo");
+    if (!XListFontsWithInfo) { return (0); }
+    XListHosts = (PFN_XListHosts_PROC) dlsym(handle, "XListHosts");
+    if (!XListHosts) { return (0); }
+    XListInstalledColormaps = (PFN_XListInstalledColormaps_PROC) dlsym(handle, "XListInstalledColormaps");
+    if (!XListInstalledColormaps) { return (0); }
+    XListPixmapFormats = (PFN_XListPixmapFormats_PROC) dlsym(handle, "XListPixmapFormats");
+    if (!XListPixmapFormats) { return (0); }
+    XListProperties = (PFN_XListProperties_PROC) dlsym(handle, "XListProperties");
+    if (!XListProperties) { return (0); }
+    XLoadFont = (PFN_XLoadFont_PROC) dlsym(handle, "XLoadFont");
+    if (!XLoadFont) { return (0); }
+    XLoadQueryFont = (PFN_XLoadQueryFont_PROC) dlsym(handle, "XLoadQueryFont");
+    if (!XLoadQueryFont) { return (0); }
+    XLocaleOfFontSet = (PFN_XLocaleOfFontSet_PROC) dlsym(handle, "XLocaleOfFontSet");
+    if (!XLocaleOfFontSet) { return (0); }
+    XLocaleOfIM = (PFN_XLocaleOfIM_PROC) dlsym(handle, "XLocaleOfIM");
+    if (!XLocaleOfIM) { return (0); }
+    XLocaleOfOM = (PFN_XLocaleOfOM_PROC) dlsym(handle, "XLocaleOfOM");
+    if (!XLocaleOfOM) { return (0); }
+    XLockDisplay = (PFN_XLockDisplay_PROC) dlsym(handle, "XLockDisplay");
+    if (!XLockDisplay) { return (0); }
+    XLookupColor = (PFN_XLookupColor_PROC) dlsym(handle, "XLookupColor");
+    if (!XLookupColor) { return (0); }
+    XLookupKeysym = (PFN_XLookupKeysym_PROC) dlsym(handle, "XLookupKeysym");
+    if (!XLookupKeysym) { return (0); }
+    XLowerWindow = (PFN_XLowerWindow_PROC) dlsym(handle, "XLowerWindow");
+    if (!XLowerWindow) { return (0); }
     XMapRaised = (PFN_XMapRaised_PROC) dlsym(handle, "XMapRaised");
     if (!XMapRaised) { return (0); }
-
+    XMapSubwindows = (PFN_XMapSubwindows_PROC) dlsym(handle, "XMapSubwindows");
+    if (!XMapSubwindows) { return (0); }
     XMapWindow = (PFN_XMapWindow_PROC) dlsym(handle, "XMapWindow");
     if (!XMapWindow) { return (0); }
-
+    XMaskEvent = (PFN_XMaskEvent_PROC) dlsym(handle, "XMaskEvent");
+    if (!XMaskEvent) { return (0); }
+    XMaxCmapsOfScreen = (PFN_XMaxCmapsOfScreen_PROC) dlsym(handle, "XMaxCmapsOfScreen");
+    if (!XMaxCmapsOfScreen) { return (0); }
+    XMaxRequestSize = (PFN_XMaxRequestSize_PROC) dlsym(handle, "XMaxRequestSize");
+    if (!XMaxRequestSize) { return (0); }
+    XMinCmapsOfScreen = (PFN_XMinCmapsOfScreen_PROC) dlsym(handle, "XMinCmapsOfScreen");
+    if (!XMinCmapsOfScreen) { return (0); }
     XMoveResizeWindow = (PFN_XMoveResizeWindow_PROC) dlsym(handle, "XMoveResizeWindow");
     if (!XMoveResizeWindow) { return (0); }
-
     XMoveWindow = (PFN_XMoveWindow_PROC) dlsym(handle, "XMoveWindow");
     if (!XMoveWindow) { return (0); }
-
+    XNewModifiermap = (PFN_XNewModifiermap_PROC) dlsym(handle, "XNewModifiermap");
+    if (!XNewModifiermap) { return (0); }
     XNextEvent = (PFN_XNextEvent_PROC) dlsym(handle, "XNextEvent");
     if (!XNextEvent) { return (0); }
-
+    XNextRequest = (PFN_XNextRequest_PROC) dlsym(handle, "XNextRequest");
+    if (!XNextRequest) { return (0); }
+    XNoOp = (PFN_XNoOp_PROC) dlsym(handle, "XNoOp");
+    if (!XNoOp) { return (0); }
+    XOMOfOC = (PFN_XOMOfOC_PROC) dlsym(handle, "XOMOfOC");
+    if (!XOMOfOC) { return (0); }
     XOpenDisplay = (PFN_XOpenDisplay_PROC) dlsym(handle, "XOpenDisplay");
     if (!XOpenDisplay) { return (0); }
-
+    XOpenIM = (PFN_XOpenIM_PROC) dlsym(handle, "XOpenIM");
+    if (!XOpenIM) { return (0); }
+    XOpenOM = (PFN_XOpenOM_PROC) dlsym(handle, "XOpenOM");
+    if (!XOpenOM) { return (0); }
+    XParseColor = (PFN_XParseColor_PROC) dlsym(handle, "XParseColor");
+    if (!XParseColor) { return (0); }
+    XParseGeometry = (PFN_XParseGeometry_PROC) dlsym(handle, "XParseGeometry");
+    if (!XParseGeometry) { return (0); }
     XPeekEvent = (PFN_XPeekEvent_PROC) dlsym(handle, "XPeekEvent");
     if (!XPeekEvent) { return (0); }
-
+    XPeekIfEvent = (PFN_XPeekIfEvent_PROC) dlsym(handle, "XPeekIfEvent");
+    if (!XPeekIfEvent) { return (0); }
     XPending = (PFN_XPending_PROC) dlsym(handle, "XPending");
     if (!XPending) { return (0); }
-
+    XPlanesOfScreen = (PFN_XPlanesOfScreen_PROC) dlsym(handle, "XPlanesOfScreen");
+    if (!XPlanesOfScreen) { return (0); }
+    XProcessInternalConnection = (PFN_XProcessInternalConnection_PROC) dlsym(handle, "XProcessInternalConnection");
+    if (!XProcessInternalConnection) { return (0); }
+    XProtocolRevision = (PFN_XProtocolRevision_PROC) dlsym(handle, "XProtocolRevision");
+    if (!XProtocolRevision) { return (0); }
+    XProtocolVersion = (PFN_XProtocolVersion_PROC) dlsym(handle, "XProtocolVersion");
+    if (!XProtocolVersion) { return (0); }
+    XPutBackEvent = (PFN_XPutBackEvent_PROC) dlsym(handle, "XPutBackEvent");
+    if (!XPutBackEvent) { return (0); }
+    XPutImage = (PFN_XPutImage_PROC) dlsym(handle, "XPutImage");
+    if (!XPutImage) { return (0); }
+    XQLength = (PFN_XQLength_PROC) dlsym(handle, "XQLength");
+    if (!XQLength) { return (0); }
+    XQueryBestCursor = (PFN_XQueryBestCursor_PROC) dlsym(handle, "XQueryBestCursor");
+    if (!XQueryBestCursor) { return (0); }
+    XQueryBestSize = (PFN_XQueryBestSize_PROC) dlsym(handle, "XQueryBestSize");
+    if (!XQueryBestSize) { return (0); }
+    XQueryBestStipple = (PFN_XQueryBestStipple_PROC) dlsym(handle, "XQueryBestStipple");
+    if (!XQueryBestStipple) { return (0); }
+    XQueryBestTile = (PFN_XQueryBestTile_PROC) dlsym(handle, "XQueryBestTile");
+    if (!XQueryBestTile) { return (0); }
+    XQueryColor = (PFN_XQueryColor_PROC) dlsym(handle, "XQueryColor");
+    if (!XQueryColor) { return (0); }
+    XQueryColors = (PFN_XQueryColors_PROC) dlsym(handle, "XQueryColors");
+    if (!XQueryColors) { return (0); }
     XQueryExtension = (PFN_XQueryExtension_PROC) dlsym(handle, "XQueryExtension");
     if (!XQueryExtension) { return (0); }
-
+    XQueryFont = (PFN_XQueryFont_PROC) dlsym(handle, "XQueryFont");
+    if (!XQueryFont) { return (0); }
+    XQueryKeymap = (PFN_XQueryKeymap_PROC) dlsym(handle, "XQueryKeymap");
+    if (!XQueryKeymap) { return (0); }
     XQueryPointer = (PFN_XQueryPointer_PROC) dlsym(handle, "XQueryPointer");
     if (!XQueryPointer) { return (0); }
-
+    XQueryTextExtents = (PFN_XQueryTextExtents_PROC) dlsym(handle, "XQueryTextExtents");
+    if (!XQueryTextExtents) { return (0); }
+    XQueryTextExtents16 = (PFN_XQueryTextExtents16_PROC) dlsym(handle, "XQueryTextExtents16");
+    if (!XQueryTextExtents16) { return (0); }
+    XQueryTree = (PFN_XQueryTree_PROC) dlsym(handle, "XQueryTree");
+    if (!XQueryTree) { return (0); }
     XRaiseWindow = (PFN_XRaiseWindow_PROC) dlsym(handle, "XRaiseWindow");
     if (!XRaiseWindow) { return (0); }
-
+    XReadBitmapFile = (PFN_XReadBitmapFile_PROC) dlsym(handle, "XReadBitmapFile");
+    if (!XReadBitmapFile) { return (0); }
+    XReadBitmapFileData = (PFN_XReadBitmapFileData_PROC) dlsym(handle, "XReadBitmapFileData");
+    if (!XReadBitmapFileData) { return (0); }
+    XRebindKeysym = (PFN_XRebindKeysym_PROC) dlsym(handle, "XRebindKeysym");
+    if (!XRebindKeysym) { return (0); }
+    XRecolorCursor = (PFN_XRecolorCursor_PROC) dlsym(handle, "XRecolorCursor");
+    if (!XRecolorCursor) { return (0); }
+    XReconfigureWMWindow = (PFN_XReconfigureWMWindow_PROC) dlsym(handle, "XReconfigureWMWindow");
+    if (!XReconfigureWMWindow) { return (0); }
+    XRefreshKeyboardMapping = (PFN_XRefreshKeyboardMapping_PROC) dlsym(handle, "XRefreshKeyboardMapping");
+    if (!XRefreshKeyboardMapping) { return (0); }
     XRegisterIMInstantiateCallback = (PFN_XRegisterIMInstantiateCallback_PROC) dlsym(handle, "XRegisterIMInstantiateCallback");
     if (!XRegisterIMInstantiateCallback) { return (0); }
-
+    XRemoveConnectionWatch = (PFN_XRemoveConnectionWatch_PROC) dlsym(handle, "XRemoveConnectionWatch");
+    if (!XRemoveConnectionWatch) { return (0); }
+    XRemoveFromSaveSet = (PFN_XRemoveFromSaveSet_PROC) dlsym(handle, "XRemoveFromSaveSet");
+    if (!XRemoveFromSaveSet) { return (0); }
+    XRemoveHost = (PFN_XRemoveHost_PROC) dlsym(handle, "XRemoveHost");
+    if (!XRemoveHost) { return (0); }
+    XRemoveHosts = (PFN_XRemoveHosts_PROC) dlsym(handle, "XRemoveHosts");
+    if (!XRemoveHosts) { return (0); }
+    XReparentWindow = (PFN_XReparentWindow_PROC) dlsym(handle, "XReparentWindow");
+    if (!XReparentWindow) { return (0); }
+    XResetScreenSaver = (PFN_XResetScreenSaver_PROC) dlsym(handle, "XResetScreenSaver");
+    if (!XResetScreenSaver) { return (0); }
     XResizeWindow = (PFN_XResizeWindow_PROC) dlsym(handle, "XResizeWindow");
     if (!XResizeWindow) { return (0); }
-
-    XSaveContext = (PFN_XSaveContext_PROC) dlsym(handle, "XSaveContext");
-    if (!XSaveContext) { return (0); }
-
+    XResourceManagerString = (PFN_XResourceManagerString_PROC) dlsym(handle, "XResourceManagerString");
+    if (!XResourceManagerString) { return (0); }
+    XRestackWindows = (PFN_XRestackWindows_PROC) dlsym(handle, "XRestackWindows");
+    if (!XRestackWindows) { return (0); }
+    XRootWindow = (PFN_XRootWindow_PROC) dlsym(handle, "XRootWindow");
+    if (!XRootWindow) { return (0); }
+    XRootWindowOfScreen = (PFN_XRootWindowOfScreen_PROC) dlsym(handle, "XRootWindowOfScreen");
+    if (!XRootWindowOfScreen) { return (0); }
+    XRotateBuffers = (PFN_XRotateBuffers_PROC) dlsym(handle, "XRotateBuffers");
+    if (!XRotateBuffers) { return (0); }
+    XRotateWindowProperties = (PFN_XRotateWindowProperties_PROC) dlsym(handle, "XRotateWindowProperties");
+    if (!XRotateWindowProperties) { return (0); }
+    XScreenCount = (PFN_XScreenCount_PROC) dlsym(handle, "XScreenCount");
+    if (!XScreenCount) { return (0); }
+    XScreenNumberOfScreen = (PFN_XScreenNumberOfScreen_PROC) dlsym(handle, "XScreenNumberOfScreen");
+    if (!XScreenNumberOfScreen) { return (0); }
+    XScreenOfDisplay = (PFN_XScreenOfDisplay_PROC) dlsym(handle, "XScreenOfDisplay");
+    if (!XScreenOfDisplay) { return (0); }
+    XScreenResourceString = (PFN_XScreenResourceString_PROC) dlsym(handle, "XScreenResourceString");
+    if (!XScreenResourceString) { return (0); }
     XSelectInput = (PFN_XSelectInput_PROC) dlsym(handle, "XSelectInput");
     if (!XSelectInput) { return (0); }
-
     XSendEvent = (PFN_XSendEvent_PROC) dlsym(handle, "XSendEvent");
     if (!XSendEvent) { return (0); }
-
-    XSetClassHint = (PFN_XSetClassHint_PROC) dlsym(handle, "XSetClassHint");
-    if (!XSetClassHint) { return (0); }
-
+    XServerVendor = (PFN_XServerVendor_PROC) dlsym(handle, "XServerVendor");
+    if (!XServerVendor) { return (0); }
+    XSetAccessControl = (PFN_XSetAccessControl_PROC) dlsym(handle, "XSetAccessControl");
+    if (!XSetAccessControl) { return (0); }
+    XSetArcMode = (PFN_XSetArcMode_PROC) dlsym(handle, "XSetArcMode");
+    if (!XSetArcMode) { return (0); }
+    XSetAuthorization = (PFN_XSetAuthorization_PROC) dlsym(handle, "XSetAuthorization");
+    if (!XSetAuthorization) { return (0); }
+    XSetBackground = (PFN_XSetBackground_PROC) dlsym(handle, "XSetBackground");
+    if (!XSetBackground) { return (0); }
+    XSetClipMask = (PFN_XSetClipMask_PROC) dlsym(handle, "XSetClipMask");
+    if (!XSetClipMask) { return (0); }
+    XSetClipOrigin = (PFN_XSetClipOrigin_PROC) dlsym(handle, "XSetClipOrigin");
+    if (!XSetClipOrigin) { return (0); }
+    XSetClipRectangles = (PFN_XSetClipRectangles_PROC) dlsym(handle, "XSetClipRectangles");
+    if (!XSetClipRectangles) { return (0); }
+    XSetCloseDownMode = (PFN_XSetCloseDownMode_PROC) dlsym(handle, "XSetCloseDownMode");
+    if (!XSetCloseDownMode) { return (0); }
+    XSetCommand = (PFN_XSetCommand_PROC) dlsym(handle, "XSetCommand");
+    if (!XSetCommand) { return (0); }
+    XSetDashes = (PFN_XSetDashes_PROC) dlsym(handle, "XSetDashes");
+    if (!XSetDashes) { return (0); }
     XSetErrorHandler = (PFN_XSetErrorHandler_PROC) dlsym(handle, "XSetErrorHandler");
     if (!XSetErrorHandler) { return (0); }
-
+    XSetFillRule = (PFN_XSetFillRule_PROC) dlsym(handle, "XSetFillRule");
+    if (!XSetFillRule) { return (0); }
+    XSetFillStyle = (PFN_XSetFillStyle_PROC) dlsym(handle, "XSetFillStyle");
+    if (!XSetFillStyle) { return (0); }
+    XSetFont = (PFN_XSetFont_PROC) dlsym(handle, "XSetFont");
+    if (!XSetFont) { return (0); }
+    XSetFontPath = (PFN_XSetFontPath_PROC) dlsym(handle, "XSetFontPath");
+    if (!XSetFontPath) { return (0); }
+    XSetForeground = (PFN_XSetForeground_PROC) dlsym(handle, "XSetForeground");
+    if (!XSetForeground) { return (0); }
+    XSetFunction = (PFN_XSetFunction_PROC) dlsym(handle, "XSetFunction");
+    if (!XSetFunction) { return (0); }
+    XSetGraphicsExposures = (PFN_XSetGraphicsExposures_PROC) dlsym(handle, "XSetGraphicsExposures");
+    if (!XSetGraphicsExposures) { return (0); }
+    XSetICFocus = (PFN_XSetICFocus_PROC) dlsym(handle, "XSetICFocus");
+    if (!XSetICFocus) { return (0); }
+    XSetICValues = (PFN_XSetICValues_PROC) dlsym(handle, "XSetICValues");
+    if (!XSetICValues) { return (0); }
+    XSetIMValues = (PFN_XSetIMValues_PROC) dlsym(handle, "XSetIMValues");
+    if (!XSetIMValues) { return (0); }
+    XSetIOErrorExitHandler = (PFN_XSetIOErrorExitHandler_PROC) dlsym(handle, "XSetIOErrorExitHandler");
+    if (!XSetIOErrorExitHandler) { return (0); }
+    XSetIOErrorHandler = (PFN_XSetIOErrorHandler_PROC) dlsym(handle, "XSetIOErrorHandler");
+    if (!XSetIOErrorHandler) { return (0); }
+    XSetIconName = (PFN_XSetIconName_PROC) dlsym(handle, "XSetIconName");
+    if (!XSetIconName) { return (0); }
     XSetInputFocus = (PFN_XSetInputFocus_PROC) dlsym(handle, "XSetInputFocus");
     if (!XSetInputFocus) { return (0); }
-
+    XSetLineAttributes = (PFN_XSetLineAttributes_PROC) dlsym(handle, "XSetLineAttributes");
+    if (!XSetLineAttributes) { return (0); }
     XSetLocaleModifiers = (PFN_XSetLocaleModifiers_PROC) dlsym(handle, "XSetLocaleModifiers");
     if (!XSetLocaleModifiers) { return (0); }
-
+    XSetModifierMapping = (PFN_XSetModifierMapping_PROC) dlsym(handle, "XSetModifierMapping");
+    if (!XSetModifierMapping) { return (0); }
+    XSetOCValues = (PFN_XSetOCValues_PROC) dlsym(handle, "XSetOCValues");
+    if (!XSetOCValues) { return (0); }
+    XSetOMValues = (PFN_XSetOMValues_PROC) dlsym(handle, "XSetOMValues");
+    if (!XSetOMValues) { return (0); }
+    XSetPlaneMask = (PFN_XSetPlaneMask_PROC) dlsym(handle, "XSetPlaneMask");
+    if (!XSetPlaneMask) { return (0); }
+    XSetPointerMapping = (PFN_XSetPointerMapping_PROC) dlsym(handle, "XSetPointerMapping");
+    if (!XSetPointerMapping) { return (0); }
+    XSetScreenSaver = (PFN_XSetScreenSaver_PROC) dlsym(handle, "XSetScreenSaver");
+    if (!XSetScreenSaver) { return (0); }
     XSetSelectionOwner = (PFN_XSetSelectionOwner_PROC) dlsym(handle, "XSetSelectionOwner");
     if (!XSetSelectionOwner) { return (0); }
-
-    XSetWMHints = (PFN_XSetWMHints_PROC) dlsym(handle, "XSetWMHints");
-    if (!XSetWMHints) { return (0); }
-
-    XSetWMNormalHints = (PFN_XSetWMNormalHints_PROC) dlsym(handle, "XSetWMNormalHints");
-    if (!XSetWMNormalHints) { return (0); }
-
+    XSetState = (PFN_XSetState_PROC) dlsym(handle, "XSetState");
+    if (!XSetState) { return (0); }
+    XSetStipple = (PFN_XSetStipple_PROC) dlsym(handle, "XSetStipple");
+    if (!XSetStipple) { return (0); }
+    XSetSubwindowMode = (PFN_XSetSubwindowMode_PROC) dlsym(handle, "XSetSubwindowMode");
+    if (!XSetSubwindowMode) { return (0); }
+    XSetTSOrigin = (PFN_XSetTSOrigin_PROC) dlsym(handle, "XSetTSOrigin");
+    if (!XSetTSOrigin) { return (0); }
+    XSetTile = (PFN_XSetTile_PROC) dlsym(handle, "XSetTile");
+    if (!XSetTile) { return (0); }
+    XSetTransientForHint = (PFN_XSetTransientForHint_PROC) dlsym(handle, "XSetTransientForHint");
+    if (!XSetTransientForHint) { return (0); }
+    XSetWMColormapWindows = (PFN_XSetWMColormapWindows_PROC) dlsym(handle, "XSetWMColormapWindows");
+    if (!XSetWMColormapWindows) { return (0); }
     XSetWMProtocols = (PFN_XSetWMProtocols_PROC) dlsym(handle, "XSetWMProtocols");
     if (!XSetWMProtocols) { return (0); }
-
+    XSetWindowBackground = (PFN_XSetWindowBackground_PROC) dlsym(handle, "XSetWindowBackground");
+    if (!XSetWindowBackground) { return (0); }
+    XSetWindowBackgroundPixmap = (PFN_XSetWindowBackgroundPixmap_PROC) dlsym(handle, "XSetWindowBackgroundPixmap");
+    if (!XSetWindowBackgroundPixmap) { return (0); }
+    XSetWindowBorder = (PFN_XSetWindowBorder_PROC) dlsym(handle, "XSetWindowBorder");
+    if (!XSetWindowBorder) { return (0); }
+    XSetWindowBorderPixmap = (PFN_XSetWindowBorderPixmap_PROC) dlsym(handle, "XSetWindowBorderPixmap");
+    if (!XSetWindowBorderPixmap) { return (0); }
+    XSetWindowBorderWidth = (PFN_XSetWindowBorderWidth_PROC) dlsym(handle, "XSetWindowBorderWidth");
+    if (!XSetWindowBorderWidth) { return (0); }
+    XSetWindowColormap = (PFN_XSetWindowColormap_PROC) dlsym(handle, "XSetWindowColormap");
+    if (!XSetWindowColormap) { return (0); }
+    XStoreBuffer = (PFN_XStoreBuffer_PROC) dlsym(handle, "XStoreBuffer");
+    if (!XStoreBuffer) { return (0); }
+    XStoreBytes = (PFN_XStoreBytes_PROC) dlsym(handle, "XStoreBytes");
+    if (!XStoreBytes) { return (0); }
+    XStoreColor = (PFN_XStoreColor_PROC) dlsym(handle, "XStoreColor");
+    if (!XStoreColor) { return (0); }
+    XStoreColors = (PFN_XStoreColors_PROC) dlsym(handle, "XStoreColors");
+    if (!XStoreColors) { return (0); }
     XStoreName = (PFN_XStoreName_PROC) dlsym(handle, "XStoreName");
     if (!XStoreName) { return (0); }
-
+    XStoreNamedColor = (PFN_XStoreNamedColor_PROC) dlsym(handle, "XStoreNamedColor");
+    if (!XStoreNamedColor) { return (0); }
+    XStringToKeysym = (PFN_XStringToKeysym_PROC) dlsym(handle, "XStringToKeysym");
+    if (!XStringToKeysym) { return (0); }
     XSupportsLocale = (PFN_XSupportsLocale_PROC) dlsym(handle, "XSupportsLocale");
     if (!XSupportsLocale) { return (0); }
-
     XSync = (PFN_XSync_PROC) dlsym(handle, "XSync");
     if (!XSync) { return (0); }
-
+    XTextExtents = (PFN_XTextExtents_PROC) dlsym(handle, "XTextExtents");
+    if (!XTextExtents) { return (0); }
+    XTextExtents16 = (PFN_XTextExtents16_PROC) dlsym(handle, "XTextExtents16");
+    if (!XTextExtents16) { return (0); }
+    XTextWidth = (PFN_XTextWidth_PROC) dlsym(handle, "XTextWidth");
+    if (!XTextWidth) { return (0); }
+    XTextWidth16 = (PFN_XTextWidth16_PROC) dlsym(handle, "XTextWidth16");
+    if (!XTextWidth16) { return (0); }
     XTranslateCoordinates = (PFN_XTranslateCoordinates_PROC) dlsym(handle, "XTranslateCoordinates");
     if (!XTranslateCoordinates) { return (0); }
-
     XUndefineCursor = (PFN_XUndefineCursor_PROC) dlsym(handle, "XUndefineCursor");
     if (!XUndefineCursor) { return (0); }
-
+    XUngrabButton = (PFN_XUngrabButton_PROC) dlsym(handle, "XUngrabButton");
+    if (!XUngrabButton) { return (0); }
+    XUngrabKey = (PFN_XUngrabKey_PROC) dlsym(handle, "XUngrabKey");
+    if (!XUngrabKey) { return (0); }
+    XUngrabKeyboard = (PFN_XUngrabKeyboard_PROC) dlsym(handle, "XUngrabKeyboard");
+    if (!XUngrabKeyboard) { return (0); }
     XUngrabPointer = (PFN_XUngrabPointer_PROC) dlsym(handle, "XUngrabPointer");
     if (!XUngrabPointer) { return (0); }
-
+    XUngrabServer = (PFN_XUngrabServer_PROC) dlsym(handle, "XUngrabServer");
+    if (!XUngrabServer) { return (0); }
+    XUninstallColormap = (PFN_XUninstallColormap_PROC) dlsym(handle, "XUninstallColormap");
+    if (!XUninstallColormap) { return (0); }
+    XUnloadFont = (PFN_XUnloadFont_PROC) dlsym(handle, "XUnloadFont");
+    if (!XUnloadFont) { return (0); }
+    XUnlockDisplay = (PFN_XUnlockDisplay_PROC) dlsym(handle, "XUnlockDisplay");
+    if (!XUnlockDisplay) { return (0); }
+    XUnmapSubwindows = (PFN_XUnmapSubwindows_PROC) dlsym(handle, "XUnmapSubwindows");
+    if (!XUnmapSubwindows) { return (0); }
     XUnmapWindow = (PFN_XUnmapWindow_PROC) dlsym(handle, "XUnmapWindow");
     if (!XUnmapWindow) { return (0); }
-
+    XUnregisterIMInstantiateCallback = (PFN_XUnregisterIMInstantiateCallback_PROC) dlsym(handle, "XUnregisterIMInstantiateCallback");
+    if (!XUnregisterIMInstantiateCallback) { return (0); }
+    XUnsetICFocus = (PFN_XUnsetICFocus_PROC) dlsym(handle, "XUnsetICFocus");
+    if (!XUnsetICFocus) { return (0); }
+    XVaCreateNestedList = (PFN_XVaCreateNestedList_PROC) dlsym(handle, "XVaCreateNestedList");
+    if (!XVaCreateNestedList) { return (0); }
+    XVendorRelease = (PFN_XVendorRelease_PROC) dlsym(handle, "XVendorRelease");
+    if (!XVendorRelease) { return (0); }
     XVisualIDFromVisual = (PFN_XVisualIDFromVisual_PROC) dlsym(handle, "XVisualIDFromVisual");
     if (!XVisualIDFromVisual) { return (0); }
-
     XWarpPointer = (PFN_XWarpPointer_PROC) dlsym(handle, "XWarpPointer");
     if (!XWarpPointer) { return (0); }
-
+    XWhitePixel = (PFN_XWhitePixel_PROC) dlsym(handle, "XWhitePixel");
+    if (!XWhitePixel) { return (0); }
+    XWhitePixelOfScreen = (PFN_XWhitePixelOfScreen_PROC) dlsym(handle, "XWhitePixelOfScreen");
+    if (!XWhitePixelOfScreen) { return (0); }
+    XWidthMMOfScreen = (PFN_XWidthMMOfScreen_PROC) dlsym(handle, "XWidthMMOfScreen");
+    if (!XWidthMMOfScreen) { return (0); }
+    XWidthOfScreen = (PFN_XWidthOfScreen_PROC) dlsym(handle, "XWidthOfScreen");
+    if (!XWidthOfScreen) { return (0); }
     XWindowEvent = (PFN_XWindowEvent_PROC) dlsym(handle, "XWindowEvent");
     if (!XWindowEvent) { return (0); }
+    XWithdrawWindow = (PFN_XWithdrawWindow_PROC) dlsym(handle, "XWithdrawWindow");
+    if (!XWithdrawWindow) { return (0); }
+    XWriteBitmapFile = (PFN_XWriteBitmapFile_PROC) dlsym(handle, "XWriteBitmapFile");
+    if (!XWriteBitmapFile) { return (0); }
+    XmbDrawImageString = (PFN_XmbDrawImageString_PROC) dlsym(handle, "XmbDrawImageString");
+    if (!XmbDrawImageString) { return (0); }
+    XmbDrawString = (PFN_XmbDrawString_PROC) dlsym(handle, "XmbDrawString");
+    if (!XmbDrawString) { return (0); }
+    XmbDrawText = (PFN_XmbDrawText_PROC) dlsym(handle, "XmbDrawText");
+    if (!XmbDrawText) { return (0); }
+    XmbLookupString = (PFN_XmbLookupString_PROC) dlsym(handle, "XmbLookupString");
+    if (!XmbLookupString) { return (0); }
+    XmbResetIC = (PFN_XmbResetIC_PROC) dlsym(handle, "XmbResetIC");
+    if (!XmbResetIC) { return (0); }
+    XmbTextEscapement = (PFN_XmbTextEscapement_PROC) dlsym(handle, "XmbTextEscapement");
+    if (!XmbTextEscapement) { return (0); }
+    XmbTextExtents = (PFN_XmbTextExtents_PROC) dlsym(handle, "XmbTextExtents");
+    if (!XmbTextExtents) { return (0); }
+    XmbTextPerCharExtents = (PFN_XmbTextPerCharExtents_PROC) dlsym(handle, "XmbTextPerCharExtents");
+    if (!XmbTextPerCharExtents) { return (0); }
+    XrmInitialize = (PFN_XrmInitialize_PROC) dlsym(handle, "XrmInitialize");
+    if (!XrmInitialize) { return (0); }
+    Xutf8DrawImageString = (PFN_Xutf8DrawImageString_PROC) dlsym(handle, "Xutf8DrawImageString");
+    if (!Xutf8DrawImageString) { return (0); }
+    Xutf8DrawString = (PFN_Xutf8DrawString_PROC) dlsym(handle, "Xutf8DrawString");
+    if (!Xutf8DrawString) { return (0); }
+    Xutf8DrawText = (PFN_Xutf8DrawText_PROC) dlsym(handle, "Xutf8DrawText");
+    if (!Xutf8DrawText) { return (0); }
+    Xutf8LookupString = (PFN_Xutf8LookupString_PROC) dlsym(handle, "Xutf8LookupString");
+    if (!Xutf8LookupString) { return (0); }
+    Xutf8ResetIC = (PFN_Xutf8ResetIC_PROC) dlsym(handle, "Xutf8ResetIC");
+    if (!Xutf8ResetIC) { return (0); }
+    Xutf8TextEscapement = (PFN_Xutf8TextEscapement_PROC) dlsym(handle, "Xutf8TextEscapement");
+    if (!Xutf8TextEscapement) { return (0); }
+    Xutf8TextExtents = (PFN_Xutf8TextExtents_PROC) dlsym(handle, "Xutf8TextExtents");
+    if (!Xutf8TextExtents) { return (0); }
+    Xutf8TextPerCharExtents = (PFN_Xutf8TextPerCharExtents_PROC) dlsym(handle, "Xutf8TextPerCharExtents");
+    if (!Xutf8TextPerCharExtents) { return (0); }
+    XwcDrawImageString = (PFN_XwcDrawImageString_PROC) dlsym(handle, "XwcDrawImageString");
+    if (!XwcDrawImageString) { return (0); }
+    XwcDrawString = (PFN_XwcDrawString_PROC) dlsym(handle, "XwcDrawString");
+    if (!XwcDrawString) { return (0); }
+    XwcDrawText = (PFN_XwcDrawText_PROC) dlsym(handle, "XwcDrawText");
+    if (!XwcDrawText) { return (0); }
+    XwcLookupString = (PFN_XwcLookupString_PROC) dlsym(handle, "XwcLookupString");
+    if (!XwcLookupString) { return (0); }
+    XwcResetIC = (PFN_XwcResetIC_PROC) dlsym(handle, "XwcResetIC");
+    if (!XwcResetIC) { return (0); }
+    XwcTextEscapement = (PFN_XwcTextEscapement_PROC) dlsym(handle, "XwcTextEscapement");
+    if (!XwcTextEscapement) { return (0); }
+    XwcTextExtents = (PFN_XwcTextExtents_PROC) dlsym(handle, "XwcTextExtents");
+    if (!XwcTextExtents) { return (0); }
+    XwcTextPerCharExtents = (PFN_XwcTextPerCharExtents_PROC) dlsym(handle, "XwcTextPerCharExtents");
+    if (!XwcTextPerCharExtents) { return (0); }
+    _Xmblen = (PFN__Xmblen_PROC) dlsym(handle, "_Xmblen");
+    if (!_Xmblen) { return (0); }
+    _Xmbtowc = (PFN__Xmbtowc_PROC) dlsym(handle, "_Xmbtowc");
+    if (!_Xmbtowc) { return (0); }
+    _Xwctomb = (PFN__Xwctomb_PROC) dlsym(handle, "_Xwctomb");
+    if (!_Xwctomb) { return (0); }
 
+    /* libX11: Xutil.h */
+    XAllocClassHint = (PFN_XAllocClassHint_PROC) dlsym(handle, "XAllocClassHint");
+    if (!XAllocClassHint) { return (0); }
+    XAllocIconSize = (PFN_XAllocIconSize_PROC) dlsym(handle, "XAllocIconSize");
+    if (!XAllocIconSize) { return (0); }
+    XAllocSizeHints = (PFN_XAllocSizeHints_PROC) dlsym(handle, "XAllocSizeHints");
+    if (!XAllocSizeHints) { return (0); }
+    XAllocStandardColormap = (PFN_XAllocStandardColormap_PROC) dlsym(handle, "XAllocStandardColormap");
+    if (!XAllocStandardColormap) { return (0); }
+    XAllocWMHints = (PFN_XAllocWMHints_PROC) dlsym(handle, "XAllocWMHints");
+    if (!XAllocWMHints) { return (0); }
+    XClipBox = (PFN_XClipBox_PROC) dlsym(handle, "XClipBox");
+    if (!XClipBox) { return (0); }
+    XConvertCase = (PFN_XConvertCase_PROC) dlsym(handle, "XConvertCase");
+    if (!XConvertCase) { return (0); }
+    XCreateRegion = (PFN_XCreateRegion_PROC) dlsym(handle, "XCreateRegion");
+    if (!XCreateRegion) { return (0); }
+    XDefaultString = (PFN_XDefaultString_PROC) dlsym(handle, "XDefaultString");
+    if (!XDefaultString) { return (0); }
+    XDeleteContext = (PFN_XDeleteContext_PROC) dlsym(handle, "XDeleteContext");
+    if (!XDeleteContext) { return (0); }
+    XDestroyRegion = (PFN_XDestroyRegion_PROC) dlsym(handle, "XDestroyRegion");
+    if (!XDestroyRegion) { return (0); }
+    XEmptyRegion = (PFN_XEmptyRegion_PROC) dlsym(handle, "XEmptyRegion");
+    if (!XEmptyRegion) { return (0); }
+    XEqualRegion = (PFN_XEqualRegion_PROC) dlsym(handle, "XEqualRegion");
+    if (!XEqualRegion) { return (0); }
+    XFindContext = (PFN_XFindContext_PROC) dlsym(handle, "XFindContext");
+    if (!XFindContext) { return (0); }
+    XGetClassHint = (PFN_XGetClassHint_PROC) dlsym(handle, "XGetClassHint");
+    if (!XGetClassHint) { return (0); }
+    XGetIconSizes = (PFN_XGetIconSizes_PROC) dlsym(handle, "XGetIconSizes");
+    if (!XGetIconSizes) { return (0); }
+    XGetNormalHints = (PFN_XGetNormalHints_PROC) dlsym(handle, "XGetNormalHints");
+    if (!XGetNormalHints) { return (0); }
+    XGetRGBColormaps = (PFN_XGetRGBColormaps_PROC) dlsym(handle, "XGetRGBColormaps");
+    if (!XGetRGBColormaps) { return (0); }
+    XGetSizeHints = (PFN_XGetSizeHints_PROC) dlsym(handle, "XGetSizeHints");
+    if (!XGetSizeHints) { return (0); }
+    XGetStandardColormap = (PFN_XGetStandardColormap_PROC) dlsym(handle, "XGetStandardColormap");
+    if (!XGetStandardColormap) { return (0); }
+    XGetTextProperty = (PFN_XGetTextProperty_PROC) dlsym(handle, "XGetTextProperty");
+    if (!XGetTextProperty) { return (0); }
+    XGetVisualInfo = (PFN_XGetVisualInfo_PROC) dlsym(handle, "XGetVisualInfo");
+    if (!XGetVisualInfo) { return (0); }
+    XGetWMClientMachine = (PFN_XGetWMClientMachine_PROC) dlsym(handle, "XGetWMClientMachine");
+    if (!XGetWMClientMachine) { return (0); }
+    XGetWMHints = (PFN_XGetWMHints_PROC) dlsym(handle, "XGetWMHints");
+    if (!XGetWMHints) { return (0); }
+    XGetWMIconName = (PFN_XGetWMIconName_PROC) dlsym(handle, "XGetWMIconName");
+    if (!XGetWMIconName) { return (0); }
+    XGetWMName = (PFN_XGetWMName_PROC) dlsym(handle, "XGetWMName");
+    if (!XGetWMName) { return (0); }
+    XGetWMNormalHints = (PFN_XGetWMNormalHints_PROC) dlsym(handle, "XGetWMNormalHints");
+    if (!XGetWMNormalHints) { return (0); }
+    XGetWMSizeHints = (PFN_XGetWMSizeHints_PROC) dlsym(handle, "XGetWMSizeHints");
+    if (!XGetWMSizeHints) { return (0); }
+    XGetZoomHints = (PFN_XGetZoomHints_PROC) dlsym(handle, "XGetZoomHints");
+    if (!XGetZoomHints) { return (0); }
+    XIntersectRegion = (PFN_XIntersectRegion_PROC) dlsym(handle, "XIntersectRegion");
+    if (!XIntersectRegion) { return (0); }
+    XLookupString = (PFN_XLookupString_PROC) dlsym(handle, "XLookupString");
+    if (!XLookupString) { return (0); }
+    XMatchVisualInfo = (PFN_XMatchVisualInfo_PROC) dlsym(handle, "XMatchVisualInfo");
+    if (!XMatchVisualInfo) { return (0); }
+    XOffsetRegion = (PFN_XOffsetRegion_PROC) dlsym(handle, "XOffsetRegion");
+    if (!XOffsetRegion) { return (0); }
+    XPointInRegion = (PFN_XPointInRegion_PROC) dlsym(handle, "XPointInRegion");
+    if (!XPointInRegion) { return (0); }
+    XPolygonRegion = (PFN_XPolygonRegion_PROC) dlsym(handle, "XPolygonRegion");
+    if (!XPolygonRegion) { return (0); }
+    XRectInRegion = (PFN_XRectInRegion_PROC) dlsym(handle, "XRectInRegion");
+    if (!XRectInRegion) { return (0); }
+    XSaveContext = (PFN_XSaveContext_PROC) dlsym(handle, "XSaveContext");
+    if (!XSaveContext) { return (0); }
+    XSetClassHint = (PFN_XSetClassHint_PROC) dlsym(handle, "XSetClassHint");
+    if (!XSetClassHint) { return (0); }
+    XSetIconSizes = (PFN_XSetIconSizes_PROC) dlsym(handle, "XSetIconSizes");
+    if (!XSetIconSizes) { return (0); }
+    XSetNormalHints = (PFN_XSetNormalHints_PROC) dlsym(handle, "XSetNormalHints");
+    if (!XSetNormalHints) { return (0); }
+    XSetRGBColormaps = (PFN_XSetRGBColormaps_PROC) dlsym(handle, "XSetRGBColormaps");
+    if (!XSetRGBColormaps) { return (0); }
+    XSetRegion = (PFN_XSetRegion_PROC) dlsym(handle, "XSetRegion");
+    if (!XSetRegion) { return (0); }
+    XSetSizeHints = (PFN_XSetSizeHints_PROC) dlsym(handle, "XSetSizeHints");
+    if (!XSetSizeHints) { return (0); }
+    XSetStandardColormap = (PFN_XSetStandardColormap_PROC) dlsym(handle, "XSetStandardColormap");
+    if (!XSetStandardColormap) { return (0); }
+    XSetStandardProperties = (PFN_XSetStandardProperties_PROC) dlsym(handle, "XSetStandardProperties");
+    if (!XSetStandardProperties) { return (0); }
+    XSetTextProperty = (PFN_XSetTextProperty_PROC) dlsym(handle, "XSetTextProperty");
+    if (!XSetTextProperty) { return (0); }
+    XSetWMClientMachine = (PFN_XSetWMClientMachine_PROC) dlsym(handle, "XSetWMClientMachine");
+    if (!XSetWMClientMachine) { return (0); }
+    XSetWMHints = (PFN_XSetWMHints_PROC) dlsym(handle, "XSetWMHints");
+    if (!XSetWMHints) { return (0); }
+    XSetWMIconName = (PFN_XSetWMIconName_PROC) dlsym(handle, "XSetWMIconName");
+    if (!XSetWMIconName) { return (0); }
+    XSetWMName = (PFN_XSetWMName_PROC) dlsym(handle, "XSetWMName");
+    if (!XSetWMName) { return (0); }
+    XSetWMNormalHints = (PFN_XSetWMNormalHints_PROC) dlsym(handle, "XSetWMNormalHints");
+    if (!XSetWMNormalHints) { return (0); }
+    XSetWMProperties = (PFN_XSetWMProperties_PROC) dlsym(handle, "XSetWMProperties");
+    if (!XSetWMProperties) { return (0); }
+    XSetWMSizeHints = (PFN_XSetWMSizeHints_PROC) dlsym(handle, "XSetWMSizeHints");
+    if (!XSetWMSizeHints) { return (0); }
+    XSetZoomHints = (PFN_XSetZoomHints_PROC) dlsym(handle, "XSetZoomHints");
+    if (!XSetZoomHints) { return (0); }
+    XShrinkRegion = (PFN_XShrinkRegion_PROC) dlsym(handle, "XShrinkRegion");
+    if (!XShrinkRegion) { return (0); }
+    XStringListToTextProperty = (PFN_XStringListToTextProperty_PROC) dlsym(handle, "XStringListToTextProperty");
+    if (!XStringListToTextProperty) { return (0); }
+    XSubtractRegion = (PFN_XSubtractRegion_PROC) dlsym(handle, "XSubtractRegion");
+    if (!XSubtractRegion) { return (0); }
+    XTextPropertyToStringList = (PFN_XTextPropertyToStringList_PROC) dlsym(handle, "XTextPropertyToStringList");
+    if (!XTextPropertyToStringList) { return (0); }
+    XUnionRectWithRegion = (PFN_XUnionRectWithRegion_PROC) dlsym(handle, "XUnionRectWithRegion");
+    if (!XUnionRectWithRegion) { return (0); }
+    XUnionRegion = (PFN_XUnionRegion_PROC) dlsym(handle, "XUnionRegion");
+    if (!XUnionRegion) { return (0); }
+    XWMGeometry = (PFN_XWMGeometry_PROC) dlsym(handle, "XWMGeometry");
+    if (!XWMGeometry) { return (0); }
+    XXorRegion = (PFN_XXorRegion_PROC) dlsym(handle, "XXorRegion");
+    if (!XXorRegion) { return (0); }
+    XmbSetWMProperties = (PFN_XmbSetWMProperties_PROC) dlsym(handle, "XmbSetWMProperties");
+    if (!XmbSetWMProperties) { return (0); }
+    XmbTextListToTextProperty = (PFN_XmbTextListToTextProperty_PROC) dlsym(handle, "XmbTextListToTextProperty");
+    if (!XmbTextListToTextProperty) { return (0); }
+    XmbTextPropertyToTextList = (PFN_XmbTextPropertyToTextList_PROC) dlsym(handle, "XmbTextPropertyToTextList");
+    if (!XmbTextPropertyToTextList) { return (0); }
+    Xutf8SetWMProperties = (PFN_Xutf8SetWMProperties_PROC) dlsym(handle, "Xutf8SetWMProperties");
+    if (!Xutf8SetWMProperties) { return (0); }
+    Xutf8TextListToTextProperty = (PFN_Xutf8TextListToTextProperty_PROC) dlsym(handle, "Xutf8TextListToTextProperty");
+    if (!Xutf8TextListToTextProperty) { return (0); }
+    Xutf8TextPropertyToTextList = (PFN_Xutf8TextPropertyToTextList_PROC) dlsym(handle, "Xutf8TextPropertyToTextList");
+    if (!Xutf8TextPropertyToTextList) { return (0); }
+    XwcFreeStringList = (PFN_XwcFreeStringList_PROC) dlsym(handle, "XwcFreeStringList");
+    if (!XwcFreeStringList) { return (0); }
+    XwcTextListToTextProperty = (PFN_XwcTextListToTextProperty_PROC) dlsym(handle, "XwcTextListToTextProperty");
+    if (!XwcTextListToTextProperty) { return (0); }
+    XwcTextPropertyToTextList = (PFN_XwcTextPropertyToTextList_PROC) dlsym(handle, "XwcTextPropertyToTextList");
+    if (!XwcTextPropertyToTextList) { return (0); }
+
+    /* libX11: XKBlib.h */
+    XkbAddDeviceLedInfo = (PFN_XkbAddDeviceLedInfo_PROC) dlsym(handle, "XkbAddDeviceLedInfo");
+    if (!XkbAddDeviceLedInfo) { return (0); }
+    XkbAddKeyType = (PFN_XkbAddKeyType_PROC) dlsym(handle, "XkbAddKeyType");
+    if (!XkbAddKeyType) { return (0); }
+    XkbAllocClientMap = (PFN_XkbAllocClientMap_PROC) dlsym(handle, "XkbAllocClientMap");
+    if (!XkbAllocClientMap) { return (0); }
+    XkbAllocCompatMap = (PFN_XkbAllocCompatMap_PROC) dlsym(handle, "XkbAllocCompatMap");
+    if (!XkbAllocCompatMap) { return (0); }
+    XkbAllocControls = (PFN_XkbAllocControls_PROC) dlsym(handle, "XkbAllocControls");
+    if (!XkbAllocControls) { return (0); }
+    XkbAllocDeviceInfo = (PFN_XkbAllocDeviceInfo_PROC) dlsym(handle, "XkbAllocDeviceInfo");
+    if (!XkbAllocDeviceInfo) { return (0); }
+    XkbAllocIndicatorMaps = (PFN_XkbAllocIndicatorMaps_PROC) dlsym(handle, "XkbAllocIndicatorMaps");
+    if (!XkbAllocIndicatorMaps) { return (0); }
+    XkbAllocKeyboard = (PFN_XkbAllocKeyboard_PROC) dlsym(handle, "XkbAllocKeyboard");
+    if (!XkbAllocKeyboard) { return (0); }
+    XkbAllocNames = (PFN_XkbAllocNames_PROC) dlsym(handle, "XkbAllocNames");
+    if (!XkbAllocNames) { return (0); }
+    XkbAllocServerMap = (PFN_XkbAllocServerMap_PROC) dlsym(handle, "XkbAllocServerMap");
+    if (!XkbAllocServerMap) { return (0); }
+    XkbApplyCompatMapToKey = (PFN_XkbApplyCompatMapToKey_PROC) dlsym(handle, "XkbApplyCompatMapToKey");
+    if (!XkbApplyCompatMapToKey) { return (0); }
+    XkbApplyVirtualModChanges = (PFN_XkbApplyVirtualModChanges_PROC) dlsym(handle, "XkbApplyVirtualModChanges");
+    if (!XkbApplyVirtualModChanges) { return (0); }
+    XkbBell = (PFN_XkbBell_PROC) dlsym(handle, "XkbBell");
+    if (!XkbBell) { return (0); }
+    XkbBellEvent = (PFN_XkbBellEvent_PROC) dlsym(handle, "XkbBellEvent");
+    if (!XkbBellEvent) { return (0); }
+    XkbChangeDeviceInfo = (PFN_XkbChangeDeviceInfo_PROC) dlsym(handle, "XkbChangeDeviceInfo");
+    if (!XkbChangeDeviceInfo) { return (0); }
+    XkbChangeEnabledControls = (PFN_XkbChangeEnabledControls_PROC) dlsym(handle, "XkbChangeEnabledControls");
+    if (!XkbChangeEnabledControls) { return (0); }
+    XkbChangeKeycodeRange = (PFN_XkbChangeKeycodeRange_PROC) dlsym(handle, "XkbChangeKeycodeRange");
+    if (!XkbChangeKeycodeRange) { return (0); }
+    XkbChangeMap = (PFN_XkbChangeMap_PROC) dlsym(handle, "XkbChangeMap");
+    if (!XkbChangeMap) { return (0); }
+    XkbChangeNames = (PFN_XkbChangeNames_PROC) dlsym(handle, "XkbChangeNames");
+    if (!XkbChangeNames) { return (0); }
+    XkbChangeTypesOfKey = (PFN_XkbChangeTypesOfKey_PROC) dlsym(handle, "XkbChangeTypesOfKey");
+    if (!XkbChangeTypesOfKey) { return (0); }
+    XkbComputeEffectiveMap = (PFN_XkbComputeEffectiveMap_PROC) dlsym(handle, "XkbComputeEffectiveMap");
+    if (!XkbComputeEffectiveMap) { return (0); }
+    XkbCopyKeyType = (PFN_XkbCopyKeyType_PROC) dlsym(handle, "XkbCopyKeyType");
+    if (!XkbCopyKeyType) { return (0); }
+    XkbCopyKeyTypes = (PFN_XkbCopyKeyTypes_PROC) dlsym(handle, "XkbCopyKeyTypes");
+    if (!XkbCopyKeyTypes) { return (0); }
+    XkbDeviceBell = (PFN_XkbDeviceBell_PROC) dlsym(handle, "XkbDeviceBell");
+    if (!XkbDeviceBell) { return (0); }
+    XkbDeviceBellEvent = (PFN_XkbDeviceBellEvent_PROC) dlsym(handle, "XkbDeviceBellEvent");
+    if (!XkbDeviceBellEvent) { return (0); }
+    XkbForceBell = (PFN_XkbForceBell_PROC) dlsym(handle, "XkbForceBell");
+    if (!XkbForceBell) { return (0); }
+    XkbForceDeviceBell = (PFN_XkbForceDeviceBell_PROC) dlsym(handle, "XkbForceDeviceBell");
+    if (!XkbForceDeviceBell) { return (0); }
+    XkbFreeClientMap = (PFN_XkbFreeClientMap_PROC) dlsym(handle, "XkbFreeClientMap");
+    if (!XkbFreeClientMap) { return (0); }
+    XkbFreeCompatMap = (PFN_XkbFreeCompatMap_PROC) dlsym(handle, "XkbFreeCompatMap");
+    if (!XkbFreeCompatMap) { return (0); }
+    XkbFreeComponentList = (PFN_XkbFreeComponentList_PROC) dlsym(handle, "XkbFreeComponentList");
+    if (!XkbFreeComponentList) { return (0); }
+    XkbFreeControls = (PFN_XkbFreeControls_PROC) dlsym(handle, "XkbFreeControls");
+    if (!XkbFreeControls) { return (0); }
+    XkbFreeDeviceInfo = (PFN_XkbFreeDeviceInfo_PROC) dlsym(handle, "XkbFreeDeviceInfo");
+    if (!XkbFreeDeviceInfo) { return (0); }
+    XkbFreeIndicatorMaps = (PFN_XkbFreeIndicatorMaps_PROC) dlsym(handle, "XkbFreeIndicatorMaps");
+    if (!XkbFreeIndicatorMaps) { return (0); }
+    XkbFreeKeyboard = (PFN_XkbFreeKeyboard_PROC) dlsym(handle, "XkbFreeKeyboard");
+    if (!XkbFreeKeyboard) { return (0); }
+    XkbFreeNames = (PFN_XkbFreeNames_PROC) dlsym(handle, "XkbFreeNames");
+    if (!XkbFreeNames) { return (0); }
+    XkbFreeServerMap = (PFN_XkbFreeServerMap_PROC) dlsym(handle, "XkbFreeServerMap");
+    if (!XkbFreeServerMap) { return (0); }
+    XkbGetAutoRepeatRate = (PFN_XkbGetAutoRepeatRate_PROC) dlsym(handle, "XkbGetAutoRepeatRate");
+    if (!XkbGetAutoRepeatRate) { return (0); }
+    XkbGetAutoResetControls = (PFN_XkbGetAutoResetControls_PROC) dlsym(handle, "XkbGetAutoResetControls");
+    if (!XkbGetAutoResetControls) { return (0); }
+    XkbGetCompatMap = (PFN_XkbGetCompatMap_PROC) dlsym(handle, "XkbGetCompatMap");
+    if (!XkbGetCompatMap) { return (0); }
+    XkbGetControls = (PFN_XkbGetControls_PROC) dlsym(handle, "XkbGetControls");
+    if (!XkbGetControls) { return (0); }
+    XkbGetDetectableAutoRepeat = (PFN_XkbGetDetectableAutoRepeat_PROC) dlsym(handle, "XkbGetDetectableAutoRepeat");
+    if (!XkbGetDetectableAutoRepeat) { return (0); }
+    XkbGetDeviceButtonActions = (PFN_XkbGetDeviceButtonActions_PROC) dlsym(handle, "XkbGetDeviceButtonActions");
+    if (!XkbGetDeviceButtonActions) { return (0); }
+    XkbGetDeviceInfo = (PFN_XkbGetDeviceInfo_PROC) dlsym(handle, "XkbGetDeviceInfo");
+    if (!XkbGetDeviceInfo) { return (0); }
+    XkbGetDeviceInfoChanges = (PFN_XkbGetDeviceInfoChanges_PROC) dlsym(handle, "XkbGetDeviceInfoChanges");
+    if (!XkbGetDeviceInfoChanges) { return (0); }
+    XkbGetDeviceLedInfo = (PFN_XkbGetDeviceLedInfo_PROC) dlsym(handle, "XkbGetDeviceLedInfo");
+    if (!XkbGetDeviceLedInfo) { return (0); }
+    XkbGetIndicatorMap = (PFN_XkbGetIndicatorMap_PROC) dlsym(handle, "XkbGetIndicatorMap");
+    if (!XkbGetIndicatorMap) { return (0); }
+    XkbGetIndicatorState = (PFN_XkbGetIndicatorState_PROC) dlsym(handle, "XkbGetIndicatorState");
+    if (!XkbGetIndicatorState) { return (0); }
+    XkbGetKeyActions = (PFN_XkbGetKeyActions_PROC) dlsym(handle, "XkbGetKeyActions");
+    if (!XkbGetKeyActions) { return (0); }
+    XkbGetKeyBehaviors = (PFN_XkbGetKeyBehaviors_PROC) dlsym(handle, "XkbGetKeyBehaviors");
+    if (!XkbGetKeyBehaviors) { return (0); }
+    XkbGetKeyExplicitComponents = (PFN_XkbGetKeyExplicitComponents_PROC) dlsym(handle, "XkbGetKeyExplicitComponents");
+    if (!XkbGetKeyExplicitComponents) { return (0); }
+    XkbGetKeyModifierMap = (PFN_XkbGetKeyModifierMap_PROC) dlsym(handle, "XkbGetKeyModifierMap");
+    if (!XkbGetKeyModifierMap) { return (0); }
+    XkbGetKeySyms = (PFN_XkbGetKeySyms_PROC) dlsym(handle, "XkbGetKeySyms");
+    if (!XkbGetKeySyms) { return (0); }
+    XkbGetKeyTypes = (PFN_XkbGetKeyTypes_PROC) dlsym(handle, "XkbGetKeyTypes");
+    if (!XkbGetKeyTypes) { return (0); }
+    XkbGetKeyVirtualModMap = (PFN_XkbGetKeyVirtualModMap_PROC) dlsym(handle, "XkbGetKeyVirtualModMap");
+    if (!XkbGetKeyVirtualModMap) { return (0); }
+    XkbGetKeyboard = (PFN_XkbGetKeyboard_PROC) dlsym(handle, "XkbGetKeyboard");
+    if (!XkbGetKeyboard) { return (0); }
+    XkbGetKeyboardByName = (PFN_XkbGetKeyboardByName_PROC) dlsym(handle, "XkbGetKeyboardByName");
+    if (!XkbGetKeyboardByName) { return (0); }
+    XkbGetMap = (PFN_XkbGetMap_PROC) dlsym(handle, "XkbGetMap");
+    if (!XkbGetMap) { return (0); }
+    XkbGetMapChanges = (PFN_XkbGetMapChanges_PROC) dlsym(handle, "XkbGetMapChanges");
+    if (!XkbGetMapChanges) { return (0); }
+    XkbGetNamedDeviceIndicator = (PFN_XkbGetNamedDeviceIndicator_PROC) dlsym(handle, "XkbGetNamedDeviceIndicator");
+    if (!XkbGetNamedDeviceIndicator) { return (0); }
+    XkbGetNamedIndicator = (PFN_XkbGetNamedIndicator_PROC) dlsym(handle, "XkbGetNamedIndicator");
+    if (!XkbGetNamedIndicator) { return (0); }
+    XkbGetNames = (PFN_XkbGetNames_PROC) dlsym(handle, "XkbGetNames");
+    if (!XkbGetNames) { return (0); }
+    XkbGetPerClientControls = (PFN_XkbGetPerClientControls_PROC) dlsym(handle, "XkbGetPerClientControls");
+    if (!XkbGetPerClientControls) { return (0); }
+    XkbGetState = (PFN_XkbGetState_PROC) dlsym(handle, "XkbGetState");
+    if (!XkbGetState) { return (0); }
+    XkbGetUpdatedMap = (PFN_XkbGetUpdatedMap_PROC) dlsym(handle, "XkbGetUpdatedMap");
+    if (!XkbGetUpdatedMap) { return (0); }
+    XkbGetVirtualMods = (PFN_XkbGetVirtualMods_PROC) dlsym(handle, "XkbGetVirtualMods");
+    if (!XkbGetVirtualMods) { return (0); }
+    XkbGetXlibControls = (PFN_XkbGetXlibControls_PROC) dlsym(handle, "XkbGetXlibControls");
+    if (!XkbGetXlibControls) { return (0); }
+    XkbIgnoreExtension = (PFN_XkbIgnoreExtension_PROC) dlsym(handle, "XkbIgnoreExtension");
+    if (!XkbIgnoreExtension) { return (0); }
+    XkbInitCanonicalKeyTypes = (PFN_XkbInitCanonicalKeyTypes_PROC) dlsym(handle, "XkbInitCanonicalKeyTypes");
+    if (!XkbInitCanonicalKeyTypes) { return (0); }
+    XkbKeyTypesForCoreSymbols = (PFN_XkbKeyTypesForCoreSymbols_PROC) dlsym(handle, "XkbKeyTypesForCoreSymbols");
+    if (!XkbKeyTypesForCoreSymbols) { return (0); }
     XkbKeycodeToKeysym = (PFN_XkbKeycodeToKeysym_PROC) dlsym(handle, "XkbKeycodeToKeysym");
     if (!XkbKeycodeToKeysym) { return (0); }
-
+    XkbKeysymToModifiers = (PFN_XkbKeysymToModifiers_PROC) dlsym(handle, "XkbKeysymToModifiers");
+    if (!XkbKeysymToModifiers) { return (0); }
+    XkbLatchGroup = (PFN_XkbLatchGroup_PROC) dlsym(handle, "XkbLatchGroup");
+    if (!XkbLatchGroup) { return (0); }
+    XkbLatchModifiers = (PFN_XkbLatchModifiers_PROC) dlsym(handle, "XkbLatchModifiers");
+    if (!XkbLatchModifiers) { return (0); }
+    XkbLibraryVersion = (PFN_XkbLibraryVersion_PROC) dlsym(handle, "XkbLibraryVersion");
+    if (!XkbLibraryVersion) { return (0); }
+    XkbListComponents = (PFN_XkbListComponents_PROC) dlsym(handle, "XkbListComponents");
+    if (!XkbListComponents) { return (0); }
+    XkbLockGroup = (PFN_XkbLockGroup_PROC) dlsym(handle, "XkbLockGroup");
+    if (!XkbLockGroup) { return (0); }
+    XkbLockModifiers = (PFN_XkbLockModifiers_PROC) dlsym(handle, "XkbLockModifiers");
+    if (!XkbLockModifiers) { return (0); }
+    XkbLookupKeyBinding = (PFN_XkbLookupKeyBinding_PROC) dlsym(handle, "XkbLookupKeyBinding");
+    if (!XkbLookupKeyBinding) { return (0); }
+    XkbLookupKeySym = (PFN_XkbLookupKeySym_PROC) dlsym(handle, "XkbLookupKeySym");
+    if (!XkbLookupKeySym) { return (0); }
+    XkbNoteControlsChanges = (PFN_XkbNoteControlsChanges_PROC) dlsym(handle, "XkbNoteControlsChanges");
+    if (!XkbNoteControlsChanges) { return (0); }
+    XkbNoteDeviceChanges = (PFN_XkbNoteDeviceChanges_PROC) dlsym(handle, "XkbNoteDeviceChanges");
+    if (!XkbNoteDeviceChanges) { return (0); }
+    XkbNoteMapChanges = (PFN_XkbNoteMapChanges_PROC) dlsym(handle, "XkbNoteMapChanges");
+    if (!XkbNoteMapChanges) { return (0); }
+    XkbNoteNameChanges = (PFN_XkbNoteNameChanges_PROC) dlsym(handle, "XkbNoteNameChanges");
+    if (!XkbNoteNameChanges) { return (0); }
+    XkbOpenDisplay = (PFN_XkbOpenDisplay_PROC) dlsym(handle, "XkbOpenDisplay");
+    if (!XkbOpenDisplay) { return (0); }
+    XkbQueryExtension = (PFN_XkbQueryExtension_PROC) dlsym(handle, "XkbQueryExtension");
+    if (!XkbQueryExtension) { return (0); }
+    XkbRefreshKeyboardMapping = (PFN_XkbRefreshKeyboardMapping_PROC) dlsym(handle, "XkbRefreshKeyboardMapping");
+    if (!XkbRefreshKeyboardMapping) { return (0); }
+    XkbResizeDeviceButtonActions = (PFN_XkbResizeDeviceButtonActions_PROC) dlsym(handle, "XkbResizeDeviceButtonActions");
+    if (!XkbResizeDeviceButtonActions) { return (0); }
+    XkbResizeKeyActions = (PFN_XkbResizeKeyActions_PROC) dlsym(handle, "XkbResizeKeyActions");
+    if (!XkbResizeKeyActions) { return (0); }
+    XkbResizeKeySyms = (PFN_XkbResizeKeySyms_PROC) dlsym(handle, "XkbResizeKeySyms");
+    if (!XkbResizeKeySyms) { return (0); }
+    XkbResizeKeyType = (PFN_XkbResizeKeyType_PROC) dlsym(handle, "XkbResizeKeyType");
+    if (!XkbResizeKeyType) { return (0); }
+    XkbSelectEventDetails = (PFN_XkbSelectEventDetails_PROC) dlsym(handle, "XkbSelectEventDetails");
+    if (!XkbSelectEventDetails) { return (0); }
+    XkbSelectEvents = (PFN_XkbSelectEvents_PROC) dlsym(handle, "XkbSelectEvents");
+    if (!XkbSelectEvents) { return (0); }
+    XkbSetAtomFuncs = (PFN_XkbSetAtomFuncs_PROC) dlsym(handle, "XkbSetAtomFuncs");
+    if (!XkbSetAtomFuncs) { return (0); }
+    XkbSetAutoRepeatRate = (PFN_XkbSetAutoRepeatRate_PROC) dlsym(handle, "XkbSetAutoRepeatRate");
+    if (!XkbSetAutoRepeatRate) { return (0); }
+    XkbSetAutoResetControls = (PFN_XkbSetAutoResetControls_PROC) dlsym(handle, "XkbSetAutoResetControls");
+    if (!XkbSetAutoResetControls) { return (0); }
+    XkbSetCompatMap = (PFN_XkbSetCompatMap_PROC) dlsym(handle, "XkbSetCompatMap");
+    if (!XkbSetCompatMap) { return (0); }
+    XkbSetControls = (PFN_XkbSetControls_PROC) dlsym(handle, "XkbSetControls");
+    if (!XkbSetControls) { return (0); }
+    XkbSetDebuggingFlags = (PFN_XkbSetDebuggingFlags_PROC) dlsym(handle, "XkbSetDebuggingFlags");
+    if (!XkbSetDebuggingFlags) { return (0); }
     XkbSetDetectableAutoRepeat = (PFN_XkbSetDetectableAutoRepeat_PROC) dlsym(handle, "XkbSetDetectableAutoRepeat");
     if (!XkbSetDetectableAutoRepeat) { return (0); }
+    XkbSetDeviceButtonActions = (PFN_XkbSetDeviceButtonActions_PROC) dlsym(handle, "XkbSetDeviceButtonActions");
+    if (!XkbSetDeviceButtonActions) { return (0); }
+    XkbSetDeviceInfo = (PFN_XkbSetDeviceInfo_PROC) dlsym(handle, "XkbSetDeviceInfo");
+    if (!XkbSetDeviceInfo) { return (0); }
+    XkbSetDeviceLedInfo = (PFN_XkbSetDeviceLedInfo_PROC) dlsym(handle, "XkbSetDeviceLedInfo");
+    if (!XkbSetDeviceLedInfo) { return (0); }
+    XkbSetIgnoreLockMods = (PFN_XkbSetIgnoreLockMods_PROC) dlsym(handle, "XkbSetIgnoreLockMods");
+    if (!XkbSetIgnoreLockMods) { return (0); }
+    XkbSetIndicatorMap = (PFN_XkbSetIndicatorMap_PROC) dlsym(handle, "XkbSetIndicatorMap");
+    if (!XkbSetIndicatorMap) { return (0); }
+    XkbSetMap = (PFN_XkbSetMap_PROC) dlsym(handle, "XkbSetMap");
+    if (!XkbSetMap) { return (0); }
+    XkbSetNamedDeviceIndicator = (PFN_XkbSetNamedDeviceIndicator_PROC) dlsym(handle, "XkbSetNamedDeviceIndicator");
+    if (!XkbSetNamedDeviceIndicator) { return (0); }
+    XkbSetNamedIndicator = (PFN_XkbSetNamedIndicator_PROC) dlsym(handle, "XkbSetNamedIndicator");
+    if (!XkbSetNamedIndicator) { return (0); }
+    XkbSetNames = (PFN_XkbSetNames_PROC) dlsym(handle, "XkbSetNames");
+    if (!XkbSetNames) { return (0); }
+    XkbSetPerClientControls = (PFN_XkbSetPerClientControls_PROC) dlsym(handle, "XkbSetPerClientControls");
+    if (!XkbSetPerClientControls) { return (0); }
+    XkbSetServerInternalMods = (PFN_XkbSetServerInternalMods_PROC) dlsym(handle, "XkbSetServerInternalMods");
+    if (!XkbSetServerInternalMods) { return (0); }
+    XkbSetXlibControls = (PFN_XkbSetXlibControls_PROC) dlsym(handle, "XkbSetXlibControls");
+    if (!XkbSetXlibControls) { return (0); }
+    XkbToControl = (PFN_XkbToControl_PROC) dlsym(handle, "XkbToControl");
+    if (!XkbToControl) { return (0); }
+    XkbTranslateKeyCode = (PFN_XkbTranslateKeyCode_PROC) dlsym(handle, "XkbTranslateKeyCode");
+    if (!XkbTranslateKeyCode) { return (0); }
+    XkbTranslateKeySym = (PFN_XkbTranslateKeySym_PROC) dlsym(handle, "XkbTranslateKeySym");
+    if (!XkbTranslateKeySym) { return (0); }
+    XkbUpdateActionVirtualMods = (PFN_XkbUpdateActionVirtualMods_PROC) dlsym(handle, "XkbUpdateActionVirtualMods");
+    if (!XkbUpdateActionVirtualMods) { return (0); }
+    XkbUpdateKeyTypeVirtualMods = (PFN_XkbUpdateKeyTypeVirtualMods_PROC) dlsym(handle, "XkbUpdateKeyTypeVirtualMods");
+    if (!XkbUpdateKeyTypeVirtualMods) { return (0); }
+    XkbUpdateMapFromCore = (PFN_XkbUpdateMapFromCore_PROC) dlsym(handle, "XkbUpdateMapFromCore");
+    if (!XkbUpdateMapFromCore) { return (0); }
+    XkbUseExtension = (PFN_XkbUseExtension_PROC) dlsym(handle, "XkbUseExtension");
+    if (!XkbUseExtension) { return (0); }
+    XkbVirtualModsToReal = (PFN_XkbVirtualModsToReal_PROC) dlsym(handle, "XkbVirtualModsToReal");
+    if (!XkbVirtualModsToReal) { return (0); }
+    XkbXlibControlsImplemented = (PFN_XkbXlibControlsImplemented_PROC) dlsym(handle, "XkbXlibControlsImplemented");
+    if (!XkbXlibControlsImplemented) { return (0); }
 
     /* set '__window_h.x11->handle' member */ 
     __window_h.x11->handle = handle;
