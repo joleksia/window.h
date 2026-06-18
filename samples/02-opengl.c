@@ -48,6 +48,9 @@ int main(void) {
     }
 
     /* quit */
+    winGLDestroyContext(ctx, win);
+    winDestroyWindow(win);
+
     winQuit();
     return (0);
 }

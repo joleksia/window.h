@@ -1670,8 +1670,138 @@ WININT int __winLoadEGL(void) {
     }
 
     /* load libEGL symbols */
-    XAllocClassHint = (PFN_XAllocClassHint_PROC) dlsym(handle, "XAllocClassHint");
-    if (!XAllocClassHint) { return (0); }
+    eglChooseConfig = (PFN_eglChooseConfig_PROC) dlsym(handle, "eglChooseConfig");
+    if (!eglChooseConfig) { return (0); }
+
+    eglCopyBuffers = (PFN_eglCopyBuffers_PROC) dlsym(handle, "eglCopyBuffers");
+    if (!eglCopyBuffers) { return (0); }
+
+    eglCreateContext = (PFN_eglCreateContext_PROC) dlsym(handle, "eglCreateContext");
+    if (!eglCreateContext) { return (0); }
+
+    eglCreatePbufferSurface = (PFN_eglCreatePbufferSurface_PROC) dlsym(handle, "eglCreatePbufferSurface");
+    if (!eglCreatePbufferSurface) { return (0); }
+
+    eglCreatePixmapSurface = (PFN_eglCreatePixmapSurface_PROC) dlsym(handle, "eglCreatePixmapSurface");
+    if (!eglCreatePixmapSurface) { return (0); }
+
+    eglCreateWindowSurface = (PFN_eglCreateWindowSurface_PROC) dlsym(handle, "eglCreateWindowSurface");
+    if (!eglCreateWindowSurface) { return (0); }
+
+    eglDestroyContext = (PFN_eglDestroyContext_PROC) dlsym(handle, "eglDestroyContext");
+    if (!eglDestroyContext) { return (0); }
+
+    eglDestroySurface = (PFN_eglDestroySurface_PROC) dlsym(handle, "eglDestroySurface");
+    if (!eglDestroySurface) { return (0); }
+
+    eglGetConfigAttrib = (PFN_eglGetConfigAttrib_PROC) dlsym(handle, "eglGetConfigAttrib");
+    if (!eglGetConfigAttrib) { return (0); }
+
+    eglGetConfigs = (PFN_eglGetConfigs_PROC) dlsym(handle, "eglGetConfigs");
+    if (!eglGetConfigs) { return (0); }
+
+    eglGetCurrentDisplay = (PFN_eglGetCurrentDisplay_PROC) dlsym(handle, "eglGetCurrentDisplay");
+    if (!eglGetCurrentDisplay) { return (0); }
+
+    eglGetCurrentSurface = (PFN_eglGetCurrentSurface_PROC) dlsym(handle, "eglGetCurrentSurface");
+    if (!eglGetCurrentSurface) { return (0); }
+
+    eglGetDisplay = (PFN_eglGetDisplay_PROC) dlsym(handle, "eglGetDisplay");
+    if (!eglGetDisplay) { return (0); }
+
+    eglGetError = (PFN_eglGetError_PROC) dlsym(handle, "eglGetError");
+    if (!eglGetError) { return (0); }
+
+    eglGetProcAddress = (PFN_eglGetProcAddress_PROC) dlsym(handle, "eglGetProcAddress");
+    if (!eglGetProcAddress) { return (0); }
+
+    eglInitialize = (PFN_eglInitialize_PROC) dlsym(handle, "eglInitialize");
+    if (!eglInitialize) { return (0); }
+
+    eglMakeCurrent = (PFN_eglMakeCurrent_PROC) dlsym(handle, "eglMakeCurrent");
+    if (!eglMakeCurrent) { return (0); }
+
+    eglQueryContext = (PFN_eglQueryContext_PROC) dlsym(handle, "eglQueryContext");
+    if (!eglQueryContext) { return (0); }
+
+    eglQueryString = (PFN_eglQueryString_PROC) dlsym(handle, "eglQueryString");
+    if (!eglQueryString) { return (0); }
+
+    eglQuerySurface = (PFN_eglQuerySurface_PROC) dlsym(handle, "eglQuerySurface");
+    if (!eglQuerySurface) { return (0); }
+
+    eglSwapBuffers = (PFN_eglSwapBuffers_PROC) dlsym(handle, "eglSwapBuffers");
+    if (!eglSwapBuffers) { return (0); }
+
+    eglTerminate = (PFN_eglTerminate_PROC) dlsym(handle, "eglTerminate");
+    if (!eglTerminate) { return (0); }
+
+    eglWaitGL = (PFN_eglWaitGL_PROC) dlsym(handle, "eglWaitGL");
+    if (!eglWaitGL) { return (0); }
+
+    eglWaitNative = (PFN_eglWaitNative_PROC) dlsym(handle, "eglWaitNative");
+    if (!eglWaitNative) { return (0); }
+
+    eglBindTexImage = (PFN_eglBindTexImage_PROC) dlsym(handle, "eglBindTexImage");
+    if (!eglBindTexImage) { return (0); }
+
+    eglReleaseTexImage = (PFN_eglReleaseTexImage_PROC) dlsym(handle, "eglReleaseTexImage");
+    if (!eglReleaseTexImage) { return (0); }
+
+    eglSurfaceAttrib = (PFN_eglSurfaceAttrib_PROC) dlsym(handle, "eglSurfaceAttrib");
+    if (!eglSurfaceAttrib) { return (0); }
+
+    eglSwapInterval = (PFN_eglSwapInterval_PROC) dlsym(handle, "eglSwapInterval");
+    if (!eglSwapInterval) { return (0); }
+
+    eglBindAPI = (PFN_eglBindAPI_PROC) dlsym(handle, "eglBindAPI");
+    if (!eglBindAPI) { return (0); }
+
+    eglQueryAPI = (PFN_eglQueryAPI_PROC) dlsym(handle, "eglQueryAPI");
+    if (!eglQueryAPI) { return (0); }
+
+    eglCreatePbufferFromClientBuffer = (PFN_eglCreatePbufferFromClientBuffer_PROC) dlsym(handle, "eglCreatePbufferFromClientBuffer");
+    if (!eglCreatePbufferFromClientBuffer) { return (0); }
+
+    eglReleaseThread = (PFN_eglReleaseThread_PROC) dlsym(handle, "eglReleaseThread");
+    if (!eglReleaseThread) { return (0); }
+
+    eglWaitClient = (PFN_eglWaitClient_PROC) dlsym(handle, "eglWaitClient");
+    if (!eglWaitClient) { return (0); }
+
+    eglGetCurrentContext = (PFN_eglGetCurrentContext_PROC) dlsym(handle, "eglGetCurrentContext");
+    if (!eglGetCurrentContext) { return (0); }
+
+    eglCreateSync = (PFN_eglCreateSync_PROC) dlsym(handle, "eglCreateSync");
+    if (!eglCreateSync) { return (0); }
+
+    eglDestroySync = (PFN_eglDestroySync_PROC) dlsym(handle, "eglDestroySync");
+    if (!eglDestroySync) { return (0); }
+
+    eglClientWaitSync = (PFN_eglClientWaitSync_PROC) dlsym(handle, "eglClientWaitSync");
+    if (!eglClientWaitSync) { return (0); }
+
+    eglGetSyncAttrib = (PFN_eglGetSyncAttrib_PROC) dlsym(handle, "eglGetSyncAttrib");
+    if (!eglGetSyncAttrib) { return (0); }
+
+    eglCreateImage = (PFN_eglCreateImage_PROC) dlsym(handle, "eglCreateImage");
+    if (!eglCreateImage) { return (0); }
+
+    eglDestroyImage = (PFN_eglDestroyImage_PROC) dlsym(handle, "eglDestroyImage");
+    if (!eglDestroyImage) { return (0); }
+
+    eglGetPlatformDisplay = (PFN_eglGetPlatformDisplay_PROC) dlsym(handle, "eglGetPlatformDisplay");
+    if (!eglGetPlatformDisplay) { return (0); }
+
+    eglCreatePlatformWindowSurface = (PFN_eglCreatePlatformWindowSurface_PROC) dlsym(handle, "eglCreatePlatformWindowSurface");
+    if (!eglCreatePlatformWindowSurface) { return (0); }
+
+    eglCreatePlatformPixmapSurface = (PFN_eglCreatePlatformPixmapSurface_PROC) dlsym(handle, "eglCreatePlatformPixmapSurface");
+    if (!eglCreatePlatformPixmapSurface) { return (0); }
+
+    eglWaitSync = (PFN_eglWaitSync_PROC) dlsym(handle, "eglWaitSync");
+    if (!eglWaitSync) { return (0); }
+
 
     /* set '__window_h.egl->handle' member */ 
     __window_h.egl->handle = handle;
@@ -2486,6 +2616,234 @@ WINDEF int winSetWindowTitle(t_window win, const char *t) {
     
     /* success */
     return (1);
+}
+
+/* opengl context functions */
+
+WINDEF int winGLCreateContext(t_glcontext *ctx, t_window win) {
+
+/* check if 'WINDOW_API_OPENGL' is defined  */
+#   if !defined (WINDOW_API_OPENGL)
+    (void) ctx;
+    (void) win;
+    return (0);
+#   else
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!ctx) { return (0); }
+    if (!win) { return (0); }
+
+    /* check if EGL is already loaded */
+    if (!__window_h.egl) {
+        /* if not, load and initialize EGL */
+        if (!__winLoadEGL()) { return (0); }
+
+        /* get EGL display from X11 display */
+        EGLDisplay dpy = eglGetDisplay(__window_h.x11->xlib.dpy);
+        if (dpy == EGL_NO_DISPLAY) { return (0); }
+       
+        /* initialize EGL */
+        if (!eglInitialize(dpy, 0, 0))   { return (0); }
+        if (!eglBindAPI(EGL_OPENGL_API)) { return (0); }
+
+        /* set '__window_h.egl' members */
+        __window_h.egl->dpy = dpy;
+    }
+
+    /* references */
+    EGLDisplay dpy = __window_h.egl->dpy;
+    
+    /* alloc new context object */
+    t_glcontext result = calloc(1, sizeof(struct s_glcontext));
+    if (!result) { return (0); }
+
+    result->egl = calloc(1, sizeof(struct s_glcontext_egl));
+    if (!result->egl) { return (0); }
+
+    /* get EGLConfig object */
+    int num_config   = 0;
+    EGLConfig config = 0;
+    if (!eglChooseConfig(dpy, 0, &config, 1, &num_config)) { return (0); }
+
+    /* get EGLSurface object */
+    EGLSurface surface = eglCreateWindowSurface(dpy, config, win->x11->xlib.client, 0);
+    if (surface == EGL_NO_SURFACE) { return (0); }
+
+    /* get EGLContext object */
+    EGLContext context = eglCreateContext(dpy, config, EGL_NO_CONTEXT, 0);
+    if (context == EGL_NO_CONTEXT) { return (0); }
+    
+    /* set 'result->egl' members */
+    if (!dpy) { return (0); }
+    result->egl->dpy = dpy;
+
+    if (!config) { return (0); }
+    result->egl->config = config;
+
+    if (!surface) { return (0); }
+    result->egl->surface = surface;
+
+    if (!context) { return (0); }
+    result->egl->context = context;
+
+    /* and return the result */
+    *ctx = result;
+
+    /* success */
+    return (1);
+#   endif
+
+}
+
+WINDEF int winGLDestroyContext(t_glcontext ctx, t_window win) {
+
+/* check if 'WINDOW_API_OPENGL' is defined  */
+#   if !defined (WINDOW_API_OPENGL)
+    (void) ctx;
+    (void) win;
+    return (0);
+#   else
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+    if (!ctx) { return (0); }
+    if (!win) { return (0); }
+
+    /* references */
+    EGLDisplay dpy = ctx->egl->dpy;
+    EGLSurface surface = ctx->egl->surface;
+    EGLContext context = ctx->egl->context;
+
+    eglMakeCurrent(dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (context) { eglDestroyContext(dpy, context); }
+    if (surface) { eglDestroySurface(dpy, surface); }
+ 
+    /* deallocate window object */
+    free(ctx->egl);
+    free(ctx);
+
+    /* success */
+    return (1);
+#   endif
+
+}
+
+WINDEF int winGLSetAttribute(const int attr, const int value) {
+
+/* check if 'WINDOW_API_OPENGL' is defined  */
+#   if !defined (WINDOW_API_OPENGL)
+    (void) attr;
+    (void) value;
+    return (0);
+#   else
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+
+    (void) attr;
+    (void) value;
+    
+    /* success */
+    return (1);
+#   endif
+
+}
+
+WINDEF int winGLMakeCurrent(t_glcontext ctx, t_window win) {
+
+/* check if 'WINDOW_API_OPENGL' is defined  */
+#   if !defined (WINDOW_API_OPENGL)
+    (void) ctx;
+    (void) win;
+    return (0);
+#   else
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+    if (!ctx) { return (0); }
+    if (!win) { return (0); }
+    
+    /* references */
+    EGLDisplay dpy = ctx->egl->dpy;
+    EGLSurface surface = ctx->egl->surface;
+    EGLContext context = ctx->egl->context;
+
+    (void) win;
+    if (!eglMakeCurrent(dpy, surface, surface, context)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+#   endif
+
+}
+
+WINDEF int winGLSwapBuffers(t_glcontext ctx, t_window win) {
+
+/* check if 'WINDOW_API_OPENGL' is defined  */
+#   if !defined (WINDOW_API_OPENGL)
+    (void) ctx;
+    (void) win;
+    return (0);
+#   else
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+    if (!ctx) { return (0); }
+    if (!win) { return (0); }
+    
+    /* references */
+    EGLDisplay dpy = ctx->egl->dpy;
+    EGLSurface surface = ctx->egl->surface;
+
+    eglSwapBuffers(dpy, surface);
+
+    /* success */
+    return (1);
+#   endif
+
+}
+
+WINDEF int winGLSwapInterval(t_glcontext ctx, const int interval) {
+
+/* check if 'WINDOW_API_OPENGL' is defined  */
+#   if !defined (WINDOW_API_OPENGL)
+    (void) ctx;
+    (void) interval;
+    return (0);
+#   else
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+    if (!ctx) { return (0); }
+    
+    /* references */
+    EGLDisplay dpy = ctx->egl->dpy;
+
+    eglSwapInterval(dpy, interval);
+
+    /* success */
+    return (1);
+#   endif
+
+}
+
+WINDEF void *winGLGetProcAddress(const char *proc) {
+
+/* check if 'WINDOW_API_OPENGL' is defined  */
+#   if !defined (WINDOW_API_OPENGL)
+    (void) proc;
+    return (0);
+#   else
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+
+    /* success */
+    return (eglGetProcAddress(proc));
+#   endif
+
 }
 
 /* event functions */
