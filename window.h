@@ -58,12 +58,14 @@
 #  /* define default backend if none is defined */
 #  if !defined (WINDOW_BACKEND_X11) && !defined (WINDOW_BACKEND_WAYLAND)
 #   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 */
-#
-#   /* define default backend if WINDOW_API_OPENGL is defined */
-#   if defined (WINDOW_API_OPENGL)
-#    define WINDOW_BACKEND_GL_EGL 1 /* by default window.h picks EGL */
-#   endif 
 #  endif
+#
+#  /* define default backend if WINDOW_API_OPENGL is defined */
+#  if defined (WINDOW_API_OPENGL)
+#   define WINDOW_BACKEND_GL_EGL 1 /* by default window.h picks EGL */
+#  else
+#   define WINDOW_API_NONE 1
+#  endif 
 #
 # elif defined (__APPLE__) || defined (__MACH__)
 #  define WINDOW_PLATFORM "apple"
@@ -76,7 +78,9 @@
 #  /* define default backend if WINDOW_API_OPENGL is defined */
 #  if defined (WINDOW_API_OPENGL)
 #   define WINDOW_BACKEND_GL_WGL 1 /* by default window.h picks WGL */
-#  endif
+#  else
+#   define WINDOW_API_NONE 1
+#  endif 
 #
 # elif defined (__FreeBSD__) || defined (__NetBSD__) || defined (__bsdi__) || defined (__DragonFly__) || defined (__MidnightBSD__)
 #  define WINDOW_PLATFORM "bsd"
@@ -84,12 +88,14 @@
 #  /* define default backend if none is defined */
 #  if !defined (WINDOW_BACKEND_X11) && !defined (WINDOW_BACKEND_WAYLAND)
 #   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 */
-#
-#   /* define default backend if WINDOW_API_OPENGL is defined */
-#   if defined (WINDOW_API_OPENGL)
-#    define WINDOW_BACKEND_GL_EGL 1 /* by default window.h picks EGL */
-#   endif 
 #  endif
+#
+#  /* define default backend if WINDOW_API_OPENGL is defined */
+#  if defined (WINDOW_API_OPENGL)
+#   define WINDOW_BACKEND_GL_EGL 1 /* by default window.h picks EGL */
+#  else
+#   define WINDOW_API_NONE 1
+#  endif 
 #
 # else
 #  error /* No valid platform found */
@@ -923,7 +929,6 @@ typedef Atom (* PFN_XInternAtom_PROC) (Display *, const char *, Bool);
 typedef int (* PFN_XLookupString_PROC) (XKeyEvent *, char *, int, KeySym *, XComposeStatus *);
 typedef int (* PFN_XMapRaised_PROC) (Display *, Window);
 typedef int (* PFN_XMapWindow_PROC) (Display *, Window);
-typedef Status (* PFN_XMatchVisualInfo_PROC) (Display *, int, int, int, XVisualInfo *);
 typedef int (* PFN_XMoveResizeWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int);
 typedef int (* PFN_XMoveWindow_PROC) (Display *, Window, int, int);
 typedef int (* PFN_XNextEvent_PROC) (Display *, XEvent *);
@@ -1003,7 +1008,6 @@ typedef Bool (* PFN_XkbSetDetectableAutoRepeat_PROC) (Display *, Bool, Bool *);
 #   define XLookupString __window_h.x11->LookupString
 #   define XMapRaised __window_h.x11->MapRaised
 #   define XMapWindow __window_h.x11->MapWindow
-#   define XMatchVisualInfo __window_h.x11->MatchVisualInfo
 #   define XMoveResizeWindow __window_h.x11->MoveResizeWindow
 #   define XMoveWindow __window_h.x11->MoveWindow
 #   define XNextEvent __window_h.x11->NextEvent
@@ -1110,7 +1114,6 @@ struct __window_h_x11 {
     PFN_XLookupString_PROC LookupString;
     PFN_XMapRaised_PROC MapRaised;
     PFN_XMapWindow_PROC MapWindow;
-    PFN_XMatchVisualInfo_PROC MatchVisualInfo;
     PFN_XMoveResizeWindow_PROC MoveResizeWindow;
     PFN_XMoveWindow_PROC MoveWindow;
     PFN_XNextEvent_PROC NextEvent;
@@ -1385,9 +1388,6 @@ WININT int __winLoadX11Symbols(void) {
 
     XMapWindow = (PFN_XMapWindow_PROC) dlsym(handle, "XMapWindow");
     if (!XMapWindow) { return (0); }
-
-    XMatchVisualInfo = (PFN_XMatchVisualInfo_PROC) dlsym(handle, "XMatchVisualInfo");
-    if (!XMatchVisualInfo) { return (0); }
 
     XMoveResizeWindow = (PFN_XMoveResizeWindow_PROC) dlsym(handle, "XMoveResizeWindow");
     if (!XMoveResizeWindow) { return (0); }
@@ -1870,6 +1870,12 @@ typedef struct __window_h_egl *__window_h_egl;
 struct __window_h_egl {
     EGLDisplay dpy;
 
+    struct {
+        int32_t  config[32];
+        int32_t surface[32];
+        int32_t context[32];
+    } attr;
+
     /* libEGL */
     void *handle;
     PFN_eglChooseConfig_PROC ChooseConfig;
@@ -1956,6 +1962,11 @@ WININT int __winLoadEGL(void) {
 
     /* set '__window_h.egl' members */
     __window_h.egl->dpy = dpy;
+
+    /* set '__window_h.egl->attr' defaults */
+    __window_h.egl->attr.config[0] = EGL_NONE;
+    __window_h.egl->attr.surface[0] = EGL_NONE;
+    __window_h.egl->attr.context[0] = EGL_NONE;
 
     /* success */
     return (1);
@@ -2926,14 +2937,14 @@ WINDEF int winGLCreateContext(t_glcontext *ctx, t_window win) {
     /* get EGLConfig object */
     int num_config   = 0;
     EGLConfig config = 0;
-    if (!eglChooseConfig(dpy, 0, &config, 1, &num_config)) { return (0); }
+    if (!eglChooseConfig(dpy, __window_h.egl->attr.config, &config, 1, &num_config)) { return (0); }
 
     /* get EGLSurface object */
-    EGLSurface surface = eglCreateWindowSurface(dpy, config, win->x11->xlib.client, 0);
+    EGLSurface surface = eglCreateWindowSurface(dpy, config, win->x11->xlib.client, __window_h.egl->attr.surface);
     if (surface == EGL_NO_SURFACE) { return (0); }
 
     /* get EGLContext object */
-    EGLContext context = eglCreateContext(dpy, config, EGL_NO_CONTEXT, 0);
+    EGLContext context = eglCreateContext(dpy, config, EGL_NO_CONTEXT, __window_h.egl->attr.context);
     if (context == EGL_NO_CONTEXT) { return (0); }
     
     /* set 'result->egl' members */
@@ -3270,6 +3281,10 @@ WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window 
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+#   if defined (WINDOW_API_OPENGL)
+    if (!__window_h.egl) { return (0); }
+#   endif
+
     /* allocate 'win->x11' field */
     win->x11 = calloc(1, sizeof (struct s_window_x11));
     if (!win->x11) { return (0); }
@@ -3277,18 +3292,49 @@ WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window 
     /* get screen index */
     int screen = DefaultScreen(dpy);
 
-    /* create visual info */
-    XVisualInfo visual_info = { 0 };
-    if (!XMatchVisualInfo(dpy, screen, 24, TrueColor, &visual_info)) {
-        return (0);
-    }
+    /* get visual and depth */
+#   if defined (WINDOW_API_NONE)
+    /* get default visual from display and screen */
+    Visual *visual = DefaultVisual(dpy, screen);
+    
+    /* get default depth value from display and screen */
+    int depth = DefaultDepth(dpy, screen);
+#   elif defined (WINDOW_API_OPENGL)
+    /* get EGLConfig object */
+    int num_config   = 0;
+    EGLConfig config = 0;
+    if (!eglChooseConfig(__window_h.egl->dpy, __window_h.egl->attr.config, &config, 1, &num_config)) { return (0); }
 
-    int      depth = visual_info.depth;
-    Visual *visual = visual_info.visual;
+    /* get visual ID based on EGLConfig */
+    int visualid = 0;
+    eglGetConfigAttrib(__window_h.egl->dpy, config, EGL_NATIVE_VISUAL_ID, &visualid);
+
+    /* create desired XVisualInfo */
+    XVisualInfo desired = {
+        .visualid = visualid,
+        .screen = screen
+    };
+
+    /* get XVisualInfo based on 'desired' */
+    int count = 0;
+    XVisualInfo *vi = XGetVisualInfo(dpy, VisualScreenMask | VisualIDMask, &desired, &count);
+    if (!vi) { return (0); }
+
+    /* get visual from 'vi' */
+    Visual *visual = vi->visual; 
+    
+    /* get depth value from 'vi' */
+    int depth = vi->depth; 
+
+    /* release 'vi' */
+    XFree(vi), vi = 0;
+#   else
+    /* ... */
+#   endif
 
     /* create XSetWindowAttributes */
     XSetWindowAttributes attr = { 0 };
-    attr.colormap = XCreateColormap(dpy, root, visual_info.visual, AllocNone);
+    attr.colormap = XCreateColormap(dpy, root, visual, AllocNone);
     attr.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask |
                       PointerMotionMask | ButtonPressMask | ButtonReleaseMask |
                       ExposureMask | FocusChangeMask | VisibilityChangeMask |
@@ -3379,8 +3425,11 @@ WININT int __winUpdateWindowFlagsX11(t_window win) {
     
     /* WINDOW_FLAG_RESIZABLE */
     if (flags & WINDOW_FLAG_RESIZABLE) {
-        winSetWindowMinSize(win, 1, 1);
-        winSetWindowMaxSize(win, 0x10000000, 0x10000000);
+        XSizeHints hints; int64_t supp;
+        XGetWMNormalHints(dpy, client, &hints, &supp);
+
+        hints.flags &= ~PMinSize & ~PMaxSize;
+        XSetWMNormalHints(dpy, client, &hints);
     } else {
         size_t w = 0,
                h = 0;
