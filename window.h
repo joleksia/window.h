@@ -4972,6 +4972,8 @@ WININT int __winUnloadX11(void) {
 #  /* WINDOW_BACKEND_GL_EGL - EGL implementation layer */
 #  if defined (WINDOW_BACKEND_GL_EGL)
 
+/* libEGL: egl.h */
+
 typedef Display *EGLNativeDisplayType;
 typedef Pixmap   EGLNativePixmapType;
 typedef Window   EGLNativeWindowType;
@@ -4980,321 +4982,365 @@ typedef EGLNativeDisplayType NativeDisplayType;
 typedef EGLNativePixmapType  NativePixmapType;
 typedef EGLNativeWindowType  NativeWindowType;
 
-typedef int32_t EGLint;
-
-#   if !defined (EGL_VERSION_1_0)
-#    define EGL_VERSION_1_0 1
-#
-#    define EGL_ALPHA_SIZE 0x3021
-#    define EGL_BAD_ACCESS 0x3002
-#    define EGL_BAD_ALLOC 0x3003
-#    define EGL_BAD_ATTRIBUTE 0x3004
-#    define EGL_BAD_CONFIG 0x3005
-#    define EGL_BAD_CONTEXT 0x3006
-#    define EGL_BAD_CURRENT_SURFACE 0x3007
-#    define EGL_BAD_DISPLAY 0x3008
-#    define EGL_BAD_MATCH 0x3009
-#    define EGL_BAD_NATIVE_PIXMAP 0x300A
-#    define EGL_BAD_NATIVE_WINDOW 0x300B
-#    define EGL_BAD_PARAMETER 0x300C
-#    define EGL_BAD_SURFACE 0x300D
-#    define EGL_BLUE_SIZE 0x3022
-#    define EGL_BUFFER_SIZE 0x3020
-#    define EGL_CONFIG_CAVEAT 0x3027
-#    define EGL_CONFIG_ID 0x3028
-#    define EGL_CORE_NATIVE_ENGINE 0x305B
-#    define EGL_DEPTH_SIZE 0x3025
-#    define EGL_DONT_CARE ((EGLint) -1)
-#    define EGL_DRAW 0x3059
-#    define EGL_EXTENSIONS 0x3055
-#    define EGL_FALSE 0
-#    define EGL_GREEN_SIZE 0x3023
-#    define EGL_HEIGHT 0x3056
-#    define EGL_LARGEST_PBUFFER 0x3058
-#    define EGL_LEVEL 0x3029
-#    define EGL_MAX_PBUFFER_HEIGHT 0x302A
-#    define EGL_MAX_PBUFFER_PIXELS 0x302B
-#    define EGL_MAX_PBUFFER_WIDTH 0x302C
-#    define EGL_NATIVE_RENDERABLE 0x302D
-#    define EGL_NATIVE_VISUAL_ID 0x302E
-#    define EGL_NATIVE_VISUAL_TYPE 0x302F
-#    define EGL_NONE 0x3038
-#    define EGL_NON_CONFORMANT_CONFIG 0x3051
-#    define EGL_NOT_INITIALIZED 0x3001
-#    define EGL_NO_CONTEXT ((EGLContext) 0)
-#    define EGL_NO_DISPLAY ((EGLDisplay) 0)
-#    define EGL_NO_SURFACE ((EGLSurface) 0)
-#    define EGL_PBUFFER_BIT 0x0001
-#    define EGL_PIXMAP_BIT 0x0002
-#    define EGL_READ 0x305A
-#    define EGL_RED_SIZE 0x3024
-#    define EGL_SAMPLES 0x3031
-#    define EGL_SAMPLE_BUFFERS 0x3032
-#    define EGL_SLOW_CONFIG 0x3050
-#    define EGL_STENCIL_SIZE 0x3026
-#    define EGL_SUCCESS 0x3000
-#    define EGL_SURFACE_TYPE 0x3033
-#    define EGL_TRANSPARENT_BLUE_VALUE 0x3035
-#    define EGL_TRANSPARENT_GREEN_VALUE 0x3036
-#    define EGL_TRANSPARENT_RED_VALUE 0x3037
-#    define EGL_TRANSPARENT_RGB 0x3052
-#    define EGL_TRANSPARENT_TYPE 0x3034
-#    define EGL_TRUE 1
-#    define EGL_VENDOR 0x3053
-#    define EGL_VERSION 0x3054
-#    define EGL_WIDTH 0x3057
-#    define EGL_WINDOW_BIT 0x0004
-
-typedef unsigned int EGLBoolean;
 typedef void *EGLDisplay;
 typedef void *EGLConfig;
 typedef void *EGLSurface;
 typedef void *EGLContext;
-typedef void (*__eglMustCastToProperFunctionPointerType)(void);
-
-typedef EGLBoolean (* PFN_eglChooseConfig_PROC) (EGLDisplay, const EGLint *, EGLConfig *, EGLint, EGLint *);
-typedef EGLBoolean (* PFN_eglCopyBuffers_PROC) (EGLDisplay, EGLSurface, EGLNativePixmapType);
-typedef EGLContext (* PFN_eglCreateContext_PROC) (EGLDisplay, EGLConfig, EGLContext, const EGLint *);
-typedef EGLSurface (* PFN_eglCreatePbufferSurface_PROC) (EGLDisplay, EGLConfig, const EGLint *);
-typedef EGLSurface (* PFN_eglCreatePixmapSurface_PROC) (EGLDisplay, EGLConfig, EGLNativePixmapType, const EGLint *);
-typedef EGLSurface (* PFN_eglCreateWindowSurface_PROC) (EGLDisplay, EGLConfig, EGLNativeWindowType, const EGLint *);
-typedef EGLBoolean (* PFN_eglDestroyContext_PROC) (EGLDisplay, EGLContext);
-typedef EGLBoolean (* PFN_eglDestroySurface_PROC) (EGLDisplay, EGLSurface);
-typedef EGLBoolean (* PFN_eglGetConfigAttrib_PROC) (EGLDisplay, EGLConfig, EGLint, EGLint *);
-typedef EGLBoolean (* PFN_eglGetConfigs_PROC) (EGLDisplay, EGLConfig *configs, EGLint, EGLint *);
-typedef EGLDisplay (* PFN_eglGetCurrentDisplay_PROC) (void);
-typedef EGLSurface (* PFN_eglGetCurrentSurface_PROC) (EGLint);
-typedef EGLDisplay (* PFN_eglGetDisplay_PROC) (EGLNativeDisplayType);
-typedef EGLint (* PFN_eglGetError_PROC) (void);
-typedef __eglMustCastToProperFunctionPointerType (* PFN_eglGetProcAddress_PROC) (const char *);
-typedef EGLBoolean (* PFN_eglInitialize_PROC) (EGLDisplay, EGLint *, EGLint *);
-typedef EGLBoolean (* PFN_eglMakeCurrent_PROC) (EGLDisplay, EGLSurface, EGLSurface, EGLContext);
-typedef EGLBoolean (* PFN_eglQueryContext_PROC) (EGLDisplay, EGLContext, EGLint, EGLint *);
-typedef const char *(* PFN_eglQueryString_PROC) (EGLDisplay, EGLint);
-typedef EGLBoolean (* PFN_eglQuerySurface_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint *);
-typedef EGLBoolean (* PFN_eglSwapBuffers_PROC) (EGLDisplay, EGLSurface);
-typedef EGLBoolean (* PFN_eglTerminate_PROC) (EGLDisplay);
-typedef EGLBoolean (* PFN_eglWaitGL_PROC) (void);
-typedef EGLBoolean (* PFN_eglWaitNative_PROC) (EGLint);
-
-#    define eglChooseConfig __window_h.egl->ChooseConfig
-#    define eglCopyBuffers __window_h.egl->CopyBuffers
-#    define eglCreateContext __window_h.egl->CreateContext
-#    define eglCreatePbufferSurface __window_h.egl->CreatePbufferSurface
-#    define eglCreatePixmapSurface __window_h.egl->CreatePixmapSurface
-#    define eglCreateWindowSurface __window_h.egl->CreateWindowSurface
-#    define eglDestroyContext __window_h.egl->DestroyContext
-#    define eglDestroySurface __window_h.egl->DestroySurface
-#    define eglGetConfigAttrib __window_h.egl->GetConfigAttrib
-#    define eglGetConfigs __window_h.egl->GetConfigs
-#    define eglGetCurrentDisplay __window_h.egl->GetCurrentDisplay
-#    define eglGetCurrentSurface __window_h.egl->GetCurrentSurface
-#    define eglGetDisplay __window_h.egl->GetDisplay
-#    define eglGetError __window_h.egl->GetError
-#    define eglGetProcAddress __window_h.egl->GetProcAddress
-#    define eglInitialize __window_h.egl->Initialize
-#    define eglMakeCurrent __window_h.egl->MakeCurrent
-#    define eglQueryContext __window_h.egl->QueryContext
-#    define eglQueryString __window_h.egl->QueryString
-#    define eglQuerySurface __window_h.egl->QuerySurface
-#    define eglSwapBuffers __window_h.egl->SwapBuffers
-#    define eglTerminate __window_h.egl->Terminate
-#    define eglWaitGL __window_h.egl->WaitGL
-#    define eglWaitNative __window_h.egl->WaitNative
-#
-#   endif /* EGL_VERSION_1_0 */
-#
-#   if !defined (EGL_VERSION_1_1)
-#    define EGL_VERSION_1_1 1
-#
-#    define EGL_BACK_BUFFER 0x3084
-#    define EGL_BIND_TO_TEXTURE_RGB 0x3039
-#    define EGL_BIND_TO_TEXTURE_RGBA 0x303A
-#    define EGL_CONTEXT_LOST 0x300E
-#    define EGL_MIN_SWAP_INTERVAL 0x303B
-#    define EGL_MAX_SWAP_INTERVAL 0x303C
-#    define EGL_MIPMAP_TEXTURE 0x3082
-#    define EGL_MIPMAP_LEVEL 0x3083
-#    define EGL_NO_TEXTURE 0x305C
-#    define EGL_TEXTURE_2D 0x305F
-#    define EGL_TEXTURE_FORMAT 0x3080
-#    define EGL_TEXTURE_RGB 0x305D
-#    define EGL_TEXTURE_RGBA 0x305E
-#    define EGL_TEXTURE_TARGET 0x3081
-
-typedef EGLBoolean (* PFN_eglBindTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
-typedef EGLBoolean (* PFN_eglReleaseTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
-typedef EGLBoolean (* PFN_eglSurfaceAttrib_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint);
-typedef EGLBoolean (* PFN_eglSwapInterval_PROC) (EGLDisplay, EGLint);
-
-#    define eglBindTexImage __window_h.egl->BindTexImage
-#    define eglReleaseTexImage __window_h.egl->ReleaseTexImage
-#    define eglSurfaceAttrib __window_h.egl->SurfaceAttrib
-#    define eglSwapInterval __window_h.egl->SwapInterval
-#
-#   endif /* EGL_VERSION_1_1 */
-#
-#   if !defined (EGL_VERSION_1_2)
-#    define EGL_VERSION_1_2 1
-#
-#    define EGL_ALPHA_FORMAT 0x3088
-#    define EGL_ALPHA_FORMAT_NONPRE 0x308B
-#    define EGL_ALPHA_FORMAT_PRE 0x308C
-#    define EGL_ALPHA_MASK_SIZE 0x303E
-#    define EGL_BUFFER_PRESERVED 0x3094
-#    define EGL_BUFFER_DESTROYED 0x3095
-#    define EGL_CLIENT_APIS 0x308D
-#    define EGL_COLORSPACE 0x3087
-#    define EGL_COLORSPACE_sRGB 0x3089
-#    define EGL_COLORSPACE_LINEAR 0x308A
-#    define EGL_COLOR_BUFFER_TYPE 0x303F
-#    define EGL_CONTEXT_CLIENT_TYPE 0x3097
-#    define EGL_DISPLAY_SCALING 10000
-#    define EGL_HORIZONTAL_RESOLUTION 0x3090
-#    define EGL_LUMINANCE_BUFFER 0x308F
-#    define EGL_LUMINANCE_SIZE 0x303D
-#    define EGL_OPENGL_ES_BIT 0x0001
-#    define EGL_OPENVG_BIT 0x0002
-#    define EGL_OPENGL_ES_API 0x30A0
-#    define EGL_OPENVG_API 0x30A1
-#    define EGL_OPENVG_IMAGE 0x3096
-#    define EGL_PIXEL_ASPECT_RATIO 0x3092
-#    define EGL_RENDERABLE_TYPE 0x3040
-#    define EGL_RENDER_BUFFER 0x3086
-#    define EGL_RGB_BUFFER 0x308E
-#    define EGL_SINGLE_BUFFER 0x3085
-#    define EGL_SWAP_BEHAVIOR 0x3093
-#    define EGL_UNKNOWN ((EGLint) -1)
-#    define EGL_VERTICAL_RESOLUTION 0x3091
-
-typedef unsigned int EGLenum;
 typedef void *EGLClientBuffer;
-
-typedef EGLBoolean (* PFN_eglBindAPI_PROC) (EGLenum);
-typedef EGLenum (* PFN_eglQueryAPI_PROC) (void);
-typedef EGLSurface (* PFN_eglCreatePbufferFromClientBuffer_PROC) (EGLDisplay, EGLenum, EGLClientBuffer, EGLConfig, const EGLint *);
-typedef EGLBoolean (* PFN_eglReleaseThread_PROC) (void);
-typedef EGLBoolean (* PFN_eglWaitClient_PROC) (void);
-
-#    define eglBindAPI __window_h.egl->BindAPI
-#    define eglQueryAPI __window_h.egl->QueryAPI
-#    define eglCreatePbufferFromClientBuffer __window_h.egl->CreatePbufferFromClientBuffer
-#    define eglReleaseThread __window_h.egl->ReleaseThread
-#    define eglWaitClient __window_h.egl->WaitClient
-#
-#   endif /* EGL_VERSION_1_2 */
-#
-#   if !defined (EGL_VERSION_1_3)
-#    define EGL_VERSION_1_3 1
-#
-#    define EGL_CONFORMANT 0x3042
-#    define EGL_CONTEXT_CLIENT_VERSION 0x3098
-#    define EGL_MATCH_NATIVE_PIXMAP 0x3041
-#    define EGL_OPENGL_ES2_BIT 0x0004
-#    define EGL_VG_ALPHA_FORMAT 0x3088
-#    define EGL_VG_ALPHA_FORMAT_NONPRE 0x308B
-#    define EGL_VG_ALPHA_FORMAT_PRE 0x308C
-#    define EGL_VG_ALPHA_FORMAT_PRE_BIT 0x0040
-#    define EGL_VG_COLORSPACE 0x3087
-#    define EGL_VG_COLORSPACE_sRGB 0x3089
-#    define EGL_VG_COLORSPACE_LINEAR 0x308A
-#    define EGL_VG_COLORSPACE_LINEAR_BIT 0x0020
-#
-#   endif /* EGL_VERSION_1_3 */
-#
-#   if !defined (EGL_VERSION_1_4)
-#    define EGL_VERSION_1_4 1
-#
-#    define EGL_DEFAULT_DISPLAY ((EGLNativeDisplayType) 0)
-#    define EGL_MULTISAMPLE_RESOLVE_BOX_BIT 0x0200
-#    define EGL_MULTISAMPLE_RESOLVE 0x3099
-#    define EGL_MULTISAMPLE_RESOLVE_DEFAULT 0x309A
-#    define EGL_MULTISAMPLE_RESOLVE_BOX 0x309B
-#    define EGL_OPENGL_API 0x30A2
-#    define EGL_OPENGL_BIT 0x0008
-#    define EGL_SWAP_BEHAVIOR_PRESERVED_BIT 0x0400
-
-typedef EGLContext (* PFN_eglGetCurrentContext_PROC) (void);
-
-#    define eglGetCurrentContext __window_h.egl->GetCurrentContext
-#
-#   endif /* EGL_VERSION_1_4 */
-#
-#   if !defined (EGL_VERSION_1_5)
-#    define EGL_VERSION_1_5 1
-#
-#    define EGL_CONTEXT_MAJOR_VERSION 0x3098
-#    define EGL_CONTEXT_MINOR_VERSION 0x30FB
-#    define EGL_CONTEXT_OPENGL_PROFILE_MASK 0x30FD
-#    define EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY 0x31BD
-#    define EGL_NO_RESET_NOTIFICATION 0x31BE
-#    define EGL_LOSE_CONTEXT_ON_RESET 0x31BF
-#    define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT 0x00000001
-#    define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT 0x00000002
-#    define EGL_CONTEXT_OPENGL_DEBUG 0x31B0
-#    define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE 0x31B1
-#    define EGL_CONTEXT_OPENGL_ROBUST_ACCESS 0x31B2
-#    define EGL_OPENGL_ES3_BIT 0x00000040
-#    define EGL_CL_EVENT_HANDLE 0x309C
-#    define EGL_SYNC_CL_EVENT 0x30FE
-#    define EGL_SYNC_CL_EVENT_COMPLETE 0x30FF
-#    define EGL_SYNC_PRIOR_COMMANDS_COMPLETE 0x30F0
-#    define EGL_SYNC_TYPE 0x30F7
-#    define EGL_SYNC_STATUS 0x30F1
-#    define EGL_SYNC_CONDITION 0x30F8
-#    define EGL_SIGNALED 0x30F2
-#    define EGL_UNSIGNALED 0x30F3
-#    define EGL_SYNC_FLUSH_COMMANDS_BIT 0x0001
-#    define EGL_FOREVER 0xFFFFFFFFFFFFFFFFull
-#    define EGL_TIMEOUT_EXPIRED 0x30F5
-#    define EGL_CONDITION_SATISFIED 0x30F6
-#    define EGL_NO_SYNC ((EGLSync) 0)
-#    define EGL_SYNC_FENCE 0x30F9
-#    define EGL_GL_COLORSPACE 0x309D
-#    define EGL_GL_COLORSPACE_SRGB 0x3089
-#    define EGL_GL_COLORSPACE_LINEAR 0x308A
-#    define EGL_GL_RENDERBUFFER 0x30B9
-#    define EGL_GL_TEXTURE_2D 0x30B1
-#    define EGL_GL_TEXTURE_LEVEL 0x30BC
-#    define EGL_GL_TEXTURE_3D 0x30B2
-#    define EGL_GL_TEXTURE_ZOFFSET 0x30BD
-#    define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_X 0x30B3
-#    define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_X 0x30B4
-#    define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Y 0x30B5
-#    define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y 0x30B6
-#    define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Z 0x30B7
-#    define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 0x30B8
-#    define EGL_IMAGE_PRESERVED 0x30D2
-#    define EGL_NO_IMAGE ((EGLImage) 0)
-
 typedef void *EGLSync;
-typedef intptr_t EGLAttrib;
-typedef khronos_utime_nanoseconds_t EGLTime;
 typedef void *EGLImage;
 
-typedef EGLSync (* PFN_eglCreateSync_PROC) (EGLDisplay, EGLenum, const EGLAttrib *);
-typedef EGLBoolean (* PFN_eglDestroySync_PROC) (EGLDisplay, EGLSync);
-typedef EGLint (* PFN_eglClientWaitSync_PROC) (EGLDisplay, EGLSync, EGLint, EGLTime);
-typedef EGLBoolean (* PFN_eglGetSyncAttrib_PROC) (EGLDisplay, EGLSync, EGLint, EGLAttrib *);
-typedef EGLImage (* PFN_eglCreateImage_PROC) (EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLAttrib *);
-typedef EGLBoolean (* PFN_eglDestroyImage_PROC) (EGLDisplay, EGLImage);
-typedef EGLDisplay (* PFN_eglGetPlatformDisplay_PROC) (EGLenum, void *, const EGLAttrib *);
-typedef EGLSurface (* PFN_eglCreatePlatformWindowSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
-typedef EGLSurface (* PFN_eglCreatePlatformPixmapSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
-typedef EGLBoolean (* PFN_eglWaitSync_PROC) (EGLDisplay, EGLSync, EGLint);
+typedef int32_t EGLint;
+typedef unsigned int EGLBoolean;
+typedef unsigned int EGLenum;
+typedef intptr_t EGLAttrib;
 
-#    define eglCreateSync __window_h.egl->CreateSync
-#    define eglDestroySync __window_h.egl->DestroySync
-#    define eglClientWaitSync __window_h.egl->ClientWaitSync
-#    define eglGetSyncAttrib __window_h.egl->GetSyncAttrib
-#    define eglCreateImage __window_h.egl->CreateImage
-#    define eglDestroyImage __window_h.egl->DestroyImage
-#    define eglGetPlatformDisplay __window_h.egl->GetPlatformDisplay
-#    define eglCreatePlatformWindowSurface __window_h.egl->CreatePlatformWindowSurface
-#    define eglCreatePlatformPixmapSurface __window_h.egl->CreatePlatformPixmapSurface
-#    define eglWaitSync __window_h.egl->WaitSync
-#
-#   endif /* EGL_VERSION_1_5 */
+typedef void (*__eglMustCastToProperFunctionPointerType)(void);
+
+typedef khronos_utime_nanoseconds_t EGLTime;
+
+#   define EGL_ALPHA_SIZE 0x3021
+#   define EGL_BAD_ACCESS 0x3002
+#   define EGL_BAD_ALLOC 0x3003
+#   define EGL_BAD_ATTRIBUTE 0x3004
+#   define EGL_BAD_CONFIG 0x3005
+#   define EGL_BAD_CONTEXT 0x3006
+#   define EGL_BAD_CURRENT_SURFACE 0x3007
+#   define EGL_BAD_DISPLAY 0x3008
+#   define EGL_BAD_MATCH 0x3009
+#   define EGL_BAD_NATIVE_PIXMAP 0x300A
+#   define EGL_BAD_NATIVE_WINDOW 0x300B
+#   define EGL_BAD_PARAMETER 0x300C
+#   define EGL_BAD_SURFACE 0x300D
+#   define EGL_BLUE_SIZE 0x3022
+#   define EGL_BUFFER_SIZE 0x3020
+#   define EGL_CONFIG_CAVEAT 0x3027
+#   define EGL_CONFIG_ID 0x3028
+#   define EGL_CORE_NATIVE_ENGINE 0x305B
+#   define EGL_DEPTH_SIZE 0x3025
+#   define EGL_DONT_CARE ((EGLint) -1)
+#   define EGL_DRAW 0x3059
+#   define EGL_EXTENSIONS 0x3055
+#   define EGL_FALSE 0
+#   define EGL_GREEN_SIZE 0x3023
+#   define EGL_HEIGHT 0x3056
+#   define EGL_LARGEST_PBUFFER 0x3058
+#   define EGL_LEVEL 0x3029
+#   define EGL_MAX_PBUFFER_HEIGHT 0x302A
+#   define EGL_MAX_PBUFFER_PIXELS 0x302B
+#   define EGL_MAX_PBUFFER_WIDTH 0x302C
+#   define EGL_NATIVE_RENDERABLE 0x302D
+#   define EGL_NATIVE_VISUAL_ID 0x302E
+#   define EGL_NATIVE_VISUAL_TYPE 0x302F
+#   define EGL_NONE 0x3038
+#   define EGL_NON_CONFORMANT_CONFIG 0x3051
+#   define EGL_NOT_INITIALIZED 0x3001
+#   define EGL_NO_CONTEXT ((EGLContext) 0)
+#   define EGL_NO_DISPLAY ((EGLDisplay) 0)
+#   define EGL_NO_SURFACE ((EGLSurface) 0)
+#   define EGL_PBUFFER_BIT 0x0001
+#   define EGL_PIXMAP_BIT 0x0002
+#   define EGL_READ 0x305A
+#   define EGL_RED_SIZE 0x3024
+#   define EGL_SAMPLES 0x3031
+#   define EGL_SAMPLE_BUFFERS 0x3032
+#   define EGL_SLOW_CONFIG 0x3050
+#   define EGL_STENCIL_SIZE 0x3026
+#   define EGL_SUCCESS 0x3000
+#   define EGL_SURFACE_TYPE 0x3033
+#   define EGL_TRANSPARENT_BLUE_VALUE 0x3035
+#   define EGL_TRANSPARENT_GREEN_VALUE 0x3036
+#   define EGL_TRANSPARENT_RED_VALUE 0x3037
+#   define EGL_TRANSPARENT_RGB 0x3052
+#   define EGL_TRANSPARENT_TYPE 0x3034
+#   define EGL_TRUE 1
+#   define EGL_VENDOR 0x3053
+#   define EGL_VERSION 0x3054
+#   define EGL_WIDTH 0x3057
+#   define EGL_WINDOW_BIT 0x0004
+#   define EGL_BACK_BUFFER 0x3084
+#   define EGL_BIND_TO_TEXTURE_RGB 0x3039
+#   define EGL_BIND_TO_TEXTURE_RGBA 0x303A
+#   define EGL_CONTEXT_LOST 0x300E
+#   define EGL_MIN_SWAP_INTERVAL 0x303B
+#   define EGL_MAX_SWAP_INTERVAL 0x303C
+#   define EGL_MIPMAP_TEXTURE 0x3082
+#   define EGL_MIPMAP_LEVEL 0x3083
+#   define EGL_NO_TEXTURE 0x305C
+#   define EGL_TEXTURE_2D 0x305F
+#   define EGL_TEXTURE_FORMAT 0x3080
+#   define EGL_TEXTURE_RGB 0x305D
+#   define EGL_TEXTURE_RGBA 0x305E
+#   define EGL_TEXTURE_TARGET 0x3081
+#   define EGL_ALPHA_FORMAT 0x3088
+#   define EGL_ALPHA_FORMAT_NONPRE 0x308B
+#   define EGL_ALPHA_FORMAT_PRE 0x308C
+#   define EGL_ALPHA_MASK_SIZE 0x303E
+#   define EGL_BUFFER_PRESERVED 0x3094
+#   define EGL_BUFFER_DESTROYED 0x3095
+#   define EGL_CLIENT_APIS 0x308D
+#   define EGL_COLORSPACE 0x3087
+#   define EGL_COLORSPACE_sRGB 0x3089
+#   define EGL_COLORSPACE_LINEAR 0x308A
+#   define EGL_COLOR_BUFFER_TYPE 0x303F
+#   define EGL_CONTEXT_CLIENT_TYPE 0x3097
+#   define EGL_DISPLAY_SCALING 10000
+#   define EGL_HORIZONTAL_RESOLUTION 0x3090
+#   define EGL_LUMINANCE_BUFFER 0x308F
+#   define EGL_LUMINANCE_SIZE 0x303D
+#   define EGL_OPENGL_ES_BIT 0x0001
+#   define EGL_OPENVG_BIT 0x0002
+#   define EGL_OPENGL_ES_API 0x30A0
+#   define EGL_OPENVG_API 0x30A1
+#   define EGL_OPENVG_IMAGE 0x3096
+#   define EGL_PIXEL_ASPECT_RATIO 0x3092
+#   define EGL_RENDERABLE_TYPE 0x3040
+#   define EGL_RENDER_BUFFER 0x3086
+#   define EGL_RGB_BUFFER 0x308E
+#   define EGL_SINGLE_BUFFER 0x3085
+#   define EGL_SWAP_BEHAVIOR 0x3093
+#   define EGL_UNKNOWN ((EGLint) -1)
+#   define EGL_VERTICAL_RESOLUTION 0x3091
+#   define EGL_CONFORMANT 0x3042
+#   define EGL_CONTEXT_CLIENT_VERSION 0x3098
+#   define EGL_MATCH_NATIVE_PIXMAP 0x3041
+#   define EGL_OPENGL_ES2_BIT 0x0004
+#   define EGL_VG_ALPHA_FORMAT 0x3088
+#   define EGL_VG_ALPHA_FORMAT_NONPRE 0x308B
+#   define EGL_VG_ALPHA_FORMAT_PRE 0x308C
+#   define EGL_VG_ALPHA_FORMAT_PRE_BIT 0x0040
+#   define EGL_VG_COLORSPACE 0x3087
+#   define EGL_VG_COLORSPACE_sRGB 0x3089
+#   define EGL_VG_COLORSPACE_LINEAR 0x308A
+#   define EGL_VG_COLORSPACE_LINEAR_BIT 0x0020
+#   define EGL_DEFAULT_DISPLAY ((EGLNativeDisplayType) 0)
+#   define EGL_MULTISAMPLE_RESOLVE_BOX_BIT 0x0200
+#   define EGL_MULTISAMPLE_RESOLVE 0x3099
+#   define EGL_MULTISAMPLE_RESOLVE_DEFAULT 0x309A
+#   define EGL_MULTISAMPLE_RESOLVE_BOX 0x309B
+#   define EGL_OPENGL_API 0x30A2
+#   define EGL_OPENGL_BIT 0x0008
+#   define EGL_SWAP_BEHAVIOR_PRESERVED_BIT 0x0400
+#   define EGL_CONTEXT_MAJOR_VERSION 0x3098
+#   define EGL_CONTEXT_MINOR_VERSION 0x30FB
+#   define EGL_CONTEXT_OPENGL_PROFILE_MASK 0x30FD
+#   define EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY 0x31BD
+#   define EGL_NO_RESET_NOTIFICATION 0x31BE
+#   define EGL_LOSE_CONTEXT_ON_RESET 0x31BF
+#   define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT 0x00000001
+#   define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT 0x00000002
+#   define EGL_CONTEXT_OPENGL_DEBUG 0x31B0
+#   define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE 0x31B1
+#   define EGL_CONTEXT_OPENGL_ROBUST_ACCESS 0x31B2
+#   define EGL_OPENGL_ES3_BIT 0x00000040
+#   define EGL_CL_EVENT_HANDLE 0x309C
+#   define EGL_SYNC_CL_EVENT 0x30FE
+#   define EGL_SYNC_CL_EVENT_COMPLETE 0x30FF
+#   define EGL_SYNC_PRIOR_COMMANDS_COMPLETE 0x30F0
+#   define EGL_SYNC_TYPE 0x30F7
+#   define EGL_SYNC_STATUS 0x30F1
+#   define EGL_SYNC_CONDITION 0x30F8
+#   define EGL_SIGNALED 0x30F2
+#   define EGL_UNSIGNALED 0x30F3
+#   define EGL_SYNC_FLUSH_COMMANDS_BIT 0x0001
+#   define EGL_FOREVER 0xFFFFFFFFFFFFFFFFull
+#   define EGL_TIMEOUT_EXPIRED 0x30F5
+#   define EGL_CONDITION_SATISFIED 0x30F6
+#   define EGL_NO_SYNC ((EGLSync) 0)
+#   define EGL_SYNC_FENCE 0x30F9
+#   define EGL_GL_COLORSPACE 0x309D
+#   define EGL_GL_COLORSPACE_SRGB 0x3089
+#   define EGL_GL_COLORSPACE_LINEAR 0x308A
+#   define EGL_GL_RENDERBUFFER 0x30B9
+#   define EGL_GL_TEXTURE_2D 0x30B1
+#   define EGL_GL_TEXTURE_LEVEL 0x30BC
+#   define EGL_GL_TEXTURE_3D 0x30B2
+#   define EGL_GL_TEXTURE_ZOFFSET 0x30BD
+#   define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_X 0x30B3
+#   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_X 0x30B4
+#   define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Y 0x30B5
+#   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y 0x30B6
+#   define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Z 0x30B7
+#   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 0x30B8
+#   define EGL_IMAGE_PRESERVED 0x30D2
+#   define EGL_NO_IMAGE ((EGLImage) 0)
+
+typedef EGLBoolean (* PFN_eglBindAPI_PROC) (EGLenum);
+PFN_eglBindAPI_PROC eglBindAPI_PROC = 0;
+#   define eglBindAPI eglBindAPI_PROC
+
+typedef EGLBoolean (* PFN_eglBindTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
+PFN_eglBindTexImage_PROC eglBindTexImage_PROC = 0;
+#   define eglBindTexImage eglBindTexImage_PROC
+
+typedef EGLBoolean (* PFN_eglChooseConfig_PROC) (EGLDisplay, const EGLint *, EGLConfig *, EGLint, EGLint *);
+PFN_eglChooseConfig_PROC eglChooseConfig_PROC = 0;
+#   define eglChooseConfig eglChooseConfig_PROC
+
+typedef EGLint (* PFN_eglClientWaitSync_PROC) (EGLDisplay, EGLSync, EGLint, EGLTime);
+PFN_eglClientWaitSync_PROC eglClientWaitSync_PROC = 0;
+#   define eglClientWaitSync eglClientWaitSync_PROC
+
+typedef EGLBoolean (* PFN_eglCopyBuffers_PROC) (EGLDisplay, EGLSurface, EGLNativePixmapType);
+PFN_eglCopyBuffers_PROC eglCopyBuffers_PROC = 0;
+#   define eglCopyBuffers eglCopyBuffers_PROC
+
+typedef EGLContext (* PFN_eglCreateContext_PROC) (EGLDisplay, EGLConfig, EGLContext, const EGLint *);
+PFN_eglCreateContext_PROC eglCreateContext_PROC = 0;
+#   define eglCreateContext eglCreateContext_PROC
+
+typedef EGLImage (* PFN_eglCreateImage_PROC) (EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLAttrib *);
+PFN_eglCreateImage_PROC eglCreateImage_PROC = 0;
+#   define eglCreateImage eglCreateImage_PROC
+
+typedef EGLSurface (* PFN_eglCreatePbufferFromClientBuffer_PROC) (EGLDisplay, EGLenum, EGLClientBuffer, EGLConfig, const EGLint *);
+PFN_eglCreatePbufferFromClientBuffer_PROC eglCreatePbufferFromClientBuffer_PROC = 0;
+#   define eglCreatePbufferFromClientBuffer eglCreatePbufferFromClientBuffer_PROC
+
+typedef EGLSurface (* PFN_eglCreatePbufferSurface_PROC) (EGLDisplay, EGLConfig, const EGLint *);
+PFN_eglCreatePbufferSurface_PROC eglCreatePbufferSurface_PROC = 0;
+#   define eglCreatePbufferSurface eglCreatePbufferSurface_PROC
+
+typedef EGLSurface (* PFN_eglCreatePixmapSurface_PROC) (EGLDisplay, EGLConfig, EGLNativePixmapType, const EGLint *);
+PFN_eglCreatePixmapSurface_PROC eglCreatePixmapSurface_PROC = 0;
+#   define eglCreatePixmapSurface eglCreatePixmapSurface_PROC
+
+typedef EGLSurface (* PFN_eglCreatePlatformPixmapSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
+PFN_eglCreatePlatformPixmapSurface_PROC eglCreatePlatformPixmapSurface_PROC = 0;
+#   define eglCreatePlatformPixmapSurface eglCreatePlatformPixmapSurface_PROC
+
+typedef EGLSurface (* PFN_eglCreatePlatformWindowSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
+PFN_eglCreatePlatformWindowSurface_PROC eglCreatePlatformWindowSurface_PROC = 0;
+#   define eglCreatePlatformWindowSurface eglCreatePlatformWindowSurface_PROC
+
+typedef EGLSync (* PFN_eglCreateSync_PROC) (EGLDisplay, EGLenum, const EGLAttrib *);
+PFN_eglCreateSync_PROC eglCreateSync_PROC = 0;
+#   define eglCreateSync eglCreateSync_PROC
+
+typedef EGLSurface (* PFN_eglCreateWindowSurface_PROC) (EGLDisplay, EGLConfig, EGLNativeWindowType, const EGLint *);
+PFN_eglCreateWindowSurface_PROC eglCreateWindowSurface_PROC = 0;
+#   define eglCreateWindowSurface eglCreateWindowSurface_PROC
+
+typedef EGLBoolean (* PFN_eglDestroyContext_PROC) (EGLDisplay, EGLContext);
+PFN_eglDestroyContext_PROC eglDestroyContext_PROC = 0;
+#   define eglDestroyContext eglDestroyContext_PROC
+
+typedef EGLBoolean (* PFN_eglDestroyImage_PROC) (EGLDisplay, EGLImage);
+PFN_eglDestroyImage_PROC eglDestroyImage_PROC = 0;
+#   define eglDestroyImage eglDestroyImage_PROC
+
+typedef EGLBoolean (* PFN_eglDestroySurface_PROC) (EGLDisplay, EGLSurface);
+PFN_eglDestroySurface_PROC eglDestroySurface_PROC = 0;
+#   define eglDestroySurface eglDestroySurface_PROC
+
+typedef EGLBoolean (* PFN_eglDestroySync_PROC) (EGLDisplay, EGLSync);
+PFN_eglDestroySync_PROC eglDestroySync_PROC = 0;
+#   define eglDestroySync eglDestroySync_PROC
+
+typedef EGLBoolean (* PFN_eglGetConfigAttrib_PROC) (EGLDisplay, EGLConfig, EGLint, EGLint *);
+PFN_eglGetConfigAttrib_PROC eglGetConfigAttrib_PROC = 0;
+#   define eglGetConfigAttrib eglGetConfigAttrib_PROC
+
+typedef EGLBoolean (* PFN_eglGetConfigs_PROC) (EGLDisplay, EGLConfig *, EGLint, EGLint *);
+PFN_eglGetConfigs_PROC eglGetConfigs_PROC = 0;
+#   define eglGetConfigs eglGetConfigs_PROC
+
+typedef EGLContext (* PFN_eglGetCurrentContext_PROC) (void);
+PFN_eglGetCurrentContext_PROC eglGetCurrentContext_PROC = 0;
+#   define eglGetCurrentContext eglGetCurrentContext_PROC
+
+typedef EGLDisplay (* PFN_eglGetCurrentDisplay_PROC) (void);
+PFN_eglGetCurrentDisplay_PROC eglGetCurrentDisplay_PROC = 0;
+#   define eglGetCurrentDisplay eglGetCurrentDisplay_PROC
+
+typedef EGLSurface (* PFN_eglGetCurrentSurface_PROC) (EGLint);
+PFN_eglGetCurrentSurface_PROC eglGetCurrentSurface_PROC = 0;
+#   define eglGetCurrentSurface eglGetCurrentSurface_PROC
+
+typedef EGLDisplay (* PFN_eglGetDisplay_PROC) (EGLNativeDisplayType);
+PFN_eglGetDisplay_PROC eglGetDisplay_PROC = 0;
+#   define eglGetDisplay eglGetDisplay_PROC
+
+typedef EGLint (* PFN_eglGetError_PROC) (void);
+PFN_eglGetError_PROC eglGetError_PROC = 0;
+#   define eglGetError eglGetError_PROC
+
+typedef EGLDisplay (* PFN_eglGetPlatformDisplay_PROC) (EGLenum, void *, const EGLAttrib *);
+PFN_eglGetPlatformDisplay_PROC eglGetPlatformDisplay_PROC = 0;
+#   define eglGetPlatformDisplay eglGetPlatformDisplay_PROC
+
+typedef __eglMustCastToProperFunctionPointerType (* PFN_eglGetProcAddress_PROC) (const char *);
+PFN_eglGetProcAddress_PROC eglGetProcAddress_PROC = 0;
+#   define eglGetProcAddress eglGetProcAddress_PROC
+
+typedef EGLBoolean (* PFN_eglGetSyncAttrib_PROC) (EGLDisplay, EGLSync, EGLint, EGLAttrib *);
+PFN_eglGetSyncAttrib_PROC eglGetSyncAttrib_PROC = 0;
+#   define eglGetSyncAttrib eglGetSyncAttrib_PROC
+
+typedef EGLBoolean (* PFN_eglInitialize_PROC) (EGLDisplay, EGLint *, EGLint *);
+PFN_eglInitialize_PROC eglInitialize_PROC = 0;
+#   define eglInitialize eglInitialize_PROC
+
+typedef EGLBoolean (* PFN_eglMakeCurrent_PROC) (EGLDisplay, EGLSurface, EGLSurface, EGLContext);
+PFN_eglMakeCurrent_PROC eglMakeCurrent_PROC = 0;
+#   define eglMakeCurrent eglMakeCurrent_PROC
+
+typedef EGLenum (* PFN_eglQueryAPI_PROC) (void);
+PFN_eglQueryAPI_PROC eglQueryAPI_PROC = 0;
+#   define eglQueryAPI eglQueryAPI_PROC
+
+typedef EGLBoolean (* PFN_eglQueryContext_PROC) (EGLDisplay, EGLContext, EGLint, EGLint *);
+PFN_eglQueryContext_PROC eglQueryContext_PROC = 0;
+#   define eglQueryContext eglQueryContext_PROC
+
+typedef const char *(* PFN_eglQueryString_PROC) (EGLDisplay, EGLint);
+PFN_eglQueryString_PROC eglQueryString_PROC = 0;
+#   define eglQueryString eglQueryString_PROC
+
+typedef EGLBoolean (* PFN_eglQuerySurface_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint *);
+PFN_eglQuerySurface_PROC eglQuerySurface_PROC = 0;
+#   define eglQuerySurface eglQuerySurface_PROC
+
+typedef EGLBoolean (* PFN_eglReleaseTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
+PFN_eglReleaseTexImage_PROC eglReleaseTexImage_PROC = 0;
+#   define eglReleaseTexImage eglReleaseTexImage_PROC
+
+typedef EGLBoolean (* PFN_eglReleaseThread_PROC) (void);
+PFN_eglReleaseThread_PROC eglReleaseThread_PROC = 0;
+#   define eglReleaseThread eglReleaseThread_PROC
+
+typedef EGLBoolean (* PFN_eglSurfaceAttrib_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint);
+PFN_eglSurfaceAttrib_PROC eglSurfaceAttrib_PROC = 0;
+#   define eglSurfaceAttrib eglSurfaceAttrib_PROC
+
+typedef EGLBoolean (* PFN_eglSwapBuffers_PROC) (EGLDisplay, EGLSurface);
+PFN_eglSwapBuffers_PROC eglSwapBuffers_PROC = 0;
+#   define eglSwapBuffers eglSwapBuffers_PROC
+
+typedef EGLBoolean (* PFN_eglSwapInterval_PROC) (EGLDisplay, EGLint);
+PFN_eglSwapInterval_PROC eglSwapInterval_PROC = 0;
+#   define eglSwapInterval eglSwapInterval_PROC
+
+typedef EGLBoolean (* PFN_eglTerminate_PROC) (EGLDisplay);
+PFN_eglTerminate_PROC eglTerminate_PROC = 0;
+#   define eglTerminate eglTerminate_PROC
+
+typedef EGLBoolean (* PFN_eglWaitClient_PROC) (void);
+PFN_eglWaitClient_PROC eglWaitClient_PROC = 0;
+#   define eglWaitClient eglWaitClient_PROC
+
+typedef EGLBoolean (* PFN_eglWaitGL_PROC) (void);
+PFN_eglWaitGL_PROC eglWaitGL_PROC = 0;
+#   define eglWaitGL eglWaitGL_PROC
+
+typedef EGLBoolean (* PFN_eglWaitNative_PROC) (EGLint);
+PFN_eglWaitNative_PROC eglWaitNative_PROC = 0;
+#   define eglWaitNative eglWaitNative_PROC
+
+typedef EGLBoolean (* PFN_eglWaitSync_PROC) (EGLDisplay, EGLSync, EGLint);
+PFN_eglWaitSync_PROC eglWaitSync_PROC = 0;
+#   define eglWaitSync eglWaitSync_PROC
+
 
 typedef struct __window_h_egl *__window_h_egl;
 
@@ -5309,50 +5355,6 @@ struct __window_h_egl {
 
     /* libEGL */
     void *handle;
-    PFN_eglChooseConfig_PROC ChooseConfig;
-    PFN_eglCopyBuffers_PROC CopyBuffers;
-    PFN_eglCreateContext_PROC CreateContext;
-    PFN_eglCreatePbufferSurface_PROC CreatePbufferSurface;
-    PFN_eglCreatePixmapSurface_PROC CreatePixmapSurface;
-    PFN_eglCreateWindowSurface_PROC CreateWindowSurface;
-    PFN_eglDestroyContext_PROC DestroyContext;
-    PFN_eglDestroySurface_PROC DestroySurface;
-    PFN_eglGetConfigAttrib_PROC GetConfigAttrib;
-    PFN_eglGetConfigs_PROC GetConfigs;
-    PFN_eglGetCurrentDisplay_PROC GetCurrentDisplay;
-    PFN_eglGetCurrentSurface_PROC GetCurrentSurface;
-    PFN_eglGetDisplay_PROC GetDisplay;
-    PFN_eglGetError_PROC GetError;
-    PFN_eglGetProcAddress_PROC GetProcAddress;
-    PFN_eglInitialize_PROC Initialize;
-    PFN_eglMakeCurrent_PROC MakeCurrent;
-    PFN_eglQueryContext_PROC QueryContext;
-    PFN_eglQueryString_PROC QueryString;
-    PFN_eglQuerySurface_PROC QuerySurface;
-    PFN_eglSwapBuffers_PROC SwapBuffers;
-    PFN_eglTerminate_PROC Terminate;
-    PFN_eglWaitGL_PROC WaitGL;
-    PFN_eglWaitNative_PROC WaitNative;
-    PFN_eglBindTexImage_PROC BindTexImage;
-    PFN_eglReleaseTexImage_PROC ReleaseTexImage;
-    PFN_eglSurfaceAttrib_PROC SurfaceAttrib;
-    PFN_eglSwapInterval_PROC SwapInterval;
-    PFN_eglBindAPI_PROC BindAPI;
-    PFN_eglQueryAPI_PROC QueryAPI;
-    PFN_eglCreatePbufferFromClientBuffer_PROC CreatePbufferFromClientBuffer;
-    PFN_eglReleaseThread_PROC ReleaseThread;
-    PFN_eglWaitClient_PROC WaitClient;
-    PFN_eglGetCurrentContext_PROC GetCurrentContext;
-    PFN_eglCreateSync_PROC CreateSync;
-    PFN_eglDestroySync_PROC DestroySync;
-    PFN_eglClientWaitSync_PROC ClientWaitSync;
-    PFN_eglGetSyncAttrib_PROC GetSyncAttrib;
-    PFN_eglCreateImage_PROC CreateImage;
-    PFN_eglDestroyImage_PROC DestroyImage;
-    PFN_eglGetPlatformDisplay_PROC GetPlatformDisplay;
-    PFN_eglCreatePlatformWindowSurface_PROC CreatePlatformWindowSurface;
-    PFN_eglCreatePlatformPixmapSurface_PROC CreatePlatformPixmapSurface;
-    PFN_eglWaitSync_PROC WaitSync;
 };
 
 
@@ -5464,138 +5466,95 @@ WININT int __winLoadEGLSymbols(void) {
         if (!handle) { return (0); }
     }
 
-    /* load libEGL symbols */
-    eglChooseConfig = (PFN_eglChooseConfig_PROC) dlsym(handle, "eglChooseConfig");
-    if (!eglChooseConfig) { return (0); }
-
-    eglCopyBuffers = (PFN_eglCopyBuffers_PROC) dlsym(handle, "eglCopyBuffers");
-    if (!eglCopyBuffers) { return (0); }
-
-    eglCreateContext = (PFN_eglCreateContext_PROC) dlsym(handle, "eglCreateContext");
-    if (!eglCreateContext) { return (0); }
-
-    eglCreatePbufferSurface = (PFN_eglCreatePbufferSurface_PROC) dlsym(handle, "eglCreatePbufferSurface");
-    if (!eglCreatePbufferSurface) { return (0); }
-
-    eglCreatePixmapSurface = (PFN_eglCreatePixmapSurface_PROC) dlsym(handle, "eglCreatePixmapSurface");
-    if (!eglCreatePixmapSurface) { return (0); }
-
-    eglCreateWindowSurface = (PFN_eglCreateWindowSurface_PROC) dlsym(handle, "eglCreateWindowSurface");
-    if (!eglCreateWindowSurface) { return (0); }
-
-    eglDestroyContext = (PFN_eglDestroyContext_PROC) dlsym(handle, "eglDestroyContext");
-    if (!eglDestroyContext) { return (0); }
-
-    eglDestroySurface = (PFN_eglDestroySurface_PROC) dlsym(handle, "eglDestroySurface");
-    if (!eglDestroySurface) { return (0); }
-
-    eglGetConfigAttrib = (PFN_eglGetConfigAttrib_PROC) dlsym(handle, "eglGetConfigAttrib");
-    if (!eglGetConfigAttrib) { return (0); }
-
-    eglGetConfigs = (PFN_eglGetConfigs_PROC) dlsym(handle, "eglGetConfigs");
-    if (!eglGetConfigs) { return (0); }
-
-    eglGetCurrentDisplay = (PFN_eglGetCurrentDisplay_PROC) dlsym(handle, "eglGetCurrentDisplay");
-    if (!eglGetCurrentDisplay) { return (0); }
-
-    eglGetCurrentSurface = (PFN_eglGetCurrentSurface_PROC) dlsym(handle, "eglGetCurrentSurface");
-    if (!eglGetCurrentSurface) { return (0); }
-
-    eglGetDisplay = (PFN_eglGetDisplay_PROC) dlsym(handle, "eglGetDisplay");
-    if (!eglGetDisplay) { return (0); }
-
-    eglGetError = (PFN_eglGetError_PROC) dlsym(handle, "eglGetError");
-    if (!eglGetError) { return (0); }
-
-    eglGetProcAddress = (PFN_eglGetProcAddress_PROC) dlsym(handle, "eglGetProcAddress");
-    if (!eglGetProcAddress) { return (0); }
-
-    eglInitialize = (PFN_eglInitialize_PROC) dlsym(handle, "eglInitialize");
-    if (!eglInitialize) { return (0); }
-
-    eglMakeCurrent = (PFN_eglMakeCurrent_PROC) dlsym(handle, "eglMakeCurrent");
-    if (!eglMakeCurrent) { return (0); }
-
-    eglQueryContext = (PFN_eglQueryContext_PROC) dlsym(handle, "eglQueryContext");
-    if (!eglQueryContext) { return (0); }
-
-    eglQueryString = (PFN_eglQueryString_PROC) dlsym(handle, "eglQueryString");
-    if (!eglQueryString) { return (0); }
-
-    eglQuerySurface = (PFN_eglQuerySurface_PROC) dlsym(handle, "eglQuerySurface");
-    if (!eglQuerySurface) { return (0); }
-
-    eglSwapBuffers = (PFN_eglSwapBuffers_PROC) dlsym(handle, "eglSwapBuffers");
-    if (!eglSwapBuffers) { return (0); }
-
-    eglTerminate = (PFN_eglTerminate_PROC) dlsym(handle, "eglTerminate");
-    if (!eglTerminate) { return (0); }
-
-    eglWaitGL = (PFN_eglWaitGL_PROC) dlsym(handle, "eglWaitGL");
-    if (!eglWaitGL) { return (0); }
-
-    eglWaitNative = (PFN_eglWaitNative_PROC) dlsym(handle, "eglWaitNative");
-    if (!eglWaitNative) { return (0); }
-
-    eglBindTexImage = (PFN_eglBindTexImage_PROC) dlsym(handle, "eglBindTexImage");
-    if (!eglBindTexImage) { return (0); }
-
-    eglReleaseTexImage = (PFN_eglReleaseTexImage_PROC) dlsym(handle, "eglReleaseTexImage");
-    if (!eglReleaseTexImage) { return (0); }
-
-    eglSurfaceAttrib = (PFN_eglSurfaceAttrib_PROC) dlsym(handle, "eglSurfaceAttrib");
-    if (!eglSurfaceAttrib) { return (0); }
-
-    eglSwapInterval = (PFN_eglSwapInterval_PROC) dlsym(handle, "eglSwapInterval");
-    if (!eglSwapInterval) { return (0); }
-
-    eglBindAPI = (PFN_eglBindAPI_PROC) dlsym(handle, "eglBindAPI");
-    if (!eglBindAPI) { return (0); }
-
-    eglQueryAPI = (PFN_eglQueryAPI_PROC) dlsym(handle, "eglQueryAPI");
-    if (!eglQueryAPI) { return (0); }
-
-    eglCreatePbufferFromClientBuffer = (PFN_eglCreatePbufferFromClientBuffer_PROC) dlsym(handle, "eglCreatePbufferFromClientBuffer");
-    if (!eglCreatePbufferFromClientBuffer) { return (0); }
-
-    eglReleaseThread = (PFN_eglReleaseThread_PROC) dlsym(handle, "eglReleaseThread");
-    if (!eglReleaseThread) { return (0); }
-
-    eglWaitClient = (PFN_eglWaitClient_PROC) dlsym(handle, "eglWaitClient");
-    if (!eglWaitClient) { return (0); }
-
-    eglGetCurrentContext = (PFN_eglGetCurrentContext_PROC) dlsym(handle, "eglGetCurrentContext");
-    if (!eglGetCurrentContext) { return (0); }
-
-    eglCreateSync = (PFN_eglCreateSync_PROC) dlsym(handle, "eglCreateSync");
-    if (!eglCreateSync) { return (0); }
-
-    eglDestroySync = (PFN_eglDestroySync_PROC) dlsym(handle, "eglDestroySync");
-    if (!eglDestroySync) { return (0); }
-
-    eglClientWaitSync = (PFN_eglClientWaitSync_PROC) dlsym(handle, "eglClientWaitSync");
-    if (!eglClientWaitSync) { return (0); }
-
-    eglGetSyncAttrib = (PFN_eglGetSyncAttrib_PROC) dlsym(handle, "eglGetSyncAttrib");
-    if (!eglGetSyncAttrib) { return (0); }
-
-    eglCreateImage = (PFN_eglCreateImage_PROC) dlsym(handle, "eglCreateImage");
-    if (!eglCreateImage) { return (0); }
-
-    eglDestroyImage = (PFN_eglDestroyImage_PROC) dlsym(handle, "eglDestroyImage");
-    if (!eglDestroyImage) { return (0); }
-
-    eglGetPlatformDisplay = (PFN_eglGetPlatformDisplay_PROC) dlsym(handle, "eglGetPlatformDisplay");
-    if (!eglGetPlatformDisplay) { return (0); }
-
-    eglCreatePlatformWindowSurface = (PFN_eglCreatePlatformWindowSurface_PROC) dlsym(handle, "eglCreatePlatformWindowSurface");
-    if (!eglCreatePlatformWindowSurface) { return (0); }
-
-    eglCreatePlatformPixmapSurface = (PFN_eglCreatePlatformPixmapSurface_PROC) dlsym(handle, "eglCreatePlatformPixmapSurface");
-    if (!eglCreatePlatformPixmapSurface) { return (0); }
-
-    eglWaitSync = (PFN_eglWaitSync_PROC) dlsym(handle, "eglWaitSync");
-    if (!eglWaitSync) { return (0); }
+    /* libEGL: egl.h */
+    eglBindAPI_PROC = (PFN_eglBindAPI_PROC) dlsym(handle, "eglBindAPI");
+    if (!eglBindAPI_PROC) { return (0); }
+    eglBindTexImage_PROC = (PFN_eglBindTexImage_PROC) dlsym(handle, "eglBindTexImage");
+    if (!eglBindTexImage_PROC) { return (0); }
+    eglChooseConfig_PROC = (PFN_eglChooseConfig_PROC) dlsym(handle, "eglChooseConfig");
+    if (!eglChooseConfig_PROC) { return (0); }
+    eglClientWaitSync_PROC = (PFN_eglClientWaitSync_PROC) dlsym(handle, "eglClientWaitSync");
+    if (!eglClientWaitSync_PROC) { return (0); }
+    eglCopyBuffers_PROC = (PFN_eglCopyBuffers_PROC) dlsym(handle, "eglCopyBuffers");
+    if (!eglCopyBuffers_PROC) { return (0); }
+    eglCreateContext_PROC = (PFN_eglCreateContext_PROC) dlsym(handle, "eglCreateContext");
+    if (!eglCreateContext_PROC) { return (0); }
+    eglCreateImage_PROC = (PFN_eglCreateImage_PROC) dlsym(handle, "eglCreateImage");
+    if (!eglCreateImage_PROC) { return (0); }
+    eglCreatePbufferFromClientBuffer_PROC = (PFN_eglCreatePbufferFromClientBuffer_PROC) dlsym(handle, "eglCreatePbufferFromClientBuffer");
+    if (!eglCreatePbufferFromClientBuffer_PROC) { return (0); }
+    eglCreatePbufferSurface_PROC = (PFN_eglCreatePbufferSurface_PROC) dlsym(handle, "eglCreatePbufferSurface");
+    if (!eglCreatePbufferSurface_PROC) { return (0); }
+    eglCreatePixmapSurface_PROC = (PFN_eglCreatePixmapSurface_PROC) dlsym(handle, "eglCreatePixmapSurface");
+    if (!eglCreatePixmapSurface_PROC) { return (0); }
+    eglCreatePlatformPixmapSurface_PROC = (PFN_eglCreatePlatformPixmapSurface_PROC) dlsym(handle, "eglCreatePlatformPixmapSurface");
+    if (!eglCreatePlatformPixmapSurface_PROC) { return (0); }
+    eglCreatePlatformWindowSurface_PROC = (PFN_eglCreatePlatformWindowSurface_PROC) dlsym(handle, "eglCreatePlatformWindowSurface");
+    if (!eglCreatePlatformWindowSurface_PROC) { return (0); }
+    eglCreateSync_PROC = (PFN_eglCreateSync_PROC) dlsym(handle, "eglCreateSync");
+    if (!eglCreateSync_PROC) { return (0); }
+    eglCreateWindowSurface_PROC = (PFN_eglCreateWindowSurface_PROC) dlsym(handle, "eglCreateWindowSurface");
+    if (!eglCreateWindowSurface_PROC) { return (0); }
+    eglDestroyContext_PROC = (PFN_eglDestroyContext_PROC) dlsym(handle, "eglDestroyContext");
+    if (!eglDestroyContext_PROC) { return (0); }
+    eglDestroyImage_PROC = (PFN_eglDestroyImage_PROC) dlsym(handle, "eglDestroyImage");
+    if (!eglDestroyImage_PROC) { return (0); }
+    eglDestroySurface_PROC = (PFN_eglDestroySurface_PROC) dlsym(handle, "eglDestroySurface");
+    if (!eglDestroySurface_PROC) { return (0); }
+    eglDestroySync_PROC = (PFN_eglDestroySync_PROC) dlsym(handle, "eglDestroySync");
+    if (!eglDestroySync_PROC) { return (0); }
+    eglGetConfigAttrib_PROC = (PFN_eglGetConfigAttrib_PROC) dlsym(handle, "eglGetConfigAttrib");
+    if (!eglGetConfigAttrib_PROC) { return (0); }
+    eglGetConfigs_PROC = (PFN_eglGetConfigs_PROC) dlsym(handle, "eglGetConfigs");
+    if (!eglGetConfigs_PROC) { return (0); }
+    eglGetCurrentContext_PROC = (PFN_eglGetCurrentContext_PROC) dlsym(handle, "eglGetCurrentContext");
+    if (!eglGetCurrentContext_PROC) { return (0); }
+    eglGetCurrentDisplay_PROC = (PFN_eglGetCurrentDisplay_PROC) dlsym(handle, "eglGetCurrentDisplay");
+    if (!eglGetCurrentDisplay_PROC) { return (0); }
+    eglGetCurrentSurface_PROC = (PFN_eglGetCurrentSurface_PROC) dlsym(handle, "eglGetCurrentSurface");
+    if (!eglGetCurrentSurface_PROC) { return (0); }
+    eglGetDisplay_PROC = (PFN_eglGetDisplay_PROC) dlsym(handle, "eglGetDisplay");
+    if (!eglGetDisplay_PROC) { return (0); }
+    eglGetError_PROC = (PFN_eglGetError_PROC) dlsym(handle, "eglGetError");
+    if (!eglGetError_PROC) { return (0); }
+    eglGetPlatformDisplay_PROC = (PFN_eglGetPlatformDisplay_PROC) dlsym(handle, "eglGetPlatformDisplay");
+    if (!eglGetPlatformDisplay_PROC) { return (0); }
+    eglGetProcAddress_PROC = (PFN_eglGetProcAddress_PROC) dlsym(handle, "eglGetProcAddress");
+    if (!eglGetProcAddress_PROC) { return (0); }
+    eglGetSyncAttrib_PROC = (PFN_eglGetSyncAttrib_PROC) dlsym(handle, "eglGetSyncAttrib");
+    if (!eglGetSyncAttrib_PROC) { return (0); }
+    eglInitialize_PROC = (PFN_eglInitialize_PROC) dlsym(handle, "eglInitialize");
+    if (!eglInitialize_PROC) { return (0); }
+    eglMakeCurrent_PROC = (PFN_eglMakeCurrent_PROC) dlsym(handle, "eglMakeCurrent");
+    if (!eglMakeCurrent_PROC) { return (0); }
+    eglQueryAPI_PROC = (PFN_eglQueryAPI_PROC) dlsym(handle, "eglQueryAPI");
+    if (!eglQueryAPI_PROC) { return (0); }
+    eglQueryContext_PROC = (PFN_eglQueryContext_PROC) dlsym(handle, "eglQueryContext");
+    if (!eglQueryContext_PROC) { return (0); }
+    eglQueryString_PROC = (PFN_eglQueryString_PROC) dlsym(handle, "eglQueryString");
+    if (!eglQueryString_PROC) { return (0); }
+    eglQuerySurface_PROC = (PFN_eglQuerySurface_PROC) dlsym(handle, "eglQuerySurface");
+    if (!eglQuerySurface_PROC) { return (0); }
+    eglReleaseTexImage_PROC = (PFN_eglReleaseTexImage_PROC) dlsym(handle, "eglReleaseTexImage");
+    if (!eglReleaseTexImage_PROC) { return (0); }
+    eglReleaseThread_PROC = (PFN_eglReleaseThread_PROC) dlsym(handle, "eglReleaseThread");
+    if (!eglReleaseThread_PROC) { return (0); }
+    eglSurfaceAttrib_PROC = (PFN_eglSurfaceAttrib_PROC) dlsym(handle, "eglSurfaceAttrib");
+    if (!eglSurfaceAttrib_PROC) { return (0); }
+    eglSwapBuffers_PROC = (PFN_eglSwapBuffers_PROC) dlsym(handle, "eglSwapBuffers");
+    if (!eglSwapBuffers_PROC) { return (0); }
+    eglSwapInterval_PROC = (PFN_eglSwapInterval_PROC) dlsym(handle, "eglSwapInterval");
+    if (!eglSwapInterval_PROC) { return (0); }
+    eglTerminate_PROC = (PFN_eglTerminate_PROC) dlsym(handle, "eglTerminate");
+    if (!eglTerminate_PROC) { return (0); }
+    eglWaitClient_PROC = (PFN_eglWaitClient_PROC) dlsym(handle, "eglWaitClient");
+    if (!eglWaitClient_PROC) { return (0); }
+    eglWaitGL_PROC = (PFN_eglWaitGL_PROC) dlsym(handle, "eglWaitGL");
+    if (!eglWaitGL_PROC) { return (0); }
+    eglWaitNative_PROC = (PFN_eglWaitNative_PROC) dlsym(handle, "eglWaitNative");
+    if (!eglWaitNative_PROC) { return (0); }
+    eglWaitSync_PROC = (PFN_eglWaitSync_PROC) dlsym(handle, "eglWaitSync");
+    if (!eglWaitSync_PROC) { return (0); }
 
     /* set '__window_h.egl->handle' member */ 
     __window_h.egl->handle = handle;
