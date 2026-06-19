@@ -702,7 +702,11 @@ WINDEF int winCreateNestedWindow(t_window *, t_window, const size_t, const size_
 
 WINDEF int winDestroyWindow(t_window);
 
-WINDEF int winSetWindowFlag(t_window, const uint32_t);
+WINDEF int winGetWindowFlags(t_window, uint32_t *);
+
+WINDEF int winSetWindowFlags(t_window, const uint32_t);
+
+WINDEF int winToggleWindowFlags(t_window, const uint32_t);
 
 WINDEF void *winGetWindowProperty(t_window, const uint32_t);
 
@@ -5195,7 +5199,7 @@ WINDEF int winCreateWindow(t_window *win, const size_t w, const size_t h, const 
     }
 
     /* update window flags */
-    winSetWindowFlag(result, f);
+    winSetWindowFlags(result, f);
 
     /* set window title */ 
     winSetWindowTitle(result, t);
@@ -5233,7 +5237,7 @@ WINDEF int winCreateNestedWindow(t_window *win, t_window parent, const size_t w,
     }
 
     /* update window flags */
-    winSetWindowFlag(result, f);
+    winSetWindowFlags(result, f);
 
     /* set window title */ 
     winSetWindowTitle(result, t);
@@ -5289,12 +5293,37 @@ WINDEF int winDestroyWindow(t_window win) {
 }
 
 
-WINDEF int winSetWindowFlag(t_window win, const uint32_t f) {
+WINDEF int winGetWindowFlags(t_window win, uint32_t *f_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+   
+    /* set flags */
+    if (f_ptr) { *f_ptr = win->flags; }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowFlags(t_window win, const uint32_t f) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
    
     /* set flags */
     win->flags = f;
+    __winUpdateWindowFlagsX11(win);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winToggleWindowFlags(t_window win, const uint32_t f) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+   
+    /* toggle flags */
+    win->flags ^= f;
     __winUpdateWindowFlagsX11(win);
 
     /* success */
@@ -6170,10 +6199,44 @@ WININT int __winPollEvents(void) {
         
         switch (xevent.type) {
             case (ClientMessage): {
-                if (xevent.xclient.message_type == __window_h.x11->xatom.wm_protocols) {
+                /* get the window.h window */
+				t_window win;
+                for (win = __window_h.window_list; win; win = win->next) {
+                    if (win->x11->xlib.client == xevent.xclient.window) {
+                        break;
+                    }
+                }
+                
+                /* xatom references */
+                Atom _NET_WM_STATE = __window_h.x11->xatom._net_wm_state;
+
+                Atom WM_PROTOCOLS     = __window_h.x11->xatom.wm_protocols;
+                Atom WM_DELETE_WINDOW = __window_h.x11->xatom.wm_delete_window;
+
+                /* process different kind of client events */
+                const Atom message_type = xevent.xclient.message_type;
+                if (message_type == _NET_WM_STATE) {
+                    /* get position and size data */
+                    size_t x, y,
+                           w, h;
+                    winGetWindowSize(win, &w, &h);
+                    winGetWindowPosition(win, &x, &y);
+
+                    /* WINDOW_EVENT_RESIZE */
+                    t_eventWindow event = (t_eventWindow) {
+                        .type = WINDOW_EVENT_WINDOW_RESIZE,
+                        .timestamp = winGetTime(),
+                        .x = xevent.xconfigure.x,     .y = xevent.xconfigure.y,
+                        .w = xevent.xconfigure.width, .h = xevent.xconfigure.height,
+                    };
+                    winPushEvent((t_event *) &event);
+                }
+                else if (message_type == WM_PROTOCOLS) {
+                    /* get the received atom */
                     const Atom data = xevent.xclient.data.l[0];
 
-                    if (data == __window_h.x11->xatom.wm_delete_window) {
+                    /* WINDOW_EVENT_QUIT */
+                    if (data == WM_DELETE_WINDOW) {
                         t_eventQuit event = (t_eventQuit) {
                             .type = WINDOW_EVENT_QUIT,
                             .timestamp = winGetTime()
