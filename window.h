@@ -870,7 +870,7 @@ struct s_glcontext {
 
 };
 
-#  /* WINDOW_BACKEND_X11 - Unix X11 implementation layer */
+#  /* WINDOW_BACKEND_X11 - X11 implementation */
 #  if defined (WINDOW_BACKEND_X11)
 #
 #   include <X11/X.h>
@@ -4345,7 +4345,7 @@ WININT int __winUnloadX11(void) {
 
 #  endif /* WINDOW_BACKEND_X11 */
 #
-#  /* WINDOW_BACKEND_WAYLAND - Unix Wayland implementation layer */
+#  /* WINDOW_BACKEND_WAYLAND - Wayland implementation */
 #  if defined (WINDOW_BACKEND_WAYLAND)
 #   include <unistd.h>
 #   include <sys/time.h>
@@ -4360,7 +4360,7 @@ WININT int __winUnloadX11(void) {
 
 #  endif /* WINDOW_BACKEND_WAYLAND */
 #
-#  /* WINDOW_PLATFORM_WIN32 - Windows Win32 implementation layer */
+#  /* WINDOW_PLATFORM_WIN32 - Win32 implementation */
 #  if defined (WINDOW_PLATFORM_WIN32)
 #   include <windows.h>
 
@@ -4972,8 +4972,20 @@ WININT int __winUnloadEGL(void) {
 #
 #  /* WINDOW_BACKEND_GL_WGL - WGL implementation layer */
 #  if defined (WINDOW_BACKEND_GL_WGL)
+#   include <WGL/wgl.h>
 
-/* internal type declarations */
+/* opengl32: wgl.h */
+
+typedef struct __window_h_wgl *__window_h_wgl;
+
+struct __window_h_wgl {
+
+    /* ... */
+
+    /* opengl32 */
+    void *handle;
+};
+
 
 typedef struct s_glcontext_wgl *t_glcontext_wgl;
 
@@ -4983,7 +4995,69 @@ struct s_glcontext_wgl {
 
 };
 
+/* internal functions (declarations) */
+
+WININT int __winLoadWGL(void);
+
+WININT int __winLoadWGLSymbols(void);
+
+WININT int __winUnloadWGL(void);
+
+/* internal functions (definitions) */
+
+WININT int __winLoadWGL(void) {
+    /* alloc '__window_h.wgl' field */
+    if (!__window_h.wgl) {
+        __window_h.wgl = calloc(1, sizeof(struct __window_h_wgl));
+        if (!__window_h.wgl) {
+            return (0);
+        }
+    }
+
+    /* try to load opengl32 symbols */
+    if (!__winLoadWGLSymbols()) { return (0); }
+   
+    /* ... */
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winLoadWGLSymbols(void) {
+    /* null-check */
+    if (!__window_h.wgl) { return (0); }
+
+    /* try to load handle */
+    static void *handle  = 0;
+
+    /* ... */
+
+    /* set '__window_h.wgl->handle' member */ 
+    __window_h.wgl->handle = handle;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winUnloadWGL(void) {
+    /* null-check */
+    if (!__window_h.wgl) { return (0); }
+
+    /* release '__window_h.wgl->handle' field */
+    /* ... */
+
+    /* release '__window_h.wgl' */
+    free(__window_h.wgl);
+
+    /* success */
+    return (1);
+}
+
 #  endif /* WINDOW_BACKEND_GL_WGL */
+#
+#
 #
 #  /* WINDOW_BACKEND_X11 - X11 implementation */
 #  if defined (WINDOW_BACKEND_X11)
@@ -6198,24 +6272,15 @@ WININT int __winPollEvents(void) {
 
 #  endif /* WINDOW_BACKEND_X11 */
 #
-#  /* WINDOW_BACKEND_WAYLAND - Unix Wayland implementation layer */
+#  /* WINDOW_BACKEND_WAYLAND - Wayland implementation */
 #  if defined (WINDOW_BACKEND_WAYLAND)
-#   include <unistd.h>
-#   include <sys/time.h>
-#
-#   include <wayland-util.h>
-#   include <wayland-version.h>
-#   include <wayland-client.h>
-#   include <wayland-client-core.h>
-#   include <wayland-client-protocol.h>
 
 /* ... */
 
 #  endif /* WINDOW_BACKEND_WAYLAND */
 #
-#  /* WINDOW_PLATFORM_WIN32 - Windows Win32 implementation layer */
+#  /* WINDOW_PLATFORM_WIN32 - Win32 implementation */
 #  if defined (WINDOW_PLATFORM_WIN32)
-#   include <windows.h>
 
 /* ... */
 
