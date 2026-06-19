@@ -4396,7 +4396,7 @@ typedef intptr_t EGLAttrib;
 
 typedef void (*__eglMustCastToProperFunctionPointerType)(void);
 
-typedef khronos_utime_nanoseconds_t EGLTime;
+typedef uint64_t EGLTime;
 
 #   define EGL_ALPHA_SIZE 0x3021
 #   define EGL_BAD_ACCESS 0x3002
