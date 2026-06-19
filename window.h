@@ -6263,6 +6263,46 @@ WININT int __winPollEvents(void) {
                 };
                 winPushEvent((t_event *) &event);
             } break;
+
+			case (ConfigureNotify): {
+                /* get the window.h window */
+				t_window win;
+                for (win = __window_h.window_list; win; win = win->next) {
+                    if (win->x11->xlib.client == xevent.xconfigure.window) {
+                        break;
+                    }
+                }
+
+                if (!win) { return (0); }
+
+                uint32_t type = 0;
+
+                /* handle motion event */
+                if (win->pos_x != (size_t) xevent.xconfigure.x ||
+                    win->pos_y != (size_t) xevent.xconfigure.y
+                ) {
+                    type = WINDOW_EVENT_WINDOW_MOTION;
+                    win->pos_x = xevent.xconfigure.x;
+                    win->pos_y = xevent.xconfigure.y;
+                }
+
+                /* handle resize event */
+                else if (win->siz_w != (size_t) xevent.xconfigure.width ||
+                         win->siz_h != (size_t) xevent.xconfigure.height
+                ) {
+                    type = WINDOW_EVENT_WINDOW_RESIZE;
+                    win->siz_w = xevent.xconfigure.width;
+                    win->siz_h = xevent.xconfigure.height;
+                }
+
+                t_eventWindow event = (t_eventWindow) {
+                    .type = type,
+                    .timestamp = winGetTime(),
+                    .x = xevent.xconfigure.x,     .y = xevent.xconfigure.y,
+                    .w = xevent.xconfigure.width, .h = xevent.xconfigure.height,
+                };
+                winPushEvent((t_event *) &event);
+            } break;
         }
     }
 
