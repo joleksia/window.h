@@ -10,9 +10,9 @@ int main(void) {
         return (1);
     }
 
-    t_window win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 01. Basic", WINDOW_FLAG_TOPMOST);
-    winMapWindow(win);
+    t_window window = 0;
+    winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
+    winMapWindow(window);
 
     int exit = 0;
     while (!exit) {
@@ -21,13 +21,11 @@ int main(void) {
         while (winPollEvents(&event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
-                    printf("WINDOW_EVENT_QUIT\n");
                     exit = 1;
                 } break;
                 case (WINDOW_EVENT_KEYBOARD_KEY): {
-                    if (event.key.key == WINDOW_KEY_SPACE) {
-                        winSetWindowFlag(win, WINDOW_FLAG_FULLSCREEN);
-                    }
+                    printf("keycode: %d\n", event.key.keycode);
+                    printf("keysym:  %d\n", event.key.keysym);
                 } break;
             }
         }

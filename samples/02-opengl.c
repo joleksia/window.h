@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <GL/gl.h>
 #
+#define WINDOW_API_OPENGL
 #define WINDOW_IMPLEMENTATION
 #include "./../window.h"
 
@@ -13,10 +14,10 @@ int main(void) {
 
     winGLSetAttribute(WINDOW_GL_CONTEXT_MAJOR_VERSION, 4);
     winGLSetAttribute(WINDOW_GL_CONTEXT_MINOR_VERSION, 6);
-    winGLSetAttribute(WINDOW_GL_CONTEXT_PROFILE, 1);
+    winGLSetAttribute(WINDOW_GL_CONTEXT_PROFILE_MASK, 1);
 
     t_window win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", WINDOW_FLAG_API_OPENGL);
+    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", 0);
 
     t_glcontext ctx;
     winGLCreateContext(&ctx, win);
@@ -42,16 +43,14 @@ int main(void) {
                     printf("WINDOW_EVENT_QUIT\n");
                     exit = 1;
                 } break;
-                case (WINDOW_EVENT_KEYBOARD_KEY): {
-                    if (event.key.key == WINDOW_KEY_SPACE) {
-                        winSetWindowFlag(win, WINDOW_FLAG_FULLSCREEN);
-                    }
-                } break;
             }
         }
     }
 
     /* quit */
+    winGLDestroyContext(ctx, win);
+    winDestroyWindow(win);
+
     winQuit();
     return (0);
 }
