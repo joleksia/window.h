@@ -27,6 +27,14 @@ int main(void) {
                 case (WINDOW_EVENT_MOUSE_MOTION): {
                     printf("%d %d\n", event.mouse.x, event.mouse.y);
                 } break;
+
+                case (WINDOW_EVENT_MOUSE_BUTTON): {
+                    printf("%d %d\n", event.mouse.btn, event.mouse.state);
+                } break;
+
+                case (WINDOW_EVENT_MOUSE_SCROLL): {
+                    printf("%d %d\n", event.mouse.scroll_x, event.mouse.scroll_y);
+                } break;
             }
         }
     }

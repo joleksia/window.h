@@ -6307,12 +6307,54 @@ WININT int __winPollEvents(void) {
                 x = xevent.xmotion.x, xrel = xmotion.x_root,
                 y = xevent.xmotion.y, yrel = xmotion.y_root;
                 __winSendEvent(WINDOW_EVENT_MOUSE_MOTION, window, which, x, xrel, y, yrel);
-
             } break;
 
             case (ButtonPress):
             case (ButtonRelease): {
+                /* get the specific event */
+                XButtonEvent xbutton = xevent.xbutton;
 
+                /* WINDOW_EVENT_MOUSE_ members layout */
+                t_window window;
+                uint64_t which;
+                    
+                __winGetWindowFromIDX11(&window, xbutton.window);
+                which = 0; /* TODO: get the mouse ID */
+                
+                if (xbutton.button >= 1 && xbutton.button <= 3) {
+                    /* WINDOW_EVENT_MOUSE_BUTTON members layout */
+                    uint8_t btn;
+                    uint8_t state;
+
+                    switch (xbutton.button) {
+                        case (1): { btn = WINDOW_BUTTON_LEFT;   } break; /* left */
+                        case (2): { btn = WINDOW_BUTTON_MIDDLE; } break; /* middle */
+                        case (3): { btn = WINDOW_BUTTON_RIGHT;  } break; /* right */
+                    }
+                    state = xbutton.type == ButtonPress ? 1 : 0;
+                    __winSendEvent(WINDOW_EVENT_MOUSE_BUTTON, window, which, btn, state);
+                }
+                else if (xbutton.button >= 4 && xbutton.button <= 7) {
+                    /* WINDOW_EVENT_MOUSE_SCROLL members layout */
+                    int32_t scroll_x;
+                    int32_t scroll_y;
+
+                    scroll_x = scroll_y = 0;
+                    if (xbutton.button == 4)      { scroll_y =  1; }
+                    else if (xbutton.button == 5) { scroll_y = -1; }
+                    else if (xbutton.button == 6) { scroll_x =  1; }
+                    else if (xbutton.button == 7) { scroll_x = -1; }
+                    __winSendEvent(WINDOW_EVENT_MOUSE_SCROLL, window, which, scroll_x, scroll_y);
+                }
+                else {
+                    /* WINDOW_EVENT_MOUSE_BUTTON members layout */
+                    uint8_t btn;
+                    uint8_t state;
+
+                    btn   = xbutton.button - Button1 - 4;
+                    state = xbutton.type == ButtonPress ? 1 : 0;
+                    __winSendEvent(WINDOW_EVENT_MOUSE_BUTTON, window, which, btn, state);
+                }
             } break;
         }
     }
@@ -6339,10 +6381,9 @@ WININT int __winSendEvent(uint32_t type, ...) {
     if (!__window_h.x11) { return (0); }
 
     /* default 'event' object */
-    t_event event = {
-        .type = type,
-        .time = winGetTime()
-    };
+    t_event event = { 0 };
+    event.type = type;
+    event.time = winGetTime();
 
     /* intialize variadic list */
     va_list va;
@@ -6362,9 +6403,19 @@ WININT int __winSendEvent(uint32_t type, ...) {
             event.mouse.yrel = va_arg(va, int32_t);
         } break;
 
-        case (WINDOW_EVENT_MOUSE_BUTTON): { } break;
+        case (WINDOW_EVENT_MOUSE_BUTTON): {
+            event.mouse.window = va_arg(va, t_window);
+            event.mouse.which  = va_arg(va, uint64_t);
+            event.mouse.btn   = va_arg(va, int);
+            event.mouse.state = va_arg(va, int);
+        } break;
 
-        case (WINDOW_EVENT_MOUSE_SCROLL): { } break;
+        case (WINDOW_EVENT_MOUSE_SCROLL): {
+            event.mouse.window = va_arg(va, t_window);
+            event.mouse.which  = va_arg(va, uint64_t);
+            event.mouse.scroll_x = va_arg(va, int32_t);
+            event.mouse.scroll_y = va_arg(va, int32_t);
+        } break;
 
         case (WINDOW_EVENT_MOUSE_ADDED): { } break;
 
