@@ -23,9 +23,9 @@ int main(void) {
                 case (WINDOW_EVENT_QUIT): {
                     exit = 1;
                 } break;
-                case (WINDOW_EVENT_KEYBOARD_KEY): {
-                    printf("keycode: %d\n", event.key.keycode);
-                    printf("keysym:  %d\n", event.key.keysym);
+
+                case (WINDOW_EVENT_MOUSE_MOTION): {
+                    printf("%d %d\n", event.mouse.x, event.mouse.y);
                 } break;
             }
         }

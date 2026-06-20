@@ -493,10 +493,10 @@ enum {
     WINDOW_EVENT_NONE = 0,
 # define WINDOW_EVENT_NONE WINDOW_EVENT_NONE
 
-    WINDOW_EVENT_QUIT,
+    WINDOW_EVENT_QUIT = 0x1000,
 # define WINDOW_EVENT_QUIT WINDOW_EVENT_QUIT
 
-    WINDOW_EVENT_MOUSE_MOTION,
+    WINDOW_EVENT_MOUSE_MOTION = 0x2000,
 # define WINDOW_EVENT_MOUSE_MOTION WINDOW_EVENT_MOUSE_MOTION
 
     WINDOW_EVENT_MOUSE_BUTTON,
@@ -505,16 +505,55 @@ enum {
     WINDOW_EVENT_MOUSE_SCROLL,
 # define WINDOW_EVENT_MOUSE_SCROLL WINDOW_EVENT_MOUSE_SCROLL
 
-    WINDOW_EVENT_KEYBOARD_KEY,
+    WINDOW_EVENT_MOUSE_ADDED,
+# define WINDOW_EVENT_MOUSE_ADDED WINDOW_EVENT_MOUSE_ADDED
+
+    WINDOW_EVENT_MOUSE_REMOVED,
+# define WINDOW_EVENT_MOUSE_REMOVED WINDOW_EVENT_MOUSE_REMOVED
+
+    WINDOW_EVENT_KEYBOARD_KEY = 0x3000,
 # define WINDOW_EVENT_KEYBOARD_KEY WINDOW_EVENT_KEYBOARD_KEY
+
+    WINDOW_EVENT_KEYBOARD_ADDED,
+# define WINDOW_EVENT_KEYBOARD_ADDED WINDOW_EVENT_KEYBOARD_ADDED
+
+    WINDOW_EVENT_KEYBOARD_REMOVED,
+# define WINDOW_EVENT_KEYBOARD_REMOVED WINDOW_EVENT_KEYBOARD_REMOVED
+
+    WINDOW_EVENT_WINDOW_CREATE = 0x4000,
+# define WINDOW_EVENT_WINDOW_CREATE WINDOW_EVENT_WINDOW_CREATE
+    
+    WINDOW_EVENT_WINDOW_DESTROY,
+# define WINDOW_EVENT_WINDOW_DESTROY WINDOW_EVENT_WINDOW_DESTROY
+
+    WINDOW_EVENT_WINDOW_MAP,
+# define WINDOW_EVENT_WINDOW_MAPPED WINDOW_EVENT_WINDOW_MAPPED
+
+    WINDOW_EVENT_WINDOW_UNMAP,
+# define WINDOW_EVENT_WINDOW_UNMAPPED WINDOW_EVENT_WINDOW_UNMAPPED
 
     WINDOW_EVENT_WINDOW_RESIZE,
 # define WINDOW_EVENT_WINDOW_RESIZE WINDOW_EVENT_WINDOW_RESIZE
 
     WINDOW_EVENT_WINDOW_MOTION,
 # define WINDOW_EVENT_WINDOW_MOTION WINDOW_EVENT_WINDOW_MOTION
+    
+    WINDOW_EVENT_WINDOW_ENTER,
+# define WINDOW_EVENT_WINDOW_ENTER WINDOW_EVENT_WINDOW_ENTER
+    
+    WINDOW_EVENT_WINDOW_LEAVE,
+# define WINDOW_EVENT_WINDOW_LEAVE WINDOW_EVENT_WINDOW_LEAVE
+    
+    WINDOW_EVENT_WINDOW_MAXIMIZE,
+# define WINDOW_EVENT_WINDOW_MAXIMIZE WINDOW_EVENT_WINDOW_MAXIMIZE
+    
+    WINDOW_EVENT_WINDOW_MINIMIZE,
+# define WINDOW_EVENT_WINDOW_MINIMIZE WINDOW_EVENT_WINDOW_MINIMIZE
 
     /* ... */
+
+    WINDOW_EVENT_USER = 0xf000,
+# define WINDOW_EVENT_USER WINDOW_EVENT_USER
 
 };
 
@@ -597,7 +636,7 @@ typedef struct s_eventCommon t_eventCommon;
 
 struct s_eventCommon {
     uint32_t type;
-    uint64_t timestamp;
+    uint64_t time;
 };
 
 
@@ -605,82 +644,109 @@ typedef struct s_eventQuit t_eventQuit;
 
 struct s_eventQuit {
     uint32_t type;
-    uint64_t timestamp;
+    uint64_t time;
 };
 
 
-typedef struct s_eventMouseMotion t_eventMouseMotion;
+typedef struct s_eventMouse t_eventMouse;
 
-struct s_eventMouseMotion {
-    uint32_t type;
-    uint64_t timestamp;
+struct s_eventMouse {
+    uint32_t type;      /* WINDOW_EVENT_MOUSE_ */
+    uint64_t time;      /* event timestampt */
 
-    int32_t x, xrel;
-    int32_t y, yrel;
+    t_window window;    /* window with mouse focus (if any) */
+    uint64_t which;     /* mouse instance ID (if any) */ 
+
+    /* WINDOW_EVENT_MOUSE_MOTION */
+    int32_t x, xrel;    /* absolute and relative X position */
+    int32_t y, yrel;    /* absolute and relative Y position */
+
+    /* WINDOW_EVENT_MOUSE_BUTTON */
+    uint8_t btn;        /* */
+    uint8_t state;      /* input state (1.: PRESS, 0.: RELEASE) */
+
+    /* WINDOW_EVENT_MOUSE_SCROLL */
+    int32_t scroll_x;   /* Horizontal scroll (scroll_x < 0: LEFT, scroll_x > 0: RIGHT) */
+    int32_t scroll_y;   /* Vertical scroll (scroll_y < 0: UP, scroll_y > 0: DOWN) */
 };
 
 
-typedef struct s_eventMouseButton t_eventMouseButton;
+typedef struct s_eventMouseDevice t_eventMouseDevice;
 
-struct s_eventMouseButton {
-    uint32_t type;
-    uint64_t timestamp;
+struct s_eventMouseDevice {
+    uint32_t type;      /* WINDOW_EVENT_MOUSE_ADD, WINDOW_EVENT_MOUSE_REMOVE */
+    uint64_t time;      /* event timestampt */
 
-    int8_t btn;
-    int8_t state;
+    uint64_t which;     /* mouse instance ID */ 
 };
 
 
-typedef struct s_eventMouseScroll t_eventMouseScroll;
+typedef struct s_eventKeyboard t_eventKeyboard;
 
-struct s_eventMouseScroll {
-    uint32_t type;
-    uint64_t timestamp;
+struct s_eventKeyboard {
+    uint32_t type;      /* WINDOW_EVENT_KEYBOARD_ */
+    uint64_t time;      /* event timestampt */
 
-    int8_t scroll;
+    t_window window;    /* window with keyboard focus (if any) */
+    uint64_t which;     /* keyboard instance ID */ 
+    uint32_t keysym;    /* symbolic window.h keyboard key */
+    uint32_t keycode;   /* physical window.h keyboard key */
+    uint32_t keymod;    /* window.h current modifier key */
+    uint32_t keyraw;    /* platform-specific raw input */
+    uint8_t  state;     /* input state (1.: PRESS, 0.: RELEASE) */
+    uint8_t  repeat;    /* key repeat state (1.: REPEATING) */
 };
 
 
-typedef struct s_eventKeyboardKey t_eventKeyboardKey;
+typedef struct s_eventKeyboardDevice t_eventKeyboardDevice;
 
-struct s_eventKeyboardKey {
-    uint32_t type;
-    uint64_t timestamp;
+struct s_eventKeyboardDevice {
+    uint32_t type;      /* WINDOW_EVENT_KEYBOARD_ADD, WINDOW_EVENT_KEYBOARD_REMOVE */
+    uint64_t time;      /* event timestampt */
 
-    int32_t keysym;
-    int32_t keycode;
-    int8_t  state;
+    uint64_t which;     /* keyboard instance ID */ 
 };
 
 
 typedef struct s_eventWindow t_eventWindow;
 
 struct s_eventWindow {
-    uint32_t type;
-    uint64_t timestamp;
+    uint32_t type;      /* WINDOW_EVENT_WINDOW_ */
+    uint64_t time;      /* event timestampt */
 
-    uint32_t x, y;
-    uint32_t w, h;
+    t_window window;    /* which window sends the event */
+    uint32_t data1;
+    uint32_t data2;
 };
 
 
 typedef union u_event t_event;
 
 union u_event {
-    uint32_t type;
+    /* default event data */
+    struct {
+        uint32_t type;  /* WINDOW_EVENT_ */
+        uint64_t time;  /* event timestamp */
+    };
 
-    /* common event */
-    t_eventCommon common;
+    /* WINDOW_EVENT_QUIT */
+    t_eventQuit quit;
 
-    /* mouse event */
-    t_eventMouseMotion motion;
-    t_eventMouseButton button;
+    /* WINDOW_EVENT_MOUSE_ */
+    t_eventMouse mouse;
 
-    /* keyboard event */
-    t_eventKeyboardKey key;
+    /* WINDOW_EVENT_MOUSE_ADD, WINDOW_EVENT_MOUSE_REMOVE */
+    t_eventMouseDevice mouse_device;
 
-    /* window event */
+    /* WINDOW_EVENT_KEYBOARD_ */
+    t_eventKeyboard keyboard;
+
+    /* WINDOW_EVENT_KEYBOARD_ADD, WINDOW_EVENT_KEYBOARD_REMOVE */
+    t_eventKeyboardDevice keyboard_device;
+
+    /* WINDOW_EVENT_WINDOW_ */
     t_eventWindow window;
+
 };
 
 
@@ -771,6 +837,7 @@ WINDEF int winWaitTime(uint64_t);
 #  /* include headers */
 #  include <stdio.h>
 #  include <stdlib.h>
+#  include <stdarg.h> 
 #  include <assert.h>
 #  include <string.h>
 #
@@ -5076,6 +5143,10 @@ WININT int __winSendClientEventX11(t_window, Atom, Atom, Atom);
 
 WININT int __winPollEvents(void);
 
+WININT int __winSendEvent(uint32_t, ...);
+
+WININT int __winGetWindowFromIDX11(t_window *, XID);
+
 /* platform functions */
 
 WINDEF int winInit(void) {
@@ -6194,179 +6265,170 @@ WININT int __winPollEvents(void) {
 	Display *dpy = __window_h.x11->xlib.dpy; 
     
     XEvent xevent = { 0 };
-    while (XPending(__window_h.x11->xlib.dpy)) {
-        XNextEvent(__window_h.x11->xlib.dpy, &xevent);
+    while (XPending(dpy)) {
+        XNextEvent(dpy, &xevent);
         
         switch (xevent.type) {
             case (ClientMessage): {
-                /* get the window.h window */
-				t_window win;
-                for (win = __window_h.window_list; win; win = win->next) {
-                    if (win->x11->xlib.client == xevent.xclient.window) {
-                        break;
-                    }
-                }
-                
-                /* xatom references */
-                Atom _NET_WM_STATE = __window_h.x11->xatom._net_wm_state;
+                /* get the specific event */
+                XClientMessageEvent xclient = xevent.xclient;
 
+                /* xatom references */
                 Atom WM_PROTOCOLS     = __window_h.x11->xatom.wm_protocols;
                 Atom WM_DELETE_WINDOW = __window_h.x11->xatom.wm_delete_window;
 
                 /* process different kind of client events */
-                const Atom message_type = xevent.xclient.message_type;
-                if (message_type == _NET_WM_STATE) {
-                    /* get position and size data */
-                    size_t x, y,
-                           w, h;
-                    winGetWindowSize(win, &w, &h);
-                    winGetWindowPosition(win, &x, &y);
-
-                    /* WINDOW_EVENT_RESIZE */
-                    t_eventWindow event = (t_eventWindow) {
-                        .type = WINDOW_EVENT_WINDOW_RESIZE,
-                        .timestamp = winGetTime(),
-                        .x = xevent.xconfigure.x,     .y = xevent.xconfigure.y,
-                        .w = xevent.xconfigure.width, .h = xevent.xconfigure.height,
-                    };
-                    winPushEvent((t_event *) &event);
-                }
-                else if (message_type == WM_PROTOCOLS) {
+                const Atom message_type = xclient.message_type;
+                if (message_type == WM_PROTOCOLS) {
                     /* get the received atom */
-                    const Atom data = xevent.xclient.data.l[0];
+                    const Atom data = xclient.data.l[0];
 
                     /* WINDOW_EVENT_QUIT */
                     if (data == WM_DELETE_WINDOW) {
-                        t_eventQuit event = (t_eventQuit) {
-                            .type = WINDOW_EVENT_QUIT,
-                            .timestamp = winGetTime()
-                        };
-                        winPushEvent((t_event *) &event);
+                        __winSendEvent(WINDOW_EVENT_QUIT);
                     }
                 }
             } break;
 
             case (MotionNotify): {
-                t_eventMouseMotion event = (t_eventMouseMotion) {
-                    .type = WINDOW_EVENT_MOUSE_MOTION,
-                    .timestamp = winGetTime(),
-                    .x = xevent.xmotion.x, .xrel = xevent.xmotion.x_root,
-                    .y = xevent.xmotion.y, .yrel = xevent.xmotion.y_root,
-                };
-                winPushEvent((t_event *) &event);
+                /* get the specific event */
+                XMotionEvent xmotion = xevent.xmotion;
+
+                /* WINDOW_EVENT_MOUSE_ members layout */
+                t_window window;
+                uint64_t which;
+                
+                /* WINDOW_EVENT_MOUSE_MOTION members layout */
+                int32_t x, xrel;
+                int32_t y, yrel;
+
+                __winGetWindowFromIDX11(&window, xmotion.window);
+                which = 0; /* TODO: get the mouse ID */
+                x = xevent.xmotion.x, xrel = xmotion.x_root,
+                y = xevent.xmotion.y, yrel = xmotion.y_root;
+                __winSendEvent(WINDOW_EVENT_MOUSE_MOTION, window, which, x, xrel, y, yrel);
+
             } break;
 
             case (ButtonPress):
             case (ButtonRelease): {
-                uint8_t btn = 0;
-                switch (xevent.xbutton.button) {
-                    /* key press / relese */
-                    case (1): { btn = WINDOW_BUTTON_LEFT;   } break; /* left */
-                    case (2): { btn = WINDOW_BUTTON_MIDDLE; } break; /* middle */
-                    case (3): { btn = WINDOW_BUTTON_RIGHT;  } break; /* right */
 
-                    /* scroll up / down */
-                    case (4): { btn = 4; } break; /* scroll up */
-                    case (5): { btn = 5; } break; /* scroll down */
-                }
-
-                /* invalid button */
-                if (btn == 0) { break; }
-
-                /* mouse button presses / releases */
-                else if (btn >= 1 && btn <= 3) {
-                    uint8_t state = (xevent.type == ButtonPress) ? 1 : 0;
-
-                    t_eventMouseButton event = (t_eventMouseButton) {
-                        .type = WINDOW_EVENT_MOUSE_BUTTON,
-                        .timestamp = winGetTime(),
-                        .btn = btn,
-                        .state = state
-                    };
-                    winPushEvent((t_event *) &event);
-                }
-
-                /* scroll up / down */
-                else if (btn >= 4 && btn <= 5) {
-                    if (xevent.type == ButtonRelease) { break; }
-
-                    t_eventMouseScroll event = (t_eventMouseScroll) {
-                        .type = WINDOW_EVENT_MOUSE_SCROLL,
-                        .timestamp = winGetTime(),
-                        .scroll = (btn == 4) ? 1 : -1
-                    };
-                    winPushEvent((t_event *) &event);
-                }
-            } break;
-
-            case (KeyPress):
-            case (KeyRelease): {
-                int8_t  state = (xevent.type == KeyPress) ? 1 : 0;
-                int64_t  x_kc = xevent.xkey.keycode;
-                int64_t  x_ks = XkbKeycodeToKeysym(dpy, x_kc, 0, 0);
-
-                /* get keycode */
-                int32_t keycode = 0;
-                for (size_t i = 0; __window_h_keymap[i].src; i++) {
-                    if (x_ks == __window_h_keymap[i].src) {
-                        keycode = __window_h_keymap[i].kc;
-                        break;
-                    }
-                }
-
-                /* get keysym */
-                int32_t keysym = x_ks;
-
-                t_eventKeyboardKey event = (t_eventKeyboardKey) {
-                    .type = WINDOW_EVENT_KEYBOARD_KEY,
-                    .timestamp = winGetTime(),
-                    .keysym = keysym,
-                    .keycode = keycode,
-                    .state = state
-                };
-                winPushEvent((t_event *) &event);
-            } break;
-
-			case (ConfigureNotify): {
-                /* get the window.h window */
-				t_window win;
-                for (win = __window_h.window_list; win; win = win->next) {
-                    if (win->x11->xlib.client == xevent.xconfigure.window) {
-                        break;
-                    }
-                }
-
-                if (!win) { return (0); }
-
-                uint32_t type = 0;
-
-                /* handle motion event */
-                if (win->pos_x != (size_t) xevent.xconfigure.x ||
-                    win->pos_y != (size_t) xevent.xconfigure.y
-                ) {
-                    type = WINDOW_EVENT_WINDOW_MOTION;
-                    win->pos_x = xevent.xconfigure.x;
-                    win->pos_y = xevent.xconfigure.y;
-                }
-
-                /* handle resize event */
-                else if (win->siz_w != (size_t) xevent.xconfigure.width ||
-                         win->siz_h != (size_t) xevent.xconfigure.height
-                ) {
-                    type = WINDOW_EVENT_WINDOW_RESIZE;
-                    win->siz_w = xevent.xconfigure.width;
-                    win->siz_h = xevent.xconfigure.height;
-                }
-
-                t_eventWindow event = (t_eventWindow) {
-                    .type = type,
-                    .timestamp = winGetTime(),
-                    .x = xevent.xconfigure.x,     .y = xevent.xconfigure.y,
-                    .w = xevent.xconfigure.width, .h = xevent.xconfigure.height,
-                };
-                winPushEvent((t_event *) &event);
             } break;
         }
+    }
+
+    /* success */
+    return (1);
+}
+
+
+/* __winSendEvent:
+ *  
+ *  This function accepts a variadic argument list of parameters which MUST follows
+ *  the layout of members of the desired event.
+ *
+ *  Let's say we're passing a list of data for 'WINDOW_EVENT_WINDOW_' event.
+ *  With it's layout:
+ *  - t_window window,
+ *  - uint32_t data1,
+ *  - uint32_t data2,
+ *  ... va_list should be constructed of: t_window, uint32_t, uint32_.
+ * */
+WININT int __winSendEvent(uint32_t type, ...) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* default 'event' object */
+    t_event event = {
+        .type = type,
+        .time = winGetTime()
+    };
+
+    /* intialize variadic list */
+    va_list va;
+    va_start(va, 0);
+    switch (type) {
+
+        case (WINDOW_EVENT_QUIT): { } break;
+
+        /* Mouse events */
+
+        case (WINDOW_EVENT_MOUSE_MOTION): {
+            event.mouse.window = va_arg(va, t_window);
+            event.mouse.which  = va_arg(va, uint64_t);
+            event.mouse.x    = va_arg(va, int32_t);
+            event.mouse.xrel = va_arg(va, int32_t);
+            event.mouse.y    = va_arg(va, int32_t);
+            event.mouse.yrel = va_arg(va, int32_t);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_BUTTON): { } break;
+
+        case (WINDOW_EVENT_MOUSE_SCROLL): { } break;
+
+        case (WINDOW_EVENT_MOUSE_ADDED): { } break;
+
+        case (WINDOW_EVENT_MOUSE_REMOVED): { } break;
+
+        /* Keyboard events */
+
+        case (WINDOW_EVENT_KEYBOARD_KEY): { } break;
+
+        case (WINDOW_EVENT_KEYBOARD_ADDED): { } break;
+
+        case (WINDOW_EVENT_KEYBOARD_REMOVED): { } break;
+
+        /* Window events */
+
+        case (WINDOW_EVENT_WINDOW_CREATE): { } break;
+
+        case (WINDOW_EVENT_WINDOW_DESTROY): { } break;
+
+        case (WINDOW_EVENT_WINDOW_MAP): { } break;
+
+        case (WINDOW_EVENT_WINDOW_UNMAP): { } break;
+
+        case (WINDOW_EVENT_WINDOW_RESIZE): { } break;
+
+        case (WINDOW_EVENT_WINDOW_MOTION): { } break;
+
+        case (WINDOW_EVENT_WINDOW_ENTER): { } break;
+
+        case (WINDOW_EVENT_WINDOW_LEAVE): { } break;
+
+        case (WINDOW_EVENT_WINDOW_MAXIMIZE): { } break;
+
+        case (WINDOW_EVENT_WINDOW_MINIMIZE): { } break;
+
+        /* ... */
+
+        default: { } break;
+    }
+
+    /* release variadic list */
+    va_end(va);
+
+    /* status based on result of 'winPushEvent' */
+    return (winPushEvent(&event));
+}
+
+
+WININT int __winGetWindowFromIDX11(t_window *win, XID id) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* iterate over the list of windows */
+    *win = 0;
+    for (t_window node = __window_h.window_list; node; node = node->next) {
+        if (node->x11->xlib.client == id) {
+            *win = node;
+            break;
+        }
+    }
+
+    /* check if window was found */
+    if (!(*win)) {
+        return (0);
     }
 
     /* success */
