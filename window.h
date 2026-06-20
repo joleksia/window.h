@@ -908,6 +908,11 @@ struct s_window {
 
     /* mapping boolean */
     uint8_t mapped;
+
+    /* window states */
+    uint8_t fullscreen;
+    uint8_t minimized;
+    uint8_t maximized;
     
     /* structure data */
     size_t siz_w, siz_h;
@@ -6417,11 +6422,23 @@ WININT int __winPollEvents(void) {
 
                     /* return events */
                     /* TODO:
-                     *  Add attributes to each window so that these events will be sent ONLY if the state change
+                     *  Consider modifying these window attributes elsewhere?
+                     *  Or at least point the fact that these are modified here somewhere 
                      * */
-                    __winSendEvent(WINDOW_EVENT_WINDOW_FULLSCREEN, window, fullscr, 0);
-                    __winSendEvent(WINDOW_EVENT_WINDOW_MINIMIZE, window, minim, 0);
-                    __winSendEvent(WINDOW_EVENT_WINDOW_MAXIMIZE, window, maxim_h && maxim_v, 0);
+                    if (fullscr != window->fullscreen) {
+                        window->fullscreen = fullscr;
+                        __winSendEvent(WINDOW_EVENT_WINDOW_FULLSCREEN, window, fullscr, 0);
+                    }
+                   
+                    if (minim != window->minimized) {
+                        window->minimized = minim;
+                        __winSendEvent(WINDOW_EVENT_WINDOW_MINIMIZE, window, minim, 0);
+                    }
+                   
+                    if ((maxim_h && maxim_v) != window->maximized) {
+                        window->maximized = (maxim_h && maxim_v);
+                        __winSendEvent(WINDOW_EVENT_WINDOW_MAXIMIZE, window, maxim_h && maxim_v, 0);
+                    }
                     
                 }
             } break;

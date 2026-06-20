@@ -25,11 +25,11 @@ int main(void) {
                 } break;
 
                 case (WINDOW_EVENT_MOUSE_MOTION): {
-                    printf("%d %d\n", event.mouse.x, event.mouse.y);
+                    printf("Mouse Motion: %d %d\n", event.mouse.x, event.mouse.y);
                 } break;
 
                 case (WINDOW_EVENT_MOUSE_BUTTON): {
-                    printf("%d %d\n", event.mouse.btn, event.mouse.state);
+                    printf("Mouse Button Press: %d %d\n", event.mouse.btn, event.mouse.state);
 
                     if (event.mouse.btn == WINDOW_BUTTON_RIGHT) {
                         winToggleWindowFlags(window, WINDOW_FLAG_FULLSCREEN);
@@ -37,13 +37,13 @@ int main(void) {
                 } break;
 
                 case (WINDOW_EVENT_MOUSE_SCROLL): {
-                    printf("%d %d\n", event.mouse.scroll_x, event.mouse.scroll_y);
+                    printf("Mouse Scroll: %d %d\n", event.mouse.scroll_x, event.mouse.scroll_y);
                 } break;
 
                 case (WINDOW_EVENT_WINDOW_FULLSCREEN):
                 case (WINDOW_EVENT_WINDOW_MAXIMIZE):
                 case (WINDOW_EVENT_WINDOW_MINIMIZE): {
-                    printf("%d\n", event.type);
+                    printf("Window Property Changed: %d %d\n", event.window.type, event.window.data1);
                 } break;
             }
         }
