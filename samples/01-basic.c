@@ -30,10 +30,20 @@ int main(void) {
 
                 case (WINDOW_EVENT_MOUSE_BUTTON): {
                     printf("%d %d\n", event.mouse.btn, event.mouse.state);
+
+                    if (event.mouse.btn == WINDOW_BUTTON_RIGHT) {
+                        winToggleWindowFlags(window, WINDOW_FLAG_FULLSCREEN);
+                    }
                 } break;
 
                 case (WINDOW_EVENT_MOUSE_SCROLL): {
                     printf("%d %d\n", event.mouse.scroll_x, event.mouse.scroll_y);
+                } break;
+
+                case (WINDOW_EVENT_WINDOW_FULLSCREEN):
+                case (WINDOW_EVENT_WINDOW_MAXIMIZE):
+                case (WINDOW_EVENT_WINDOW_MINIMIZE): {
+                    printf("%d\n", event.type);
                 } break;
             }
         }

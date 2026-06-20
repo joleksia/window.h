@@ -549,6 +549,9 @@ enum {
     
     WINDOW_EVENT_WINDOW_MINIMIZE,
 # define WINDOW_EVENT_WINDOW_MINIMIZE WINDOW_EVENT_WINDOW_MINIMIZE
+    
+    WINDOW_EVENT_WINDOW_FULLSCREEN,
+# define WINDOW_EVENT_WINDOW_FULLSCREEN WINDOW_EVENT_WINDOW_FULLSCREEN
 
     /* ... */
 
@@ -6356,6 +6359,72 @@ WININT int __winPollEvents(void) {
                     __winSendEvent(WINDOW_EVENT_MOUSE_BUTTON, window, which, btn, state);
                 }
             } break;
+
+            case (PropertyNotify): {
+                /* get the specific event */
+                XPropertyEvent xproperty = xevent.xproperty;
+                
+                /* WINDOW_EVENT_WINDOW_ members layout */
+                t_window window;
+                __winGetWindowFromIDX11(&window, xproperty.window);
+                
+                /* xlib references */
+                Display *dpy  = __window_h.x11->xlib.dpy;
+                Window client = window->x11->xlib.client;
+                
+                /* xatom references */
+                Atom _NET_WM_STATE                = __window_h.x11->xatom._net_wm_state;
+                Atom _NET_WM_STATE_FULLSCREEN     = __window_h.x11->xatom._net_wm_state_fullscreen;
+                Atom _NET_WM_STATE_HIDDEN         = __window_h.x11->xatom._net_wm_state_hidden;
+                Atom _NET_WM_STATE_MAXIMIZED_HORZ = __window_h.x11->xatom._net_wm_state_maximized_horz;
+                Atom _NET_WM_STATE_MAXIMIZED_VERT = __window_h.x11->xatom._net_wm_state_maximized_vert;
+
+                /* get the property 'atom' */
+                const Atom atom = xproperty.atom;
+
+                /* _NET_WM_STATE */
+                if (atom == _NET_WM_STATE) {
+                    /* get window properties */
+                    Atom actual_type_return      = 0;
+                    int32_t actual_format_return = 0;
+                    uint64_t nitems_return       = 0;
+                    uint64_t bytes_after_return  = 0;
+                    uint8_t *prop_return         = 0;
+                    if (XGetWindowProperty(dpy, client,
+                                           _NET_WM_STATE,
+                                           0, ~0L, False, XA_ATOM,
+                                           &actual_type_return,
+                                           &actual_format_return,
+                                           &nitems_return,
+                                           &bytes_after_return,
+                                           &prop_return)
+                    ) { return (0); }
+
+                    /* get window states */
+                    Atom *states = (Atom *) prop_return;
+                    uint8_t fullscr = 0,
+                            minim   = 0,
+                            maxim_h = 0,
+                            maxim_v = 0;
+
+                    /* check desired states */
+                    for (size_t i = 0; i < (size_t) nitems_return; i++) {
+                        if (states[i] == _NET_WM_STATE_FULLSCREEN) { fullscr = 1; }
+                        else if (states[i] == _NET_WM_STATE_HIDDEN) { minim = 1; }
+                        else if (states[i] == _NET_WM_STATE_MAXIMIZED_HORZ) { maxim_h = 1; }
+                        else if (states[i] == _NET_WM_STATE_MAXIMIZED_VERT) { maxim_v = 1; }
+                    }
+
+                    /* return events */
+                    /* TODO:
+                     *  Add attributes to each window so that these events will be sent ONLY if the state change
+                     * */
+                    __winSendEvent(WINDOW_EVENT_WINDOW_FULLSCREEN, window, fullscr, 0);
+                    __winSendEvent(WINDOW_EVENT_WINDOW_MINIMIZE, window, minim, 0);
+                    __winSendEvent(WINDOW_EVENT_WINDOW_MAXIMIZE, window, maxim_h && maxim_v, 0);
+                    
+                }
+            } break;
         }
     }
 
@@ -6431,25 +6500,21 @@ WININT int __winSendEvent(uint32_t type, ...) {
 
         /* Window events */
 
-        case (WINDOW_EVENT_WINDOW_CREATE): { } break;
-
-        case (WINDOW_EVENT_WINDOW_DESTROY): { } break;
-
-        case (WINDOW_EVENT_WINDOW_MAP): { } break;
-
-        case (WINDOW_EVENT_WINDOW_UNMAP): { } break;
-
-        case (WINDOW_EVENT_WINDOW_RESIZE): { } break;
-
-        case (WINDOW_EVENT_WINDOW_MOTION): { } break;
-
-        case (WINDOW_EVENT_WINDOW_ENTER): { } break;
-
-        case (WINDOW_EVENT_WINDOW_LEAVE): { } break;
-
-        case (WINDOW_EVENT_WINDOW_MAXIMIZE): { } break;
-
-        case (WINDOW_EVENT_WINDOW_MINIMIZE): { } break;
+        case (WINDOW_EVENT_WINDOW_CREATE):
+        case (WINDOW_EVENT_WINDOW_DESTROY):
+        case (WINDOW_EVENT_WINDOW_MAP):
+        case (WINDOW_EVENT_WINDOW_UNMAP):
+        case (WINDOW_EVENT_WINDOW_RESIZE):
+        case (WINDOW_EVENT_WINDOW_MOTION):
+        case (WINDOW_EVENT_WINDOW_ENTER):
+        case (WINDOW_EVENT_WINDOW_LEAVE):
+        case (WINDOW_EVENT_WINDOW_MAXIMIZE):
+        case (WINDOW_EVENT_WINDOW_MINIMIZE):
+        case (WINDOW_EVENT_WINDOW_FULLSCREEN): {
+            event.window.window = va_arg(va, t_window);
+            event.window.data1  = va_arg(va, uint32_t);
+            event.window.data2  = va_arg(va, uint32_t);
+        } break;
 
         /* ... */
 
