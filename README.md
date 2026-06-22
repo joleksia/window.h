@@ -56,6 +56,7 @@ deals with windowing.
 Resources used in this project:
 - [The X Window system](https://tronche.com/gui/x/)
 - [The Xlib Manual](https://tronche.com/gui/x/xlib/)
+- [The Xlib Manual - 10.1 Event Types](https://tronche.com/gui/x/xlib/events/types.html)
 - [Create an OpenGL context using Xlib and EGL](https://gist.github.com/pedrominicz/2d81559c5fb66d23d6bb627570956605)
 - [RGFW Under the Hood: OpenGL context creation](https://github.com/ColleagueRiley/OpenGL-Context-Creation)
 
