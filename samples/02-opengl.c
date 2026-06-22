@@ -17,7 +17,7 @@ int main(void) {
     winGLSetAttribute(WINDOW_GL_CONTEXT_PROFILE_MASK, 1);
 
     t_window win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", 0);
+    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", WINDOW_FLAG_RESIZABLE);
 
     t_glcontext ctx;
     winGLCreateContext(&ctx, win);
@@ -42,6 +42,11 @@ int main(void) {
                 case (WINDOW_EVENT_QUIT): {
                     printf("WINDOW_EVENT_QUIT\n");
                     exit = 1;
+                } break;
+
+                case (WINDOW_EVENT_WINDOW_RESIZE): {
+                    printf("WINDOW_EVENT_WINDOW_RESIZE\n");
+                    glViewport(0, 0, event.window.data1, event.window.data2);
                 } break;
             }
         }

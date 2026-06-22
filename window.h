@@ -3769,6 +3769,10 @@ WININT int __winLoadX11(void) {
     __window_h.x11->xatom._net_wm_state_maximized_horz = _net_wm_state_maximized_horz;
     __window_h.x11->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
 
+    /* select root window's events mask  */
+    XSelectInput(dpy, root, SubstructureNotifyMask |
+                            PropertyChangeMask);
+
     /* success */
     return (1);
 }
@@ -5187,7 +5191,6 @@ WINDEF int winInit(void) {
 #   endif /* WINDOW_API_OPENGL */
 
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -5367,7 +5370,6 @@ WINDEF int winDestroyWindow(t_window win) {
     free(win);
 
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -5437,7 +5439,6 @@ WINDEF int winMapWindow(t_window win) {
 
     /* map window */
     XMapWindow(dpy, client);
-    winFlushEvents();
 
     /* wait for 'MapNotify' to arrive */ 
     XEvent xevent = { 0 };
@@ -5452,7 +5453,6 @@ WINDEF int winMapWindow(t_window win) {
     }
 
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -5467,7 +5467,6 @@ WINDEF int winUnmapWindow(t_window win) {
 
     /* map window */
     XUnmapWindow(dpy, client);
-    winFlushEvents();
 
     /* wait for 'MapNotify' to arrive */ 
     XEvent xevent = { 0 };
@@ -5477,7 +5476,6 @@ WINDEF int winUnmapWindow(t_window win) {
     win->mapped = 0;
 
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -5515,7 +5513,6 @@ WINDEF int winSetWindowSize(t_window win, const size_t w, const size_t h) {
     if (!XResizeWindow(dpy, client, w, h)) { return (0); }
     
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -5540,7 +5537,6 @@ WINDEF int winSetWindowMinSize(t_window win, const size_t w, const size_t h) {
     XSetWMNormalHints(dpy, client, &hints);
 
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -5565,7 +5561,6 @@ WINDEF int winSetWindowMaxSize(t_window win, const size_t w, const size_t h) {
     XSetWMNormalHints(dpy, client, &hints);
 
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -5603,7 +5598,6 @@ WINDEF int winSetWindowPosition(t_window win, const size_t x, const size_t y) {
     if (!XMoveWindow(dpy, client, x, y)) { return (0); }
     
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -6108,7 +6102,8 @@ WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window 
     /* create XSetWindowAttributes */
     XSetWindowAttributes attr = { 0 };
     attr.colormap = XCreateColormap(dpy, root, visual, AllocNone);
-    attr.event_mask = StructureNotifyMask | KeyPressMask | KeyReleaseMask |
+    attr.event_mask = StructureNotifyMask | SubstructureNotifyMask |
+                      KeyPressMask | KeyReleaseMask |
                       PointerMotionMask | ButtonPressMask | ButtonReleaseMask |
                       ExposureMask | FocusChangeMask | VisibilityChangeMask |
                       EnterWindowMask | LeaveWindowMask | PropertyChangeMask;
@@ -6117,12 +6112,17 @@ WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window 
     Window client = XCreateWindow(dpy, parent, 0, 0, w, h, 0, depth, InputOutput, visual, CWBorderPixel | CWColormap | CWEventMask | CWBackPixel, &attr);
     if (!client) { return (0); }
 
-    /* select input */
-    XSelectInput(dpy, client, attr.event_mask);
-
     /* set WM protocols atoms */
     XSetWMProtocols(dpy, client, &__window_h.x11->xatom.wm_protocols, 1);
     XSetWMProtocols(dpy, client, &__window_h.x11->xatom.wm_delete_window, 1);
+    
+    /* select client window's events mask  */
+    attr.event_mask = StructureNotifyMask |
+                      ExposureMask |
+                      FocusChangeMask |
+                      EnterWindowMask | LeaveWindowMask |
+                      KeyPressMask | KeyReleaseMask |
+                      PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
 
     /* set 'win.x11->xlib' members */
     if (!dpy) { return (0); }
@@ -6138,7 +6138,6 @@ WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window 
     win->x11->xlib.client = client;
 
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -6260,7 +6259,6 @@ WININT int __winSendClientEventX11(t_window win, Atom a0, Atom a1, Atom a2) {
     XSendEvent(dpy, root, 0, SubstructureRedirectMask | SubstructureNotifyMask, (XEvent *) &xclient);
 
     /* success */
-    winFlushEvents();
     return (1);
 }
 
@@ -6298,6 +6296,78 @@ WININT int __winPollEvents(void) {
                 }
             } break;
 
+            case (CreateNotify): {
+                /* get the specific event */
+                XCreateWindowEvent xcreatewindow = xevent.xcreatewindow;
+
+                /* WINDOW_EVENT_WINDOW_ members layout */
+                t_window window;
+                __winGetWindowFromIDX11(&window, xcreatewindow.window);
+                if (!window) { break; }
+
+                __winSendEvent(WINDOW_EVENT_WINDOW_CREATE, window, 0, 0); 
+            } break;
+
+            case (DestroyNotify): {
+                /* get the specific event */
+                XDestroyWindowEvent xdestroywindow = xevent.xdestroywindow;
+
+                /* WINDOW_EVENT_WINDOW_ members layout */
+                t_window window;
+                __winGetWindowFromIDX11(&window, xdestroywindow.window);
+                if (!window) { break; }
+
+                __winSendEvent(WINDOW_EVENT_WINDOW_DESTROY, window, 0, 0); 
+            } break;
+
+            case (MapNotify): {
+                /* get the specific event */
+                XMapEvent xmap = xevent.xmap;
+                                
+                /* WINDOW_EVENT_WINDOW_ members layout */
+                t_window window;
+                __winGetWindowFromIDX11(&window, xmap.window);
+                if (!window) { break; }
+
+                __winSendEvent(WINDOW_EVENT_WINDOW_MAP, window, 0, 0); 
+            } break;
+
+            case (UnmapNotify): {
+                /* get the specific event */
+                XUnmapEvent xunmap = xevent.xunmap;
+
+                /* WINDOW_EVENT_WINDOW_ members layout */
+                t_window window;
+                __winGetWindowFromIDX11(&window, xunmap.window);
+                if (!window) { break; }
+
+                __winSendEvent(WINDOW_EVENT_WINDOW_UNMAP, window, 0, 0); 
+            } break;
+
+            case (EnterNotify): {
+                /* get the specific event */
+                XCrossingEvent xcrossing = xevent.xcrossing;
+                                
+                /* WINDOW_EVENT_WINDOW_ members layout */
+                t_window window;
+                __winGetWindowFromIDX11(&window, xcrossing.window);
+                if (!window) { break; }
+
+                __winSendEvent(WINDOW_EVENT_WINDOW_ENTER, window, 0, 0); 
+            } break;
+
+            case (LeaveNotify): {
+                /* get the specific event */
+                XCrossingEvent xcrossing = xevent.xcrossing;
+
+                /* WINDOW_EVENT_WINDOW_ members layout */
+                t_window window;
+                __winGetWindowFromIDX11(&window, xcrossing.window);
+                if (!window) { break; }
+
+                __winSendEvent(WINDOW_EVENT_WINDOW_LEAVE, window, 0, 0); 
+            } break;
+
             case (MotionNotify): {
                 /* get the specific event */
                 XMotionEvent xmotion = xevent.xmotion;
@@ -6311,6 +6381,8 @@ WININT int __winPollEvents(void) {
                 int32_t y, yrel;
 
                 __winGetWindowFromIDX11(&window, xmotion.window);
+                if (!window) { break; }
+
                 which = 0; /* TODO: get the mouse ID */
                 x = xevent.xmotion.x, xrel = xmotion.x_root,
                 y = xevent.xmotion.y, yrel = xmotion.y_root;
@@ -6365,6 +6437,61 @@ WININT int __winPollEvents(void) {
                 }
             } break;
 
+            case (KeyPress):
+            case (KeyRelease): {
+                /* get the specific event */
+                XKeyEvent xkey = xevent.xkey;
+                
+                /* WINDOW_EVENT_KEYBOARD_ members layout */
+                t_window window;
+                uint64_t which;
+                uint32_t keysym,
+                         keycode,
+                         keymod,
+                         keyraw;
+                uint8_t  state,
+                         repeat;
+                    
+                __winGetWindowFromIDX11(&window, xkey.window);
+                which = 0; /* TODO: get the keyboard ID */
+                keysym = keycode = keymod = 0;
+                keyraw = xkey.keycode;
+                state  = xkey.type == KeyPress ? 1 : 0;
+                repeat = 0;
+                __winSendEvent(WINDOW_EVENT_KEYBOARD_KEY, window, which, keysym, keycode, keymod, keyraw, state, repeat);
+            } break;
+
+            case (ConfigureNotify): {
+                /* get the specific event */
+                XConfigureEvent xconfigure = xevent.xconfigure;
+                
+                /* WINDOW_EVENT_WINDOW_ members layout */
+                t_window window;
+                uint32_t data1;
+                uint32_t data2;
+
+                __winGetWindowFromIDX11(&window, xconfigure.window);
+                if (!window) { break; }
+                
+                /* WINDOW_EVENT_WINDOW_RESIZE */
+                if (xconfigure.width  != (int) window->siz_w ||
+                    xconfigure.height != (int) window->siz_h
+                ) {
+                    window->siz_w = data1 = xconfigure.width;
+                    window->siz_h = data2 = xconfigure.height;
+                    __winSendEvent(WINDOW_EVENT_WINDOW_RESIZE, window, data1, data2);
+                }
+                
+                /* WINDOW_EVENT_WINDOW_MOTION */
+                if (xconfigure.x != (int) window->pos_x ||
+                    xconfigure.y != (int) window->pos_y
+                ) {
+                    window->pos_x = data1 = xconfigure.x;
+                    window->pos_y = data2 = xconfigure.y;
+                    __winSendEvent(WINDOW_EVENT_WINDOW_MOTION, window, data1, data2);
+                }
+            } break;
+
             case (PropertyNotify): {
                 /* get the specific event */
                 XPropertyEvent xproperty = xevent.xproperty;
@@ -6372,6 +6499,7 @@ WININT int __winPollEvents(void) {
                 /* WINDOW_EVENT_WINDOW_ members layout */
                 t_window window;
                 __winGetWindowFromIDX11(&window, xproperty.window);
+                if (!window) { break; }
                 
                 /* xlib references */
                 Display *dpy  = __window_h.x11->xlib.dpy;
@@ -6509,7 +6637,16 @@ WININT int __winSendEvent(uint32_t type, ...) {
 
         /* Keyboard events */
 
-        case (WINDOW_EVENT_KEYBOARD_KEY): { } break;
+        case (WINDOW_EVENT_KEYBOARD_KEY): {
+            event.keyboard.window = va_arg(va, t_window);
+            event.keyboard.which  = va_arg(va, uint64_t);
+            event.keyboard.keysym  = va_arg(va, uint64_t);
+            event.keyboard.keycode = va_arg(va, uint32_t);
+            event.keyboard.keymod  = va_arg(va, uint32_t);
+            event.keyboard.keyraw  = va_arg(va, uint32_t);
+            event.keyboard.state  = va_arg(va, uint32_t);
+            event.keyboard.repeat = va_arg(va, uint32_t);
+        } break;
 
         case (WINDOW_EVENT_KEYBOARD_ADDED): { } break;
 
