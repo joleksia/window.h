@@ -5934,44 +5934,68 @@ WINDEF int winWaitEvents(t_event *event) {
 WINDEF int winPushEvent(t_event *event) {
     /* null-check */
     if (!event)  { return (0); }
+
+    /* references */
+    __window_h_eventQueue *eq = &__window_h.event_queue;
     
     /* alloc new `arr` if needed */
-    if (!__window_h.event_queue.arr) {
+    if (!eq->arr) {
         t_event *arr = malloc(WINDOW_EVENT_QUEUE_CAPACITY * sizeof(t_event));
         if (!arr) { return (0); }
 
-        __window_h.event_queue.arr = __window_h.event_queue.bgn = __window_h.event_queue.end = arr;
-        __window_h.event_queue.cap = WINDOW_EVENT_QUEUE_CAPACITY;
-        __window_h.event_queue.cnt = 0;
+        eq->arr = eq->bgn = eq->end = arr;
+        eq->cap = WINDOW_EVENT_QUEUE_CAPACITY;
+        eq->cnt = 0;
     }
 
     /* bound check */
-    if (__window_h.event_queue.cnt >= __window_h.event_queue.cap) {
-        /* consider resizing
-         * for now returning
-         * */
-        return (0);
-    }
+    if (eq->cnt >= eq->cap) {
+        /* preserve the current indices of the circular buffer */
+        size_t bgn_index = __window_h.event_queue.bgn - __window_h.event_queue.arr;
+        size_t end_index = __window_h.event_queue.end - __window_h.event_queue.arr;
+        /* realloc the buffer */
+        size_t cap_old = eq->cap;
+        size_t cap_new = eq->cap * 2;
+        t_event *arr = realloc(eq->arr, cap_new * sizeof(t_event));
+        if (!arr) { return (0); }
 
-    /* event coalescing */
-    if (event->type == __window_h.event_queue.end->type) {
-        /* ... */
+        /* assign back new data */
+        eq->arr = arr;
+        eq->cap = cap_new;
+        eq->bgn = &arr[bgn_index]; 
+
+        /* process the end of the buffer */
+        if (end_index < bgn_index) {
+            size_t i = 0;
+            for ( ; i < bgn_index; i++) {
+                eq->arr[cap_old + i] = eq->arr[i];
+                eq->arr[i] = (t_event) { 0 };
+            }
+            end_index += cap_old + i;
+        }
+
+        if (end_index == bgn_index) {
+            eq->end = &arr[cap_old];
+        }
+        else {
+            eq->end = &arr[end_index];
+        }
     }
 
     /* assign the object to the last `arr` element */
-    *__window_h.event_queue.end = *event;
+    *eq->end = *event;
     /* move the last element by one */
-    __window_h.event_queue.end++;
+    eq->end++;
     /* boundary check
      * if exceeds the `arr`, return back to start
      * */
-    size_t end = __window_h.event_queue.end - __window_h.event_queue.arr;
-    if (end >= __window_h.event_queue.cap) {
-        __window_h.event_queue.end = __window_h.event_queue.arr;
+    size_t end = eq->end - eq->arr;
+    if (end >= eq->cap) {
+        eq->end = eq->arr;
     }
 
     /* increment the count */
-    __window_h.event_queue.cnt++;
+    eq->cnt++;
 
     /* success */
     return (1);
@@ -5982,28 +6006,31 @@ WINDEF int winPopEvent(t_event *event) {
     /* null-check */
     if (!event)  { return (0); }
 
+    /* references */
+    __window_h_eventQueue *eq = &__window_h.event_queue;
+
     /* check if event queue exists */
-    if (!__window_h.event_queue.arr) { return (0); }
+    if (!eq->arr) { return (0); }
 
     /* check if there's anything in the queue */
-    if (__window_h.event_queue.cnt == 0) { return (0); }
+    if (eq->cnt == 0) { return (0); }
 
     /* assign the first element to the reference */
-    *event = *__window_h.event_queue.bgn;
+    *event = *eq->bgn;
     /* zero-down the first element (safety matter) */
-    *__window_h.event_queue.bgn = (t_event) { 0 };
+    *eq->bgn = (t_event) { 0 };
     /* move the first element by one */
-    __window_h.event_queue.bgn++;
+    eq->bgn++;
     /* boundary check
      * if exceeds the `arr`, return back to start
      * */
-    size_t bgn = __window_h.event_queue.bgn - __window_h.event_queue.arr;
-    if (bgn >= __window_h.event_queue.cap) {
-        __window_h.event_queue.bgn = __window_h.event_queue.arr;
+    size_t bgn = eq->bgn - eq->arr;
+    if (bgn >= eq->cap) {
+        eq->bgn = eq->arr;
     }
 
     /* decrement the count */
-    __window_h.event_queue.cnt--;
+    eq->cnt--;
 
     /* success */
     return (1);
@@ -6014,17 +6041,20 @@ WINDEF int winPeekEvent(t_event *event) {
     /* null-check */
     if (!event)  { return (0); }
 
+    /* references */
+    __window_h_eventQueue *eq = &__window_h.event_queue;
+
     /* zero-down the event */
     *event = (t_event) { 0 };
 
     /* check if event queue exists */
-    if (!__window_h.event_queue.arr) { return (0); }
+    if (!eq->arr) { return (0); }
 
     /* check if there's anything in the queue */
-    if (__window_h.event_queue.cnt == 0) { return (0); }
+    if (eq->cnt == 0) { return (0); }
 
     /* assign the first element to the reference */
-    *event = *__window_h.event_queue.bgn;
+    *event = *eq->bgn;
 
     /* success */
     return (1);
@@ -6567,6 +6597,9 @@ WININT int __winPollEvents(void) {
                         else if (states[i] == _NET_WM_STATE_MAXIMIZED_HORZ) { maxim_h = 1; }
                         else if (states[i] == _NET_WM_STATE_MAXIMIZED_VERT) { maxim_v = 1; }
                     }
+
+                    /* release the 'states' array of atoms */
+                    XFree(states);
 
                     /* return events */
                     /* TODO:
