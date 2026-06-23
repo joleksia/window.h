@@ -6,13 +6,18 @@
 int main(void) {
     /* initialize window.h */
     if (!winInit()) {
-        fprintf(stderr, "win_init() failed\n");
+        fprintf(stderr, "winInit() failed\n");
         return (1);
     }
 
     t_window window = 0;
     winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
     winMapWindow(window);
+
+    if (!winCopyClipboard(window, "Hello, window.h!")) {
+        fprintf(stderr, "winCopyClipboard() failed\n");
+        return (1);
+    }
 
     int exit = 0;
     while (!exit) {

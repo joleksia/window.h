@@ -844,6 +844,12 @@ WINDEF int winPeekEvent(t_event *);
 
 WINDEF int winFlushEvents(void);
 
+/* clipboard functions */
+
+WINDEF int winCopyClipboard(t_window, const char *);
+
+WINDEF int winPasteClipboard(t_window, char **);
+
 /* timing functions */
 
 WINDEF uint64_t winGetTime(void);
@@ -3681,19 +3687,26 @@ struct __window_h_x11 {
 
     struct {
         /* Atoms: WM */
-        Atom wm_protocols;
-        Atom wm_delete_window;
+        Atom WM_PROTOCOLS;
+        Atom WM_DELETE_WINDOW;
 
         /* Atoms: MOTIF */
-        Atom _motif_wm_hints;
+        Atom _MOTIF_WM_HINTS;
 
         /* Atoms: EWMH */
-        Atom _net_wm_state;
-        Atom _net_wm_state_above;
-        Atom _net_wm_state_fullscreen;
-        Atom _net_wm_state_hidden;
-        Atom _net_wm_state_maximized_horz;
-        Atom _net_wm_state_maximized_vert;
+        Atom _NET_WM_STATE;
+        Atom _NET_WM_STATE_ABOVE;
+        Atom _NET_WM_STATE_FULLSCREEN;
+        Atom _NET_WM_STATE_HIDDEN;
+        Atom _NET_WM_STATE_MAXIMIZED_HORZ;
+        Atom _NET_WM_STATE_MAXIMIZED_VERT;
+
+        /* Atoms: Clipboard */
+        Atom UTF8;
+        Atom TEXT;
+        Atom TARGETS;
+        Atom CLIPBOARD;
+        Atom XSEL_DATA;
     } xatom;
 
     /* libX11 */
@@ -3746,43 +3759,63 @@ WININT int __winLoadX11(void) {
     __window_h.x11->xlib.root = root;
     
     /* get '__window_h.x11->xatom' members  */ 
-    Atom wm_protocols = XInternAtom(dpy, "WM_PROTOCOLS", False);
-    if (!wm_protocols) { return (0); }
+    Atom WM_PROTOCOLS = XInternAtom(dpy, "WM_PROTOCOLS", False);
+    if (!WM_PROTOCOLS) { return (0); }
     
-    Atom wm_delete_window = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-    if (!wm_delete_window) { return (0); }
+    Atom WM_DELETE_WINDOW = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+    if (!WM_DELETE_WINDOW) { return (0); }
     
-    Atom _motif_wm_hints = XInternAtom(dpy, "_MOTIF_WM_HINTS", False);
-    if (!_motif_wm_hints) { return (0); }
+    Atom _MOTIF_WM_HINTS = XInternAtom(dpy, "_MOTIF_WM_HINTS", False);
+    if (!_MOTIF_WM_HINTS) { return (0); }
 
-    Atom _net_wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
-    if (!_net_wm_state) { return (0); }
+    Atom _NET_WM_STATE = XInternAtom(dpy, "_NET_WM_STATE", False);
+    if (!_NET_WM_STATE) { return (0); }
 
-    Atom _net_wm_state_above = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", False);
-    if (!_net_wm_state_above) { return (0); }
+    Atom _NET_WM_STATE_ABOVE = XInternAtom(dpy, "_NET_WM_STATE_ABOVE", False);
+    if (!_NET_WM_STATE_ABOVE) { return (0); }
 
-    Atom _net_wm_state_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
-    if (!_net_wm_state_fullscreen) { return (0); }
+    Atom _NET_WM_STATE_FULLSCREEN = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
+    if (!_NET_WM_STATE_FULLSCREEN) { return (0); }
 
-    Atom _net_wm_state_hidden = XInternAtom(dpy, "_NET_WM_STATE_HIDDEN", False);
-    if (!_net_wm_state_hidden) { return (0); }
+    Atom _NET_WM_STATE_HIDDEN = XInternAtom(dpy, "_NET_WM_STATE_HIDDEN", False);
+    if (!_NET_WM_STATE_HIDDEN) { return (0); }
 
-    Atom _net_wm_state_maximized_horz = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
-    if (!_net_wm_state_maximized_horz) { return (0); }
+    Atom _NET_WM_STATE_MAXIMIZED_HORZ = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+    if (!_NET_WM_STATE_MAXIMIZED_HORZ) { return (0); }
 
-    Atom _net_wm_state_maximized_vert = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
-    if (!_net_wm_state_maximized_vert) { return (0); }
+    Atom _NET_WM_STATE_MAXIMIZED_VERT = XInternAtom(dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+    if (!_NET_WM_STATE_MAXIMIZED_VERT) { return (0); }
+
+    Atom UTF8 = XInternAtom(dpy, "UTF8", False);
+    if (!UTF8) { UTF8 = XA_STRING; }
+
+    Atom TEXT = XInternAtom(dpy, "TEXT", False);
+    if (!TEXT) { return (0); }
+
+    Atom TARGETS = XInternAtom(dpy, "TARGETS", False);
+    if (!TARGETS) { return (0); }
+
+    Atom CLIPBOARD = XInternAtom(dpy, "CLIPBOARD", False);
+    if (!CLIPBOARD) { return (0); }
+
+    Atom XSEL_DATA = XInternAtom(dpy, "XSEL_DATA", False);
+    if (!XSEL_DATA) { return (0); }
 
     /* set '__window_h.x11->xatom' members */ 
-    __window_h.x11->xatom.wm_protocols = wm_protocols;
-    __window_h.x11->xatom.wm_delete_window = wm_delete_window;
-    __window_h.x11->xatom._motif_wm_hints = _motif_wm_hints;
-    __window_h.x11->xatom._net_wm_state = _net_wm_state;
-    __window_h.x11->xatom._net_wm_state_above = _net_wm_state_above;
-    __window_h.x11->xatom._net_wm_state_fullscreen = _net_wm_state_fullscreen;
-    __window_h.x11->xatom._net_wm_state_hidden = _net_wm_state_hidden;
-    __window_h.x11->xatom._net_wm_state_maximized_horz = _net_wm_state_maximized_horz;
-    __window_h.x11->xatom._net_wm_state_maximized_vert = _net_wm_state_maximized_vert;
+    __window_h.x11->xatom.WM_PROTOCOLS = WM_PROTOCOLS;
+    __window_h.x11->xatom.WM_DELETE_WINDOW = WM_DELETE_WINDOW;
+    __window_h.x11->xatom._MOTIF_WM_HINTS = _MOTIF_WM_HINTS;
+    __window_h.x11->xatom._NET_WM_STATE = _NET_WM_STATE;
+    __window_h.x11->xatom._NET_WM_STATE_ABOVE = _NET_WM_STATE_ABOVE;
+    __window_h.x11->xatom._NET_WM_STATE_FULLSCREEN = _NET_WM_STATE_FULLSCREEN;
+    __window_h.x11->xatom._NET_WM_STATE_HIDDEN = _NET_WM_STATE_HIDDEN;
+    __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_HORZ = _NET_WM_STATE_MAXIMIZED_HORZ;
+    __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_VERT = _NET_WM_STATE_MAXIMIZED_VERT;
+    __window_h.x11->xatom.UTF8 = UTF8;
+    __window_h.x11->xatom.TEXT = TEXT;
+    __window_h.x11->xatom.TARGETS = TARGETS;
+    __window_h.x11->xatom.CLIPBOARD = CLIPBOARD;
+    __window_h.x11->xatom.XSEL_DATA = XSEL_DATA;
 
     /* select root window's events mask  */
     XSelectInput(dpy, root, SubstructureNotifyMask |
@@ -5174,6 +5207,8 @@ WININT int __winSendEvent(uint32_t, ...);
 
 WININT int __winGetWindowFromIDX11(t_window *, XID);
 
+WININT Bool __winSelectionRequestPredicateX11(Display *, XEvent *, XPointer);
+
 /* platform functions */
 
 WINDEF int winInit(void) {
@@ -6072,6 +6107,79 @@ WINDEF int winFlushEvents(void) {
     return (1);
 }
 
+/* clipboard functions */
+
+WINDEF int winCopyClipboard(t_window win, const char *str) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+	/* xlib references */
+	Display *dpy   = __window_h.x11->xlib.dpy; 
+    Window  client = win->x11->xlib.client; 
+    
+    /* xatom references */
+    Atom UTF8 = __window_h.x11->xatom.UTF8;
+    Atom TEXT = __window_h.x11->xatom.TEXT;
+    Atom TARGETS = __window_h.x11->xatom.TARGETS;
+    Atom CLIPBOARD = __window_h.x11->xatom.CLIPBOARD;
+   
+    /* configure selection ownership */
+    XSetSelectionOwner(dpy, CLIPBOARD, client, 0);
+    if (XGetSelectionOwner(dpy, CLIPBOARD) != client) {
+        return (0);
+    }
+
+    /* wait for 'SelectionReques' to arrive */ 
+    XEvent xevent = { 0 };
+    do {
+        XIfEvent(dpy, &xevent, __winSelectionRequestPredicateX11, (XPointer) client);
+    } while (xevent.type != SelectionRequest);
+
+    /* process 'SelectionRequest' event */
+    XSelectionRequestEvent xselectionrequest = xevent.xselectionrequest;
+
+    /* event we'll use to send a 'SelectionRequest' to the display server */
+    XSelectionEvent xselection = {
+        .type = SelectionNotify,
+        .display = xselectionrequest.display,
+        .requestor = xselectionrequest.requestor,
+        .selection = xselectionrequest.selection,
+        .target = xselectionrequest.target,
+        .property = xselectionrequest.property,
+        .time = xselectionrequest.time
+    };
+
+    /* change the sessions property based on the selection target */
+    int stat = 0;
+    if (xselection.target == TARGETS) {
+        stat = XChangeProperty(dpy, xselection.requestor, xselection.property, XA_ATOM, 32, PropModeReplace, (uint8_t *) &UTF8, 1);
+    } else if (xselection.target == TEXT || xselection.target == XA_STRING) {
+        stat = XChangeProperty(dpy, xselection.requestor, xselection.property, XA_STRING, 8, PropModeReplace, (uint8_t *) str, strlen(str));
+    } else if (xselection.target == UTF8) {
+        stat = XChangeProperty(dpy, xselection.requestor, xselection.property, UTF8, 8, PropModeReplace, (uint8_t *) str, strlen(str));
+    }
+
+    /* send the 'XSelectionEvent' event */
+    if ((stat & 2) == 0) {
+        XSendEvent(dpy, xselection.requestor, 0, 0, (XEvent *) &xselection);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winPasteClipboard(t_window win, char **s_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    (void) win;
+    (void) s_ptr;
+
+    /* success */
+    return (1);
+}
+
 /* timing functions */
 
 WINDEF uint64_t winGetTime(void) {
@@ -6163,8 +6271,8 @@ WININT int __winCreateWindowX11(t_window win, Display *dpy, Window root, Window 
     if (!client) { return (0); }
 
     /* set WM protocols atoms */
-    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.wm_protocols, 1);
-    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.wm_delete_window, 1);
+    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.WM_PROTOCOLS, 1);
+    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.WM_DELETE_WINDOW, 1);
     
     /* select client window's events mask  */
     attr.event_mask = StructureNotifyMask |
@@ -6205,12 +6313,12 @@ WININT int __winUpdateWindowFlagsX11(t_window win) {
     Window client = win->x11->xlib.client;
 
     /* xatom references */
-    Atom              _MOTIF_WM_HINTS = __window_h.x11->xatom._motif_wm_hints;
-    Atom     _NET_WM_STATE_FULLSCREEN = __window_h.x11->xatom._net_wm_state_fullscreen;
-    Atom         _NET_WM_STATE_HIDDEN = __window_h.x11->xatom._net_wm_state_hidden;
-    Atom _NET_WM_STATE_MAXIMIZED_HORZ = __window_h.x11->xatom._net_wm_state_maximized_horz;
-    Atom _NET_WM_STATE_MAXIMIZED_VERT = __window_h.x11->xatom._net_wm_state_maximized_vert;
-    Atom          _NET_WM_STATE_ABOVE = __window_h.x11->xatom._net_wm_state_above;
+    Atom              _MOTIF_WM_HINTS = __window_h.x11->xatom._MOTIF_WM_HINTS;
+    Atom     _NET_WM_STATE_FULLSCREEN = __window_h.x11->xatom._NET_WM_STATE_FULLSCREEN;
+    Atom         _NET_WM_STATE_HIDDEN = __window_h.x11->xatom._NET_WM_STATE_HIDDEN;
+    Atom _NET_WM_STATE_MAXIMIZED_HORZ = __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_HORZ;
+    Atom _NET_WM_STATE_MAXIMIZED_VERT = __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_VERT;
+    Atom          _NET_WM_STATE_ABOVE = __window_h.x11->xatom._NET_WM_STATE_ABOVE;
     
     /* properties that requires the window to be mapped */
     if (mapped) {
@@ -6288,7 +6396,7 @@ WININT int __winSendClientEventX11(t_window win, Atom a0, Atom a1, Atom a2) {
     Window client = win->x11->xlib.client;
 	
     /* xatom references */
-    Atom _NET_WM_STATE = __window_h.x11->xatom._net_wm_state;
+    Atom _NET_WM_STATE = __window_h.x11->xatom._NET_WM_STATE;
 
     /* create client event */
     XClientMessageEvent xclient = {
@@ -6330,8 +6438,8 @@ WININT int __winPollEvents(void) {
                 XClientMessageEvent xclient = xevent.xclient;
 
                 /* xatom references */
-                Atom WM_PROTOCOLS     = __window_h.x11->xatom.wm_protocols;
-                Atom WM_DELETE_WINDOW = __window_h.x11->xatom.wm_delete_window;
+                Atom WM_PROTOCOLS     = __window_h.x11->xatom.WM_PROTOCOLS;
+                Atom WM_DELETE_WINDOW = __window_h.x11->xatom.WM_DELETE_WINDOW;
 
                 /* process different kind of client events */
                 const Atom message_type = xclient.message_type;
@@ -6556,11 +6664,11 @@ WININT int __winPollEvents(void) {
                 Window client = window->x11->xlib.client;
                 
                 /* xatom references */
-                Atom _NET_WM_STATE                = __window_h.x11->xatom._net_wm_state;
-                Atom _NET_WM_STATE_FULLSCREEN     = __window_h.x11->xatom._net_wm_state_fullscreen;
-                Atom _NET_WM_STATE_HIDDEN         = __window_h.x11->xatom._net_wm_state_hidden;
-                Atom _NET_WM_STATE_MAXIMIZED_HORZ = __window_h.x11->xatom._net_wm_state_maximized_horz;
-                Atom _NET_WM_STATE_MAXIMIZED_VERT = __window_h.x11->xatom._net_wm_state_maximized_vert;
+                Atom _NET_WM_STATE                = __window_h.x11->xatom._NET_WM_STATE;
+                Atom _NET_WM_STATE_FULLSCREEN     = __window_h.x11->xatom._NET_WM_STATE_FULLSCREEN;
+                Atom _NET_WM_STATE_HIDDEN         = __window_h.x11->xatom._NET_WM_STATE_HIDDEN;
+                Atom _NET_WM_STATE_MAXIMIZED_HORZ = __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_HORZ;
+                Atom _NET_WM_STATE_MAXIMIZED_VERT = __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_VERT;
 
                 /* get the property 'atom' */
                 const Atom atom = xproperty.atom;
@@ -6756,6 +6864,15 @@ WININT int __winGetWindowFromIDX11(t_window *win, XID id) {
 
     /* success */
     return (1);
+}
+
+
+WININT Bool __winSelectionRequestPredicateX11(Display *dpy, XEvent *xevent, XPointer arg) {
+    (void) dpy;
+    return ((xevent->type == SelectionRequest ||
+             xevent->type == SelectionClear   ||
+             xevent->type == SelectionNotify) &&
+            (xevent->xselectionrequest.owner == (Window) arg));
 }
 
 #  endif /* WINDOW_BACKEND_X11 */
