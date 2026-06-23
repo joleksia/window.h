@@ -4,20 +4,20 @@
 #include "./../window.h"
 
 int main(void) {
-    /* initialize window.h */
-    if (!winInit()) {
-        fprintf(stderr, "winInit() failed\n");
-        return (1);
-    }
+    /* intialize window.h */
+    winInit();
 
+    /* create window.h window */
     t_window window = 0;
     winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
     winMapWindow(window);
 
-    if (!winCopyClipboard(window, "Hello, window.h!")) {
-        fprintf(stderr, "winCopyClipboard() failed\n");
-        return (1);
-    }
+    char *paste = 0;
+    winCopyClipboard(window, "Hello, window.h!");
+    printf("winCopyClipboard()\n");
+    winPasteClipboard(window, &paste);
+    printf("winPasteClipboard()\n");
+    printf("%s\n", paste); free(paste);
 
     int exit = 0;
     while (!exit) {
