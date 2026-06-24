@@ -568,6 +568,21 @@ enum {
     WINDOW_EVENT_WINDOW_FULLSCREEN,
 # define WINDOW_EVENT_WINDOW_FULLSCREEN WINDOW_EVENT_WINDOW_FULLSCREEN
 
+    WINDOW_EVENT_CLIPBOARD = 0x5000,
+# define WINDOW_EVENT_CLIPBOARD WINDOW_EVENT_CLIPBOARD
+
+    WINDOW_EVENT_CLIPBOARD_COPY,
+# define WINDOW_EVENT_CLIPBOARD_COPY WINDOW_EVENT_CLIPBOARD_COPY
+
+    WINDOW_EVENT_CLIPBOARD_WRITE = WINDOW_EVENT_CLIPBOARD_COPY,
+# define WINDOW_EVENT_CLIPBOARD_WRITE WINDOW_EVENT_CLIPBOARD_WRITE
+
+    WINDOW_EVENT_CLIPBOARD_PASTE,
+# define WINDOW_EVENT_CLIPBOARD_PASTE WINDOW_EVENT_CLIPBOARD_PASTE
+
+    WINDOW_EVENT_CLIPBOARD_READ = WINDOW_EVENT_CLIPBOARD_PASTE,
+# define WINDOW_EVENT_CLIPBOARD_READ WINDOW_EVENT_CLIPBOARD_READ
+
     /* ... */
 
     WINDOW_EVENT_USER = 0xf000,
@@ -669,7 +684,7 @@ struct s_eventQuit {
 typedef struct s_eventMouse t_eventMouse;
 
 struct s_eventMouse {
-    uint32_t type;      /* WINDOW_EVENT_MOUSE_ */
+    uint32_t type;      /* WINDOW_EVENT_MOUSE */
     uint64_t time;      /* event timestampt */
 
     t_window window;    /* window with mouse focus (if any) */
@@ -702,7 +717,7 @@ struct s_eventMouseDevice {
 typedef struct s_eventKeyboard t_eventKeyboard;
 
 struct s_eventKeyboard {
-    uint32_t type;      /* WINDOW_EVENT_KEYBOARD_ */
+    uint32_t type;      /* WINDOW_EVENT_KEYBOARD */
     uint64_t time;      /* event timestampt */
 
     t_window window;    /* window with keyboard focus (if any) */
@@ -729,12 +744,24 @@ struct s_eventKeyboardDevice {
 typedef struct s_eventWindow t_eventWindow;
 
 struct s_eventWindow {
-    uint32_t type;      /* WINDOW_EVENT_WINDOW_ */
+    uint32_t type;      /* WINDOW_EVENT_WINDOW */
     uint64_t time;      /* event timestampt */
 
     t_window window;    /* which window sends the event */
     uint32_t data1;
     uint32_t data2;
+};
+
+
+typedef struct s_eventClipboard t_eventClipboard;
+
+struct s_eventClipboard {
+    uint32_t type;      /* WINDOW_EVENT_CLIPBOARD */
+    uint64_t time;      /* event timestampt */
+
+    t_window window;    /* which window sends the event */
+    void  *data;
+    size_t size;
 };
 
 
@@ -750,20 +777,23 @@ union u_event {
     /* WINDOW_EVENT_QUIT */
     t_eventQuit quit;
 
-    /* WINDOW_EVENT_MOUSE_ */
+    /* WINDOW_EVENT_MOUSE */
     t_eventMouse mouse;
 
     /* WINDOW_EVENT_MOUSE_ADD, WINDOW_EVENT_MOUSE_REMOVE */
     t_eventMouseDevice mouse_device;
 
-    /* WINDOW_EVENT_KEYBOARD_ */
+    /* WINDOW_EVENT_KEYBOARD */
     t_eventKeyboard keyboard;
 
     /* WINDOW_EVENT_KEYBOARD_ADD, WINDOW_EVENT_KEYBOARD_REMOVE */
     t_eventKeyboardDevice keyboard_device;
 
-    /* WINDOW_EVENT_WINDOW_ */
+    /* WINDOW_EVENT_WINDOW */
     t_eventWindow window;
+
+    /* WINDOW_EVENT_CLIPBOARD */
+    t_eventClipboard clipboard;
 
 };
 
@@ -5267,6 +5297,8 @@ WINDEF int winQuit(void) {
     free(__window_h.event_queue.arr);
     __window_h.event_queue = (struct __window_h_eventQueue) { 0 };
 
+    /* release clipboard */
+
     /* release xlib resources */
     XCloseDisplay(__window_h.x11->xlib.dpy);
 
@@ -6159,16 +6191,17 @@ WINDEF int winPasteClipboard(t_window win, char **s_ptr) {
     Atom CLIPBOARD = __window_h.x11->xatom.CLIPBOARD;
     Atom TARGETS = __window_h.x11->xatom.TARGETS;
 
-    /* attempt to return an already existing string in clipboard */
-    if (XGetSelectionOwner(dpy, CLIPBOARD) != client) {
-        *s_ptr = 0;
-        return (0);
-    }
-
     XConvertSelection(dpy, CLIPBOARD, TARGETS, CLIPBOARD, client, CurrentTime);
+    __winPollEvents();
+
+    /* read the clipboard data */
+
+    /* TEMPORARY
+     * */
+    *s_ptr = __window_h.clipboard.data;
 
     /* success */
-    return (__winPollEvents());
+    return (*s_ptr != 0);
 }
 
 /* timing functions */
@@ -6726,12 +6759,17 @@ WININT int __winPollEvents(void) {
             case (SelectionRequest): {
                 XSelectionRequestEvent request = xevent.xselectionrequest;
                 
+                /* references */
+                t_window window;
+                __winGetWindowFromIDX11(&window, request.owner);
+                
                 /* xlib references */
-                Display *dpy  = request.display; 
-                Window client = request.requestor;
+                Display *dpy  = __window_h.x11->xlib.dpy; 
+                Window client = window->x11->xlib.client;
                 
                 /* xatom references */
-                Atom CLIPBOARD   = __window_h.x11->xatom.CLIPBOARD;
+                Atom TARGETS = __window_h.x11->xatom.TARGETS;
+                Atom CLIPBOARD = __window_h.x11->xatom.CLIPBOARD;
                 Atom UTF8_STRING = __window_h.x11->xatom.UTF8_STRING;
                 
                 /* check the 'CLIPBOARD' ownership  */
@@ -6740,10 +6778,21 @@ WININT int __winPollEvents(void) {
                     if (request.selection == CLIPBOARD) {
                         /* check the request's properties  */
                         if (request.property) {
-                            /* check the request's targets */
-                            if (request.target == UTF8_STRING ||
-                                request.target == XA_STRING
+                            if (request.target == TARGETS) {
+                                Atom targets[] = { TARGETS, UTF8_STRING, XA_STRING };
+                                XChangeProperty(request.display,
+                                                request.requestor,
+                                                request.property,
+                                                XA_ATOM,
+                                                32, PropModeReplace,
+                                                (uint8_t *)
+                                                targets,
+                                                sizeof(targets) / sizeof(Atom));
+                            }
+                            else if (request.target == UTF8_STRING ||
+                                     request.target == XA_STRING
                             ) {
+                                /* write the data to either 'UTF8_STRING' / 'XA_STRING' */
                                 XChangeProperty(request.display,
                                                 request.requestor,
                                                 request.property,
@@ -6752,6 +6801,14 @@ WININT int __winPollEvents(void) {
                                                 (uint8_t *)
                                                 __window_h.clipboard.data,
                                                 __window_h.clipboard.size);
+                        
+                                /* send the 'WINDOW_EVENT_CLIPBOARD_COPY' event */
+                                __winSendEvent(WINDOW_EVENT_CLIPBOARD_COPY, window, __window_h.clipboard.data,
+                                                                                    __window_h.clipboard.size);
+                            }
+                            /* failure: unrecognized target */
+                            else {
+                                request.property = None;
                             }
                         }
 
@@ -6772,8 +6829,6 @@ WININT int __winPollEvents(void) {
                                    reply.requestor,
                                    0, 0,
                                    (XEvent *) &reply);
-
-                        XSync(dpy, 0);
                     }
                 }
             } break; 
@@ -6781,14 +6836,19 @@ WININT int __winPollEvents(void) {
             case (SelectionNotify): {
                 XSelectionEvent notify = xevent.xselection;
                 
+                /* references */
+                t_window window;
+                __winGetWindowFromIDX11(&window, notify.requestor);
+
                 /* xlib references */
-                Display *dpy  = notify.display; 
-                Window client = notify.requestor;
+                Display *dpy  = __window_h.x11->xlib.dpy; 
+                Window client = window->x11->xlib.client;
                 
                 /* xatom references */
-                Atom CLIPBOARD   = __window_h.x11->xatom.CLIPBOARD;
+                Atom TARGETS = __window_h.x11->xatom.TARGETS;
+                Atom CLIPBOARD = __window_h.x11->xatom.CLIPBOARD;
                 Atom UTF8_STRING = __window_h.x11->xatom.UTF8_STRING;
-                
+
                 if (notify.selection == CLIPBOARD) {
                     if (notify.property) {
                         /* get window properties */
@@ -6799,8 +6859,8 @@ WININT int __winPollEvents(void) {
                         uint8_t *prop_return         = 0;
                         if (XGetWindowProperty(dpy, client,
                                                CLIPBOARD,
-                                               0, ~0L,
-                                               False, XA_ATOM,
+                                               0, ~0L, False,
+                                               AnyPropertyType,
                                                &actual_type_return,
                                                &actual_format_return,
                                                &nitems_return,
@@ -6808,20 +6868,50 @@ WININT int __winPollEvents(void) {
                                                &prop_return)
                         ) { return (0); }
 
-                        if (actual_type_return == UTF8_STRING ||
-                            actual_type_return == XA_STRING
+                        if (notify.target == TARGETS) {
+                            Atom *states = (Atom *) prop_return;
+                            Atom  state  = None;
+
+                            for (size_t i = 0; i < nitems_return; i++) {
+                                if (states[i] == XA_STRING) { state = states[i]; }
+                                if (states[i] == UTF8_STRING) {
+                                    state = states[i];
+                                    break;
+                                }
+                            }
+
+                            if (state != None) {
+                                XConvertSelection(dpy, CLIPBOARD, state, CLIPBOARD, client, CurrentTime);
+                            }
+                        }
+                        else if (notify.target == UTF8_STRING ||
+                                 notify.target == XA_STRING
                         ) {
-                            __window_h.clipboard.data = (char *) prop_return;
-                            __window_h.clipboard.size = (size_t) nitems_return;
+                            if (actual_type_return == UTF8_STRING ||
+                                actual_type_return == XA_STRING
+                            ) {
+                                __window_h.clipboard.size = (size_t) nitems_return;
+                                __window_h.clipboard.data = calloc(nitems_return + 1, sizeof(char));
+                                memcpy(__window_h.clipboard.data, prop_return, __window_h.clipboard.size);
+
+                                /* send the 'WINDOW_EVENT_CLIPBOARD_PASTE' event */
+                                __winSendEvent(WINDOW_EVENT_CLIPBOARD_PASTE, window, __window_h.clipboard.data,
+                                                                                     __window_h.clipboard.size);
+                            }
                         }
 
                         /* cleanup */
+                        XFree(prop_return), prop_return = 0;
                         XDeleteProperty(dpy, client, notify.property);
                     }
                 }
             } break; 
 
-            case (SelectionClear): { } break; 
+            case (SelectionClear): {
+                free(__window_h.clipboard.data);
+                __window_h.clipboard.data = 0;
+                __window_h.clipboard.size = 0;
+            } break; 
         }
     }
 
@@ -6920,6 +7010,13 @@ WININT int __winSendEvent(uint32_t type, ...) {
             event.window.window = va_arg(va, t_window);
             event.window.data1  = va_arg(va, uint32_t);
             event.window.data2  = va_arg(va, uint32_t);
+        } break;
+
+        case (WINDOW_EVENT_CLIPBOARD_COPY):
+        case (WINDOW_EVENT_CLIPBOARD_PASTE): {
+            event.clipboard.window = va_arg(va, t_window);
+            event.clipboard.data   = va_arg(va, void *);
+            event.clipboard.size   = va_arg(va, size_t);
         } break;
 
         /* ... */
