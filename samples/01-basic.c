@@ -4,12 +4,10 @@
 #include "./../window.h"
 
 int main(void) {
-    /* initialize window.h */
-    if (!winInit()) {
-        fprintf(stderr, "win_init() failed\n");
-        return (1);
-    }
+    /* intialize window.h */
+    winInit();
 
+    /* create window.h window */
     t_window window = 0;
     winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
     winMapWindow(window);
@@ -20,6 +18,20 @@ int main(void) {
         t_event event = { 0 };
         while (winPollEvents(&event)) {
             printf("Event ID.: %d\n", event.type);
+
+            if (event.type == WINDOW_EVENT_MOUSE_BUTTON) {
+                if (event.mouse.btn == 1 && event.mouse.state) {
+                    char *paste = 0;
+                    if (winPasteClipboard(&paste)) {
+                        printf("%s\n", paste);
+                        free(paste);
+                    }
+                }
+                if (event.mouse.btn == 2 && event.mouse.state) {
+                    char *copy = "Hello, world!";
+                    winCopyClipboard(copy);
+                }
+            }
 
             /* handle exit */
             if (event.type == WINDOW_EVENT_QUIT) {
