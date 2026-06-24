@@ -583,6 +583,9 @@ enum {
     WINDOW_EVENT_CLIPBOARD_READ = WINDOW_EVENT_CLIPBOARD_PASTE,
 # define WINDOW_EVENT_CLIPBOARD_READ WINDOW_EVENT_CLIPBOARD_READ
 
+    WINDOW_EVENT_CLIPBOARD_CLEAR,
+# define WINDOW_EVENT_CLIPBOARD_CLEAR WINDOW_EVENT_CLIPBOARD_CLEAR
+
     /* ... */
 
     WINDOW_EVENT_USER = 0xf000,
@@ -911,12 +914,8 @@ WINDEF int winWaitTime(uint64_t);
 typedef struct __window_h_eventQueue __window_h_eventQueue;
 
 struct __window_h_eventQueue {
-    t_event *bgn, /* beginning of the circular buffer */
-            *end, /* end of the circular buffer */
-            *arr; /* circular buffer */
-
-    size_t cap, /* circular buffer elements capacity */
-           cnt; /* circular buffer elements count */
+    __window_h_eventQueue *next;
+    t_event event;
 };
 
 
@@ -939,7 +938,7 @@ static struct __window_h  {
 
     struct s_window *window_list;
 
-    __window_h_eventQueue event_queue;
+    __window_h_eventQueue *event_queue;
 
     __window_h_clipboard clipboard;
 
@@ -4504,6 +4503,9 @@ WININT int __winUnloadX11(void) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
+    /* release xlib resources */
+    XCloseDisplay(__window_h.x11->xlib.dpy);
+
     /* release '__window_h.x11->handle' field */
     dlclose(__window_h.x11->handle), __window_h.x11->handle = 0;
 
@@ -5129,6 +5131,9 @@ WININT int __winUnloadEGL(void) {
     /* null-check */
     if (!__window_h.egl) { return (0); }
 
+    /* release egl resources */
+    eglTerminate(__window_h.egl->dpy);
+
     /* release '__window_h.egl->handle' field */
     dlclose(__window_h.egl->handle), __window_h.egl->handle = 0;
 
@@ -5293,14 +5298,19 @@ WINDEF int winQuit(void) {
         curr = next;
     }
 
-    /* release event queue */
-    free(__window_h.event_queue.arr);
-    __window_h.event_queue = (struct __window_h_eventQueue) { 0 };
-
     /* release clipboard */
+    /* TODO:
+     *  Pass the clipboard ownership
+     * */
+    free(__window_h.clipboard.data);
+    __window_h.clipboard.data = 0;
+    __window_h.clipboard.size = 0;
 
-    /* release xlib resources */
-    XCloseDisplay(__window_h.x11->xlib.dpy);
+    /* release event queue */
+    t_event event;
+    do {
+        winPopEvent(&event);
+    } while (event.type);
 
 #   if defined (WINDOW_API_OPENGL)
 #    if defined (WINDOW_BACKEND_GL_EGL)
@@ -6009,68 +6019,32 @@ WINDEF int winWaitEvents(t_event *event) {
 WINDEF int winPushEvent(t_event *event) {
     /* null-check */
     if (!event)  { return (0); }
-
-    /* references */
-    __window_h_eventQueue *eq = &__window_h.event_queue;
     
-    /* alloc new `arr` if needed */
-    if (!eq->arr) {
-        t_event *arr = malloc(WINDOW_EVENT_QUEUE_CAPACITY * sizeof(t_event));
-        if (!arr) { return (0); }
-
-        eq->arr = eq->bgn = eq->end = arr;
-        eq->cap = WINDOW_EVENT_QUEUE_CAPACITY;
-        eq->cnt = 0;
+    /* empty linked-list */
+    if (!__window_h.event_queue) {
+        __window_h_eventQueue *eq = malloc(sizeof(__window_h_eventQueue));
+        if (!eq) { return (0); }
+        
+        eq->next  = 0;
+        eq->event = *event;
+        __window_h.event_queue = eq;
     }
+    /* populated linked-list */
+    else {
+        /* go to the last node */
+        __window_h_eventQueue *eq0 = __window_h.event_queue;
+        while (eq0->next) { eq0 = eq0->next; }
 
-    /* bound check */
-    if (eq->cnt >= eq->cap) {
-        /* preserve the current indices of the circular buffer */
-        size_t bgn_index = __window_h.event_queue.bgn - __window_h.event_queue.arr;
-        size_t end_index = __window_h.event_queue.end - __window_h.event_queue.arr;
-        /* realloc the buffer */
-        size_t cap_old = eq->cap;
-        size_t cap_new = eq->cap * 2;
-        t_event *arr = realloc(eq->arr, cap_new * sizeof(t_event));
-        if (!arr) { return (0); }
+        /* alloc new node */
 
-        /* assign back new data */
-        eq->arr = arr;
-        eq->cap = cap_new;
-        eq->bgn = &arr[bgn_index]; 
+        __window_h_eventQueue *eq1 = malloc(sizeof(__window_h_eventQueue));
+        if (!eq1) { return (0); }
+        eq1->next  = 0;
+        eq1->event = *event;
 
-        /* process the end of the buffer */
-        if (end_index < bgn_index) {
-            size_t i = 0;
-            for ( ; i < bgn_index; i++) {
-                eq->arr[cap_old + i] = eq->arr[i];
-                eq->arr[i] = (t_event) { 0 };
-            }
-            end_index += cap_old + i;
-        }
-
-        if (end_index == bgn_index) {
-            eq->end = &arr[cap_old];
-        }
-        else {
-            eq->end = &arr[end_index];
-        }
+        /* add the last node to the end of event queue */
+        eq0->next = eq1;
     }
-
-    /* assign the object to the last `arr` element */
-    *eq->end = *event;
-    /* move the last element by one */
-    eq->end++;
-    /* boundary check
-     * if exceeds the `arr`, return back to start
-     * */
-    size_t end = eq->end - eq->arr;
-    if (end >= eq->cap) {
-        eq->end = eq->arr;
-    }
-
-    /* increment the count */
-    eq->cnt++;
 
     /* success */
     return (1);
@@ -6082,30 +6056,21 @@ WINDEF int winPopEvent(t_event *event) {
     if (!event)  { return (0); }
 
     /* references */
-    __window_h_eventQueue *eq = &__window_h.event_queue;
+    __window_h_eventQueue *eq0 = __window_h.event_queue;
+    __window_h_eventQueue *eq1 = eq0 ? eq0->next : 0;
 
-    /* check if event queue exists */
-    if (!eq->arr) { return (0); }
-
-    /* check if there's anything in the queue */
-    if (eq->cnt == 0) { return (0); }
-
-    /* assign the first element to the reference */
-    *event = *eq->bgn;
-    /* zero-down the first element (safety matter) */
-    *eq->bgn = (t_event) { 0 };
-    /* move the first element by one */
-    eq->bgn++;
-    /* boundary check
-     * if exceeds the `arr`, return back to start
-     * */
-    size_t bgn = eq->bgn - eq->arr;
-    if (bgn >= eq->cap) {
-        eq->bgn = eq->arr;
+    /* case: no events in event queue */
+    if (!eq0) {
+        *event = (t_event) { 0 };
+        return (0);
     }
 
-    /* decrement the count */
-    eq->cnt--;
+    /* case: multiple events in event queue */
+    else {
+        *event = eq0->event;
+        free(__window_h.event_queue);
+        __window_h.event_queue = eq1;
+    }
 
     /* success */
     return (1);
@@ -6117,19 +6082,10 @@ WINDEF int winPeekEvent(t_event *event) {
     if (!event)  { return (0); }
 
     /* references */
-    __window_h_eventQueue *eq = &__window_h.event_queue;
+    __window_h_eventQueue *eq = __window_h.event_queue;
 
-    /* zero-down the event */
-    *event = (t_event) { 0 };
-
-    /* check if event queue exists */
-    if (!eq->arr) { return (0); }
-
-    /* check if there's anything in the queue */
-    if (eq->cnt == 0) { return (0); }
-
-    /* assign the first element to the reference */
-    *event = *eq->bgn;
+    /* assign the first node to the reference */
+    *event = eq ? eq->event : (t_event) { 0 };
 
     /* success */
     return (1);
@@ -6908,9 +6864,18 @@ WININT int __winPollEvents(void) {
             } break; 
 
             case (SelectionClear): {
+                XSelectionClearEvent clear = xevent.xselectionclear;
+                
+                /* references */
+                t_window window;
+                __winGetWindowFromIDX11(&window, clear.window);
+
                 free(__window_h.clipboard.data);
                 __window_h.clipboard.data = 0;
                 __window_h.clipboard.size = 0;
+                /* send the 'WINDOW_EVENT_CLIPBOARD_CLEAR' event */
+                __winSendEvent(WINDOW_EVENT_CLIPBOARD_CLEAR, window, __window_h.clipboard.data,
+                                                                     __window_h.clipboard.size);
             } break; 
         }
     }
