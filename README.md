@@ -17,7 +17,7 @@ int main(void) {
     winInit();
 
     /* create window */
-    t_window win;
+    window_t win;
     winCreateWindow(&win, 800, 600, "Hello, window.h", 0);
     winMapWindow(win);
 

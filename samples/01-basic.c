@@ -8,7 +8,7 @@ int main(void) {
     winInit();
 
     /* create window.h window */
-    t_window window = 0;
+    window_t window = 0;
     winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
     winMapWindow(window);
 

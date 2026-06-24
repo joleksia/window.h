@@ -16,10 +16,10 @@ int main(void) {
     winGLSetAttribute(WINDOW_GL_CONTEXT_MINOR_VERSION, 6);
     winGLSetAttribute(WINDOW_GL_CONTEXT_PROFILE_MASK, 1);
 
-    t_window win;
+    window_t win;
     winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", WINDOW_FLAG_RESIZABLE);
 
-    t_glcontext ctx;
+    context_t ctx;
     winGLCreateContext(&ctx, win);
 
     winMapWindow(win);
