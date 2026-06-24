@@ -20,7 +20,7 @@ int main(void) {
     winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", WINDOW_FLAG_RESIZABLE);
 
     context_t ctx;
-    winGLCreateContext(&ctx, win);
+    winCreateContext(&ctx, win);
 
     winMapWindow(win);
     winGLMakeCurrent(ctx, win);
@@ -53,9 +53,6 @@ int main(void) {
     }
 
     /* quit */
-    winGLDestroyContext(ctx, win);
-    winDestroyWindow(win);
-
     winQuit();
     return (0);
 }

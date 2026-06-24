@@ -11,6 +11,10 @@ int main(void) {
     window_t window = 0;
     winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
     winMapWindow(window);
+    
+    /* create graphics context */
+    context_t context = 0;
+    winCreateContext(&context, window);
 
     int exit = 0;
     while (!exit) {

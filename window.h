@@ -555,11 +555,13 @@ WINDEF int winGetWindowTitle(window_t, char **);
 
 WINDEF int winSetWindowTitle(window_t, const char *);
 
+/* context functions */
+
+WINDEF int winCreateContext(context_t *, window_t);
+
+WINDEF int winDestroyContext(context_t);
+
 /* opengl context functions */
-
-WINDEF int winGLCreateContext(context_t *, window_t);
-
-WINDEF int winGLDestroyContext(context_t, window_t);
 
 WINDEF int winGLSetAttribute(const int, const int);
 
@@ -652,7 +654,11 @@ struct __window_h_window {
 
     /* platform-independent */
 
+    /* pointer to the 'next' node in linked-list of window */
     struct __window_h_window *next;
+
+    /* reference to this window's graphics context */
+    struct __window_h_context *context;
     
     /* structure data */
     size_t siz_w, siz_h;
@@ -679,22 +685,28 @@ struct __window_h_window {
 
 };
 
+struct __window_h_cotnext_x11;
 
-struct __window_h_glcontext_egl;
+struct __window_h_context_egl;
 
-struct __window_h_glcontext_wgl;
+struct __window_h_context_wgl;
 
-struct __window_h_glcontext {
+struct __window_h_context {
 
     /* platform-independent */
 
-    /* ... */
+    struct __window_h_window *owner;
 
     /* platform-specific */
 
-    struct __window_h_glcontext_egl *egl;
+    /* WINDOW_API_NONE */
+    struct __window_h_context_x11 *x11;
 
-    struct __window_h_glcontext_wgl *wgl;
+    /* WINDOW_API_OPENGL */
+    struct __window_h_context_egl *egl;
+
+    /* WINDOW_API_OPENGL */
+    struct __window_h_context_wgl *wgl;
 
     /* ... */
 
@@ -3221,6 +3233,16 @@ struct __window_h_window_x11 {
     } xlib;
 };
 
+/* context type definitions */
+
+typedef struct __window_h_context_x11 *__window_h_context_x11;
+
+struct __window_h_context_x11 {
+    struct {
+        Display *dpy;
+    } xlib;
+};
+
 /* internal functions (declarations) */
 
 WININT int __winLoadX11(void);
@@ -4444,9 +4466,9 @@ struct __window_h_egl {
 };
 
 
-typedef struct __window_h_glcontext_egl *context_t_egl;
+typedef struct __window_h_context_egl *context_t_egl;
 
-struct __window_h_glcontext_egl {
+struct __window_h_context_egl {
     EGLDisplay dpy;
     EGLConfig  config;
     EGLSurface surface;
@@ -4643,9 +4665,9 @@ struct __window_h_wgl {
 };
 
 
-typedef struct __window_h_glcontext_wgl *context_t_wgl;
+typedef struct __window_h_context_wgl *context_t_wgl;
 
-struct __window_h_glcontext_wgl {
+struct __window_h_context_wgl {
 
     /* ... */
 
@@ -4780,6 +4802,7 @@ WINDEF int winQuit(void) {
                              *next = 0;
     while (curr) {
         next = curr->next;
+        winDestroyContext(curr->context);
         winDestroyWindow(curr);
         curr = next;
     }
@@ -5273,118 +5296,122 @@ WINDEF int winSetWindowTitle(window_t window, const char *t) {
     return (1);
 }
 
-/* opengl context functions */
+/* context functions */
 
-WINDEF int winGLCreateContext(context_t *glcontext, window_t window) {
-
-/* check if 'WINDOW_API_OPENGL' is defined  */
-#   if !defined (WINDOW_API_OPENGL)
-    (void) glcontext;
-    (void) window;
-    return (0);
-#   else
+WINDEF int winCreateContext(context_t *context, window_t window) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
-    if (!glcontext) { return (0); }
+    if (!context) { return (0); }
     if (!window)    { return (0); }
-
+    
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
-
-    /* egl references */
-    EGLDisplay dpy = __window_h.egl->dpy;
     
     /* alloc new context object */
-    struct __window_h_glcontext *result = calloc(1, sizeof(struct __window_h_glcontext));
+    struct __window_h_context *result = calloc(1, sizeof(struct __window_h_context));
     if (!result) { return (0); }
 
-    result->egl = calloc(1, sizeof(struct __window_h_glcontext_egl));
+#   if defined (WINDOW_API_NONE)
+    result->x11 = calloc(1, sizeof(struct __window_h_context_x11));
+    if (!result->x11) { return (0); }
+
+    /* x11 references */
+    Display *dpy = __window_h.x11->xlib.dpy;
+
+    /* ... */
+
+    /* set 'result->x11' members */
+    if (!dpy) { return (0); }
+    result->x11->xlib.dpy = dpy;
+#   elif defined (WINDOW_API_OPENGL)
+    /* egl references */
+    EGLDisplay dpy = __window_h.egl->dpy;
+
+    result->egl = calloc(1, sizeof(struct __window_h_context_egl));
     if (!result->egl) { return (0); }
 
     /* get EGLConfig object */
     int num_config   = 0;
-    EGLConfig config = 0;
-    if (!eglChooseConfig(dpy, __window_h.egl->attr.config, &config, 1, &num_config)) { return (0); }
+    EGLConfig egl_config = 0;
+    if (!eglChooseConfig(dpy, __window_h.egl->attr.config, &egl_config, 1, &num_config)) { return (0); }
 
     /* get EGLSurface object */
-    EGLSurface surface = eglCreateWindowSurface(dpy, config, win->x11->xlib.client, __window_h.egl->attr.surface);
-    if (surface == EGL_NO_SURFACE) { return (0); }
+    EGLSurface egl_surface = eglCreateWindowSurface(dpy, egl_config, win->x11->xlib.client, __window_h.egl->attr.surface);
+    if (egl_surface == EGL_NO_SURFACE) { return (0); }
 
     /* get EGLContext object */
-    EGLContext context = eglCreateContext(dpy, config, EGL_NO_CONTEXT, __window_h.egl->attr.context);
-    if (context == EGL_NO_CONTEXT) { return (0); }
+    EGLContext egl_context = eglCreateContext(dpy, egl_config, EGL_NO_CONTEXT, __window_h.egl->attr.context);
+    if (egl_context == EGL_NO_CONTEXT) { return (0); }
     
     /* set 'result->egl' members */
     if (!dpy) { return (0); }
     result->egl->dpy = dpy;
 
-    if (!config) { return (0); }
-    result->egl->config = config;
+    if (!egl_config) { return (0); }
+    result->egl->config = egl_config;
 
-    if (!surface) { return (0); }
-    result->egl->surface = surface;
+    if (!egl_surface) { return (0); }
+    result->egl->surface = egl_surface;
 
-    if (!context) { return (0); }
-    result->egl->context = context;
+    if (!egl_context) { return (0); }
+    result->egl->context = egl_context;
+#   endif
 
     /* and return the result */
-    *glcontext = result;
+    *context = win->context = result;
 
     /* success */
     return (1);
-#   endif
 
 }
 
-WINDEF int winGLDestroyContext(context_t glcontext, window_t window) {
-
-/* check if 'WINDOW_API_OPENGL' is defined  */
-#   if !defined (WINDOW_API_OPENGL)
-    (void) glcontext;
-    (void) window;
-    return (0);
-#   else
+WINDEF int winDestroyContext(context_t context) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
-    if (!glcontext) { return (0); }
-    if (!window)    { return (0); }
+    if (!context) { return (0); }
 
     /* references */
-    struct __window_h_glcontext *ctx = (struct __window_h_glcontext *) glcontext;
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
 
-    /* egl references */
-    EGLDisplay dpy = ctx->egl->dpy;
-    EGLSurface surface = ctx->egl->surface;
-    EGLContext context = ctx->egl->context;
+/* check if 'WINDOW_API_OPENGL' is defined  */
+#   if defined (WINDOW_API_NONE)
 
-    eglMakeCurrent(dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    if (context) { eglDestroyContext(dpy, context); }
-    if (surface) { eglDestroySurface(dpy, surface); }
+    /* ... */
+
+    /* deallocate context object */
+    free(ctx->x11);
+#   elif defined (WINDOW_API_OPENGL)
+    eglMakeCurrent(ctx->egl->dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (ctx->egl->context) { eglDestroyContext(ctx->egl->dpy, ctx->egl->context); }
+    if (ctx->egl->surface) { eglDestroySurface(ctx->egl->dpy, ctx->egl->surface); }
  
-    /* deallocate window object */
+    /* deallocate context object */
     free(ctx->egl);
+#   endif
+   
+    /* zero-down the window's references */
+    ctx->owner->context = 0;
+
+    /* deallocate context */
     free(ctx);
 
     /* success */
     return (1);
-#   endif
 
 }
 
-WINDEF int winGLSetAttribute(const int attr, const int value) {
+/* opengl context functions */
 
-/* check if 'WINDOW_API_OPENGL' is defined  */
-#   if !defined (WINDOW_API_OPENGL)
-    (void) attr;
-    (void) value;
-    return (0);
-#   else
+WINDEF int winGLSetAttribute(const int attr, const int value) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
+    (void) attr;
+    (void) value;
 
+#   if defined (WINDOW_API_OPENGL)
     /* get EGL attribute from 'attr' */
     int eglattr = 0;
     for (size_t i = 0; __window_h_egl_attrmap[i].src; i++) {
@@ -5428,116 +5455,87 @@ WINDEF int winGLSetAttribute(const int attr, const int value) {
             return (1);
         }
     }
-    
+#   endif 
 
     /* failure  */
     return (0);
-#   endif
 
 }
 
-WINDEF int winGLMakeCurrent(context_t glcontext, window_t window) {
-
-/* check if 'WINDOW_API_OPENGL' is defined  */
-#   if !defined (WINDOW_API_OPENGL)
-    (void) glcontext;
-    (void) window;
-    return (0);
-#   else
+WINDEF int winGLMakeCurrent(context_t context, window_t window) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
-    if (!glcontext) { return (0); }
-    if (!window)    { return (0); }
+    if (!context) { return (0); }
+    if (!window)  { return (0); }
 
+#   if defined (WINDOW_API_OPENGL)
     /* references */
-    struct __window_h_glcontext *ctx = (struct __window_h_glcontext *) glcontext;
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
     
-    /* egl references */
-    EGLDisplay dpy = ctx->egl->dpy;
-    EGLSurface surface = ctx->egl->surface;
-    EGLContext context = ctx->egl->context;
-    if (!eglMakeCurrent(dpy, surface, surface, context)) {
+    if (!eglMakeCurrent(ctx->egl->dpy,
+                        ctx->egl->surface,
+                        ctx->egl->surface,
+                        ctx->egl->context)
+    ) {
         return (0);
     }
+#   endif
 
     /* success */
     return (1);
-#   endif
-
 }
 
-WINDEF int winGLSwapBuffers(context_t glcontext, window_t window) {
-
-/* check if 'WINDOW_API_OPENGL' is defined  */
-#   if !defined (WINDOW_API_OPENGL)
-    (void) glcontext;
-    (void) window;
-    return (0);
-#   else
+WINDEF int winGLSwapBuffers(context_t context, window_t window) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
-    if (!glcontext) { return (0); }
-    if (!window)    { return (0); }
+    if (!context) { return (0); }
+    if (!window)  { return (0); }
 
+#   if defined (WINDOW_API_OPENGL)
     /* references */
-    struct __window_h_glcontext *ctx = (struct __window_h_glcontext *) glcontext;
-    
-    /* egl references */
-    EGLDisplay dpy = ctx->egl->dpy;
-    EGLSurface surface = ctx->egl->surface;
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
 
-    eglSwapBuffers(dpy, surface);
+    eglSwapBuffers(ctx->egl->dpy,
+                   ctx->egl->surface);
+#   endif
 
     /* success */
     return (1);
-#   endif
-
 }
 
-WINDEF int winGLSwapInterval(context_t glcontext, const int interval) {
-
-/* check if 'WINDOW_API_OPENGL' is defined  */
-#   if !defined (WINDOW_API_OPENGL)
-    (void) glcontext;
+WINDEF int winGLSwapInterval(context_t context, const int interval) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+    if (!context) { return (0); }
     (void) interval;
-    return (0);
-#   else
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    if (!__window_h.egl) { return (0); }
-    if (!glcontext) { return (0); }
-    
-    /* references */
-    struct __window_h_glcontext *ctx = (struct __window_h_glcontext *) glcontext;
-    
-    /* egl references */
-    EGLDisplay dpy = ctx->egl->dpy;
 
-    eglSwapInterval(dpy, interval);
+#   if defined (WINDOW_API_OPENGL)
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    eglSwapInterval(ctx->egl->dpy, interval);
+#   endif
 
     /* success */
     return (1);
-#   endif
-
 }
 
 WINDEF void *winGLGetProcAddress(const char *proc) {
-
-/* check if 'WINDOW_API_OPENGL' is defined  */
-#   if !defined (WINDOW_API_OPENGL)
-    (void) proc;
-    return (0);
-#   else
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
+    (void) proc;
 
+#   if defined (WINDOW_API_OPENGL)
     /* success */
     return (eglGetProcAddress(proc));
 #   endif
 
+    /* failure */
+    return (0);
 }
 
 /* event functions */
