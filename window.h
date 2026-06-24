@@ -7141,9 +7141,7 @@ WININT int __winGetSelectionStringX11(char **str, const Atom atom) {
     }
 
     /* check if we're the 'atom' owner */
-    if (XGetSelectionOwner(__window_h.x11->xlib.dpy, atom) ==
-                           __window_h.x11->xlib.ipc 
-    ) {
+    if (XGetSelectionOwner(__window_h.x11->xlib.dpy, atom) == __window_h.x11->xlib.ipc) {
         /* if so, save some time and straight-up return the string */
         *str = calloc(*size + 1, sizeof(char));
         *str = strcpy(*str, *data);
@@ -7151,9 +7149,7 @@ WININT int __winGetSelectionStringX11(char **str, const Atom atom) {
     }
     
     /* check if the 'atom' owner (clipboard source) even exists */
-    if (XGetSelectionOwner(__window_h.x11->xlib.dpy, atom) ==
-                           None 
-    ) {
+    if (XGetSelectionOwner(__window_h.x11->xlib.dpy, atom) == None) {
         *str = 0;
         return (0);
     }

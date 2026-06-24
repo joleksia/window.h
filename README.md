@@ -54,6 +54,7 @@ deals with windowing.
 ## Resources
 
 Resources used in this project:
+- [glfw/glfw](https://github.com/glfw/glfw.git)
 - [The X Window system](https://tronche.com/gui/x/)
 - [The Xlib Manual](https://tronche.com/gui/x/xlib/)
 - [The Xlib Manual - 10.1 Event Types](https://tronche.com/gui/x/xlib/events/types.html)
