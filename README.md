@@ -60,6 +60,7 @@ Resources used in this project:
 - [Create an OpenGL context using Xlib and EGL](https://gist.github.com/pedrominicz/2d81559c5fb66d23d6bb627570956605)
 - [RGFW Under the Hood: OpenGL context creation](https://github.com/ColleagueRiley/OpenGL-Context-Creation)
 - [exebook/x11clipboard](https://github.com/exebook/x11clipboard)
+- [Implementing copy/paste in X11](https://handmade.network/forums/articles/t/8544-implementing_copy_paste_in_x11)
 
 ## Licence
 
