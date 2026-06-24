@@ -12,15 +12,25 @@ int main(void) {
     winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
     winMapWindow(window);
 
-    winCopyClipboard("Hello, window.h!");
-    printf("winCopyClipboard()\n");
-
     int exit = 0;
     while (!exit) {
         /* poll events */
         t_event event = { 0 };
         while (winPollEvents(&event)) {
             printf("Event ID.: %d\n", event.type);
+
+            if (event.type == WINDOW_EVENT_MOUSE_BUTTON) {
+                if (event.mouse.btn == 1 && event.mouse.state) {
+                    char *paste = 0;
+                    if (winPasteClipboard(&paste)) {
+                        printf("%s\n", paste);
+                    }
+                }
+                if (event.mouse.btn == 2 && event.mouse.state) {
+                    char *copy = "Hello, world!";
+                    winCopyClipboard(copy);
+                }
+            }
 
             /* handle exit */
             if (event.type == WINDOW_EVENT_QUIT) {

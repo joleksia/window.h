@@ -6939,6 +6939,9 @@ WININT int __winHandleSelectionX11(XEvent *xevent) {
             /* get the event object */
             XSelectionRequestEvent request = xevent->xselectionrequest;
 
+            /* check if property is 'None' */
+            if (request.property == None) { return (0); }
+
             /* request target list */
             const Atom targets[] = { UTF8_STRING, XA_STRING };
             const size_t target_count = sizeof(targets) / sizeof(*targets);
@@ -6994,6 +6997,9 @@ WININT int __winHandleSelectionX11(XEvent *xevent) {
         case (SelectionNotify): {
             /* get the event object */
             XSelectionEvent notify = xevent->xselection;
+
+            /* check if property is 'None' */
+            if (notify.property == None) { return (0); }
                         
             /* get window properties */
             Atom actual_type_return      = 0;
@@ -7003,7 +7009,7 @@ WININT int __winHandleSelectionX11(XEvent *xevent) {
             uint8_t *prop_return         = 0;
             XGetWindowProperty(notify.display,
                                notify.requestor,
-                               notify.selection,
+                               notify.property,
                                0, ~0L, False,
                                AnyPropertyType,
                                &actual_type_return,
@@ -7088,8 +7094,47 @@ WININT int __winGetSelectionStringX11(char **str, const Atom atom) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
-    (void) str;
-    (void) atom;
+    /* check if we're the 'atom' owner */
+    if (XGetSelectionOwner(__window_h.x11->xlib.dpy, atom) ==
+                           __window_h.x11->xlib.ipc 
+    ) {
+        /* if so, save some time and straight-up return the string */
+        *str = calloc(__window_h.selection.clipboard.size + 1, sizeof(char));
+        *str = strcpy(*str, __window_h.selection.clipboard.data);
+        return (1);
+    }
+    
+    /* check if the 'atom' owner (clipboard source) even exists */
+    if (XGetSelectionOwner(__window_h.x11->xlib.dpy, atom) ==
+                           None 
+    ) {
+        *str = 0;
+        return (0);
+    }
+
+    free(__window_h.selection.clipboard.data);
+    __window_h.selection.clipboard.data = 0;
+    
+    /* xatom references */
+    Atom UTF8_STRING = __window_h.x11->xatom.UTF8_STRING;
+
+    XConvertSelection(__window_h.x11->xlib.dpy,
+                      atom, UTF8_STRING, atom,
+                      __window_h.x11->xlib.ipc,
+                      CurrentTime);
+
+    /* get the 'Selection...' event  */
+    XEvent xevent = { 0 };
+    do {
+        XNextEvent(__window_h.x11->xlib.dpy, &xevent);
+    } while (xevent.type != SelectionNotify &&
+             xevent.type != SelectionRequest);
+
+    /* perform round-trip */
+    __winHandleSelectionX11(&xevent);
+
+    *str = calloc(__window_h.selection.clipboard.size + 1, sizeof(char));
+    *str = strcpy(*str, __window_h.selection.clipboard.data);
 
     /* success */
     return (1);
