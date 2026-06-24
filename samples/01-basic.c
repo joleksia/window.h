@@ -24,6 +24,7 @@ int main(void) {
                     char *paste = 0;
                     if (winPasteClipboard(&paste)) {
                         printf("%s\n", paste);
+                        free(paste);
                     }
                 }
                 if (event.mouse.btn == 2 && event.mouse.state) {

@@ -7174,8 +7174,10 @@ WININT int __winGetSelectionStringX11(char **str, const Atom atom) {
              xevent.type != SelectionRequest);
 
     /* perform round-trip */
-    __winHandleSelectionX11(&xevent);
+    if (!__winHandleSelectionX11(&xevent)) { return (0); }
 
+    /* copy the selection data to 'str' */
+    if (!*data) { return (0); }
     *str = calloc(*size + 1, sizeof(char));
     *str = strcpy(*str, *data);
 
