@@ -7107,9 +7107,7 @@ WININT int __winSetSelectionStringX11(const char *str, const Atom atom) {
                        CurrentTime);
 
     /* check if process owns the 'atom' selection */
-    if (XGetSelectionOwner(__window_h.x11->xlib.dpy, atom) !=
-                           __window_h.x11->xlib.ipc 
-    ) {
+    if (XGetSelectionOwner(__window_h.x11->xlib.dpy, atom) != __window_h.x11->xlib.ipc) {
         return (0);
     }
 
