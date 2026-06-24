@@ -12,12 +12,8 @@ int main(void) {
     winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
     winMapWindow(window);
 
-    char *paste = 0;
-    winCopyClipboard(window, "Hello, window.h!");
+    winCopyClipboard("Hello, window.h!");
     printf("winCopyClipboard()\n");
-    winPasteClipboard(window, &paste);
-    printf("winPasteClipboard()\n");
-    printf("%s\n", paste); free(paste);
 
     int exit = 0;
     while (!exit) {
