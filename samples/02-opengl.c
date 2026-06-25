@@ -14,10 +14,10 @@ int main(void) {
 
     winGLSetAttribute(WINDOW_GL_CONTEXT_MAJOR_VERSION, 4);
     winGLSetAttribute(WINDOW_GL_CONTEXT_MINOR_VERSION, 6);
-    winGLSetAttribute(WINDOW_GL_CONTEXT_PROFILE_MASK, 1);
+    winGLSetAttribute(WINDOW_GL_CONTEXT_PROFILE_MASK, 2);
 
     window_t win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", WINDOW_FLAG_RESIZABLE);
+    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", 0);
 
     context_t ctx;
     winCreateContext(&ctx, win);
@@ -33,6 +33,12 @@ int main(void) {
         /* render */
         glClearColor(0.1, 0.1, 0.1, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
+        glBegin(GL_QUADS);
+            glVertex2f(-0.5,-0.5);
+            glVertex2f(-0.5, 0.5);
+            glVertex2f( 0.5, 0.5);
+            glVertex2f( 0.5,-0.5);
+        glEnd();
 
         /* poll events */
         winGLSwapBuffers(ctx);

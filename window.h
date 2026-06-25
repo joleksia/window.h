@@ -555,11 +555,23 @@ WINDEF int winGetWindowTitle(window_t, char **);
 
 WINDEF int winSetWindowTitle(window_t, const char *);
 
+WINDEF int winGetWindowContext(window_t, context_t *);
+
+WINDEF int winSetWindowContext(window_t, context_t);
+
 /* context functions */
 
 WINDEF int winCreateContext(context_t *, window_t);
 
 WINDEF int winDestroyContext(context_t);
+
+WINDEF int winGetContextBuffer(context_t, uint8_t **, size_t *, size_t *);
+
+WINDEF int winDrawBuffer(context_t);
+
+WINDEF int winGetContextOwner(context_t, window_t *);
+
+WINDEF int winSetContextOwner(context_t, window_t);
 
 /* opengl context functions */
 
@@ -3227,10 +3239,22 @@ typedef struct __window_h_window_x11 *__window_h_window_x11;
 struct __window_h_window_x11 {
     struct {
         Display *dpy;
-        Window   root;
-        Window   parent;    /* parent window */
-        Window   client;    /* client window */
+
+        /* default root window */
+        Window root;
+
+        /* parent window */
+        Window parent;
+
+        /* child / client / main window */
+        Window client;
+
+        /* X11 visual object */
+        Visual *visual;
     } xlib;
+
+    /* depth value of visual */
+    int depth;
 };
 
 /* context type definitions */
@@ -3240,7 +3264,19 @@ typedef struct __window_h_context_x11 *__window_h_context_x11;
 struct __window_h_context_x11 {
     struct {
         Display *dpy;
+
+        /* framebuffer image */
+        XImage *image;
+
+        /* graphics context */
+        GC gc;
+        XGCValues gcv; /* gc-values */
+        uint64_t  gcm; /* gc-mask   */
     } xlib;
+
+    /* structure data */
+    size_t siz_w,
+           siz_h;
 };
 
 /* internal functions (declarations) */
@@ -5389,14 +5425,47 @@ WINDEF int winSetWindowTitle(window_t window, const char *t) {
     return (1);
 }
 
+
+WINDEF int winGetWindowContext(window_t window, context_t *c_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
+
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* get the context from the 'win' */
+    if (c_ptr) { *c_ptr = win->context; }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetWindowContext(window_t window, context_t context) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_window  *win = (struct __window_h_window *) window;
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    /* update the internal references in 'win' and 'ctx' */
+    win->context = context;
+    ctx->owner   = window;
+
+    /* success */
+    return (1);
+}
+
 /* context functions */
 
 WINDEF int winCreateContext(context_t *context, window_t window) {
     /* null-check */
-    if (!__window_h.x11) { return (0); }
-    if (!__window_h.egl) { return (0); }
-    if (!context)        { return (0); }
-    if (!window)         { return (0); }
+    if (!context) { return (0); }
+    if (!window)  { return (0); }
     
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5409,14 +5478,16 @@ WINDEF int winCreateContext(context_t *context, window_t window) {
     result->owner = window;
     win->context  = result;
 
-    /* set the 'result' to 'context' */
-    *context = result;
-
 #   if defined (WINDOW_API_NONE)
+    if (!__window_h.x11) { return (0); }
     if (!__winCreateContextX11(result)) { return (0); }
 #   elif defined (WINDOW_API_OPENGL)
+    if (!__window_h.egl) { return (0); }
     if (!__winCreateContextEGL(result)) { return (0); }
 #   endif
+
+    /* and return the result */
+    *context = result;
 
     /* success */
     return (1);
@@ -5447,6 +5518,87 @@ WINDEF int winDestroyContext(context_t context) {
 
     /* deallocate context */
     free(ctx);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winGetContextBuffer(context_t context, uint8_t **d_ptr, size_t *w_ptr, size_t *h_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    /* null-check */
+    if (!ctx->x11) { return (0); }
+
+    /* return values */
+    if (d_ptr) { *d_ptr = (uint8_t *) ctx->x11->xlib.image->data; }
+    if (w_ptr) { *w_ptr = ctx->x11->siz_w; }
+    if (h_ptr) { *h_ptr = ctx->x11->siz_h; }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winDrawBuffer(context_t context) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    /* null-check */
+    if (!ctx->x11) { return (0); }
+
+    /* draw XImage onto the screen */
+    XPutImage(ctx->x11->xlib.dpy,
+              ctx->owner->x11->xlib.client,
+              ctx->x11->xlib.gc,
+              ctx->x11->xlib.image,
+              0, 0, 0, 0,
+              ctx->x11->siz_w,
+              ctx->x11->siz_h);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winGetContextOwner(context_t context, window_t *w_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    /* get the context from the 'win' */
+    if (w_ptr) { *w_ptr = ctx->owner; }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetContextOwner(context_t context, window_t window) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!context)        { return (0); }
+    if (!window)         { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    struct __window_h_window  *win = (struct __window_h_window *) window;
+
+    /* update the internal references in 'win' and 'ctx' */
+    ctx->owner   = window;
+    win->context = context;
 
     /* success */
     return (1);
@@ -5832,18 +5984,15 @@ WININT int __winCreateWindowX11(window_t window, Display *dpy, Window root, Wind
                       KeyPressMask | KeyReleaseMask |
                       PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
 
-    /* set 'win.x11->xlib' members */
-    if (!dpy) { return (0); }
-    win->x11->xlib.dpy = dpy;
-    
-    if (!root) { return (0); }
-    win->x11->xlib.root = root;
-    
-    if (!parent) { return (0); }
+    /* set 'win->x11' members */
+    win->x11->depth = depth;
+
+    /* set 'win->x11->xlib' members */
+    win->x11->xlib.dpy    = dpy;
+    win->x11->xlib.root   = root;
     win->x11->xlib.parent = parent;
-    
-    if (!client) { return (0); }
     win->x11->xlib.client = client;
+    win->x11->xlib.visual = visual;
 
     /* success */
     return (1);
@@ -5857,20 +6006,48 @@ WININT int __winCreateContextX11(context_t context) {
 
     /* references */
     struct __window_h_context *ctx = (struct __window_h_context *) context;
+    struct __window_h_window  *win = (struct __window_h_window *) ctx->owner;
     
     ctx->x11 = calloc(1, sizeof(struct __window_h_context_x11));
     if (!ctx->x11) { return (0); }
 
     /* x11 references */
-    Display *dpy = __window_h.x11->xlib.dpy;
+    Display   *dpy = __window_h.x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+    Visual *visual = win->x11->xlib.visual;
+    int      depth = win->x11->depth;
 
-    (void) ctx;
-    (void) dpy;
-    /* ... */
+    /* create graphics context */
+    XGCValues gcv = { 0 };
+    uint64_t  gcm = 0;
 
-    /* set 'result->x11' members */
-    if (!dpy) { return (0); }
-    ctx->x11->xlib.dpy = dpy;
+    GC gc = XCreateGC(dpy, client, gcm, &gcv);
+    if (!gc) { return (0); }
+
+    /* get the size of the window */
+    size_t siz_w = 0,
+           siz_h = 0;
+    winGetWindowSize(win, &siz_w, &siz_h);
+
+    /* alloc new pixel buffer */
+    uint8_t *data = malloc(siz_w * siz_h * 4);
+    if (!data) { return (0); }
+
+    /* create new 'image' framebuffer */
+    XImage *image = XCreateImage(dpy, visual, depth, ZPixmap, 0,
+                                (char *) data, siz_w, siz_h, 32, 0);
+    if (!image) { return (0); }
+    
+    /* set 'ctx->x11' members */
+    ctx->x11->siz_w = siz_w;
+    ctx->x11->siz_h = siz_h;
+
+    /* set 'ctx->x11->xlib' members */
+    ctx->x11->xlib.dpy   = dpy;
+    ctx->x11->xlib.image = image;
+    ctx->x11->xlib.gc    = gc;
+    ctx->x11->xlib.gcv   = gcv;
+    ctx->x11->xlib.gcm   = gcm;
 
     /* success */
     return (1);
@@ -5884,13 +6061,20 @@ WININT int __winDestroyContextX11(context_t context) {
 
     /* references */
     struct __window_h_context *ctx = (struct __window_h_context *) context;
-
+    
     /* x11 references */
     Display *dpy = __window_h.x11->xlib.dpy;
 
-    (void) ctx;
-    (void) dpy;
-    /* ... */
+    /* release 'gc' */
+    GC gc = ctx->x11->xlib.gc;
+    if (!XFreeGC(dpy, gc)) { return (0); }
+
+    /* release 'image' */
+    XImage *image = ctx->x11->xlib.image;
+    if (!XDestroyImage(image)) { return (0); }
+ 
+    /* deallocate context object */
+    free(ctx->x11);
 
     /* success */
     return (1);
