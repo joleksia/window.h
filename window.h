@@ -565,9 +565,9 @@ WINDEF int winDestroyContext(context_t);
 
 WINDEF int winGLSetAttribute(const int, const int);
 
-WINDEF int winGLMakeCurrent(context_t, window_t);
+WINDEF int winGLMakeCurrent(context_t);
 
-WINDEF int winGLSwapBuffers(context_t, window_t);
+WINDEF int winGLSwapBuffers(context_t);
 
 WINDEF int winGLSwapInterval(context_t, const int);
 
@@ -685,7 +685,7 @@ struct __window_h_window {
 
 };
 
-struct __window_h_cotnext_x11;
+struct __window_h_context_x11;
 
 struct __window_h_context_egl;
 
@@ -4483,6 +4483,10 @@ WININT int __winLoadEGLSymbols(void);
 
 WININT int __winUnloadEGL(void);
 
+WININT int __winCreateContextEGL(context_t);
+
+WININT int __winDestroyContextEGL(context_t);
+
 /* internal functions (definitions) */
 
 WININT int __winLoadEGL(void) {
@@ -4646,6 +4650,76 @@ WININT int __winUnloadEGL(void) {
     return (1);
 }
 
+
+WININT int __winCreateContextEGL(context_t context) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    struct __window_h_window  *win = (struct __window_h_window *) ctx->owner;
+    if (!win)      { return (0); }
+    if (!win->x11) { return (0); }
+
+    /* egl references */
+    EGLDisplay dpy = __window_h.egl->dpy;
+
+    ctx->egl = calloc(1, sizeof(struct __window_h_context_egl));
+    if (!ctx->egl) { return (0); }
+
+    /* get EGLConfig object */
+    int num_config   = 0;
+    EGLConfig egl_config = 0;
+    if (!eglChooseConfig(dpy, __window_h.egl->attr.config, &egl_config, 1, &num_config)) { return (0); }
+
+    /* get EGLSurface object */
+    EGLSurface egl_surface = eglCreateWindowSurface(dpy, egl_config, win->x11->xlib.client, __window_h.egl->attr.surface);
+    if (egl_surface == EGL_NO_SURFACE) { return (0); }
+
+    /* get EGLContext object */
+    EGLContext egl_context = eglCreateContext(dpy, egl_config, EGL_NO_CONTEXT, __window_h.egl->attr.context);
+    if (egl_context == EGL_NO_CONTEXT) { return (0); }
+    
+    /* set 'result->egl' members */
+    if (!dpy) { return (0); }
+    ctx->egl->dpy = dpy;
+
+    if (!egl_config) { return (0); }
+    ctx->egl->config = egl_config;
+
+    if (!egl_surface) { return (0); }
+    ctx->egl->surface = egl_surface;
+
+    if (!egl_context) { return (0); }
+    ctx->egl->context = egl_context;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winDestroyContextEGL(context_t context) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    eglMakeCurrent(ctx->egl->dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (ctx->egl->context) { eglDestroyContext(ctx->egl->dpy, ctx->egl->context); }
+    if (ctx->egl->surface) { eglDestroySurface(ctx->egl->dpy, ctx->egl->surface); }
+ 
+    /* deallocate context object */
+    free(ctx->egl);
+
+    /* success */
+    return (1);
+}
+
 #  endif /* WINDOW_BACKEND_GL_EGL */
 #
 #  /* WINDOW_BACKEND_GL_WGL - WGL implementation layer */
@@ -4744,6 +4818,10 @@ WININT int __winUnloadWGL(void) {
 
 WININT int __winCreateWindowX11(window_t, Display *, Window, Window, const size_t, const size_t);
 
+WININT int __winCreateContextX11(context_t);
+
+WININT int __winDestroyContextX11(context_t);
+
 WININT int __winUpdateWindowFlagsX11(window_t);
 
 WININT int __winSendClientEventX11(window_t, Atom, Atom, Atom);
@@ -4825,15 +4903,17 @@ WINDEF int winQuit(void) {
     } while (event.type);
 
 #   if defined (WINDOW_API_OPENGL)
-#    if defined (WINDOW_BACKEND_GL_EGL)
     /* unload '__window_h.egl' */
-    if (!__winUnloadEGL()) { return (0); }
-#    endif /* WINDOW_BACKEND_GL_EGL */
-#   endif /* WINDOW_API_OPENGL */
-    
+    if (__window_h.egl) {
+        if (!__winUnloadEGL()) { return (0); }
+    }
+#   elif defined (WINDOW_API_NONE)
     /* unload '__window_h.x11' */
-    if (!__winUnloadX11()) { return (0); }
-    
+    if (__window_h.x11) {
+        if (!__winUnloadX11()) { return (0); }
+    }
+#   endif
+
     /* success */
     return (1);
 }
@@ -4876,9 +4956,10 @@ WINDEF void *winGetProperty(const uint32_t prop) {
 
 /* windowing functions */
 
-WINDEF int winCreateWindow(window_t *win, const size_t w, const size_t h, const char *t, const uint32_t f) {
+WINDEF int winCreateWindow(window_t *window, const size_t w, const size_t h, const char *t, const uint32_t f) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* alloc new window object */
     struct __window_h_window *result = calloc(1, sizeof(struct __window_h_window));
@@ -4907,16 +4988,17 @@ WINDEF int winCreateWindow(window_t *win, const size_t w, const size_t h, const 
     __window_h.window_list = result;
 
     /* and return the result */
-    *win = result;
+    *window = result;
 
     /* success */
     return (1);
 }
 
 
-WINDEF int winCreateNestedWindow(window_t *win, window_t parent, const size_t w, const size_t h, const char *t, const uint32_t f) {
+WINDEF int winCreateNestedWindow(window_t *window, window_t parent, const size_t w, const size_t h, const char *t, const uint32_t f) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
 	/* references */
     XID parent_id = ((struct __window_h_window *) parent)->x11->xlib.client;
@@ -4948,7 +5030,7 @@ WINDEF int winCreateNestedWindow(window_t *win, window_t parent, const size_t w,
     __window_h.window_list = result;
 
     /* and return the result */
-    *win = result;
+    *window = result;
 
     /* success */
     return (1);
@@ -4958,6 +5040,7 @@ WINDEF int winCreateNestedWindow(window_t *win, window_t parent, const size_t w,
 WINDEF int winDestroyWindow(window_t window) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5010,6 +5093,7 @@ WINDEF int winGetWindowFlags(window_t window, uint32_t *f_ptr) {
 WINDEF int winSetWindowFlags(window_t window, const uint32_t f) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5026,6 +5110,7 @@ WINDEF int winSetWindowFlags(window_t window, const uint32_t f) {
 WINDEF int winToggleWindowFlags(window_t window, const uint32_t f) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5042,6 +5127,7 @@ WINDEF int winToggleWindowFlags(window_t window, const uint32_t f) {
 WINDEF void *winGetWindowProperty(window_t window, const uint32_t prop) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5063,6 +5149,7 @@ WINDEF void *winGetWindowProperty(window_t window, const uint32_t prop) {
 WINDEF int winMapWindow(window_t window) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5120,6 +5207,7 @@ WINDEF int winUnmapWindow(window_t window) {
 WINDEF int winGetWindowSize(window_t window, size_t *w_ptr, size_t *h_ptr) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5144,6 +5232,7 @@ WINDEF int winGetWindowSize(window_t window, size_t *w_ptr, size_t *h_ptr) {
 WINDEF int winSetWindowSize(window_t window, const size_t w, const size_t h) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5163,6 +5252,7 @@ WINDEF int winSetWindowSize(window_t window, const size_t w, const size_t h) {
 WINDEF int winSetWindowMinSize(window_t window, const size_t w, const size_t h) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5190,6 +5280,7 @@ WINDEF int winSetWindowMinSize(window_t window, const size_t w, const size_t h) 
 WINDEF int winSetWindowMaxSize(window_t window, const size_t w, const size_t h) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5217,6 +5308,7 @@ WINDEF int winSetWindowMaxSize(window_t window, const size_t w, const size_t h) 
 WINDEF int winGetWindowPosition(window_t window, size_t *x_ptr, size_t *y_ptr) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5241,6 +5333,7 @@ WINDEF int winGetWindowPosition(window_t window, size_t *x_ptr, size_t *y_ptr) {
 WINDEF int winSetWindowPosition(window_t window, const size_t x, const size_t y) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5260,7 +5353,7 @@ WINDEF int winSetWindowPosition(window_t window, const size_t x, const size_t y)
 WINDEF int winGetWindowTitle(window_t window, char **t_ptr) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
-    if (!window) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5280,7 +5373,7 @@ WINDEF int winGetWindowTitle(window_t window, char **t_ptr) {
 WINDEF int winSetWindowTitle(window_t window, const char *t) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
-    if (!window) { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5302,8 +5395,8 @@ WINDEF int winCreateContext(context_t *context, window_t window) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
-    if (!context) { return (0); }
-    if (!window)    { return (0); }
+    if (!context)        { return (0); }
+    if (!window)         { return (0); }
     
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -5312,94 +5405,51 @@ WINDEF int winCreateContext(context_t *context, window_t window) {
     struct __window_h_context *result = calloc(1, sizeof(struct __window_h_context));
     if (!result) { return (0); }
 
+    /* set the context's ownership */
+    result->owner = window;
+    win->context  = result;
+
+    /* set the 'result' to 'context' */
+    *context = result;
+
 #   if defined (WINDOW_API_NONE)
-    result->x11 = calloc(1, sizeof(struct __window_h_context_x11));
-    if (!result->x11) { return (0); }
-
-    /* x11 references */
-    Display *dpy = __window_h.x11->xlib.dpy;
-
-    /* ... */
-
-    /* set 'result->x11' members */
-    if (!dpy) { return (0); }
-    result->x11->xlib.dpy = dpy;
+    if (!__winCreateContextX11(result)) { return (0); }
 #   elif defined (WINDOW_API_OPENGL)
-    /* egl references */
-    EGLDisplay dpy = __window_h.egl->dpy;
-
-    result->egl = calloc(1, sizeof(struct __window_h_context_egl));
-    if (!result->egl) { return (0); }
-
-    /* get EGLConfig object */
-    int num_config   = 0;
-    EGLConfig egl_config = 0;
-    if (!eglChooseConfig(dpy, __window_h.egl->attr.config, &egl_config, 1, &num_config)) { return (0); }
-
-    /* get EGLSurface object */
-    EGLSurface egl_surface = eglCreateWindowSurface(dpy, egl_config, win->x11->xlib.client, __window_h.egl->attr.surface);
-    if (egl_surface == EGL_NO_SURFACE) { return (0); }
-
-    /* get EGLContext object */
-    EGLContext egl_context = eglCreateContext(dpy, egl_config, EGL_NO_CONTEXT, __window_h.egl->attr.context);
-    if (egl_context == EGL_NO_CONTEXT) { return (0); }
-    
-    /* set 'result->egl' members */
-    if (!dpy) { return (0); }
-    result->egl->dpy = dpy;
-
-    if (!egl_config) { return (0); }
-    result->egl->config = egl_config;
-
-    if (!egl_surface) { return (0); }
-    result->egl->surface = egl_surface;
-
-    if (!egl_context) { return (0); }
-    result->egl->context = egl_context;
+    if (!__winCreateContextEGL(result)) { return (0); }
 #   endif
-
-    /* and return the result */
-    *context = win->context = result;
 
     /* success */
     return (1);
-
 }
 
 WINDEF int winDestroyContext(context_t context) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
-    if (!context) { return (0); }
+    if (!context)        { return (0); }
 
     /* references */
     struct __window_h_context *ctx = (struct __window_h_context *) context;
 
-/* check if 'WINDOW_API_OPENGL' is defined  */
 #   if defined (WINDOW_API_NONE)
-
-    /* ... */
-
-    /* deallocate context object */
-    free(ctx->x11);
+    if (ctx->x11) {
+        if (!__winDestroyContextX11(context)) { return (0); }
+    }
 #   elif defined (WINDOW_API_OPENGL)
-    eglMakeCurrent(ctx->egl->dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    if (ctx->egl->context) { eglDestroyContext(ctx->egl->dpy, ctx->egl->context); }
-    if (ctx->egl->surface) { eglDestroySurface(ctx->egl->dpy, ctx->egl->surface); }
- 
-    /* deallocate context object */
-    free(ctx->egl);
+    if (ctx->egl) {
+        if (!__winDestroyContextEGL(context)) { return (0); }
+    }
 #   endif
    
-    /* zero-down the window's references */
+    /* reset the ownerships */
     ctx->owner->context = 0;
+    ctx->owner = 0;
 
     /* deallocate context */
     free(ctx);
 
     /* success */
     return (1);
-
 }
 
 /* opengl context functions */
@@ -5462,12 +5512,11 @@ WINDEF int winGLSetAttribute(const int attr, const int value) {
 
 }
 
-WINDEF int winGLMakeCurrent(context_t context, window_t window) {
+WINDEF int winGLMakeCurrent(context_t context) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
-    if (!context) { return (0); }
-    if (!window)  { return (0); }
+    if (!context)        { return (0); }
 
 #   if defined (WINDOW_API_OPENGL)
     /* references */
@@ -5486,12 +5535,11 @@ WINDEF int winGLMakeCurrent(context_t context, window_t window) {
     return (1);
 }
 
-WINDEF int winGLSwapBuffers(context_t context, window_t window) {
+WINDEF int winGLSwapBuffers(context_t context) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!__window_h.egl) { return (0); }
-    if (!context) { return (0); }
-    if (!window)  { return (0); }
+    if (!context)        { return (0); }
 
 #   if defined (WINDOW_API_OPENGL)
     /* references */
@@ -5604,7 +5652,7 @@ WINDEF int winPushEvent(t_event *event) {
 
 WINDEF int winPopEvent(t_event *event) {
     /* null-check */
-    if (!event)  { return (0); }
+    if (!event) { return (0); }
 
     /* references */
     struct __window_h_eventQueue *eq0 = __window_h.event_queue;
@@ -5630,7 +5678,7 @@ WINDEF int winPopEvent(t_event *event) {
 
 WINDEF int winPeekEvent(t_event *event) {
     /* null-check */
-    if (!event)  { return (0); }
+    if (!event) { return (0); }
 
     /* references */
     struct __window_h_eventQueue *eq = __window_h.event_queue;
@@ -5657,6 +5705,9 @@ WINDEF int winFlushEvents(void) {
 /* clipboard functions */
 
 WINDEF int winCopyClipboard(const char *str) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
     /* xatom references */
     Atom CLIPBOARD = __window_h.x11->xatom.CLIPBOARD;
     
@@ -5666,6 +5717,9 @@ WINDEF int winCopyClipboard(const char *str) {
 
 
 WINDEF int winPasteClipboard(char **str) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
     /* xatom references */
     Atom CLIPBOARD = __window_h.x11->xatom.CLIPBOARD;
     
@@ -5790,6 +5844,53 @@ WININT int __winCreateWindowX11(window_t window, Display *dpy, Window root, Wind
     
     if (!client) { return (0); }
     win->x11->xlib.client = client;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winCreateContextX11(context_t context) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    
+    ctx->x11 = calloc(1, sizeof(struct __window_h_context_x11));
+    if (!ctx->x11) { return (0); }
+
+    /* x11 references */
+    Display *dpy = __window_h.x11->xlib.dpy;
+
+    (void) ctx;
+    (void) dpy;
+    /* ... */
+
+    /* set 'result->x11' members */
+    if (!dpy) { return (0); }
+    ctx->x11->xlib.dpy = dpy;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winDestroyContextX11(context_t context) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    /* x11 references */
+    Display *dpy = __window_h.x11->xlib.dpy;
+
+    (void) ctx;
+    (void) dpy;
+    /* ... */
 
     /* success */
     return (1);

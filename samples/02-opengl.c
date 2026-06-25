@@ -23,7 +23,7 @@ int main(void) {
     winCreateContext(&ctx, win);
 
     winMapWindow(win);
-    winGLMakeCurrent(ctx, win);
+    winGLMakeCurrent(ctx);
     winGLSwapInterval(ctx, 1);
 
     printf("%s\n", glGetString(GL_VERSION));
@@ -35,7 +35,7 @@ int main(void) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         /* poll events */
-        winGLSwapBuffers(ctx, win);
+        winGLSwapBuffers(ctx);
         t_event event = { 0 };
         while (winPollEvents(&event)) {
             switch (event.type) {
