@@ -55,13 +55,21 @@ deals with windowing.
 
 Resources used in this project:
 - [glfw/glfw](https://github.com/glfw/glfw.git)
+- [libsdl-org/SDL](https://github.com/libsdl-org/SDL.git)
+- [ColleagueRiley/RGFW](https://github.com/ColleagueRiley/RGFW.git)
+- [mirror/libX11](https://github.com/mirror/libX11.git)
+- [HID Usage Tables FOR Universal Serial Bus (USB)](https://usb.org/sites/default/files/hut1_21.pdf)
 - [The X Window system](https://tronche.com/gui/x/)
 - [The Xlib Manual](https://tronche.com/gui/x/xlib/)
-- [The Xlib Manual - 10.1 Event Types](https://tronche.com/gui/x/xlib/events/types.html)
+- [EGL Reference Pages](https://registry.khronos.org/EGL/sdk/docs/man/)
+
+Specific resources used in this project:
 - [Create an OpenGL context using Xlib and EGL](https://gist.github.com/pedrominicz/2d81559c5fb66d23d6bb627570956605)
 - [RGFW Under the Hood: OpenGL context creation](https://github.com/ColleagueRiley/OpenGL-Context-Creation)
 - [exebook/x11clipboard](https://github.com/exebook/x11clipboard)
 - [Implementing copy/paste in X11](https://handmade.network/forums/articles/t/8544-implementing_copy_paste_in_x11)
+
+*(and a bit of ai but it output was mostly trash slop)*
 
 ## Licence
 
