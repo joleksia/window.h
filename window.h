@@ -134,7 +134,7 @@ enum {
  *
  *  This keycode layout follows the "HID Usage Tables FOR Universal Serial Bus (USB)" (Version 1.21):
  *      https://usb.org/sites/default/files/hut1_21.pdf
- * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 enum {
     WINDOW_KEYCODE_NONE = 0x0000,
 # define WINDOW_KEYCODE_NONE WINDOW_KEYCODE_NONE
@@ -143,7 +143,7 @@ enum {
  *  Keyboard/Keypad Page (0x07)
  *      https://usb.org/sites/default/files/hut1_21.pdf#chapter.10
  *
- * * * * * * * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
     /* 0x0000 - 0x0003: reserved */
 
@@ -267,8 +267,8 @@ enum {
     WINDOW_KEYCODE_TAB = 0x002b,
 # define WINDOW_KEYCODE_TAB WINDOW_KEYCODE_TAB
 
-    WINDOW_KEYCODE_SPACEBAR = 0x002c,
-# define WINDOW_KEYCODE_SPACEBAR WINDOW_KEYCODE_SPACEBAR
+    WINDOW_KEYCODE_SPACE = 0x002c,
+# define WINDOW_KEYCODE_SPACE WINDOW_KEYCODE_SPACE
 
     WINDOW_KEYCODE_MINUS = 0x002d,
 # define WINDOW_KEYCODE_MINUS WINDOW_KEYCODE_MINUS
@@ -805,7 +805,7 @@ enum {
 
 /* WINDOW_KEYSYM:
  *  Virtual keyboard representation.
- * */
+ * * * * * * * * * * * * * * * * * * */
 # define WINDOW_KEYSYM_KEYCODE_MASK (1 << 30)
 # define WINDOW_KEYCODE_TO_KEYSYM(i) ((i) | WINDOW_KEYSYM_KEYCODE_MASK)
 enum {
@@ -957,71 +957,155 @@ enum {
 
     WINDOW_KEYSYM_J = 0x004a,
 # define WINDOW_KEYSYM_J WINDOW_KEYSYM_J
-
-    WINDOW_KEYSYM_L = 0x004b,
+    
+    WINDOW_KEYSYM_K = 0x004b,
 # define WINDOW_KEYSYM_L WINDOW_KEYSYM_L
 
-    WINDOW_KEYSYM_M = 0x004c,
+    WINDOW_KEYSYM_L = 0x004c,
+# define WINDOW_KEYSYM_L WINDOW_KEYSYM_L
+
+    WINDOW_KEYSYM_M = 0x004d,
 # define WINDOW_KEYSYM_M WINDOW_KEYSYM_M
 
-    WINDOW_KEYSYM_N = 0x004d,
+    WINDOW_KEYSYM_N = 0x004e,
 # define WINDOW_KEYSYM_N WINDOW_KEYSYM_N
 
-    WINDOW_KEYSYM_O = 0x004e,
+    WINDOW_KEYSYM_O = 0x004f,
 # define WINDOW_KEYSYM_O WINDOW_KEYSYM_O
 
-    WINDOW_KEYSYM_P = 0x004f,
+    WINDOW_KEYSYM_P = 0x0050,
 # define WINDOW_KEYSYM_P WINDOW_KEYSYM_P
 
-    WINDOW_KEYSYM_Q = 0x0050,
+    WINDOW_KEYSYM_Q = 0x0051,
 # define WINDOW_KEYSYM_Q WINDOW_KEYSYM_Q
 
-    WINDOW_KEYSYM_R = 0x0051,
+    WINDOW_KEYSYM_R = 0x0052,
 # define WINDOW_KEYSYM_R WINDOW_KEYSYM_R
 
-    WINDOW_KEYSYM_S = 0x0052,
+    WINDOW_KEYSYM_S = 0x0053,
 # define WINDOW_KEYSYM_S WINDOW_KEYSYM_S
 
-    WINDOW_KEYSYM_T = 0x0053,
+    WINDOW_KEYSYM_T = 0x0054,
 # define WINDOW_KEYSYM_T WINDOW_KEYSYM_T
 
-    WINDOW_KEYSYM_U = 0x0054,
+    WINDOW_KEYSYM_U = 0x0055,
 # define WINDOW_KEYSYM_U WINDOW_KEYSYM_U
 
-    WINDOW_KEYSYM_V = 0x0055,
+    WINDOW_KEYSYM_V = 0x0056,
 # define WINDOW_KEYSYM_V WINDOW_KEYSYM_V
 
-    WINDOW_KEYSYM_W = 0x0056,
+    WINDOW_KEYSYM_W = 0x0057,
 # define WINDOW_KEYSYM_W WINDOW_KEYSYM_W
 
-    WINDOW_KEYSYM_X = 0x0057,
+    WINDOW_KEYSYM_X = 0x0058,
 # define WINDOW_KEYSYM_X WINDOW_KEYSYM_X
 
-    WINDOW_KEYSYM_Y = 0x0058,
+    WINDOW_KEYSYM_Y = 0x0059,
 # define WINDOW_KEYSYM_Y WINDOW_KEYSYM_Y
 
-    WINDOW_KEYSYM_Z = 0x0059,
+    WINDOW_KEYSYM_Z = 0x005a,
 # define WINDOW_KEYSYM_Z WINDOW_KEYSYM_Z
 
-    WINDOW_KEYSYM_OPENBRACKET = 0x005a,
+    WINDOW_KEYSYM_OPENBRACKET = 0x005b,
 # define WINDOW_KEYSYM_OPENBRACKET WINDOW_KEYSYM_OPENBRACKET
 
-    WINDOW_KEYSYM_BACKSLASH = 0x005b,
+    WINDOW_KEYSYM_BACKSLASH = 0x005c,
 # define WINDOW_KEYSYM_BACKSLASH WINDOW_KEYSYM_BACKSLASH
 
-    WINDOW_KEYSYM_CLOSESLASH = 0x005c,
-# define WINDOW_KEYSYM_CLOSESLASH WINDOW_KEYSYM_CLOSESLASH
+    WINDOW_KEYSYM_CLOSEBRACKET = 0x005d,
+# define WINDOW_KEYSYM_CLOSEBRACKET WINDOW_KEYSYM_CLOSEBRACKET
 
-    WINDOW_KEYSYM_CARET = 0x005d,
+    WINDOW_KEYSYM_CARET = 0x005e,
 # define WINDOW_KEYSYM_CARET WINDOW_KEYSYM_CARET
 
-    WINDOW_KEYSYM_UNDERSCORE = 0x005e,
+    WINDOW_KEYSYM_UNDERSCORE = 0x005f,
 # define WINDOW_KEYSYM_UNDERSCORE WINDOW_KEYSYM_UNDERSCORE
 
-    WINDOW_KEYSYM_GRAVE = 0x005f,
+    WINDOW_KEYSYM_GRAVE = 0x0060,
 # define WINDOW_KEYSYM_GRAVE WINDOW_KEYSYM_GRAVE
 
-    /* 0x0061 - 0x007b: lowercase letters */
+    /* TODO:
+     *  Figure out better names for lowercase symbols
+     *  These looks off
+     * */
+
+    WINDOW_KEYSYM_LOWER_A = 0x0061,
+# define WINDOW_KEYSYM_LOWER_A WINDOW_KEYSYM_LOWER_A
+
+    WINDOW_KEYSYM_LOWER_B = 0x0062,
+# define WINDOW_KEYSYM_LOWER_B WINDOW_KEYSYM_LOWER_B
+
+    WINDOW_KEYSYM_LOWER_C = 0x0063,
+# define WINDOW_KEYSYM_LOWER_C WINDOW_KEYSYM_LOWER_C
+
+    WINDOW_KEYSYM_LOWER_D = 0x0064,
+# define WINDOW_KEYSYM_LOWER_D WINDOW_KEYSYM_LOWER_D
+
+    WINDOW_KEYSYM_LOWER_E = 0x0065,
+# define WINDOW_KEYSYM_LOWER_E WINDOW_KEYSYM_LOWER_E
+
+    WINDOW_KEYSYM_LOWER_F = 0x0066,
+# define WINDOW_KEYSYM_LOWER_F WINDOW_KEYSYM_LOWER_F
+
+    WINDOW_KEYSYM_LOWER_G = 0x0067,
+# define WINDOW_KEYSYM_LOWER_G WINDOW_KEYSYM_LOWER_G
+
+    WINDOW_KEYSYM_LOWER_H = 0x0068,
+# define WINDOW_KEYSYM_LOWER_H WINDOW_KEYSYM_LOWER_H
+
+    WINDOW_KEYSYM_LOWER_I = 0x0069,
+# define WINDOW_KEYSYM_LOWER_I WINDOW_KEYSYM_LOWER_I
+
+    WINDOW_KEYSYM_LOWER_J = 0x006a,
+# define WINDOW_KEYSYM_LOWER_J WINDOW_KEYSYM_LOWER_J
+    
+    WINDOW_KEYSYM_LOWER_K = 0x006b,
+# define WINDOW_KEYSYM_LOWER_L WINDOW_KEYSYM_LOWER_L
+
+    WINDOW_KEYSYM_LOWER_L = 0x006c,
+# define WINDOW_KEYSYM_LOWER_L WINDOW_KEYSYM_LOWER_L
+
+    WINDOW_KEYSYM_LOWER_M = 0x006d,
+# define WINDOW_KEYSYM_LOWER_M WINDOW_KEYSYM_LOWER_M
+
+    WINDOW_KEYSYM_LOWER_N = 0x006e,
+# define WINDOW_KEYSYM_LOWER_N WINDOW_KEYSYM_LOWER_N
+
+    WINDOW_KEYSYM_LOWER_O = 0x006f,
+# define WINDOW_KEYSYM_LOWER_O WINDOW_KEYSYM_LOWER_O
+
+    WINDOW_KEYSYM_LOWER_P = 0x0070,
+# define WINDOW_KEYSYM_LOWER_P WINDOW_KEYSYM_LOWER_P
+
+    WINDOW_KEYSYM_LOWER_Q = 0x0071,
+# define WINDOW_KEYSYM_LOWER_Q WINDOW_KEYSYM_LOWER_Q
+
+    WINDOW_KEYSYM_LOWER_R = 0x0072,
+# define WINDOW_KEYSYM_LOWER_R WINDOW_KEYSYM_LOWER_R
+
+    WINDOW_KEYSYM_LOWER_S = 0x0073,
+# define WINDOW_KEYSYM_LOWER_S WINDOW_KEYSYM_LOWER_S
+
+    WINDOW_KEYSYM_LOWER_T = 0x0074,
+# define WINDOW_KEYSYM_LOWER_T WINDOW_KEYSYM_LOWER_T
+
+    WINDOW_KEYSYM_LOWER_U = 0x0075,
+# define WINDOW_KEYSYM_LOWER_U WINDOW_KEYSYM_LOWER_U
+
+    WINDOW_KEYSYM_LOWER_V = 0x0076,
+# define WINDOW_KEYSYM_LOWER_V WINDOW_KEYSYM_LOWER_V
+
+    WINDOW_KEYSYM_LOWER_W = 0x0077,
+# define WINDOW_KEYSYM_LOWER_W WINDOW_KEYSYM_LOWER_W
+
+    WINDOW_KEYSYM_LOWER_X = 0x0078,
+# define WINDOW_KEYSYM_LOWER_X WINDOW_KEYSYM_LOWER_X
+
+    WINDOW_KEYSYM_LOWER_Y = 0x0079,
+# define WINDOW_KEYSYM_LOWER_Y WINDOW_KEYSYM_LOWER_Y
+
+    WINDOW_KEYSYM_LOWER_Z = 0x007a,
+# define WINDOW_KEYSYM_LOWER_Z WINDOW_KEYSYM_LOWER_Z
 
     WINDOW_KEYSYM_OPENCURLY = 0x007b,
 # define WINDOW_KEYSYM_OPENCURLY WINDOW_KEYSYM_OPENCURLY
@@ -1197,7 +1281,7 @@ enum {
 
 /* WINDOW_KEYMOD:
  *  Valid key modifiers (solo + combined)
- * */
+ * * * * * * * * * * * * * * * * * * * * */
 enum {
     WINDOW_KEYMOD_NONE = 0x0000,
 # define WINDOW_KEYMOD_NONE WINDOW_KEYMOD_NONE
@@ -4285,15 +4369,328 @@ PFN_XkbXlibControlsImplemented_PROC XkbXlibControlsImplemented_PROC = 0;
 #   define XkbXlibControlsImplemented (assert(XkbXlibControlsImplemented_PROC != 0), XkbXlibControlsImplemented_PROC)
 
 
-static const struct __window_h_keymap {
+/* keymap layouts base */
+struct __window_h_keymap {
     uint32_t src;
     uint32_t kc;
     uint32_t ks;
-} __window_h_keymap[] = {
+};
+
+/*
+ *  en-US QWERTY layout:
+ *      https://en.wikipedia.org/wiki/QWERTY
+ *
+ * * * * * * * * * * * * * * * * * * * * * * */
+static const struct __window_h_keymap __window_h_keymap_en_us_qwerty[] = {
+
+    /* '`' / '~' */ 
+    { XK_grave, WINDOW_KEYCODE_GRAVE, WINDOW_KEYSYM_GRAVE },
+    { XK_asciitilde, WINDOW_KEYCODE_GRAVE, WINDOW_KEYSYM_TILDE },
+
+    /* '1' / '!' */
+    { XK_1, WINDOW_KEYCODE_1, WINDOW_KEYSYM_1 },
+    { XK_exclam, WINDOW_KEYCODE_1, WINDOW_KEYSYM_EXCLAIM },
+
+    /* '2' / '@' */
+    { XK_2, WINDOW_KEYCODE_2, WINDOW_KEYSYM_2 },
+    { XK_at, WINDOW_KEYCODE_2, WINDOW_KEYSYM_AT },
+
+    /* '3' / '#' */
+    { XK_3, WINDOW_KEYCODE_3, WINDOW_KEYSYM_3 },
+    { XK_numbersign, WINDOW_KEYCODE_3, WINDOW_KEYSYM_HASH },
+
+    /* '4' / '$' */
+    { XK_4, WINDOW_KEYCODE_4, WINDOW_KEYSYM_4 },
+    { XK_dollar, WINDOW_KEYCODE_5, WINDOW_KEYSYM_DOLLAR },
+
+    /* '5' / '%' */
+    { XK_5, WINDOW_KEYCODE_5, WINDOW_KEYSYM_5 },
+    { XK_percent, WINDOW_KEYCODE_5, WINDOW_KEYSYM_PERCENT },
+
+    /* '6' / '^' */
+    { XK_6, WINDOW_KEYCODE_6, WINDOW_KEYSYM_6 },
+    { XK_asciicircum, WINDOW_KEYCODE_6, WINDOW_KEYSYM_CARET },
+
+    /* '7' / '&' */
+    { XK_7, WINDOW_KEYCODE_7, WINDOW_KEYSYM_7 },
+    { XK_ampersand, WINDOW_KEYCODE_7, WINDOW_KEYSYM_AMPERSAND },
+
+    /* '8' / '*' */
+    { XK_8, WINDOW_KEYCODE_8, WINDOW_KEYSYM_8 },
+    { XK_asterisk, WINDOW_KEYCODE_8, WINDOW_KEYSYM_ASTERISK },
+
+    /* '9' / '(' */
+    { XK_9, WINDOW_KEYCODE_9, WINDOW_KEYSYM_9 },
+    { XK_parenleft, WINDOW_KEYCODE_9, WINDOW_KEYSYM_OPENPAREN },
+
+    /* '0' / ')' */
+    { XK_0, WINDOW_KEYCODE_0, WINDOW_KEYSYM_0 },
+    { XK_parenright, WINDOW_KEYCODE_0, WINDOW_KEYSYM_CLOSEPAREN },
+
+    /* '-' / '_' */
+    { XK_minus, WINDOW_KEYCODE_MINUS, WINDOW_KEYSYM_MINUS },
+    { XK_underscore, WINDOW_KEYCODE_MINUS, WINDOW_KEYSYM_UNDERSCORE },
+
+    /* '=' / '+' */
+    { XK_equal, WINDOW_KEYCODE_EQUAL, WINDOW_KEYSYM_EQUAL },
+    { XK_plus, WINDOW_KEYCODE_EQUAL, WINDOW_KEYSYM_PLUS },
+
+    /* '\b' */
+    { XK_BackSpace, WINDOW_KEYCODE_BACKSPACE, WINDOW_KEYSYM_BACKSPACE },
+
+    /* '\t' */ 
+    { XK_Tab, WINDOW_KEYCODE_TAB, WINDOW_KEYSYM_TAB },
+
+    /* 'Q' / 'q' */
+    { XK_Q, WINDOW_KEYCODE_Q, WINDOW_KEYSYM_Q },
+    { XK_q, WINDOW_KEYCODE_Q, WINDOW_KEYSYM_LOWER_Q },
+
+    /* 'W' / 'w' */
+    { XK_W, WINDOW_KEYCODE_W, WINDOW_KEYSYM_W },
+    { XK_w, WINDOW_KEYCODE_W, WINDOW_KEYSYM_LOWER_W },
+
+    /* 'E' / 'e' */
+    { XK_E, WINDOW_KEYCODE_E, WINDOW_KEYSYM_E },
+    { XK_e, WINDOW_KEYCODE_E, WINDOW_KEYSYM_LOWER_E },
+
+    /* 'R' / 'r' */
+    { XK_R, WINDOW_KEYCODE_R, WINDOW_KEYSYM_R },
+    { XK_r, WINDOW_KEYCODE_R, WINDOW_KEYSYM_LOWER_R },
+
+    /* 'T' / 't' */
+    { XK_T, WINDOW_KEYCODE_T, WINDOW_KEYSYM_T },
+    { XK_t, WINDOW_KEYCODE_T, WINDOW_KEYSYM_LOWER_T },
+
+    /* 'Y' / 'y' */
+    { XK_Y, WINDOW_KEYCODE_Y, WINDOW_KEYSYM_Y },
+    { XK_y, WINDOW_KEYCODE_Y, WINDOW_KEYSYM_LOWER_Y },
+
+    /* 'U' / 'u' */
+    { XK_U, WINDOW_KEYCODE_U, WINDOW_KEYSYM_U },
+    { XK_u, WINDOW_KEYCODE_U, WINDOW_KEYSYM_LOWER_U },
+
+    /* 'I' / 'i' */
+    { XK_I, WINDOW_KEYCODE_I, WINDOW_KEYSYM_I },
+    { XK_i, WINDOW_KEYCODE_I, WINDOW_KEYSYM_LOWER_I },
+
+    /* 'O' / 'o' */
+    { XK_O, WINDOW_KEYCODE_O, WINDOW_KEYSYM_O },
+    { XK_o, WINDOW_KEYCODE_O, WINDOW_KEYSYM_LOWER_O },
+
+    /* 'P' / 'p' */
+    { XK_P, WINDOW_KEYCODE_P, WINDOW_KEYSYM_P },
+    { XK_p, WINDOW_KEYCODE_P, WINDOW_KEYSYM_LOWER_P },
+
+    /* '[' / '{' */
+    { XK_bracketleft, WINDOW_KEYCODE_OPENBRACKET, WINDOW_KEYSYM_OPENBRACKET },
+    { XK_braceleft, WINDOW_KEYCODE_OPENBRACKET, WINDOW_KEYSYM_OPENCURLY },
+
+    /* ']' / '}' */
+    { XK_bracketright, WINDOW_KEYCODE_CLOSEBRACKET, WINDOW_KEYSYM_CLOSEBRACKET },
+    { XK_braceright, WINDOW_KEYCODE_CLOSEBRACKET, WINDOW_KEYSYM_CLOSECURLY },
+
+    /* '\' / '|' */
+    { XK_backslash, WINDOW_KEYCODE_BACKSLASH, WINDOW_KEYSYM_BACKSLASH },
+    { XK_bar, WINDOW_KEYCODE_BACKSLASH, WINDOW_KEYSYM_PIPE },
+
+    /* Caps-Lock */ 
+    { XK_Caps_Lock, WINDOW_KEYCODE_CAPSLOCK, WINDOW_KEYSYM_CAPSLOCK },
+
+    /* 'A' / 'a' */
+    { XK_A, WINDOW_KEYCODE_A, WINDOW_KEYSYM_A },
+    { XK_a, WINDOW_KEYCODE_A, WINDOW_KEYSYM_LOWER_A },
+
+    /* 'S' / 's' */
+    { XK_S, WINDOW_KEYCODE_S, WINDOW_KEYSYM_S },
+    { XK_s, WINDOW_KEYCODE_S, WINDOW_KEYSYM_LOWER_S },
+
+    /* 'D' / 'd' */
+    { XK_D, WINDOW_KEYCODE_D, WINDOW_KEYSYM_D },
+    { XK_d, WINDOW_KEYCODE_D, WINDOW_KEYSYM_LOWER_D },
+
+    /* 'F' / 'f' */
+    { XK_F, WINDOW_KEYCODE_F, WINDOW_KEYSYM_F },
+    { XK_f, WINDOW_KEYCODE_F, WINDOW_KEYSYM_LOWER_F },
+
+    /* 'G' / 'g' */
+    { XK_G, WINDOW_KEYCODE_G, WINDOW_KEYSYM_G },
+    { XK_g, WINDOW_KEYCODE_G, WINDOW_KEYSYM_LOWER_G },
+
+    /* 'H' / 'h' */
+    { XK_H, WINDOW_KEYCODE_H, WINDOW_KEYSYM_H },
+    { XK_h, WINDOW_KEYCODE_H, WINDOW_KEYSYM_LOWER_H },
+
+    /* 'J' / 'j' */
+    { XK_J, WINDOW_KEYCODE_J, WINDOW_KEYSYM_J },
+    { XK_j, WINDOW_KEYCODE_J, WINDOW_KEYSYM_LOWER_J },
+
+    /* 'K' / 'k' */
+    { XK_K, WINDOW_KEYCODE_K, WINDOW_KEYSYM_K },
+    { XK_k, WINDOW_KEYCODE_K, WINDOW_KEYSYM_LOWER_K },
+
+    /* 'L' / 'l' */
+    { XK_L, WINDOW_KEYCODE_L, WINDOW_KEYSYM_L },
+    { XK_l, WINDOW_KEYCODE_L, WINDOW_KEYSYM_LOWER_L },
+
+    /* ';' / ':' */
+    { XK_semicolon, WINDOW_KEYCODE_SEMICOLON, WINDOW_KEYSYM_SEMICOLON },
+    { XK_colon, WINDOW_KEYCODE_SEMICOLON, WINDOW_KEYSYM_COLON },
+
+    /* '\'' / '\"' */
+    { XK_apostrophe, WINDOW_KEYCODE_QUOTE, WINDOW_KEYSYM_QUOTE },
+    { XK_quotedbl, WINDOW_KEYCODE_QUOTE, WINDOW_KEYSYM_DOUBLEQUOTE },
+
+    /* '\r' */
+    { XK_Return, WINDOW_KEYCODE_RETURN, WINDOW_KEYSYM_RETURN },
+
+    /* Left Shift*/ 
+    { XK_Shift_L, WINDOW_KEYCODE_LEFTSHIFT, WINDOW_KEYSYM_LEFTSHIFT },
+
+    /* 'Z' / 'z' */
+    { XK_Z, WINDOW_KEYCODE_Z, WINDOW_KEYSYM_Z },
+    { XK_z, WINDOW_KEYCODE_Z, WINDOW_KEYSYM_LOWER_Z },
+
+    /* 'X' / 'x' */
+    { XK_X, WINDOW_KEYCODE_X, WINDOW_KEYSYM_X },
+    { XK_x, WINDOW_KEYCODE_X, WINDOW_KEYSYM_LOWER_X },
+
+    /* 'C' / 'c' */
+    { XK_C, WINDOW_KEYCODE_C, WINDOW_KEYSYM_C },
+    { XK_c, WINDOW_KEYCODE_C, WINDOW_KEYSYM_LOWER_C },
+
+    /* 'V' / 'v' */
+    { XK_V, WINDOW_KEYCODE_V, WINDOW_KEYSYM_V },
+    { XK_v, WINDOW_KEYCODE_V, WINDOW_KEYSYM_LOWER_V },
+
+    /* 'B' / 'b' */
+    { XK_B, WINDOW_KEYCODE_B, WINDOW_KEYSYM_B },
+    { XK_b, WINDOW_KEYCODE_B, WINDOW_KEYSYM_LOWER_B },
+
+    /* 'N' / 'n' */
+    { XK_N, WINDOW_KEYCODE_N, WINDOW_KEYSYM_N },
+    { XK_n, WINDOW_KEYCODE_N, WINDOW_KEYSYM_LOWER_N },
+
+    /* 'M' / 'm' */
+    { XK_M, WINDOW_KEYCODE_M, WINDOW_KEYSYM_M },
+    { XK_m, WINDOW_KEYCODE_M, WINDOW_KEYSYM_LOWER_M },
+
+    /* ',' / '<' */
+    { XK_comma, WINDOW_KEYCODE_COMMA, WINDOW_KEYSYM_COMMA },
+    { XK_less, WINDOW_KEYCODE_COMMA, WINDOW_KEYSYM_LESS },
+
+    /* '.' / '>' */
+    { XK_period, WINDOW_KEYCODE_PERIOD, WINDOW_KEYSYM_PERIOD },
+    { XK_greater, WINDOW_KEYCODE_PERIOD, WINDOW_KEYSYM_GREATER },
+
+    /* '/' / '?' */
+    { XK_slash, WINDOW_KEYCODE_SLASH, WINDOW_KEYSYM_SLASH },
+    { XK_question, WINDOW_KEYCODE_SLASH, WINDOW_KEYSYM_QUESTION },
+
+    /* Right Shift */
+    { XK_Shift_R, WINDOW_KEYCODE_RIGHTCTRL, WINDOW_KEYSYM_RIGHTCTRL },
+
+    /* Left Control */
+    { XK_Control_L, WINDOW_KEYCODE_LEFTCTRL, WINDOW_KEYSYM_LEFTCTRL },
+
+    /* Left Home/GUI */
+    { XK_Super_L, WINDOW_KEYCODE_LEFTGUI, WINDOW_KEYSYM_LEFTGUI },
+
+    /* Left Alt */
+    { XK_Alt_L, WINDOW_KEYCODE_LEFTALT, WINDOW_KEYSYM_LEFTALT },
+
+    /* ' ' */
+    { XK_space, WINDOW_KEYCODE_SPACE, WINDOW_KEYSYM_SPACE },
+
+    /* Right Alt */
+    { XK_Alt_R, WINDOW_KEYCODE_RIGHTALT, WINDOW_KEYSYM_RIGHTALT },
+
+    /* Rigth Home/GUI */
+    { XK_Super_R, WINDOW_KEYCODE_RIGHTGUI, WINDOW_KEYSYM_RIGHTGUI },
+
+    /* Right Control */
+    { XK_Control_R, WINDOW_KEYCODE_RIGHTCTRL, WINDOW_KEYSYM_RIGHTCTRL },
+
+    /* Escape */ 
+    { XK_Escape, WINDOW_KEYCODE_ESCAPE, WINDOW_KEYSYM_ESCAPE },
+
+    /* F1 */ 
+    { XK_F1, WINDOW_KEYCODE_F1, WINDOW_KEYSYM_F1 },
+
+    /* F2 */ 
+    { XK_F2, WINDOW_KEYCODE_F2, WINDOW_KEYSYM_F2 },
+
+    /* F3 */ 
+    { XK_F3, WINDOW_KEYCODE_F3, WINDOW_KEYSYM_F3 },
+
+    /* F4 */ 
+    { XK_F4, WINDOW_KEYCODE_F4, WINDOW_KEYSYM_F4 },
+
+    /* F5 */ 
+    { XK_F5, WINDOW_KEYCODE_F5, WINDOW_KEYSYM_F5 },
+
+    /* F6 */ 
+    { XK_F6, WINDOW_KEYCODE_F6, WINDOW_KEYSYM_F6 },
+
+    /* F7 */ 
+    { XK_F7, WINDOW_KEYCODE_F7, WINDOW_KEYSYM_F7 },
+
+    /* F8 */ 
+    { XK_F8, WINDOW_KEYCODE_F8, WINDOW_KEYSYM_F8 },
+
+    /* F9 */ 
+    { XK_F9, WINDOW_KEYCODE_F9, WINDOW_KEYSYM_F9 },
+
+    /* F10 */ 
+    { XK_F10, WINDOW_KEYCODE_F10, WINDOW_KEYSYM_F10 },
+
+    /* F11 */ 
+    { XK_F11, WINDOW_KEYCODE_F11, WINDOW_KEYSYM_F11 },
+
+    /* F12 */ 
+    { XK_F12, WINDOW_KEYCODE_F12, WINDOW_KEYSYM_F12 },
+
+    /* Print-Screen */ 
+    { XK_Print, WINDOW_KEYCODE_PRINTSCREEN, WINDOW_KEYSYM_PRINTSCREEN },
+
+    /* Scroll-Lock */ 
+    { XK_Scroll_Lock, WINDOW_KEYCODE_SCROLLLOCK, WINDOW_KEYSYM_SCROLLLOCK },
+
+    /* Pause */ 
+    { XK_Pause, WINDOW_KEYCODE_PAUSE, WINDOW_KEYSYM_PAUSE },
+
+    /* Insert */ 
+    { XK_Insert, WINDOW_KEYCODE_INSERT, WINDOW_KEYSYM_INSERT },
+
+    /* Home */ 
+    { XK_Home, WINDOW_KEYCODE_HOME, WINDOW_KEYSYM_HOME },
+
+    /* Page-Up */ 
+    { XK_Prior, WINDOW_KEYCODE_PAGEUP, WINDOW_KEYSYM_PAGEUP },
+
+    /* Delete */ 
+    { XK_Delete, WINDOW_KEYCODE_DELETE, WINDOW_KEYSYM_DELETE },
+
+    /* End */ 
+    { XK_End, WINDOW_KEYCODE_END, WINDOW_KEYSYM_END },
+
+    /* Page-Down */ 
+    { XK_Next, WINDOW_KEYCODE_PAGEDOWN, WINDOW_KEYSYM_PAGEDOWN },
+
+    /* Up */ 
+    { XK_Up, WINDOW_KEYCODE_UP, WINDOW_KEYSYM_UP },
+
+    /* Left */ 
+    { XK_Left, WINDOW_KEYCODE_LEFT, WINDOW_KEYSYM_LEFT },
+
+    /* Down */ 
+    { XK_Down, WINDOW_KEYCODE_DOWN, WINDOW_KEYSYM_DOWN },
+
+    /* Right */ 
+    { XK_Right, WINDOW_KEYCODE_RIGHT, WINDOW_KEYSYM_RIGHT },
 
     /* ... */
 
-    { 0, WINDOW_KEYCODE_NONE, WINDOW_KEYSYM_NONE }
+    { 0, 0, 0 } 
 };
 
 
@@ -7501,8 +7898,28 @@ WININT int __winPollEvents(void) {
                     
                 __winGetWindowFromIDX11((window_t *) &window, xkey.window);
                 which = 0; /* TODO: get the keyboard ID */
-                keysym = keycode = keymod = 0;
-                keyraw = xkey.keycode;
+
+                /* get the X11's keysym */
+                keyraw = XkbKeycodeToKeysym(dpy, xkey.keycode, 0, xkey.state & ShiftMask ? 1 : 0);
+
+                /* Iterate over the keymap to find the matching mapping.
+                 * As of now we're only processing en-US QWERTY keymap with latin symbols.
+                 * Other keyboard layout's might not work. However, there're some foudnations
+                 * to implement layout switching which *might* make it available to layout-switch!
+                 * */
+                keycode = keysym = 0;
+                for (size_t i = 0; __window_h_keymap_en_us_qwerty[i].src; i++) {
+                    if (keyraw == __window_h_keymap_en_us_qwerty[i].src) {
+                        keycode = __window_h_keymap_en_us_qwerty[i].kc;
+                        keysym  = __window_h_keymap_en_us_qwerty[i].ks;
+                        break;
+                    }
+                }
+
+                /* if either 'keycode' or 'keysym' are '0', it's an obvious fail */
+                if (!keycode || !keysym) { break; }
+
+                keymod = 0;
                 state  = xkey.type == KeyPress ? 1 : 0;
                 repeat = 0;
                 __winSendEvent(WINDOW_EVENT_KEYBOARD_KEY, window, which, keysym, keycode, keymod, keyraw, state, repeat);
