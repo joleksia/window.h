@@ -7919,9 +7919,21 @@ WININT int __winPollEvents(void) {
                 /* if either 'keycode' or 'keysym' are '0', it's an obvious fail */
                 if (!keycode || !keysym) { break; }
 
+                /* get the keyboard modes mask */
                 keymod = 0;
+                if (xkey.state & ShiftMask)   { keymod |= WINDOW_KEYMOD_SHIFT; }
+                if (xkey.state & ControlMask) { keymod |= WINDOW_KEYMOD_CTRL; }
+                if (xkey.state & Mod1Mask)    { keymod |= WINDOW_KEYMOD_ALT; }
+                if (xkey.state & Mod2Mask)    { keymod |= WINDOW_KEYMOD_NUMLOCK; }
+                if (xkey.state & Mod4Mask)    { keymod |= WINDOW_KEYMOD_GUI; }
+                if (xkey.state & LockMask)    { keymod |= WINDOW_KEYMOD_CAPSLOCK; }
+
+                /* get keyboard press/release state */
                 state  = xkey.type == KeyPress ? 1 : 0;
+
+                /* TODO */
                 repeat = 0;
+
                 __winSendEvent(WINDOW_EVENT_KEYBOARD_KEY, window, which, keysym, keycode, keymod, keyraw, state, repeat);
             } break;
 

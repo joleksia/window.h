@@ -53,7 +53,7 @@ int main(void) {
             }
 
             else if (event.type == WINDOW_EVENT_KEYBOARD_KEY) {
-                printf("%d %d\n", event.keyboard.keycode, event.keyboard.keysym);
+                printf("%d %d %b\n", event.keyboard.keycode, event.keyboard.keysym, event.keyboard.keymod);
             }
         }
     }
