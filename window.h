@@ -6994,18 +6994,20 @@ WINDEF int winCreateContext(context_t *context, window_t window) {
 
 WINDEF int winDestroyContext(context_t context) {
     /* null-check */
-    if (!__window_h.x11) { return (0); }
-    if (!__window_h.egl) { return (0); }
-    if (!context)        { return (0); }
+    if (!context) { return (0); }
 
     /* references */
     struct __window_h_context *ctx = (struct __window_h_context *) context;
 
 #   if defined (WINDOW_API_NONE)
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
     if (ctx->x11) {
         if (!__winDestroyContextX11(context)) { return (0); }
     }
 #   elif defined (WINDOW_API_OPENGL)
+    /* null-check */
+    if (!__window_h.egl) { return (0); }
     if (ctx->egl) {
         if (!__winDestroyContextEGL(context)) { return (0); }
     }

@@ -51,10 +51,6 @@ int main(void) {
             if (event.type == WINDOW_EVENT_QUIT) {
                 exit = 1;
             }
-
-            else if (event.type == WINDOW_EVENT_KEYBOARD_KEY) {
-                printf("%d %d %b\n", event.keyboard.keycode, event.keyboard.keysym, event.keyboard.keymod);
-            }
         }
     }
 
