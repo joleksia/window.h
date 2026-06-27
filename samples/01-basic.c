@@ -41,6 +41,9 @@ int main(void) {
 
     int exit = 0;
     while (!exit) {
+        /* update */
+        winSetMousePosition(window, 100, 100);
+        
         /* render */
         winDrawBuffer(context);
 
@@ -50,6 +53,12 @@ int main(void) {
             /* handle exit */
             if (event.type == WINDOW_EVENT_QUIT) {
                 exit = 1;
+            }
+
+            if (event.type == WINDOW_EVENT_KEYBOARD_KEY) {
+                if (event.keyboard.keycode == WINDOW_KEYCODE_ESCAPE) {
+                    exit = 1;
+                }
             }
         }
     }

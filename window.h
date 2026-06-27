@@ -1785,6 +1785,12 @@ WINDEF int winPeekEvent(t_event *);
 
 WINDEF int winFlushEvents(void);
 
+/* mouse pointer functions */
+
+WINDEF int winSetMousePosition(window_t, const size_t, const size_t);
+
+WINDEF int winSetMousePositionCenter(window_t);
+
 /* clipboard functions */
 
 WINDEF int winCopyClipboard(const char *);
@@ -5526,8 +5532,7 @@ WININT Window __winCreateIPCWindowX11(void) {
                           __window_h.x11->xlib.root,
                           0, 0, 1, 1, 0, 0,
                           InputOnly,
-                          DefaultVisual(__window_h.x11->xlib.dpy,
-                                        __window_h.x11->xlib.root),
+                          CopyFromParent,
                           CWEventMask,
                           &attr));
 }
@@ -7270,7 +7275,7 @@ WINDEF int winWaitEvents(t_event *event) {
 
 WINDEF int winPushEvent(t_event *event) {
     /* null-check */
-    if (!event)  { return (0); }
+    if (!event) { return (0); }
     
     /* empty linked-list */
     if (!__window_h.event_queue) {
@@ -7350,6 +7355,38 @@ WINDEF int winFlushEvents(void) {
     
     /* flush */
     if (!XFlush(__window_h.x11->xlib.dpy)) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+/* mouse pointer functions */
+
+WINDEF int winSetMousePosition(window_t window, const size_t x, const size_t y) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    if (!XWarpPointer(win->x11->xlib.dpy, None,
+                      win->x11->xlib.client,
+                      0, 0, 0, 0,
+                      x, y)) { return (0); }
+    XFlush(win->x11->xlib.dpy);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetMousePositionCenter(window_t window) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    size_t w, h;
+    winGetWindowSize(window, &w, &h);
+    winSetMousePosition(window, w / 2.0, h / 2.0);
 
     /* success */
     return (1);
