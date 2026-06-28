@@ -1020,29 +1020,25 @@ struct __window_h_window {
 
     /* reference to this window's cursor */
     struct __window_h_cursor *cursor;
-    
+
     /* structure data */
     size_t siz_w, siz_h;
     size_t pos_x, pos_y;
 
-    /* config flag data */
-    uint32_t flags;
-
-    /* cursor states */
-    uint32_t cursor_mode;
-
-    /* mapping boolean */
-    uint8_t mapped;
-
     /* window states */
+    uint32_t flags;
+    uint8_t mapped;
     uint8_t fullscreen;
     uint8_t minimized;
     uint8_t maximized;
 
     /* cursor states */
-    uint8_t cursor_motion_raw;   /* 0 - raw motion disabled
-                                  * 1 - raw motion enabled
-                                  * */
+    size_t cursor_restore_position_x,
+           cursor_restore_position_y;
+    uint32_t cursor_mode;
+    uint8_t  cursor_motion_raw;   /* 0 - raw motion disabled
+                                   * 1 - raw motion enabled
+                                   * */
 
     /* platform-specific */
 
@@ -1094,15 +1090,23 @@ static struct __window_h  {
 
     /* platform-independent */
 
+    /* linked list of windows */
     struct __window_h_window *window_list;
 
+    /* linked list of cursors  */
     struct __window_h_cursor *cursor_list;
 
+    /* linked list of contexts */
     struct __window_h_context *context_list;
 
+    /* linked list of events */
     struct __window_h_eventQueue *event_queue;
 
+    /* selections */
     struct __window_h_selection selection;
+    
+    /* hidden cursor handle */
+    cursor_t cursor_hidden;
 
     /* platform-specific */
 
@@ -4324,12 +4328,6 @@ struct __window_h_x11 {
     /* handles */
     void *libX11;
     void *libXi;
-
-    /* cursor */
-    cursor_t cursor_hidden;
-    window_t cursor_disabled_window;
-    size_t cursor_restore_position_x,
-           cursor_restore_position_y;
 };
 
 
@@ -6073,7 +6071,7 @@ WINDEF int winInit(void) {
 #   endif /* WINDOW_API_OPENGL */
 
     /* create blank cursor for 'DISABLED' or 'HIDDEN' mode  */
-    winCreateCursor(&__window_h.x11->cursor_hidden, 0);
+    winCreateCursor(&__window_h.cursor_hidden, 0);
 
     /* success */
     return (1);
@@ -7266,7 +7264,7 @@ WINDEF int winSetCursorMode(window_t window, const uint32_t mode) {
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
     struct __window_h_cursor *cur = (struct __window_h_cursor *) win->cursor;
-    struct __window_h_cursor *hcr = (struct __window_h_cursor *) __window_h.x11->cursor_hidden;
+    struct __window_h_cursor *hcr = (struct __window_h_cursor *) __window_h.cursor_hidden;
 	
     /* xlib references */
 	Display *dpy   = win->x11->xlib.dpy;
@@ -7292,14 +7290,8 @@ WINDEF int winSetCursorMode(window_t window, const uint32_t mode) {
     }
 
     /* cursor raw mode */
-    if (mode == WINDOW_CURSOR_MODE_DISABLED ||
-        mode == WINDOW_CURSOR_MODE_LOCKED
-    ) {
-        winSetCursorRawMotion(window, 1);
-    }
-    else {
-        winSetCursorRawMotion(window, 0);
-    }
+    winSetCursorRawMotion(window, (WINDOW_CURSOR_MODE_DISABLED ||
+                                   WINDOW_CURSOR_MODE_LOCKED));
 
     /* cursor visibility */
     if (win->cursor_mode == WINDOW_CURSOR_MODE_DISABLED ||
@@ -7349,12 +7341,21 @@ WINDEF int winSetCursorRawMotion(window_t window, const uint8_t state) {
     struct __window_h_window *win = (struct __window_h_window *) window;
 
     /* enable raw motion */
+    XIEventMask em;
+    unsigned char mask[XIMaskLen(XI_RawMotion)] = { 0 };
     if (state) {
-        /* ... */
+        em.deviceid = XIAllMasterDevices;
+        em.mask_len = sizeof(mask);
+        em.mask = mask;
+        XISetMask(mask, XI_RawMotion);
     }
     else {
-        /* ... */
+        em.deviceid = XIAllMasterDevices;
+        em.mask_len = sizeof(mask);
+        em.mask = mask;
     }
+    XISelectEvents(__window_h.x11->xlib.dpy,
+                   __window_h.x11->xlib.root, &em, 1);
     
     /* set the 'win->cursor_motion_raw' member */
     win->cursor_motion_raw = state;
@@ -7882,34 +7883,60 @@ WININT int __winPollEvents(void) {
                 __winSendEvent(WINDOW_EVENT_WINDOW_LEAVE, window, 0, 0); 
             } break;
 
+            case (GenericEvent): {
+                /* get the specific event */
+                XGenericEvent xgeneric = xevent.xgeneric;
+
+                /* get window falling for this event */
+                window_t window = 0;
+                for (struct __window_h_window *node = __window_h.window_list; node; node = node->next) {
+                    if (node->cursor_mode == WINDOW_CURSOR_MODE_DISABLED ||
+                        node->cursor_mode == WINDOW_CURSOR_MODE_LOCKED
+                    ) {
+                        window = node;
+                    }
+                }
+                if (!window) { break; }
+
+                /* get 'xcookie' event (for XI2 inputs) */
+                XGetEventData(xgeneric.display,
+                              &xevent.xcookie);
+                if (xevent.xcookie.evtype == XI_RawMotion) {
+                    XIRawEvent *raw = (XIRawEvent *) xevent.xcookie.data;
+                    if (raw->valuators.mask_len != 0) {
+                        double dx = 0.0,
+                               dy = 0.0;
+
+                        /* check if relative motion data exists where we think it does */
+                        if (XIMaskIsSet(raw->valuators.mask, 0)) { dx += raw->raw_values[0]; }
+                        if (XIMaskIsSet(raw->valuators.mask, 1)) { dx += raw->raw_values[1]; }
+                        (void) dx;
+                        (void) dy;
+                        /* move the cursor to the center of the screen */
+                        winSetCursorPositionCenter(window);
+                    }
+                }
+                XFreeEventData(xgeneric.display,
+                               &xevent.xcookie);
+            } break;
+
             case (MotionNotify): {
                 /* get the specific event */
                 XMotionEvent xmotion = xevent.xmotion;
 
-                /* WINDOW_EVENT_MOUSE_ members layout */
+                /* get the window of this event */
                 struct __window_h_window *window;
-                uint64_t which;
-                
-                /* WINDOW_EVENT_MOUSE_MOTION members layout */
-                int32_t x, xrel;
-                int32_t y, yrel;
-
-                which = 0; /* TODO: get the mouse ID */
                 __winGetWindowFromIDX11((window_t *) &window, xmotion.window);
                 if (!window) { break; }
-
-                /* get motion values */
-                x = xmotion.x, y = xmotion.y;
-                xrel = xmotion.x_root, yrel = xmotion.y_root;
-
-                /* custom behaviour for 'DISABLED' and 'LOCKED' windows */
-                if (window->cursor_mode == WINDOW_CURSOR_MODE_DISABLED ||
-                    window->cursor_mode == WINDOW_CURSOR_MODE_LOCKED
-                ) {
-                    
-                }
-
-                __winSendEvent(WINDOW_EVENT_MOUSE_MOTION, window, which, x, xrel, y, yrel);
+                
+                /* break if 'cursor_motion_raw' is true */
+                if (window->cursor_motion_raw) { break; }
+                
+                uint32_t x = xmotion.x,
+                         y = xmotion.y;
+                uint32_t xrel = xmotion.x_root,
+                         yrel = xmotion.y_root;
+                __winSendEvent(WINDOW_EVENT_MOUSE_MOTION, window, 0, x, xrel, y, yrel);
             } break;
 
             case (ButtonPress):
