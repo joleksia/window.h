@@ -905,7 +905,7 @@ WINDEF void *winGLGetProcAddress(const char *);
 
 /* cursor functions */
 
-WINDEF int winCreateCursor(cursor_t *, window_t, int, int);
+WINDEF int winCreateCursor(cursor_t *, window_t);
 
 WINDEF int winDestroyCursor(cursor_t);
 
@@ -915,7 +915,13 @@ WINDEF int winSetCursorPosition(window_t, const size_t, const size_t);
 
 WINDEF int winSetCursorPositionCenter(window_t);
 
+WINDEF int winGetCursorMode(window_t, uint32_t *);
+
 WINDEF int winSetCursorMode(window_t, const uint32_t);
+
+WINDEF int winGetCursorRawMotion(window_t, uint8_t *);
+
+WINDEF int winSetCursorRawMotion(window_t, const uint8_t);
 
 /* event functions */
 
@@ -1032,6 +1038,11 @@ struct __window_h_window {
     uint8_t fullscreen;
     uint8_t minimized;
     uint8_t maximized;
+
+    /* cursor states */
+    uint8_t cursor_motion_raw;   /* 0 - raw motion disabled
+                                  * 1 - raw motion enabled
+                                  * */
 
     /* platform-specific */
 
@@ -5595,7 +5606,7 @@ WINDEF int winInit(void) {
 #   endif /* WINDOW_API_OPENGL */
 
     /* create blank cursor for 'DISABLED' or 'HIDDEN' mode  */
-    winCreateCursor(&__window_h.x11->cursor_hidden, 0, 0, 0);
+    winCreateCursor(&__window_h.x11->cursor_hidden, 0);
 
     /* success */
     return (1);
@@ -6635,7 +6646,7 @@ WINDEF void *winGLGetProcAddress(const char *proc) {
 
 /* cursor functions */
 
-WINDEF int winCreateCursor(cursor_t *cursor, window_t window, int xhot, int yhot) {
+WINDEF int winCreateCursor(cursor_t *cursor, window_t window) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
@@ -6643,9 +6654,6 @@ WINDEF int winCreateCursor(cursor_t *cursor, window_t window, int xhot, int yhot
     struct __window_h_cursor *result = calloc(1, sizeof(struct __window_h_cursor));
     if (!result) { return (0); }
 
-    /* process 'result' cursor object */
-    (void) xhot;
-    (void) yhot;
     /* blank cursor */
     if (1) {
         if (!__winCreateCursorBlankX11(result)) {
@@ -6769,6 +6777,21 @@ WINDEF int winSetCursorPositionCenter(window_t window) {
 }
 
 
+WINDEF int winGetCursorMode(window_t window, uint32_t *m_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    
+    /* return values */
+    if (m_ptr) { *m_ptr = win->cursor_mode; }
+
+    /* success */
+    return (1);
+}
+
+
 WINDEF int winSetCursorMode(window_t window, const uint32_t mode) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
@@ -6781,25 +6804,34 @@ WINDEF int winSetCursorMode(window_t window, const uint32_t mode) {
     /* xlib references */
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
-    
+   
+    /* store the cursor mode */
     win->cursor_mode = mode;
-    /* ... */
 
     /* cursor confinement */
-    if (winWindowFocused(window)) {
-        if (mode == WINDOW_CURSOR_MODE_DISABLED ||
-            mode == WINDOW_CURSOR_MODE_CAPTURED ||
-            mode == WINDOW_CURSOR_MODE_LOCKED
-        ) {
-            XGrabPointer(dpy, client, True,
-                         ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
-                         GrabModeAsync, GrabModeAsync,
-                         client, None,
-                         CurrentTime);
-        }
-        else {
-            XUngrabPointer(dpy, CurrentTime);
-        }
+    if (mode == WINDOW_CURSOR_MODE_DISABLED ||
+        mode == WINDOW_CURSOR_MODE_CAPTURED ||
+        mode == WINDOW_CURSOR_MODE_LOCKED
+    ) {
+        XGrabPointer(dpy, client, True,
+                     ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                     GrabModeAsync, GrabModeAsync,
+                     client, None,
+                     CurrentTime);
+
+    }
+    else {
+        XUngrabPointer(dpy, CurrentTime);
+    }
+
+    /* cursor raw mode */
+    if (mode == WINDOW_CURSOR_MODE_DISABLED ||
+        mode == WINDOW_CURSOR_MODE_LOCKED
+    ) {
+        winSetCursorRawMotion(window, 1);
+    }
+    else {
+        winSetCursorRawMotion(window, 0);
     }
 
     /* cursor visibility */
@@ -6821,6 +6853,44 @@ WINDEF int winSetCursorMode(window_t window, const uint32_t mode) {
                             win->x11->xlib.client);
         }
     }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winGetCursorRawMotion(window_t window, uint8_t *r_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    
+    /* return values */
+    if (r_ptr) { *r_ptr = win->cursor_motion_raw; }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetCursorRawMotion(window_t window, const uint8_t state) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* enable raw motion */
+    if (state) {
+        /* ... */
+    }
+    else {
+        /* ... */
+    }
+    
+    /* set the 'win->cursor_motion_raw' member */
+    win->cursor_motion_raw = state;
 
     /* success */
     return (1);
@@ -7364,10 +7434,12 @@ WININT int __winPollEvents(void) {
                 /* get motion values */
                 x = xmotion.x, y = xmotion.y;
                 xrel = xmotion.x_root, yrel = xmotion.y_root;
+
+                /* custom behaviour for 'DISABLED' and 'LOCKED' windows */
                 if (window->cursor_mode == WINDOW_CURSOR_MODE_DISABLED ||
                     window->cursor_mode == WINDOW_CURSOR_MODE_LOCKED
                 ) {
-                    /* ... */
+                    
                 }
 
                 __winSendEvent(WINDOW_EVENT_MOUSE_MOTION, window, which, x, xrel, y, yrel);
