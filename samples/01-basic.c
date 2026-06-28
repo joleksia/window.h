@@ -11,6 +11,7 @@ int main(void) {
     window_t window = 0;
     winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
     winMapWindow(window);
+    winSetCursorMode(window, WINDOW_CURSOR_MODE_DISABLED);
     
     /* create graphics context */
     context_t context = 0;
@@ -42,7 +43,6 @@ int main(void) {
     int exit = 0;
     while (!exit) {
         /* update */
-        winSetCursorMode(window, WINDOW_CURSOR_MODE_DISABLED);
         
         /* render */
         winDrawBuffer(context);
@@ -53,11 +53,22 @@ int main(void) {
             /* handle exit */
             if (event.type == WINDOW_EVENT_QUIT) {
                 exit = 1;
+                break;
             }
 
             if (event.type == WINDOW_EVENT_KEYBOARD_KEY) {
                 if (event.keyboard.keycode == WINDOW_KEYCODE_ESCAPE) {
                     exit = 1;
+                    break;
+                }
+                else if (event.keyboard.keysym == '1') {
+                    winSetCursorMode(window, WINDOW_CURSOR_MODE_DISABLED);
+                }
+                else if (event.keyboard.keysym == '2') {
+                    winSetCursorMode(window, WINDOW_CURSOR_MODE_LOCKED);
+                }
+                else if (event.keyboard.keysym == '3') {
+                    winSetCursorMode(window, WINDOW_CURSOR_MODE_NORMAL);
                 }
             }
         }

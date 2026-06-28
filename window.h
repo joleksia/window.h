@@ -572,6 +572,7 @@ enum {
     WINDOW_CURSOR_MODE_NORMAL = 0,
     WINDOW_CURSOR_MODE_HIDDEN,
     WINDOW_CURSOR_MODE_CAPTURED,
+    WINDOW_CURSOR_MODE_LOCKED,
     WINDOW_CURSOR_MODE_DISABLED,
 };
 
@@ -1021,6 +1022,9 @@ struct __window_h_window {
     /* config flag data */
     uint32_t flags;
 
+    /* cursor states */
+    uint32_t cursor_mode;
+
     /* mapping boolean */
     uint8_t mapped;
 
@@ -1028,14 +1032,6 @@ struct __window_h_window {
     uint8_t fullscreen;
     uint8_t minimized;
     uint8_t maximized;
-
-    /* cursor states */
-    size_t cursor_virtual_position_x,
-           cursor_virtual_position_y;
-    uint32_t cursor_mode;
-
-    /* boolean for if raw mouse motion is enabled/disabled */
-    uint8_t mouse_motion_raw;
 
     /* platform-specific */
 
@@ -3961,6 +3957,7 @@ struct __window_h_x11 {
     void *handle;
 
     /* cursor */
+    cursor_t cursor_hidden;
     window_t cursor_disabled_window;
     size_t cursor_restore_position_x,
            cursor_restore_position_y;
@@ -5542,29 +5539,29 @@ WININT int __winUnloadWGL(void) {
 
 WININT int __winCreateWindowX11(window_t, Display *, Window, Window, const size_t, const size_t);
 
-WININT int __winCreateCursorX11(cursor_t, window_t, int, int);
+WININT int __winSendClientEventX11(window_t, Atom, Atom, Atom);
 
-WININT int __winCreateContextX11(context_t);
-
-WININT int __winDestroyContextX11(context_t);
+WININT int __winGetWindowFromIDX11(window_t *, XID);
 
 WININT int __winUpdateWindowFlagsX11(window_t);
-
-WININT int __winUpdateCursorImage(window_t);
-
-WININT int __winSendClientEventX11(window_t, Atom, Atom, Atom);
 
 WININT int __winPollEvents(void);
 
 WININT int __winSendEvent(uint32_t, ...);
-
-WININT int __winGetWindowFromIDX11(window_t *, XID);
 
 WININT int __winHandleSelectionX11(XEvent *);
 
 WININT int __winSetSelectionStringX11(const char *, const Atom);
 
 WININT int __winGetSelectionStringX11(char **, const Atom);
+
+WININT int __winCreateCursorX11(cursor_t, window_t, int, int);
+
+WININT int __winCreateCursorBlankX11(cursor_t);
+
+WININT int __winCreateContextX11(context_t);
+
+WININT int __winDestroyContextX11(context_t);
 
 /* platform functions */
 
@@ -5596,6 +5593,9 @@ WINDEF int winInit(void) {
     if (!eglBindAPI(EGL_OPENGL_API))  { return (0); }
 #    endif /* WINDOW_BACKEND_GL_EGL */
 #   endif /* WINDOW_API_OPENGL */
+
+    /* create blank cursor for 'DISABLED' or 'HIDDEN' mode  */
+    winCreateCursor(&__window_h.x11->cursor_hidden, 0, 0, 0);
 
     /* success */
     return (1);
@@ -6644,8 +6644,18 @@ WINDEF int winCreateCursor(cursor_t *cursor, window_t window, int xhot, int yhot
     if (!result) { return (0); }
 
     /* process 'result' cursor object */
-    if (!__winCreateCursorX11(result, window, xhot, yhot)) {
-        return (0);
+    (void) xhot;
+    (void) yhot;
+    /* blank cursor */
+    if (1) {
+        if (!__winCreateCursorBlankX11(result)) {
+            return (0);
+        }
+    }
+    /* visible cursor */
+    else {
+        (void) window;
+        /* ... */
     }
 
     /* add the result to the '__window_h.cursor_list' linked list */
@@ -6765,24 +6775,21 @@ WINDEF int winSetCursorMode(window_t window, const uint32_t mode) {
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
+    struct __window_h_cursor *cur = (struct __window_h_cursor *) win->cursor;
+    struct __window_h_cursor *hcr = (struct __window_h_cursor *) __window_h.x11->cursor_hidden;
 	
     /* xlib references */
 	Display *dpy   = win->x11->xlib.dpy;
     Window  client = win->x11->xlib.client;
-
-    /* process cursor modes */
+    
     win->cursor_mode = mode;
+    /* ... */
+
+    /* cursor confinement */
     if (winWindowFocused(window)) {
-        if (mode == WINDOW_CURSOR_MODE_DISABLED) {
-            /* save the current cursor position  */
-            winGetCursorPosition(window, &__window_h.x11->cursor_restore_position_x,
-                                         &__window_h.x11->cursor_restore_position_y);
-
-            winSetCursorPositionCenter(window);
-        }
-
         if (mode == WINDOW_CURSOR_MODE_DISABLED ||
-            mode == WINDOW_CURSOR_MODE_CAPTURED
+            mode == WINDOW_CURSOR_MODE_CAPTURED ||
+            mode == WINDOW_CURSOR_MODE_LOCKED
         ) {
             XGrabPointer(dpy, client, True,
                          ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
@@ -6793,20 +6800,27 @@ WINDEF int winSetCursorMode(window_t window, const uint32_t mode) {
         else {
             XUngrabPointer(dpy, CurrentTime);
         }
-
-        if (mode == WINDOW_CURSOR_MODE_DISABLED) {
-            __window_h.x11->cursor_disabled_window = window;
-        }
-        else {
-            __window_h.x11->cursor_disabled_window = 0;
-            winSetCursorPosition(window,
-                                 __window_h.x11->cursor_restore_position_x,
-                                 __window_h.x11->cursor_restore_position_y);
-        }
     }
 
-    __winUpdateCursorImage(window);
-    winFlushEvents();
+    /* cursor visibility */
+    if (win->cursor_mode == WINDOW_CURSOR_MODE_DISABLED ||
+        win->cursor_mode == WINDOW_CURSOR_MODE_HIDDEN
+    ) {
+        XDefineCursor(win->x11->xlib.dpy,
+                      win->x11->xlib.client,
+                      hcr->x11->xlib.handle);
+    }
+    else {
+        if (cur) {
+            XDefineCursor(win->x11->xlib.dpy,
+                          win->x11->xlib.client,
+                          cur->x11->xlib.handle);
+        }
+        else {
+            XUndefineCursor(win->x11->xlib.dpy,
+                            win->x11->xlib.client);
+        }
+    }
 
     /* success */
     return (1);
@@ -7073,111 +7087,26 @@ WININT int __winCreateWindowX11(window_t window, Display *dpy, Window root, Wind
 }
 
 
-WININT int __winCreateCursorX11(cursor_t cursor, window_t window, int xhot, int yhot) {
+
+
+
+WININT int __winGetWindowFromIDX11(window_t *win, XID id) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
-    if (!cursor)         { return (0); }
- 
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-    struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
-	
-    /* xlib references */
-	Display *dpy = win->x11->xlib.dpy;
-
-    /* alloc platform object */
-    cur->x11 = calloc(1, sizeof(struct __window_h_cursor_x11));
-    if (!cur->x11) { return (0); }
-
-    (void) xhot;
-    (void) yhot;
-    /* ... */
-
-    /* set 'cur->x11->xlib' members */
-    cur->x11->xlib.dpy = dpy;
-    cur->x11->xlib.handle = 0;
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winCreateContextX11(context_t context) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    if (!context)        { return (0); }
-
-    /* references */
-    struct __window_h_context *ctx = (struct __window_h_context *) context;
-    struct __window_h_window  *win = (struct __window_h_window *) ctx->owner;
     
-    ctx->x11 = calloc(1, sizeof(struct __window_h_context_x11));
-    if (!ctx->x11) { return (0); }
+    /* iterate over the list of windows */
+    *win = 0;
+    for (struct __window_h_window *node = __window_h.window_list; node; node = node->next) {
+        if (node->x11->xlib.client == id) {
+            *win = node;
+            break;
+        }
+    }
 
-    /* x11 references */
-    Display   *dpy = __window_h.x11->xlib.dpy;
-    Window  client = win->x11->xlib.client;
-    Visual *visual = win->x11->xlib.visual;
-    int      depth = win->x11->depth;
-
-    /* create graphics context */
-    XGCValues gcv = { 0 };
-    uint64_t  gcm = 0;
-
-    GC gc = XCreateGC(dpy, client, gcm, &gcv);
-    if (!gc) { return (0); }
-
-    /* get the size of the window */
-    size_t siz_w = 0,
-           siz_h = 0;
-    winGetWindowSize(win, &siz_w, &siz_h);
-
-    /* alloc new pixel buffer */
-    uint8_t *data = malloc(siz_w * siz_h * 4);
-    if (!data) { return (0); }
-
-    /* create new 'image' framebuffer */
-    XImage *image = XCreateImage(dpy, visual, depth, ZPixmap, 0,
-                                (char *) data, siz_w, siz_h, 32, 0);
-    if (!image) { return (0); }
-    
-    /* set 'ctx->x11' members */
-    ctx->x11->siz_w = siz_w;
-    ctx->x11->siz_h = siz_h;
-
-    /* set 'ctx->x11->xlib' members */
-    ctx->x11->xlib.dpy   = dpy;
-    ctx->x11->xlib.image = image;
-    ctx->x11->xlib.gc    = gc;
-    ctx->x11->xlib.gcv   = gcv;
-    ctx->x11->xlib.gcm   = gcm;
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winDestroyContextX11(context_t context) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    if (!context)        { return (0); }
-
-    /* references */
-    struct __window_h_context *ctx = (struct __window_h_context *) context;
-    
-    /* x11 references */
-    Display *dpy = __window_h.x11->xlib.dpy;
-
-    /* release 'gc' */
-    GC gc = ctx->x11->xlib.gc;
-    if (!XFreeGC(dpy, gc)) { return (0); }
-
-    /* release 'image' */
-    XImage *image = ctx->x11->xlib.image;
-    if (!XDestroyImage(image)) { return (0); }
- 
-    /* deallocate context object */
-    free(ctx->x11);
+    /* check if window was found */
+    if (!(*win)) {
+        return (0);
+    }
 
     /* success */
     return (1);
@@ -7266,39 +7195,6 @@ WININT int __winUpdateWindowFlagsX11(window_t window) {
         mwmhints[0] = (1L << 1);
         mwmhints[2] = _NET_WM_STATE_ADD;
         XChangeProperty(dpy, client, _MOTIF_WM_HINTS, _MOTIF_WM_HINTS, 32, PropModeReplace, (uint8_t *) mwmhints, 8);
-    }
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winUpdateCursorImage(window_t window) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-    struct __window_h_cursor *cur = (struct __window_h_cursor *) win->cursor;
-
-    if (win->cursor_mode == WINDOW_CURSOR_MODE_NORMAL ||
-        win->cursor_mode == WINDOW_CURSOR_MODE_CAPTURED
-    ) {
-        if (cur) {
-            XDefineCursor(win->x11->xlib.dpy,
-                          win->x11->xlib.client,
-                          cur->x11->xlib.handle);
-        }
-        else {
-            XUndefineCursor(win->x11->xlib.dpy,
-                            win->x11->xlib.client);
-        }
-    }
-    else {
-        /* TODO:
-         *  Define a behaviour of creating a hidden cursor handle
-         * */
-        return (0);
     }
 
     /* success */
@@ -7461,12 +7357,19 @@ WININT int __winPollEvents(void) {
                 int32_t x, xrel;
                 int32_t y, yrel;
 
+                which = 0; /* TODO: get the mouse ID */
                 __winGetWindowFromIDX11((window_t *) &window, xmotion.window);
                 if (!window) { break; }
 
-                which = 0; /* TODO: get the mouse ID */
-                x = xevent.xmotion.x, xrel = xmotion.x_root,
-                y = xevent.xmotion.y, yrel = xmotion.y_root;
+                /* get motion values */
+                x = xmotion.x, y = xmotion.y;
+                xrel = xmotion.x_root, yrel = xmotion.y_root;
+                if (window->cursor_mode == WINDOW_CURSOR_MODE_DISABLED ||
+                    window->cursor_mode == WINDOW_CURSOR_MODE_LOCKED
+                ) {
+                    /* ... */
+                }
+
                 __winSendEvent(WINDOW_EVENT_MOUSE_MOTION, window, which, x, xrel, y, yrel);
             } break;
 
@@ -7908,29 +7811,6 @@ WININT int __winHandleSelectionX11(XEvent *xevent) {
 }
 
 
-WININT int __winGetWindowFromIDX11(window_t *win, XID id) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    
-    /* iterate over the list of windows */
-    *win = 0;
-    for (struct __window_h_window *node = __window_h.window_list; node; node = node->next) {
-        if (node->x11->xlib.client == id) {
-            *win = node;
-            break;
-        }
-    }
-
-    /* check if window was found */
-    if (!(*win)) {
-        return (0);
-    }
-
-    /* success */
-    return (1);
-}
-
-
 WININT int __winSetSelectionStringX11(const char *str, const Atom atom) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
@@ -8014,6 +7894,158 @@ WININT int __winGetSelectionStringX11(char **str, const Atom atom) {
     if (!*data) { return (0); }
     *str = calloc(*size + 1, sizeof(char));
     *str = strcpy(*str, *data);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winCreateCursorX11(cursor_t cursor, window_t window, int xhot, int yhot) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!cursor)         { return (0); }
+ 
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
+	
+    /* xlib references */
+	Display *dpy = win->x11->xlib.dpy;
+
+    /* alloc platform object */
+    cur->x11 = calloc(1, sizeof(struct __window_h_cursor_x11));
+    if (!cur->x11) { return (0); }
+
+    (void) xhot;
+    (void) yhot;
+    /* ... */
+
+    /* set 'cur->x11->xlib' members */
+    cur->x11->xlib.dpy = dpy;
+    cur->x11->xlib.handle = 0;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winCreateCursorBlankX11(cursor_t cursor) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!cursor)         { return (0); }
+ 
+    /* references */
+    struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
+	
+    /* xlib references */
+	Display *dpy = __window_h.x11->xlib.dpy;
+    Window  root = __window_h.x11->xlib.root;
+
+    /* alloc platform object */
+    cur->x11 = calloc(1, sizeof(struct __window_h_cursor_x11));
+    if (!cur->x11) { return (0); }
+
+    /* create pixmap */
+    uint8_t blank[1] = { 0 };
+    Pixmap pixmap = XCreateBitmapFromData(dpy, root,
+                                          (const char *) blank,
+                                          1, 1);
+    XColor color  = { 0 };
+
+    /* create 'handle' */
+    Cursor handle = XCreatePixmapCursor(dpy,
+                                        pixmap, pixmap,
+                                        &color, &color,
+                                        0, 0);
+
+    /* set 'cur->x11->xlib' members */
+    cur->x11->xlib.dpy = dpy;
+    cur->x11->xlib.handle = handle;
+
+    /* release resources */
+    XFreePixmap(dpy, pixmap);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winCreateContextX11(context_t context) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    struct __window_h_window  *win = (struct __window_h_window *) ctx->owner;
+    
+    ctx->x11 = calloc(1, sizeof(struct __window_h_context_x11));
+    if (!ctx->x11) { return (0); }
+
+    /* x11 references */
+    Display   *dpy = __window_h.x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+    Visual *visual = win->x11->xlib.visual;
+    int      depth = win->x11->depth;
+
+    /* create graphics context */
+    XGCValues gcv = { 0 };
+    uint64_t  gcm = 0;
+
+    GC gc = XCreateGC(dpy, client, gcm, &gcv);
+    if (!gc) { return (0); }
+
+    /* get the size of the window */
+    size_t siz_w = 0,
+           siz_h = 0;
+    winGetWindowSize(win, &siz_w, &siz_h);
+
+    /* alloc new pixel buffer */
+    uint8_t *data = malloc(siz_w * siz_h * 4);
+    if (!data) { return (0); }
+
+    /* create new 'image' framebuffer */
+    XImage *image = XCreateImage(dpy, visual, depth, ZPixmap, 0,
+                                (char *) data, siz_w, siz_h, 32, 0);
+    if (!image) { return (0); }
+    
+    /* set 'ctx->x11' members */
+    ctx->x11->siz_w = siz_w;
+    ctx->x11->siz_h = siz_h;
+
+    /* set 'ctx->x11->xlib' members */
+    ctx->x11->xlib.dpy   = dpy;
+    ctx->x11->xlib.image = image;
+    ctx->x11->xlib.gc    = gc;
+    ctx->x11->xlib.gcv   = gcv;
+    ctx->x11->xlib.gcm   = gcm;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winDestroyContextX11(context_t context) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    
+    /* x11 references */
+    Display *dpy = __window_h.x11->xlib.dpy;
+
+    /* release 'gc' */
+    GC gc = ctx->x11->xlib.gc;
+    if (!XFreeGC(dpy, gc)) { return (0); }
+
+    /* release 'image' */
+    XImage *image = ctx->x11->xlib.image;
+    if (!XDestroyImage(image)) { return (0); }
+ 
+    /* deallocate context object */
+    free(ctx->x11);
 
     /* success */
     return (1);
