@@ -1340,6 +1340,14 @@ enum {
 
 
 enum {
+    WINDOW_CURSOR_MODE_NORMAL = 0,
+    WINDOW_CURSOR_MODE_HIDDEN,
+    WINDOW_CURSOR_MODE_CAPTURED,
+    WINDOW_CURSOR_MODE_DISABLED,
+};
+
+
+enum {
     WINDOW_PROP_PLATFORM_NONE = 0,
 # define WINDOW_PROP_PLATFORM_NONE WINDOW_PROP_PLATFORM_NONE
 
@@ -1786,6 +1794,8 @@ WINDEF int winPeekEvent(t_event *);
 WINDEF int winFlushEvents(void);
 
 /* mouse pointer functions */
+
+WINDEF int winGetMousePosition(window_t, size_t *, size_t *);
 
 WINDEF int winSetMousePosition(window_t, const size_t, const size_t);
 
@@ -7361,6 +7371,36 @@ WINDEF int winFlushEvents(void) {
 }
 
 /* mouse pointer functions */
+
+WINDEF int winGetMousePosition(window_t window, size_t *x_ptr, size_t *y_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* get cursor position */
+    Window root_return  = None,
+           child_return = None;
+    int root_x  = 0, root_y  = 0;
+    int child_x = 0, child_y = 0;
+    unsigned int mask_return = 0;
+    if (!XQueryPointer(win->x11->xlib.dpy,
+                       win->x11->xlib.client,
+                       &root_return,
+                       &child_return,
+                       &root_x, &root_y,
+                       &child_x, &child_y,
+                       &mask_return)) { return (0); }
+
+    /* return values */
+    if (x_ptr) { *x_ptr = child_x; }
+    if (y_ptr) { *y_ptr = child_y; }
+
+    /* success */
+    return (1);
+}
+
 
 WINDEF int winSetMousePosition(window_t window, const size_t x, const size_t y) {
     /* null-check */
