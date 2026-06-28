@@ -680,6 +680,9 @@ enum {
 typedef void *window_t;
 
 
+typedef void *cursor_t;
+
+
 typedef void *context_t;
 
 
@@ -891,6 +894,20 @@ WINDEF int winGLSwapInterval(context_t, const int);
 
 WINDEF void *winGLGetProcAddress(const char *);
 
+/* cursor functions */
+
+WINDEF int winCreateCursor(cursor_t *, window_t, int, int);
+
+WINDEF int winDestroyCursor(cursor_t);
+
+WINDEF int winGetCursorPosition(window_t, size_t *, size_t *);
+
+WINDEF int winSetCursorPosition(window_t, const size_t, const size_t);
+
+WINDEF int winSetCursorPositionCenter(window_t);
+
+WINDEF int winSetCursorMode(window_t, const uint32_t);
+
 /* event functions */
 
 WINDEF int winPollEvents(t_event *);
@@ -904,14 +921,6 @@ WINDEF int winPopEvent(t_event *);
 WINDEF int winPeekEvent(t_event *);
 
 WINDEF int winFlushEvents(void);
-
-/* mouse pointer functions */
-
-WINDEF int winGetMousePosition(window_t, size_t *, size_t *);
-
-WINDEF int winSetMousePosition(window_t, const size_t, const size_t);
-
-WINDEF int winSetMousePositionCenter(window_t);
 
 /* clipboard functions */
 
@@ -933,22 +942,11 @@ WINDEF int winWaitTime(uint64_t);
 #  include <stdarg.h> 
 #  include <assert.h>
 #  include <string.h>
-#
-#  /* include unix headers */
-#  if defined (WINDOW_PLATFORM_LINUX) || defined (WINDOW_PLATFORM_APPLE) || defined (WINDOW_PLATFORM_BSD)
-#   include <dlfcn.h>
-#   include <unistd.h>
-#   include <sys/time.h>
-#
-#  /* include win32 headers*/
-#  elif defined (WINDOW_PLATFORM_WIN32)
-#   include <windows.h>
-#  endif
 
 /* platform-independent */
 
 struct __window_h_eventQueue {
-    struct __window_h_eventQueue *next;
+    void *next;
     t_event event;
 };
 
@@ -972,6 +970,25 @@ struct __window_h_selection{
 
 /* platform-specific */
 
+struct __window_h_cursor_x11;
+
+struct __window_h_cursor_win32;
+
+struct __window_h_cursor {
+
+    /* platform-independent */
+
+    /* pointer to the 'next' node in linked-list of cursor */
+    struct __window_h_cursor *next;
+
+    /* platform-specific */
+
+    struct __window_h_cursor_x11 *x11;
+
+    struct __window_h_cursor_win32 *win32;
+};
+
+
 struct __window_h_window_x11;
 
 struct __window_h_window_win32;
@@ -985,6 +1002,9 @@ struct __window_h_window {
 
     /* reference to this window's graphics context */
     struct __window_h_context *context;
+
+    /* reference to this window's cursor */
+    struct __window_h_cursor *cursor;
     
     /* structure data */
     size_t siz_w, siz_h;
@@ -1021,6 +1041,10 @@ struct __window_h_context {
 
     /* platform-independent */
 
+    /* pointer to the 'next' node in linked-list of context */
+    struct __window_h_context *next;
+
+    /* reference to this context's 'owner' window */
     struct __window_h_window *owner;
 
     /* platform-specific */
@@ -1049,6 +1073,10 @@ static struct __window_h  {
 
     struct __window_h_window *window_list;
 
+    struct __window_h_cursor *cursor_list;
+
+    struct __window_h_context *context_list;
+
     struct __window_h_eventQueue *event_queue;
 
     struct __window_h_selection selection;
@@ -1063,6 +1091,17 @@ static struct __window_h  {
 
 } __window_h;
 
+#  /* include unix headers */
+#  if defined (WINDOW_PLATFORM_LINUX) || defined (WINDOW_PLATFORM_APPLE) || defined (WINDOW_PLATFORM_BSD)
+#   include <dlfcn.h>
+#   include <unistd.h>
+#   include <sys/time.h>
+#
+#  /* include win32 headers*/
+#  elif defined (WINDOW_PLATFORM_WIN32)
+#   include <windows.h>
+#  endif
+#
 #  /* WINDOW_BACKEND_X11 - X11 implementation */
 #  if defined (WINDOW_BACKEND_X11)
 #
@@ -3822,7 +3861,54 @@ static const struct __window_h_keymap __window_h_keymap_en_us_qwerty[] = {
 };
 
 
-typedef struct __window_h_x11 *__window_h_x11;
+struct __window_h_cursor_x11 {
+    struct {
+        Display *dpy;
+        Cursor handle;
+    } xlib;
+};
+
+
+struct __window_h_window_x11 {
+    struct {
+        Display *dpy;
+
+        /* default root window */
+        Window root;
+
+        /* parent window */
+        Window parent;
+
+        /* child / client / main window */
+        Window client;
+
+        /* X11 visual object */
+        Visual *visual;
+    } xlib;
+
+    /* depth value of visual */
+    int depth;
+};
+
+
+struct __window_h_context_x11 {
+    struct {
+        Display *dpy;
+
+        /* framebuffer image */
+        XImage *image;
+
+        /* graphics context */
+        GC gc;
+        XGCValues gcv; /* gc-values */
+        uint64_t  gcm; /* gc-mask   */
+    } xlib;
+
+    /* structure data */
+    size_t siz_w,
+           siz_h;
+};
+
 
 struct __window_h_x11 {
     struct {
@@ -3859,52 +3945,7 @@ struct __window_h_x11 {
     void *handle;
 };
 
-/* window type definitions */
 
-typedef struct __window_h_window_x11 *__window_h_window_x11;
-
-struct __window_h_window_x11 {
-    struct {
-        Display *dpy;
-
-        /* default root window */
-        Window root;
-
-        /* parent window */
-        Window parent;
-
-        /* child / client / main window */
-        Window client;
-
-        /* X11 visual object */
-        Visual *visual;
-    } xlib;
-
-    /* depth value of visual */
-    int depth;
-};
-
-/* context type definitions */
-
-typedef struct __window_h_context_x11 *__window_h_context_x11;
-
-struct __window_h_context_x11 {
-    struct {
-        Display *dpy;
-
-        /* framebuffer image */
-        XImage *image;
-
-        /* graphics context */
-        GC gc;
-        XGCValues gcv; /* gc-values */
-        uint64_t  gcm; /* gc-mask   */
-    } xlib;
-
-    /* structure data */
-    size_t siz_w,
-           siz_h;
-};
 
 /* internal functions (declarations) */
 
@@ -4666,7 +4707,7 @@ WININT int __winUnloadX11(void) {
 
     /* release xlib resources */
     XDestroyWindow(__window_h.x11->xlib.dpy,
-                 __window_h.x11->xlib.ipc);
+                   __window_h.x11->xlib.ipc);
 
     XCloseDisplay(__window_h.x11->xlib.dpy);
 
@@ -5480,6 +5521,8 @@ WININT int __winUnloadWGL(void) {
 
 WININT int __winCreateWindowX11(window_t, Display *, Window, Window, const size_t, const size_t);
 
+WININT int __winCreateCursorX11(cursor_t, window_t, int, int);
+
 WININT int __winCreateContextX11(context_t);
 
 WININT int __winDestroyContextX11(context_t);
@@ -5538,15 +5581,29 @@ WINDEF int winInit(void) {
 
 WINDEF int winQuit(void) {
     /* close all the open windows */
-    struct __window_h_window *curr = __window_h.window_list,
-                             *next = 0;
-    while (curr) {
+    for (struct __window_h_window *curr = __window_h.window_list,
+                                  *next = 0; curr; curr = next
+    ) {
         next = curr->next;
-        winDestroyContext(curr->context);
         winDestroyWindow(curr);
-        curr = next;
+    }
+    
+    /* close all the contexts */
+    for (struct __window_h_context *curr = __window_h.context_list,
+                                   *next = 0; curr; curr = next
+    ) {
+        next = curr->next;
+        winDestroyContext(curr);
     }
 
+    /* release all the cursors */
+    for (struct __window_h_cursor *curr = __window_h.cursor_list,
+                                  *next = 0; curr; curr = next
+    ) {
+        next = curr->next;
+        winDestroyCursor(curr);
+    }
+    
     /* release selections */
     free(__window_h.selection.primary.data);
     __window_h.selection.primary.data = 0;
@@ -6111,6 +6168,10 @@ WINDEF int winCreateContext(context_t *context, window_t window) {
     if (!__window_h.egl) { return (0); }
     if (!__winCreateContextEGL(result)) { return (0); }
 #   endif
+    
+    /* add the result to the '__window_h.context_list' linked list */
+    result->next = __window_h.context_list;
+    __window_h.context_list = result;
 
     /* and return the result */
     *context = result;
@@ -6366,6 +6427,143 @@ WINDEF void *winGLGetProcAddress(const char *proc) {
     return (0);
 }
 
+/* cursor functions */
+
+WINDEF int winCreateCursor(cursor_t *cursor, window_t window, int xhot, int yhot) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* alloc new window object */
+    struct __window_h_cursor *result = calloc(1, sizeof(struct __window_h_cursor));
+    if (!result) { return (0); }
+
+    /* process 'result' cursor object */
+    if (!__winCreateCursorX11(result, window, xhot, yhot)) {
+        return (0);
+    }
+
+    /* add the result to the '__window_h.cursor_list' linked list */
+    result->next = __window_h.cursor_list;
+    __window_h.cursor_list = result;
+
+    /* and return the result */
+    *cursor = result;
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winDestroyCursor(cursor_t cursor) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!cursor)         { return (0); }
+
+    /* references */
+    struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
+
+    /* unlink 'cur' from '__window_h.cursor_list' */
+    struct __window_h_cursor **curr = &__window_h.cursor_list;
+    /* case when 'cur' is the first node of '__window_h.cursor_list' */
+    if (cur == (*curr)) {
+        __window_h.cursor_list = (*curr)->next;
+    }
+    /* case when 'cur' is not the first node of '__window_h.cursor_list' */
+    else {
+        /* search for prepending window for 'cur' */
+        while ((*curr) && (*curr)->next != cur) {
+            (*curr) = (*curr)->next;
+        }
+
+        if (!(*curr)) { return (0); }
+        (*curr) = cur->next;
+    }
+
+    /* release cursor */
+    XFreeCursor(cur->x11->xlib.dpy,
+                cur->x11->xlib.handle);
+                        
+    /* deallocate cursor object */
+    free(cur->x11);
+    free(cur);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winGetCursorPosition(window_t window, size_t *x_ptr, size_t *y_ptr) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* get cursor position */
+    Window root_return  = None,
+           child_return = None;
+    int root_x  = 0, root_y  = 0;
+    int child_x = 0, child_y = 0;
+    unsigned int mask_return = 0;
+    if (!XQueryPointer(win->x11->xlib.dpy,
+                       win->x11->xlib.client,
+                       &root_return,
+                       &child_return,
+                       &root_x, &root_y,
+                       &child_x, &child_y,
+                       &mask_return)) { return (0); }
+
+    /* return values */
+    if (x_ptr) { *x_ptr = child_x; }
+    if (y_ptr) { *y_ptr = child_y; }
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetCursorPosition(window_t window, const size_t x, const size_t y) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    if (!XWarpPointer(win->x11->xlib.dpy, None,
+                      win->x11->xlib.client,
+                      0, 0, 0, 0,
+                      x, y)) { return (0); }
+    XFlush(win->x11->xlib.dpy);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetCursorPositionCenter(window_t window) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    size_t w, h;
+    winGetWindowSize(window, &w, &h);
+    winSetCursorPosition(window, w / 2.0, h / 2.0);
+
+    /* success */
+    return (1);
+}
+
+
+WINDEF int winSetCursorMode(window_t window, const uint32_t mode) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    (void) window;
+    (void) mode;
+
+    /* success */
+    return (1);
+}
+
 /* event functions */
 
 WINDEF int winPollEvents(t_event *event) {
@@ -6477,68 +6675,6 @@ WINDEF int winFlushEvents(void) {
     
     /* flush */
     if (!XFlush(__window_h.x11->xlib.dpy)) { return (0); }
-
-    /* success */
-    return (1);
-}
-
-/* mouse pointer functions */
-
-WINDEF int winGetMousePosition(window_t window, size_t *x_ptr, size_t *y_ptr) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-
-    /* get cursor position */
-    Window root_return  = None,
-           child_return = None;
-    int root_x  = 0, root_y  = 0;
-    int child_x = 0, child_y = 0;
-    unsigned int mask_return = 0;
-    if (!XQueryPointer(win->x11->xlib.dpy,
-                       win->x11->xlib.client,
-                       &root_return,
-                       &child_return,
-                       &root_x, &root_y,
-                       &child_x, &child_y,
-                       &mask_return)) { return (0); }
-
-    /* return values */
-    if (x_ptr) { *x_ptr = child_x; }
-    if (y_ptr) { *y_ptr = child_y; }
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winSetMousePosition(window_t window, const size_t x, const size_t y) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-
-    if (!XWarpPointer(win->x11->xlib.dpy, None,
-                      win->x11->xlib.client,
-                      0, 0, 0, 0,
-                      x, y)) { return (0); }
-    XFlush(win->x11->xlib.dpy);
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winSetMousePositionCenter(window_t window) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-    size_t w, h;
-    winGetWindowSize(window, &w, &h);
-    winSetMousePosition(window, w / 2.0, h / 2.0);
 
     /* success */
     return (1);
@@ -6683,6 +6819,35 @@ WININT int __winCreateWindowX11(window_t window, Display *dpy, Window root, Wind
     win->x11->xlib.parent = parent;
     win->x11->xlib.client = client;
     win->x11->xlib.visual = visual;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winCreateCursorX11(cursor_t cursor, window_t window, int xhot, int yhot) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!cursor)         { return (0); }
+ 
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
+	
+    /* xlib references */
+	Display *dpy = win->x11->xlib.dpy;
+
+    /* alloc platform object */
+    cur->x11 = calloc(1, sizeof(struct __window_h_cursor_x11));
+    if (!cur->x11) { return (0); }
+
+    (void) xhot;
+    (void) yhot;
+    /* ... */
+
+    /* set 'cur->x11->xlib' members */
+    cur->x11->xlib.dpy = dpy;
+    cur->x11->xlib.handle = 0;
 
     /* success */
     return (1);

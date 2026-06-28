@@ -42,7 +42,7 @@ int main(void) {
     int exit = 0;
     while (!exit) {
         /* update */
-        winSetMousePosition(window, 100, 100);
+        winSetCursorPosition(window, 100, 100);
         
         /* render */
         winDrawBuffer(context);
