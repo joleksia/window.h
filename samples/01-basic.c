@@ -42,7 +42,7 @@ int main(void) {
     int exit = 0;
     while (!exit) {
         /* update */
-        winSetCursorPosition(window, 100, 100);
+        winSetCursorMode(window, WINDOW_CURSOR_MODE_DISABLED);
         
         /* render */
         winDrawBuffer(context);

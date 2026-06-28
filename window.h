@@ -868,6 +868,14 @@ WINDEF int winGetWindowContext(window_t, context_t *);
 
 WINDEF int winSetWindowContext(window_t, context_t);
 
+WINDEF int winWindowFocused(window_t);
+
+WINDEF int winWindowFullscreen(window_t);
+
+WINDEF int winWindowMinimized(window_t);
+
+WINDEF int winWindowMaximized(window_t);
+
 /* context functions */
 
 WINDEF int winCreateContext(context_t *, window_t);
@@ -1020,6 +1028,14 @@ struct __window_h_window {
     uint8_t fullscreen;
     uint8_t minimized;
     uint8_t maximized;
+
+    /* cursor states */
+    size_t cursor_virtual_position_x,
+           cursor_virtual_position_y;
+    uint32_t cursor_mode;
+
+    /* boolean for if raw mouse motion is enabled/disabled */
+    uint8_t mouse_motion_raw;
 
     /* platform-specific */
 
@@ -3887,7 +3903,7 @@ struct __window_h_window_x11 {
     } xlib;
 
     /* depth value of visual */
-    int depth;
+    int32_t depth;
 };
 
 
@@ -3943,6 +3959,11 @@ struct __window_h_x11 {
 
     /* libX11 */
     void *handle;
+
+    /* cursor */
+    window_t cursor_disabled_window;
+    size_t cursor_restore_position_x,
+           cursor_restore_position_y;
 };
 
 
@@ -5529,6 +5550,8 @@ WININT int __winDestroyContextX11(context_t);
 
 WININT int __winUpdateWindowFlagsX11(window_t);
 
+WININT int __winUpdateCursorImage(window_t);
+
 WININT int __winSendClientEventX11(window_t, Atom, Atom, Atom);
 
 WININT int __winPollEvents(void);
@@ -6143,6 +6166,189 @@ WINDEF int winSetWindowContext(window_t window, context_t context) {
     return (1);
 }
 
+
+WINDEF int winWindowFocused(window_t window) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
+
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* get the focus state */
+    Window focus_return  = None;
+    int revert_to_return = 0;
+    XGetInputFocus(win->x11->xlib.dpy,
+                   &focus_return,
+                   &revert_to_return);
+
+    return (win->x11->xlib.client == focus_return);
+}
+
+
+WINDEF int winWindowFullscreen(window_t window) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
+
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* xatom references */
+    Atom _NET_WM_STATE = __window_h.x11->xatom._NET_WM_STATE;
+    Atom _NET_WM_STATE_FULLSCREEN = __window_h.x11->xatom._NET_WM_STATE_FULLSCREEN;
+    
+    /* get window properties */
+    Atom actual_type_return      = 0;
+    int32_t actual_format_return = 0;
+    uint64_t nitems_return       = 0;
+    uint64_t bytes_after_return  = 0;
+    uint8_t *prop_return         = 0;
+    if (XGetWindowProperty(dpy, client,
+                           _NET_WM_STATE,
+                           0, ~0L, False, XA_ATOM,
+                           &actual_type_return,
+                           &actual_format_return,
+                           &nitems_return,
+                           &bytes_after_return,
+                           &prop_return)
+    ) { return (0); }
+
+    /* get window states */
+    Atom *states = (Atom *) prop_return;
+    uint8_t fullscr = 0;
+
+    /* check desired states */
+    for (size_t i = 0; i < (size_t) nitems_return; i++) {
+        if (states[i] == _NET_WM_STATE_FULLSCREEN) { fullscr = 1; break; }
+    }
+
+    /* release the 'states' array of atoms */
+    XFree(states);
+    
+    /* return events */
+    if (fullscr != win->fullscreen) {
+        win->fullscreen = fullscr;
+        __winSendEvent(WINDOW_EVENT_WINDOW_FULLSCREEN, window, fullscr, 0);
+    }
+
+    return (fullscr);
+}
+
+
+WINDEF int winWindowMinimized(window_t window) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
+
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* xatom references */
+    Atom _NET_WM_STATE = __window_h.x11->xatom._NET_WM_STATE;
+    Atom _NET_WM_STATE_HIDDEN = __window_h.x11->xatom._NET_WM_STATE_HIDDEN;
+    
+    /* get window properties */
+    Atom actual_type_return      = 0;
+    int32_t actual_format_return = 0;
+    uint64_t nitems_return       = 0;
+    uint64_t bytes_after_return  = 0;
+    uint8_t *prop_return         = 0;
+    if (XGetWindowProperty(dpy, client,
+                           _NET_WM_STATE,
+                           0, ~0L, False, XA_ATOM,
+                           &actual_type_return,
+                           &actual_format_return,
+                           &nitems_return,
+                           &bytes_after_return,
+                           &prop_return)
+    ) { return (0); }
+
+    /* get window states */
+    Atom *states = (Atom *) prop_return;
+    uint8_t minim= 0;
+
+    /* check desired states */
+    for (size_t i = 0; i < (size_t) nitems_return; i++) {
+        if (states[i] == _NET_WM_STATE_HIDDEN) { minim = 1; break; }
+    }
+
+    /* release the 'states' array of atoms */
+    XFree(states);
+    
+    /* return events */
+    if (minim != win->minimized) {
+        win->minimized = minim;
+        __winSendEvent(WINDOW_EVENT_WINDOW_MINIMIZE, window, minim, 0);
+    }
+
+    return (minim);
+}
+
+
+WINDEF int winWindowMaximized(window_t window) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!window)         { return (0); }
+
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+	/* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* xatom references */
+    Atom _NET_WM_STATE = __window_h.x11->xatom._NET_WM_STATE;
+    Atom _NET_WM_STATE_MAXIMIZED_HORZ = __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_HORZ;
+    Atom _NET_WM_STATE_MAXIMIZED_VERT = __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_VERT;
+
+    /* get window properties */
+    Atom actual_type_return      = 0;
+    int32_t actual_format_return = 0;
+    uint64_t nitems_return       = 0;
+    uint64_t bytes_after_return  = 0;
+    uint8_t *prop_return         = 0;
+    if (XGetWindowProperty(dpy, client,
+                           _NET_WM_STATE,
+                           0, ~0L, False, XA_ATOM,
+                           &actual_type_return,
+                           &actual_format_return,
+                           &nitems_return,
+                           &bytes_after_return,
+                           &prop_return)
+    ) { return (0); }
+
+    /* get window states */
+    Atom *states = (Atom *) prop_return;
+    uint8_t maxim = 0;
+
+    /* check desired states */
+    for (size_t i = 0; i < (size_t) nitems_return; i++) {
+        if (states[i] == _NET_WM_STATE_MAXIMIZED_HORZ &&
+            states[i] == _NET_WM_STATE_MAXIMIZED_VERT) { maxim = 1; break; }
+    }
+
+    /* release the 'states' array of atoms */
+    XFree(states);
+    
+    /* return events */
+    if (maxim != win->maximized) {
+        win->maximized = maxim;
+        __winSendEvent(WINDOW_EVENT_WINDOW_MAXIMIZE, window, maxim, 0);
+    }
+
+    return (maxim);
+}
+
 /* context functions */
 
 WINDEF int winCreateContext(context_t *context, window_t window) {
@@ -6557,8 +6763,50 @@ WINDEF int winSetCursorMode(window_t window, const uint32_t mode) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
-    (void) window;
-    (void) mode;
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+	
+    /* xlib references */
+	Display *dpy   = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* process cursor modes */
+    win->cursor_mode = mode;
+    if (winWindowFocused(window)) {
+        if (mode == WINDOW_CURSOR_MODE_DISABLED) {
+            /* save the current cursor position  */
+            winGetCursorPosition(window, &__window_h.x11->cursor_restore_position_x,
+                                         &__window_h.x11->cursor_restore_position_y);
+
+            winSetCursorPositionCenter(window);
+        }
+
+        if (mode == WINDOW_CURSOR_MODE_DISABLED ||
+            mode == WINDOW_CURSOR_MODE_CAPTURED
+        ) {
+            XGrabPointer(dpy, client, True,
+                         ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                         GrabModeAsync, GrabModeAsync,
+                         client, None,
+                         CurrentTime);
+        }
+        else {
+            XUngrabPointer(dpy, CurrentTime);
+        }
+
+        if (mode == WINDOW_CURSOR_MODE_DISABLED) {
+            __window_h.x11->cursor_disabled_window = window;
+        }
+        else {
+            __window_h.x11->cursor_disabled_window = 0;
+            winSetCursorPosition(window,
+                                 __window_h.x11->cursor_restore_position_x,
+                                 __window_h.x11->cursor_restore_position_y);
+        }
+    }
+
+    __winUpdateCursorImage(window);
+    winFlushEvents();
 
     /* success */
     return (1);
@@ -7025,6 +7273,39 @@ WININT int __winUpdateWindowFlagsX11(window_t window) {
 }
 
 
+WININT int __winUpdateCursorImage(window_t window) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    struct __window_h_cursor *cur = (struct __window_h_cursor *) win->cursor;
+
+    if (win->cursor_mode == WINDOW_CURSOR_MODE_NORMAL ||
+        win->cursor_mode == WINDOW_CURSOR_MODE_CAPTURED
+    ) {
+        if (cur) {
+            XDefineCursor(win->x11->xlib.dpy,
+                          win->x11->xlib.client,
+                          cur->x11->xlib.handle);
+        }
+        else {
+            XUndefineCursor(win->x11->xlib.dpy,
+                            win->x11->xlib.client);
+        }
+    }
+    else {
+        /* TODO:
+         *  Define a behaviour of creating a hidden cursor handle
+         * */
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
 WININT int __winSendClientEventX11(window_t window, Atom a0, Atom a1, Atom a2) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
@@ -7333,76 +7614,17 @@ WININT int __winPollEvents(void) {
                 __winGetWindowFromIDX11((window_t *) &window, xproperty.window);
                 if (!window) { break; }
                 
-                /* xlib references */
-                Display *dpy  = __window_h.x11->xlib.dpy;
-                Window client = window->x11->xlib.client;
-                
                 /* xatom references */
-                Atom _NET_WM_STATE                = __window_h.x11->xatom._NET_WM_STATE;
-                Atom _NET_WM_STATE_FULLSCREEN     = __window_h.x11->xatom._NET_WM_STATE_FULLSCREEN;
-                Atom _NET_WM_STATE_HIDDEN         = __window_h.x11->xatom._NET_WM_STATE_HIDDEN;
-                Atom _NET_WM_STATE_MAXIMIZED_HORZ = __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_HORZ;
-                Atom _NET_WM_STATE_MAXIMIZED_VERT = __window_h.x11->xatom._NET_WM_STATE_MAXIMIZED_VERT;
+                Atom _NET_WM_STATE = __window_h.x11->xatom._NET_WM_STATE;
 
                 /* get the property 'atom' */
                 const Atom atom = xproperty.atom;
 
                 /* _NET_WM_STATE */
                 if (atom == _NET_WM_STATE) {
-                    /* get window properties */
-                    Atom actual_type_return      = 0;
-                    int32_t actual_format_return = 0;
-                    uint64_t nitems_return       = 0;
-                    uint64_t bytes_after_return  = 0;
-                    uint8_t *prop_return         = 0;
-                    if (XGetWindowProperty(dpy, client,
-                                           _NET_WM_STATE,
-                                           0, ~0L, False, XA_ATOM,
-                                           &actual_type_return,
-                                           &actual_format_return,
-                                           &nitems_return,
-                                           &bytes_after_return,
-                                           &prop_return)
-                    ) { return (0); }
-
-                    /* get window states */
-                    Atom *states = (Atom *) prop_return;
-                    uint8_t fullscr = 0,
-                            minim   = 0,
-                            maxim_h = 0,
-                            maxim_v = 0;
-
-                    /* check desired states */
-                    for (size_t i = 0; i < (size_t) nitems_return; i++) {
-                        if (states[i] == _NET_WM_STATE_FULLSCREEN) { fullscr = 1; }
-                        else if (states[i] == _NET_WM_STATE_HIDDEN) { minim = 1; }
-                        else if (states[i] == _NET_WM_STATE_MAXIMIZED_HORZ) { maxim_h = 1; }
-                        else if (states[i] == _NET_WM_STATE_MAXIMIZED_VERT) { maxim_v = 1; }
-                    }
-
-                    /* release the 'states' array of atoms */
-                    XFree(states);
-
-                    /* return events */
-                    /* TODO:
-                     *  Consider modifying these window attributes elsewhere?
-                     *  Or at least point the fact that these are modified here somewhere 
-                     * */
-                    if (fullscr != window->fullscreen) {
-                        window->fullscreen = fullscr;
-                        __winSendEvent(WINDOW_EVENT_WINDOW_FULLSCREEN, window, fullscr, 0);
-                    }
-                   
-                    if (minim != window->minimized) {
-                        window->minimized = minim;
-                        __winSendEvent(WINDOW_EVENT_WINDOW_MINIMIZE, window, minim, 0);
-                    }
-                   
-                    if ((maxim_h && maxim_v) != window->maximized) {
-                        window->maximized = (maxim_h && maxim_v);
-                        __winSendEvent(WINDOW_EVENT_WINDOW_MAXIMIZE, window, maxim_h && maxim_v, 0);
-                    }
-                    
+                    winWindowFullscreen(window);
+                    winWindowMaximized(window);
+                    winWindowMinimized(window);
                 }
             } break;
        
