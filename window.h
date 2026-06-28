@@ -1135,6 +1135,8 @@ static struct __window_h  {
 #   include <X11/XKBlib.h>
 #   include <X11/keysym.h>
 #   include <X11/keysymdef.h>
+#   include <X11/extensions/XInput.h>
+#   include <X11/extensions/XInput2.h>
 #
 #   define _NET_WM_STATE_REMOVE 0
 #   define _NET_WM_STATE_ADD    1
@@ -3558,6 +3560,361 @@ typedef unsigned int (* PFN_XkbXlibControlsImplemented_PROC) (void);
 PFN_XkbXlibControlsImplemented_PROC XkbXlibControlsImplemented_PROC = 0;
 #   define XkbXlibControlsImplemented (assert(XkbXlibControlsImplemented_PROC != 0), XkbXlibControlsImplemented_PROC)
 
+/* libXi: XInput.h */
+
+typedef int (* PFN__XiGetDevicePresenceNotifyEvent_PROC) (Display *);
+PFN__XiGetDevicePresenceNotifyEvent_PROC _XiGetDevicePresenceNotifyEvent_PROC = 0;
+#   define _XiGetDevicePresenceNotifyEvent (assert(_XiGetDevicePresenceNotifyEvent_PROC != 0), _XiGetDevicePresenceNotifyEvent_PROC)
+
+typedef void (* PFN__xibaddevice_PROC) (Display *, int *);
+PFN__xibaddevice_PROC _xibaddevice_PROC = 0;
+#   define _xibaddevice (assert(_xibaddevice_PROC != 0), _xibaddevice_PROC)
+
+typedef void (* PFN__xibadclass_PROC) (Display *, int *);
+PFN__xibadclass_PROC _xibadclass_PROC = 0;
+#   define _xibadclass (assert(_xibadclass_PROC != 0), _xibadclass_PROC)
+
+typedef void (* PFN__xibadevent_PROC) (Display *, int *);
+PFN__xibadevent_PROC _xibadevent_PROC = 0;
+#   define _xibadevent (assert(_xibadevent_PROC != 0), _xibadevent_PROC)
+
+typedef void (* PFN__xibadmode_PROC) (Display *, int *);
+PFN__xibadmode_PROC _xibadmode_PROC = 0;
+#   define _xibadmode (assert(_xibadmode_PROC != 0), _xibadmode_PROC)
+
+typedef void (* PFN__xidevicebusy_PROC) (Display *, int *);
+PFN__xidevicebusy_PROC _xidevicebusy_PROC = 0;
+#   define _xidevicebusy (assert(_xidevicebusy_PROC != 0), _xidevicebusy_PROC)
+
+typedef int (* PFN_XChangeKeyboardDevice_PROC) (Display *, XDevice *);
+PFN_XChangeKeyboardDevice_PROC XChangeKeyboardDevice_PROC = 0;
+#   define XChangeKeyboardDevice (assert(XChangeKeyboardDevice_PROC != 0), XChangeKeyboardDevice_PROC)
+
+typedef int (* PFN_XChangePointerDevice_PROC) (Display *, XDevice *, int, int);
+PFN_XChangePointerDevice_PROC XChangePointerDevice_PROC = 0;
+#   define XChangePointerDevice (assert(XChangePointerDevice_PROC != 0), XChangePointerDevice_PROC)
+
+typedef int (* PFN_XGrabDevice_PROC) (Display *, XDevice *, Window, int, int, XEventClass *, int, int, Time);
+PFN_XGrabDevice_PROC XGrabDevice_PROC = 0;
+#   define XGrabDevice (assert(XGrabDevice_PROC != 0), XGrabDevice_PROC)
+
+typedef int (* PFN_XUngrabDevice_PROC) (Display *, XDevice *, Time);
+PFN_XUngrabDevice_PROC XUngrabDevice_PROC = 0;
+#   define XUngrabDevice (assert(XUngrabDevice_PROC != 0), XUngrabDevice_PROC)
+
+typedef int (* PFN_XGrabDeviceKey_PROC) (Display *, XDevice *, unsigned int, unsigned int, XDevice *, Window, int, unsigned int, XEventClass *, int, int);
+PFN_XGrabDeviceKey_PROC XGrabDeviceKey_PROC = 0;
+#   define XGrabDeviceKey (assert(XGrabDeviceKey_PROC != 0), XGrabDeviceKey_PROC)
+
+typedef int (* PFN_XUngrabDeviceKey_PROC) (Display *, XDevice *, unsigned int, unsigned int, XDevice *, Window);
+PFN_XUngrabDeviceKey_PROC XUngrabDeviceKey_PROC = 0;
+#   define XUngrabDeviceKey (assert(XUngrabDeviceKey_PROC != 0), XUngrabDeviceKey_PROC)
+
+typedef int (* PFN_XGrabDeviceButton_PROC) (Display *, XDevice *, unsigned int, unsigned int, XDevice *, Window, int, unsigned int, XEventClass *, int, int);
+PFN_XGrabDeviceButton_PROC XGrabDeviceButton_PROC = 0;
+#   define XGrabDeviceButton (assert(XGrabDeviceButton_PROC != 0), XGrabDeviceButton_PROC)
+
+typedef int (* PFN_XUngrabDeviceButton_PROC) (Display *, XDevice *, unsigned int, unsigned int, XDevice *, Window);
+PFN_XUngrabDeviceButton_PROC XUngrabDeviceButton_PROC = 0;
+#   define XUngrabDeviceButton (assert(XUngrabDeviceButton_PROC != 0), XUngrabDeviceButton_PROC)
+
+typedef int (* PFN_XAllowDeviceEvents_PROC) (Display *, XDevice *, int, Time);
+PFN_XAllowDeviceEvents_PROC XAllowDeviceEvents_PROC = 0;
+#   define XAllowDeviceEvents (assert(XAllowDeviceEvents_PROC != 0), XAllowDeviceEvents_PROC)
+
+typedef int (* PFN_XGetDeviceFocus_PROC) (Display *, XDevice *, Window *, int *, Time *);
+PFN_XGetDeviceFocus_PROC XGetDeviceFocus_PROC = 0;
+#   define XGetDeviceFocus (assert(XGetDeviceFocus_PROC != 0), XGetDeviceFocus_PROC)
+
+typedef int (* PFN_XSetDeviceFocus_PROC) (Display *, XDevice *, Window, int, Time);
+PFN_XSetDeviceFocus_PROC XSetDeviceFocus_PROC = 0;
+#   define XSetDeviceFocus (assert(XSetDeviceFocus_PROC != 0), XSetDeviceFocus_PROC)
+
+typedef XFeedbackState *(* PFN_XGetFeedbackControl_PROC) (Display *, XDevice *, int *);
+PFN_XGetFeedbackControl_PROC XGetFeedbackControl_PROC = 0;
+#   define XGetFeedbackControl (assert(XGetFeedbackControl_PROC != 0), XGetFeedbackControl_PROC)
+
+typedef void (* PFN_XFreeFeedbackList_PROC) (XFeedbackState *);
+PFN_XFreeFeedbackList_PROC XFreeFeedbackList_PROC = 0;
+#   define XFreeFeedbackList (assert(XFreeFeedbackList_PROC != 0), XFreeFeedbackList_PROC)
+
+typedef int (* PFN_XChangeFeedbackControl_PROC) (Display *, XDevice *, unsigned long, XFeedbackControl *);
+PFN_XChangeFeedbackControl_PROC XChangeFeedbackControl_PROC = 0;
+#   define XChangeFeedbackControl (assert(XChangeFeedbackControl_PROC != 0), XChangeFeedbackControl_PROC)
+
+typedef int (* PFN_XDeviceBell_PROC) (Display *, XDevice *, XID, XID, int);
+PFN_XDeviceBell_PROC XDeviceBell_PROC = 0;
+#   define XDeviceBell (assert(XDeviceBell_PROC != 0), XDeviceBell_PROC)
+
+typedef KeySym *(* PFN_XGetDeviceKeyMapping_PROC) (Display *, XDevice *, KeyCode, int, int *);
+PFN_XGetDeviceKeyMapping_PROC XGetDeviceKeyMapping_PROC = 0;
+#   define XGetDeviceKeyMapping (assert(XGetDeviceKeyMapping_PROC != 0), XGetDeviceKeyMapping_PROC)
+
+typedef int (* PFN_XChangeDeviceKeyMapping_PROC) (Display *, XDevice *, int, int, KeySym *, int);
+PFN_XChangeDeviceKeyMapping_PROC XChangeDeviceKeyMapping_PROC = 0;
+#   define XChangeDeviceKeyMapping (assert(XChangeDeviceKeyMapping_PROC != 0), XChangeDeviceKeyMapping_PROC)
+
+typedef XModifierKeymap *(* PFN_XGetDeviceModifierMapping_PROC) (Display *, XDevice *);
+PFN_XGetDeviceModifierMapping_PROC XGetDeviceModifierMapping_PROC = 0;
+#   define XGetDeviceModifierMapping (assert(XGetDeviceModifierMapping_PROC != 0), XGetDeviceModifierMapping_PROC)
+
+typedef int (* PFN_XSetDeviceModifierMapping_PROC) (Display *, XDevice *, XModifierKeymap *);
+PFN_XSetDeviceModifierMapping_PROC XSetDeviceModifierMapping_PROC = 0;
+#   define XSetDeviceModifierMapping (assert(XSetDeviceModifierMapping_PROC != 0), XSetDeviceModifierMapping_PROC)
+
+typedef int (* PFN_XSetDeviceButtonMapping_PROC) (Display *, XDevice *, unsigned char *, int);
+PFN_XSetDeviceButtonMapping_PROC XSetDeviceButtonMapping_PROC = 0;
+#   define XSetDeviceButtonMapping (assert(XSetDeviceButtonMapping_PROC != 0), XSetDeviceButtonMapping_PROC)
+
+typedef int (* PFN_XGetDeviceButtonMapping_PROC) (Display *, XDevice *, unsigned char *, unsigned int);
+PFN_XGetDeviceButtonMapping_PROC XGetDeviceButtonMapping_PROC = 0;
+#   define XGetDeviceButtonMapping (assert(XGetDeviceButtonMapping_PROC != 0), XGetDeviceButtonMapping_PROC)
+
+typedef XDeviceState *(* PFN_XQueryDeviceState_PROC) (Display *, XDevice *);
+PFN_XQueryDeviceState_PROC XQueryDeviceState_PROC = 0;
+#   define XQueryDeviceState (assert(XQueryDeviceState_PROC != 0), XQueryDeviceState_PROC)
+
+typedef void (* PFN_XFreeDeviceState_PROC) (XDeviceState *);
+PFN_XFreeDeviceState_PROC XFreeDeviceState_PROC = 0;
+#   define XFreeDeviceState (assert(XFreeDeviceState_PROC != 0), XFreeDeviceState_PROC)
+
+typedef XExtensionVersion *(* PFN_XGetExtensionVersion_PROC) (Display *, const char *);
+PFN_XGetExtensionVersion_PROC XGetExtensionVersion_PROC = 0;
+#   define XGetExtensionVersion (assert(XGetExtensionVersion_PROC != 0), XGetExtensionVersion_PROC)
+
+typedef XDeviceInfo *(* PFN_XListInputDevices_PROC) (Display *, int *);
+PFN_XListInputDevices_PROC XListInputDevices_PROC = 0;
+#   define XListInputDevices (assert(XListInputDevices_PROC != 0), XListInputDevices_PROC)
+
+typedef void (* PFN_XFreeDeviceList_PROC) (XDeviceInfo *);
+PFN_XFreeDeviceList_PROC XFreeDeviceList_PROC = 0;
+#   define XFreeDeviceList (assert(XFreeDeviceList_PROC != 0), XFreeDeviceList_PROC)
+
+typedef XDevice *(* PFN_XOpenDevice_PROC) (Display *, XID);
+PFN_XOpenDevice_PROC XOpenDevice_PROC = 0;
+#   define XOpenDevice (assert(XOpenDevice_PROC != 0), XOpenDevice_PROC)
+
+typedef int (* PFN_XCloseDevice_PROC) (Display *, XDevice *);
+PFN_XCloseDevice_PROC XCloseDevice_PROC = 0;
+#   define XCloseDevice (assert(XCloseDevice_PROC != 0), XCloseDevice_PROC)
+
+typedef int (* PFN_XSetDeviceMode_PROC) (Display *, XDevice *, int);
+PFN_XSetDeviceMode_PROC XSetDeviceMode_PROC = 0;
+#   define XSetDeviceMode (assert(XSetDeviceMode_PROC != 0), XSetDeviceMode_PROC)
+
+typedef int (* PFN_XSetDeviceValuators_PROC) (Display *, XDevice *, int *, int, int);
+PFN_XSetDeviceValuators_PROC XSetDeviceValuators_PROC = 0;
+#   define XSetDeviceValuators (assert(XSetDeviceValuators_PROC != 0), XSetDeviceValuators_PROC)
+
+typedef XDeviceControl *(* PFN_XGetDeviceControl_PROC) (Display *, XDevice *, int);
+PFN_XGetDeviceControl_PROC XGetDeviceControl_PROC = 0;
+#   define XGetDeviceControl (assert(XGetDeviceControl_PROC != 0), XGetDeviceControl_PROC)
+
+typedef int (* PFN_XChangeDeviceControl_PROC) (Display *, XDevice *, int, XDeviceControl *);
+PFN_XChangeDeviceControl_PROC XChangeDeviceControl_PROC = 0;
+#   define XChangeDeviceControl (assert(XChangeDeviceControl_PROC != 0), XChangeDeviceControl_PROC)
+
+typedef int (* PFN_XSelectExtensionEvent_PROC) (Display *, Window, XEventClass *, int);
+PFN_XSelectExtensionEvent_PROC XSelectExtensionEvent_PROC = 0;
+#   define XSelectExtensionEvent (assert(XSelectExtensionEvent_PROC != 0), XSelectExtensionEvent_PROC)
+
+typedef int (* PFN_XGetSelectedExtensionEvents_PROC) (Display *, Window, int *, XEventClass **, int *, XEventClass **);
+PFN_XGetSelectedExtensionEvents_PROC XGetSelectedExtensionEvents_PROC = 0;
+#   define XGetSelectedExtensionEvents (assert(XGetSelectedExtensionEvents_PROC != 0), XGetSelectedExtensionEvents_PROC)
+
+typedef int (* PFN_XChangeDeviceDontPropagateList_PROC) (Display *, Window, int, XEventClass *, int);
+PFN_XChangeDeviceDontPropagateList_PROC XChangeDeviceDontPropagateList_PROC = 0;
+#   define XChangeDeviceDontPropagateList (assert(XChangeDeviceDontPropagateList_PROC != 0), XChangeDeviceDontPropagateList_PROC)
+
+typedef XEventClass *(* PFN_XGetDeviceDontPropagateList_PROC) (Display *, Window, int *);
+PFN_XGetDeviceDontPropagateList_PROC XGetDeviceDontPropagateList_PROC = 0;
+#   define XGetDeviceDontPropagateList (assert(XGetDeviceDontPropagateList_PROC != 0), XGetDeviceDontPropagateList_PROC)
+
+typedef int (* PFN_XSendExtensionEvent_PROC) (Display *, XDevice *, Window, int, int, XEventClass *, XEvent *);
+PFN_XSendExtensionEvent_PROC XSendExtensionEvent_PROC = 0;
+#   define XSendExtensionEvent (assert(XSendExtensionEvent_PROC != 0), XSendExtensionEvent_PROC)
+
+typedef XDeviceTimeCoord *(* PFN_XGetDeviceMotionEvents_PROC) (Display *, XDevice *, Time, Time, int *, int *, int *);
+PFN_XGetDeviceMotionEvents_PROC XGetDeviceMotionEvents_PROC = 0;
+#   define XGetDeviceMotionEvents (assert(XGetDeviceMotionEvents_PROC != 0), XGetDeviceMotionEvents_PROC)
+
+typedef void (* PFN_XFreeDeviceMotionEvents_PROC) (XDeviceTimeCoord *);
+PFN_XFreeDeviceMotionEvents_PROC XFreeDeviceMotionEvents_PROC = 0;
+#   define XFreeDeviceMotionEvents (assert(XFreeDeviceMotionEvents_PROC != 0), XFreeDeviceMotionEvents_PROC)
+
+typedef void (* PFN_XFreeDeviceControl_PROC) (XDeviceControl *);
+PFN_XFreeDeviceControl_PROC XFreeDeviceControl_PROC = 0;
+#   define XFreeDeviceControl (assert(XFreeDeviceControl_PROC != 0), XFreeDeviceControl_PROC)
+
+typedef Atom *(* PFN_XListDeviceProperties_PROC) (Display *, XDevice *, int *);
+PFN_XListDeviceProperties_PROC XListDeviceProperties_PROC = 0;
+#   define XListDeviceProperties (assert(XListDeviceProperties_PROC != 0), XListDeviceProperties_PROC)
+
+typedef void (* PFN_XChangeDeviceProperty_PROC) (Display *, XDevice *, Atom, Atom, int, int, const unsigned char *, int);
+PFN_XChangeDeviceProperty_PROC XChangeDeviceProperty_PROC = 0;
+#   define XChangeDeviceProperty (assert(XChangeDeviceProperty_PROC != 0), XChangeDeviceProperty_PROC)
+
+typedef void (* PFN_XDeleteDeviceProperty_PROC) (Display *, XDevice *, Atom);
+PFN_XDeleteDeviceProperty_PROC XDeleteDeviceProperty_PROC = 0;
+#   define XDeleteDeviceProperty (assert(XDeleteDeviceProperty_PROC != 0), XDeleteDeviceProperty_PROC)
+
+typedef int (* PFN_XGetDeviceProperty_PROC) (Display *, XDevice *, Atom, long, long, int, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
+PFN_XGetDeviceProperty_PROC XGetDeviceProperty_PROC = 0;
+#   define XGetDeviceProperty (assert(XGetDeviceProperty_PROC != 0), XGetDeviceProperty_PROC)
+
+/* libXi: XInput2.h */
+
+typedef int (* PFN_XIQueryPointer_PROC) (Display *, int, Window, Window *, Window *, double *, double *, double *, double *, XIButtonState *, XIModifierState *, XIGroupState *);
+PFN_XIQueryPointer_PROC XIQueryPointer_PROC = 0;
+#   define XIQueryPointer (assert(XIQueryPointer_PROC != 0), XIQueryPointer_PROC)
+
+typedef int (* PFN_XIWarpPointer_PROC) (Display *, int, Window, Window, double, double, unsigned int, unsigned int, double, double);
+PFN_XIWarpPointer_PROC XIWarpPointer_PROC = 0;
+#   define XIWarpPointer (assert(XIWarpPointer_PROC != 0), XIWarpPointer_PROC)
+
+typedef int (* PFN_XIDefineCursor_PROC) (Display *, int, Window, Cursor);
+PFN_XIDefineCursor_PROC XIDefineCursor_PROC = 0;
+#   define XIDefineCursor (assert(XIDefineCursor_PROC != 0), XIDefineCursor_PROC)
+
+typedef int (* PFN_XIUndefineCursor_PROC) (Display *, int, Window);
+PFN_XIUndefineCursor_PROC XIUndefineCursor_PROC = 0;
+#   define XIUndefineCursor (assert(XIUndefineCursor_PROC != 0), XIUndefineCursor_PROC)
+
+typedef int (* PFN_XIChangeHierarchy_PROC) (Display *, XIAnyHierarchyChangeInfo *, int);
+PFN_XIChangeHierarchy_PROC XIChangeHierarchy_PROC = 0;
+#   define XIChangeHierarchy (assert(XIChangeHierarchy_PROC != 0), XIChangeHierarchy_PROC)
+
+typedef int (* PFN_XISetClientPointer_PROC) (Display *, Window, int);
+PFN_XISetClientPointer_PROC XISetClientPointer_PROC = 0;
+#   define XISetClientPointer (assert(XISetClientPointer_PROC != 0), XISetClientPointer_PROC)
+
+typedef int (* PFN_XIGetClientPointer_PROC) (Display *, Window, int *);
+PFN_XIGetClientPointer_PROC XIGetClientPointer_PROC = 0;
+#   define XIGetClientPointer (assert(XIGetClientPointer_PROC != 0), XIGetClientPointer_PROC)
+
+typedef int (* PFN_XISelectEvents_PROC) (Display *, Window, XIEventMask *, int);
+PFN_XISelectEvents_PROC XISelectEvents_PROC = 0;
+#   define XISelectEvents (assert(XISelectEvents_PROC != 0), XISelectEvents_PROC)
+
+typedef XIEventMask *(* PFN_XIGetSelectedEvents_PROC) (Display *, Window, int *);
+PFN_XIGetSelectedEvents_PROC XIGetSelectedEvents_PROC = 0;
+#   define XIGetSelectedEvents (assert(XIGetSelectedEvents_PROC != 0), XIGetSelectedEvents_PROC)
+
+typedef int (* PFN_XIQueryVersion_PROC) (Display *, int *, int *);
+PFN_XIQueryVersion_PROC XIQueryVersion_PROC = 0;
+#   define XIQueryVersion (assert(XIQueryVersion_PROC != 0), XIQueryVersion_PROC)
+
+typedef XIDeviceInfo *(* PFN_XIQueryDevice_PROC) (Display *, int, int *);
+PFN_XIQueryDevice_PROC XIQueryDevice_PROC = 0;
+#   define XIQueryDevice (assert(XIQueryDevice_PROC != 0), XIQueryDevice_PROC)
+
+typedef int (* PFN_XISetFocus_PROC) (Display *, int, Window, Time);
+PFN_XISetFocus_PROC XISetFocus_PROC = 0;
+#   define XISetFocus (assert(XISetFocus_PROC != 0), XISetFocus_PROC)
+
+typedef int (* PFN_XIGetFocus_PROC) (Display *, int, Window *);
+PFN_XIGetFocus_PROC XIGetFocus_PROC = 0;
+#   define XIGetFocus (assert(XIGetFocus_PROC != 0), XIGetFocus_PROC)
+
+typedef int (* PFN_XIGrabDevice_PROC) (Display *, int, Window, Time, Cursor, int, int, int, XIEventMask *);
+PFN_XIGrabDevice_PROC XIGrabDevice_PROC = 0;
+#   define XIGrabDevice (assert(XIGrabDevice_PROC != 0), XIGrabDevice_PROC)
+
+typedef int (* PFN_XIUngrabDevice_PROC) (Display *, int, Time);
+PFN_XIUngrabDevice_PROC XIUngrabDevice_PROC = 0;
+#   define XIUngrabDevice (assert(XIUngrabDevice_PROC != 0), XIUngrabDevice_PROC)
+
+typedef int (* PFN_XIAllowEvents_PROC) (Display *, int, int, Time);
+PFN_XIAllowEvents_PROC XIAllowEvents_PROC = 0;
+#   define XIAllowEvents (assert(XIAllowEvents_PROC != 0), XIAllowEvents_PROC)
+
+typedef int (* PFN_XIAllowTouchEvents_PROC) (Display *, int, unsigned int, Window, int);
+PFN_XIAllowTouchEvents_PROC XIAllowTouchEvents_PROC = 0;
+#   define XIAllowTouchEvents (assert(XIAllowTouchEvents_PROC != 0), XIAllowTouchEvents_PROC)
+
+typedef int (* PFN_XIGrabButton_PROC) (Display *, int, int, Window, Cursor, int, int, int, XIEventMask *, int, XIGrabModifiers *);
+PFN_XIGrabButton_PROC XIGrabButton_PROC = 0;
+#   define XIGrabButton (assert(XIGrabButton_PROC != 0), XIGrabButton_PROC)
+
+typedef int (* PFN_XIGrabKeycode_PROC) (Display *, int, int, Window, int, int, int, XIEventMask *, int, XIGrabModifiers *);
+PFN_XIGrabKeycode_PROC XIGrabKeycode_PROC = 0;
+#   define XIGrabKeycode (assert(XIGrabKeycode_PROC != 0), XIGrabKeycode_PROC)
+
+typedef int (* PFN_XIGrabEnter_PROC) (Display *, int, Window, Cursor, int, int, int, XIEventMask *, int, XIGrabModifiers *);
+PFN_XIGrabEnter_PROC XIGrabEnter_PROC = 0;
+#   define XIGrabEnter (assert(XIGrabEnter_PROC != 0), XIGrabEnter_PROC)
+
+typedef int (* PFN_XIGrabFocusIn_PROC) (Display *, int, Window, int, int, int, XIEventMask *, int, XIGrabModifiers *);
+PFN_XIGrabFocusIn_PROC XIGrabFocusIn_PROC = 0;
+#   define XIGrabFocusIn (assert(XIGrabFocusIn_PROC != 0), XIGrabFocusIn_PROC)
+
+typedef int (* PFN_XIGrabTouchBegin_PROC) (Display *, int, Window, int, XIEventMask *, int, XIGrabModifiers *);
+PFN_XIGrabTouchBegin_PROC XIGrabTouchBegin_PROC = 0;
+#   define XIGrabTouchBegin (assert(XIGrabTouchBegin_PROC != 0), XIGrabTouchBegin_PROC)
+
+typedef int (* PFN_XIGrabPinchGestureBegin_PROC) (Display *, int, Window, int, int, int, XIEventMask *, int, XIGrabModifiers *);
+PFN_XIGrabPinchGestureBegin_PROC XIGrabPinchGestureBegin_PROC = 0;
+#   define XIGrabPinchGestureBegin (assert(XIGrabPinchGestureBegin_PROC != 0), XIGrabPinchGestureBegin_PROC)
+
+typedef int (* PFN_XIGrabSwipeGestureBegin_PROC) (Display *, int, Window, int, int, int, XIEventMask *, int, XIGrabModifiers *);
+PFN_XIGrabSwipeGestureBegin_PROC XIGrabSwipeGestureBegin_PROC = 0;
+#   define XIGrabSwipeGestureBegin (assert(XIGrabSwipeGestureBegin_PROC != 0), XIGrabSwipeGestureBegin_PROC)
+
+typedef int (* PFN_XIUngrabButton_PROC) (Display *, int, int, Window, int, XIGrabModifiers *);
+PFN_XIUngrabButton_PROC XIUngrabButton_PROC = 0;
+#   define XIUngrabButton (assert(XIUngrabButton_PROC != 0), XIUngrabButton_PROC)
+
+typedef int (* PFN_XIUngrabKeycode_PROC) (Display *, int, int, Window, int, XIGrabModifiers *);
+PFN_XIUngrabKeycode_PROC XIUngrabKeycode_PROC = 0;
+#   define XIUngrabKeycode (assert(XIUngrabKeycode_PROC != 0), XIUngrabKeycode_PROC)
+
+typedef int (* PFN_XIUngrabEnter_PROC) (Display *, int, Window, int, XIGrabModifiers *);
+PFN_XIUngrabEnter_PROC XIUngrabEnter_PROC = 0;
+#   define XIUngrabEnter (assert(XIUngrabEnter_PROC != 0), XIUngrabEnter_PROC)
+
+typedef int (* PFN_XIUngrabFocusIn_PROC) (Display *, int, Window, int, XIGrabModifiers *);
+PFN_XIUngrabFocusIn_PROC XIUngrabFocusIn_PROC = 0;
+#   define XIUngrabFocusIn (assert(XIUngrabFocusIn_PROC != 0), XIUngrabFocusIn_PROC)
+
+typedef int (* PFN_XIUngrabTouchBegin_PROC) (Display *, int, Window, int, XIGrabModifiers *);
+PFN_XIUngrabTouchBegin_PROC XIUngrabTouchBegin_PROC = 0;
+#   define XIUngrabTouchBegin (assert(XIUngrabTouchBegin_PROC != 0), XIUngrabTouchBegin_PROC)
+
+typedef int (* PFN_XIUngrabPinchGestureBegin_PROC) (Display *, int, Window, int, XIGrabModifiers *);
+PFN_XIUngrabPinchGestureBegin_PROC XIUngrabPinchGestureBegin_PROC = 0;
+#   define XIUngrabPinchGestureBegin (assert(XIUngrabPinchGestureBegin_PROC != 0), XIUngrabPinchGestureBegin_PROC)
+
+typedef int (* PFN_XIUngrabSwipeGestureBegin_PROC) (Display *, int, Window, int, XIGrabModifiers *);
+PFN_XIUngrabSwipeGestureBegin_PROC XIUngrabSwipeGestureBegin_PROC = 0;
+#   define XIUngrabSwipeGestureBegin (assert(XIUngrabSwipeGestureBegin_PROC != 0), XIUngrabSwipeGestureBegin_PROC)
+
+typedef Atom *(* PFN_XIListProperties_PROC) (Display *, int, int *);
+PFN_XIListProperties_PROC XIListProperties_PROC = 0;
+#   define XIListProperties (assert(XIListProperties_PROC != 0), XIListProperties_PROC)
+
+typedef void (* PFN_XIChangeProperty_PROC) (Display *, int, Atom, Atom, int, int, unsigned char *, int);
+PFN_XIChangeProperty_PROC XIChangeProperty_PROC = 0;
+#   define XIChangeProperty (assert(XIChangeProperty_PROC != 0), XIChangeProperty_PROC)
+
+typedef void (* PFN_XIDeleteProperty_PROC) (Display *, int, Atom);
+PFN_XIDeleteProperty_PROC XIDeleteProperty_PROC = 0;
+#   define XIDeleteProperty (assert(XIDeleteProperty_PROC != 0), XIDeleteProperty_PROC)
+
+typedef int (* PFN_XIGetProperty_PROC) (Display *, int, Atom, long, long, int, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
+PFN_XIGetProperty_PROC XIGetProperty_PROC = 0;
+#   define XIGetProperty (assert(XIGetProperty_PROC != 0), XIGetProperty_PROC)
+
+typedef void (* PFN_XIBarrierReleasePointers_PROC) (Display *, XIBarrierReleasePointerInfo *, int);
+PFN_XIBarrierReleasePointers_PROC XIBarrierReleasePointers_PROC = 0;
+#   define XIBarrierReleasePointers (assert(XIBarrierReleasePointers_PROC != 0), XIBarrierReleasePointers_PROC)
+
+typedef void (* PFN_XIBarrierReleasePointer_PROC) (Display *, int, PointerBarrier, BarrierEventID);
+PFN_XIBarrierReleasePointer_PROC XIBarrierReleasePointer_PROC = 0;
+#   define XIBarrierReleasePointer (assert(XIBarrierReleasePointer_PROC != 0), XIBarrierReleasePointer_PROC)
+
+typedef void (* PFN_XIFreeDeviceInfo_PROC) (XIDeviceInfo *);
+PFN_XIFreeDeviceInfo_PROC XIFreeDeviceInfo_PROC = 0;
+#   define XIFreeDeviceInfo (assert(XIFreeDeviceInfo_PROC != 0), XIFreeDeviceInfo_PROC)
 
 /* keymap layouts base */
 struct __window_h_keymap {
@@ -3964,8 +4321,9 @@ struct __window_h_x11 {
         Atom XSEL_DATA;
     } xatom;
 
-    /* libX11 */
-    void *handle;
+    /* handles */
+    void *libX11;
+    void *libXi;
 
     /* cursor */
     cursor_t cursor_hidden;
@@ -4085,10 +4443,10 @@ WININT int __winLoadX11Symbols(void) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
 
-    /* try to load handle */
-    const char  *names[] = { "libX11.so", "libX11.so.6", 0 };
-    static void *handle  = 0;
-    if (!handle) {
+    /* try to load 'libX11' handle */
+    void *handle  = 0;
+    {
+        const char  *names[] = { "libX11.so", "libX11.so.6", 0 };
         for (const char **name = names; *name; name++) {
             handle = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
             if (handle) { break; }
@@ -4707,8 +5065,116 @@ WININT int __winLoadX11Symbols(void) {
     XkbVirtualModsToReal_PROC = (PFN_XkbVirtualModsToReal_PROC) dlsym(handle, "XkbVirtualModsToReal");
     XkbXlibControlsImplemented_PROC = (PFN_XkbXlibControlsImplemented_PROC) dlsym(handle, "XkbXlibControlsImplemented");
 
-    /* set '__window_h.x11->handle' member */ 
-    __window_h.x11->handle = handle;
+    /* set '__window_h.x11->libX11' member */ 
+    __window_h.x11->libX11 = handle;
+
+    /* try to load 'libXi' handle */
+    handle = 0;
+    {
+        const char  *names[] = { "libXi.so", "libXi.so.6", 0 };
+        for (const char **name = names; *name; name++) {
+            handle = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
+            if (handle) { break; }
+        }
+
+        /* check if handle loaded */
+        if (!handle) { return (0); }
+    }
+
+    /* libXi: XInput.h */
+    _XiGetDevicePresenceNotifyEvent_PROC = (PFN__XiGetDevicePresenceNotifyEvent_PROC) dlsym(handle, "_XiGetDevicePresenceNotifyEvent");
+    _xibaddevice_PROC = (PFN__xibaddevice_PROC) dlsym(handle, "_xibaddevice");
+    _xibadclass_PROC = (PFN__xibadclass_PROC) dlsym(handle, "_xibadclass");
+    _xibadevent_PROC = (PFN__xibadevent_PROC) dlsym(handle, "_xibadevent");
+    _xibadmode_PROC = (PFN__xibadmode_PROC) dlsym(handle, "_xibadmode");
+    _xidevicebusy_PROC = (PFN__xidevicebusy_PROC) dlsym(handle, "_xidevicebusy");
+    XChangeKeyboardDevice_PROC = (PFN_XChangeKeyboardDevice_PROC) dlsym(handle, "XChangeKeyboardDevice");
+    XChangePointerDevice_PROC = (PFN_XChangePointerDevice_PROC) dlsym(handle, "XChangePointerDevice");
+    XGrabDevice_PROC = (PFN_XGrabDevice_PROC) dlsym(handle, "XGrabDevice");
+    XUngrabDevice_PROC = (PFN_XUngrabDevice_PROC) dlsym(handle, "XUngrabDevice");
+    XGrabDeviceKey_PROC = (PFN_XGrabDeviceKey_PROC) dlsym(handle, "XGrabDeviceKey");
+    XUngrabDeviceKey_PROC = (PFN_XUngrabDeviceKey_PROC) dlsym(handle, "XUngrabDeviceKey");
+    XGrabDeviceButton_PROC = (PFN_XGrabDeviceButton_PROC) dlsym(handle, "XGrabDeviceButton");
+    XUngrabDeviceButton_PROC = (PFN_XUngrabDeviceButton_PROC) dlsym(handle, "XUngrabDeviceButton");
+    XAllowDeviceEvents_PROC = (PFN_XAllowDeviceEvents_PROC) dlsym(handle, "XAllowDeviceEvents");
+    XGetDeviceFocus_PROC = (PFN_XGetDeviceFocus_PROC) dlsym(handle, "XGetDeviceFocus");
+    XSetDeviceFocus_PROC = (PFN_XSetDeviceFocus_PROC) dlsym(handle, "XSetDeviceFocus");
+    XGetFeedbackControl_PROC = (PFN_XGetFeedbackControl_PROC) dlsym(handle, "XGetFeedbackControl");
+    XFreeFeedbackList_PROC = (PFN_XFreeFeedbackList_PROC) dlsym(handle, "XFreeFeedbackList");
+    XChangeFeedbackControl_PROC = (PFN_XChangeFeedbackControl_PROC) dlsym(handle, "XChangeFeedbackControl");
+    XDeviceBell_PROC = (PFN_XDeviceBell_PROC) dlsym(handle, "XDeviceBell");
+    XGetDeviceKeyMapping_PROC = (PFN_XGetDeviceKeyMapping_PROC) dlsym(handle, "XGetDeviceKeyMapping");
+    XChangeDeviceKeyMapping_PROC = (PFN_XChangeDeviceKeyMapping_PROC) dlsym(handle, "XChangeDeviceKeyMapping");
+    XGetDeviceModifierMapping_PROC = (PFN_XGetDeviceModifierMapping_PROC) dlsym(handle, "XGetDeviceModifierMapping");
+    XSetDeviceModifierMapping_PROC = (PFN_XSetDeviceModifierMapping_PROC) dlsym(handle, "XSetDeviceModifierMapping");
+    XSetDeviceButtonMapping_PROC = (PFN_XSetDeviceButtonMapping_PROC) dlsym(handle, "XSetDeviceButtonMapping");
+    XGetDeviceButtonMapping_PROC = (PFN_XGetDeviceButtonMapping_PROC) dlsym(handle, "XGetDeviceButtonMapping");
+    XQueryDeviceState_PROC = (PFN_XQueryDeviceState_PROC) dlsym(handle, "XQueryDeviceState");
+    XFreeDeviceState_PROC = (PFN_XFreeDeviceState_PROC) dlsym(handle, "XFreeDeviceState");
+    XGetExtensionVersion_PROC = (PFN_XGetExtensionVersion_PROC) dlsym(handle, "XGetExtensionVersion");
+    XListInputDevices_PROC = (PFN_XListInputDevices_PROC) dlsym(handle, "XListInputDevices");
+    XFreeDeviceList_PROC = (PFN_XFreeDeviceList_PROC) dlsym(handle, "XFreeDeviceList");
+    XOpenDevice_PROC = (PFN_XOpenDevice_PROC) dlsym(handle, "XOpenDevice");
+    XCloseDevice_PROC = (PFN_XCloseDevice_PROC) dlsym(handle, "XCloseDevice");
+    XSetDeviceMode_PROC = (PFN_XSetDeviceMode_PROC) dlsym(handle, "XSetDeviceMode");
+    XSetDeviceValuators_PROC = (PFN_XSetDeviceValuators_PROC) dlsym(handle, "XSetDeviceValuators");
+    XGetDeviceControl_PROC = (PFN_XGetDeviceControl_PROC) dlsym(handle, "XGetDeviceControl");
+    XChangeDeviceControl_PROC = (PFN_XChangeDeviceControl_PROC) dlsym(handle, "XChangeDeviceControl");
+    XSelectExtensionEvent_PROC = (PFN_XSelectExtensionEvent_PROC) dlsym(handle, "XSelectExtensionEvent");
+    XGetSelectedExtensionEvents_PROC = (PFN_XGetSelectedExtensionEvents_PROC) dlsym(handle, "XGetSelectedExtensionEvents");
+    XChangeDeviceDontPropagateList_PROC = (PFN_XChangeDeviceDontPropagateList_PROC) dlsym(handle, "XChangeDeviceDontPropagateList");
+    XGetDeviceDontPropagateList_PROC = (PFN_XGetDeviceDontPropagateList_PROC) dlsym(handle, "XGetDeviceDontPropagateList");
+    XSendExtensionEvent_PROC = (PFN_XSendExtensionEvent_PROC) dlsym(handle, "XSendExtensionEvent");
+    XGetDeviceMotionEvents_PROC = (PFN_XGetDeviceMotionEvents_PROC) dlsym(handle, "XGetDeviceMotionEvents");
+    XFreeDeviceMotionEvents_PROC = (PFN_XFreeDeviceMotionEvents_PROC) dlsym(handle, "XFreeDeviceMotionEvents");
+    XFreeDeviceControl_PROC = (PFN_XFreeDeviceControl_PROC) dlsym(handle, "XFreeDeviceControl");
+    XListDeviceProperties_PROC = (PFN_XListDeviceProperties_PROC) dlsym(handle, "XListDeviceProperties");
+    XChangeDeviceProperty_PROC = (PFN_XChangeDeviceProperty_PROC) dlsym(handle, "XChangeDeviceProperty");
+    XDeleteDeviceProperty_PROC = (PFN_XDeleteDeviceProperty_PROC) dlsym(handle, "XDeleteDeviceProperty");
+    XGetDeviceProperty_PROC = (PFN_XGetDeviceProperty_PROC) dlsym(handle, "XGetDeviceProperty");
+
+    /* libXi: XInput2.h */
+    XIQueryPointer_PROC = (PFN_XIQueryPointer_PROC) dlsym(handle, "XIQueryPointer");
+    XIWarpPointer_PROC = (PFN_XIWarpPointer_PROC) dlsym(handle, "XIWarpPointer");
+    XIDefineCursor_PROC = (PFN_XIDefineCursor_PROC) dlsym(handle, "XIDefineCursor");
+    XIUndefineCursor_PROC = (PFN_XIUndefineCursor_PROC) dlsym(handle, "XIUndefineCursor");
+    XIChangeHierarchy_PROC = (PFN_XIChangeHierarchy_PROC) dlsym(handle, "XIChangeHierarchy");
+    XISetClientPointer_PROC = (PFN_XISetClientPointer_PROC) dlsym(handle, "XISetClientPointer");
+    XIGetClientPointer_PROC = (PFN_XIGetClientPointer_PROC) dlsym(handle, "XIGetClientPointer");
+    XISelectEvents_PROC = (PFN_XISelectEvents_PROC) dlsym(handle, "XISelectEvents");
+    XIGetSelectedEvents_PROC = (PFN_XIGetSelectedEvents_PROC) dlsym(handle, "XIGetSelectedEvents");
+    XIQueryVersion_PROC = (PFN_XIQueryVersion_PROC) dlsym(handle, "XIQueryVersion");
+    XIQueryDevice_PROC = (PFN_XIQueryDevice_PROC) dlsym(handle, "XIQueryDevice");
+    XISetFocus_PROC = (PFN_XISetFocus_PROC) dlsym(handle, "XISetFocus");
+    XIGetFocus_PROC = (PFN_XIGetFocus_PROC) dlsym(handle, "XIGetFocus");
+    XIGrabDevice_PROC = (PFN_XIGrabDevice_PROC) dlsym(handle, "XIGrabDevice");
+    XIUngrabDevice_PROC = (PFN_XIUngrabDevice_PROC) dlsym(handle, "XIUngrabDevice");
+    XIAllowEvents_PROC = (PFN_XIAllowEvents_PROC) dlsym(handle, "XIAllowEvents");
+    XIAllowTouchEvents_PROC = (PFN_XIAllowTouchEvents_PROC) dlsym(handle, "XIAllowTouchEvents");
+    XIGrabButton_PROC = (PFN_XIGrabButton_PROC) dlsym(handle, "XIGrabButton");
+    XIGrabKeycode_PROC = (PFN_XIGrabKeycode_PROC) dlsym(handle, "XIGrabKeycode");
+    XIGrabEnter_PROC = (PFN_XIGrabEnter_PROC) dlsym(handle, "XIGrabEnter");
+    XIGrabFocusIn_PROC = (PFN_XIGrabFocusIn_PROC) dlsym(handle, "XIGrabFocusIn");
+    XIGrabTouchBegin_PROC = (PFN_XIGrabTouchBegin_PROC) dlsym(handle, "XIGrabTouchBegin");
+    XIGrabPinchGestureBegin_PROC = (PFN_XIGrabPinchGestureBegin_PROC) dlsym(handle, "XIGrabPinchGestureBegin");
+    XIGrabSwipeGestureBegin_PROC = (PFN_XIGrabSwipeGestureBegin_PROC) dlsym(handle, "XIGrabSwipeGestureBegin");
+    XIUngrabButton_PROC = (PFN_XIUngrabButton_PROC) dlsym(handle, "XIUngrabButton");
+    XIUngrabKeycode_PROC = (PFN_XIUngrabKeycode_PROC) dlsym(handle, "XIUngrabKeycode");
+    XIUngrabEnter_PROC = (PFN_XIUngrabEnter_PROC) dlsym(handle, "XIUngrabEnter");
+    XIUngrabFocusIn_PROC = (PFN_XIUngrabFocusIn_PROC) dlsym(handle, "XIUngrabFocusIn");
+    XIUngrabTouchBegin_PROC = (PFN_XIUngrabTouchBegin_PROC) dlsym(handle, "XIUngrabTouchBegin");
+    XIUngrabPinchGestureBegin_PROC = (PFN_XIUngrabPinchGestureBegin_PROC) dlsym(handle, "XIUngrabPinchGestureBegin");
+    XIUngrabSwipeGestureBegin_PROC = (PFN_XIUngrabSwipeGestureBegin_PROC) dlsym(handle, "XIUngrabSwipeGestureBegin");
+    XIListProperties_PROC = (PFN_XIListProperties_PROC) dlsym(handle, "XIListProperties");
+    XIChangeProperty_PROC = (PFN_XIChangeProperty_PROC) dlsym(handle, "XIChangeProperty");
+    XIDeleteProperty_PROC = (PFN_XIDeleteProperty_PROC) dlsym(handle, "XIDeleteProperty");
+    XIGetProperty_PROC = (PFN_XIGetProperty_PROC) dlsym(handle, "XIGetProperty");
+    XIBarrierReleasePointers_PROC = (PFN_XIBarrierReleasePointers_PROC) dlsym(handle, "XIBarrierReleasePointers");
+    XIBarrierReleasePointer_PROC = (PFN_XIBarrierReleasePointer_PROC) dlsym(handle, "XIBarrierReleasePointer");
+    XIFreeDeviceInfo_PROC = (PFN_XIFreeDeviceInfo_PROC) dlsym(handle, "XIFreeDeviceInfo");
+
+    /* set '__window_h.x11->libXi' member */ 
+    __window_h.x11->libXi = handle;
 
     /* success */
     return (1);
@@ -4740,8 +5206,9 @@ WININT int __winUnloadX11(void) {
 
     XCloseDisplay(__window_h.x11->xlib.dpy);
 
-    /* release '__window_h.x11->handle' field */
-    dlclose(__window_h.x11->handle), __window_h.x11->handle = 0;
+    /* release '__window_h.x11' handles */
+    dlclose(__window_h.x11->libX11), __window_h.x11->libX11 = 0;
+    dlclose(__window_h.x11->libXi),  __window_h.x11->libXi = 0;
 
     /* release '__window_h.x11' */
     free(__window_h.x11);
