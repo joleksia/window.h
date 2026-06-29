@@ -1136,7 +1136,6 @@ static struct __window_h {
 #  /* WINDOW_BACKEND_X11 - X11 implementation */
 #  if defined (WINDOW_BACKEND_X11)
 #
-#   include <X11/X.h>
 #   include <X11/Xlib.h>
 #   include <X11/Xutil.h>
 #   include <X11/Xatom.h>
@@ -1149,6 +1148,22 @@ static struct __window_h {
 #   define _NET_WM_STATE_REMOVE 0
 #   define _NET_WM_STATE_ADD    1
 #   define _NET_WM_STATE_TOGGLE 2
+
+typedef unsigned char KeyCode;
+typedef unsigned long XID;
+typedef unsigned long Mask;
+typedef unsigned long Atom;		/* Also in Xdefs.h */
+typedef unsigned long VisualID;
+typedef unsigned long Time;
+typedef XID Window;
+typedef XID Drawable;
+typedef XID Font;
+typedef XID Pixmap;
+typedef XID Cursor;
+typedef XID Colormap;
+typedef XID GContext;
+typedef XID KeySym;
+
 
 /* libX11: Xlib.h */
 
