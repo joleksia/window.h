@@ -4352,8 +4352,6 @@ WININT int __winLoadX11(void);
 
 WININT int __winLoadX11Symbols(void);
 
-WININT Window __winCreateIPCWindowX11(void);
-
 WININT int __winUnloadX11(void);
 
 /* internal functions (definitions) */
@@ -4379,7 +4377,14 @@ WININT int __winLoadX11(void) {
     if (!root) { return (0); }
     __window_h.x11->xlib.root = root;
     
-    Window ipc = __winCreateIPCWindowX11();
+    XSetWindowAttributes attr = { .event_mask = PropertyChangeMask };
+    Window ipc = XCreateWindow(__window_h.x11->xlib.dpy,
+                               __window_h.x11->xlib.root,
+                               0, 0, 1, 1, 0, 0,
+                               InputOnly,
+                               CopyFromParent,
+                               CWEventMask,
+                               &attr);
     if (!ipc) { return (0); }
     __window_h.x11->xlib.ipc  = ipc;
     
@@ -5198,21 +5203,6 @@ WININT int __winLoadX11Symbols(void) {
 }
 
 
-WININT Window __winCreateIPCWindowX11(void) {
-    XSetWindowAttributes attr = {
-        .event_mask = PropertyChangeMask
-    };
-
-    return (XCreateWindow(__window_h.x11->xlib.dpy,
-                          __window_h.x11->xlib.root,
-                          0, 0, 1, 1, 0, 0,
-                          InputOnly,
-                          CopyFromParent,
-                          CWEventMask,
-                          &attr));
-}
-
-
 WININT int __winUnloadX11(void) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
@@ -5698,10 +5688,6 @@ WININT int __winLoadEGLSymbols(void);
 
 WININT int __winUnloadEGL(void);
 
-WININT int __winCreateContextEGL(context_t);
-
-WININT int __winDestroyContextEGL(context_t);
-
 /* internal functions (definitions) */
 
 WININT int __winLoadEGL(void) {
@@ -5865,76 +5851,6 @@ WININT int __winUnloadEGL(void) {
     return (1);
 }
 
-
-WININT int __winCreateContextEGL(context_t context) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    if (!__window_h.egl) { return (0); }
-    if (!context)        { return (0); }
-
-    /* references */
-    struct __window_h_context *ctx = (struct __window_h_context *) context;
-    struct __window_h_window  *win = (struct __window_h_window *) ctx->owner;
-    if (!win)      { return (0); }
-    if (!win->x11) { return (0); }
-
-    /* egl references */
-    EGLDisplay dpy = __window_h.egl->dpy;
-
-    ctx->egl = calloc(1, sizeof(struct __window_h_context_egl));
-    if (!ctx->egl) { return (0); }
-
-    /* get EGLConfig object */
-    int num_config   = 0;
-    EGLConfig egl_config = 0;
-    if (!eglChooseConfig(dpy, __window_h.egl->attr.config, &egl_config, 1, &num_config)) { return (0); }
-
-    /* get EGLSurface object */
-    EGLSurface egl_surface = eglCreateWindowSurface(dpy, egl_config, win->x11->xlib.client, __window_h.egl->attr.surface);
-    if (egl_surface == EGL_NO_SURFACE) { return (0); }
-
-    /* get EGLContext object */
-    EGLContext egl_context = eglCreateContext(dpy, egl_config, EGL_NO_CONTEXT, __window_h.egl->attr.context);
-    if (egl_context == EGL_NO_CONTEXT) { return (0); }
-    
-    /* set 'result->egl' members */
-    if (!dpy) { return (0); }
-    __window_h.egl->dpy = dpy;
-
-    if (!egl_config) { return (0); }
-    ctx->egl->config = egl_config;
-
-    if (!egl_surface) { return (0); }
-    ctx->egl->surface = egl_surface;
-
-    if (!egl_context) { return (0); }
-    ctx->egl->context = egl_context;
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winDestroyContextEGL(context_t context) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    if (!__window_h.egl) { return (0); }
-    if (!context)        { return (0); }
-
-    /* references */
-    struct __window_h_context *ctx = (struct __window_h_context *) context;
-
-    eglMakeCurrent(__window_h.egl->dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    if (ctx->egl->context) { eglDestroyContext(__window_h.egl->dpy, ctx->egl->context); }
-    if (ctx->egl->surface) { eglDestroySurface(__window_h.egl->dpy, ctx->egl->surface); }
- 
-    /* deallocate context object */
-    free(ctx->egl);
-
-    /* success */
-    return (1);
-}
-
 #  endif /* WINDOW_BACKEND_EGL */
 #
 #  /* WINDOW_BACKEND_WGL - WGL implementation layer */
@@ -6053,9 +5969,13 @@ WININT int __winCreateCursorX11(cursor_t, window_t, int, int);
 
 WININT int __winCreateCursorBlankX11(cursor_t);
 
-WININT int __winCreateContextX11(context_t);
+WININT int __winCreateContextX11(context_t, window_t);
 
 WININT int __winDestroyContextX11(context_t);
+
+WININT int __winCreateContextEGL(context_t, window_t);
+
+WININT int __winDestroyContextEGL(context_t);
 
 /* platform functions */
 
@@ -6839,27 +6759,26 @@ WINDEF int winCreateContext(context_t *context, window_t window) {
     if (!context) { return (0); }
     if (!window)  { return (0); }
     
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-    
     /* alloc new context object */
     struct __window_h_context *result = calloc(1, sizeof(struct __window_h_context));
     if (!result) { return (0); }
 
-    /* set the context's ownership */
-    result->owner = window;
-    win->context  = result;
-
-    if (win->flags & WINDOW_FLAG_API_NONE) {
-        if (!__winCreateContextX11(result)) { return (0); }
+    uint32_t flags = 0;
+    winGetWindowFlags(window, &flags);
+    if (flags & WINDOW_FLAG_API_NONE) {
+        if (!__winCreateContextX11(result, window)) { return (0); }
     }
-    else if (win->flags & WINDOW_FLAG_API_OPENGL) {
-        if (!__winCreateContextEGL(result)) { return (0); }
+    else if (flags & WINDOW_FLAG_API_OPENGL) {
+        if (!__winCreateContextEGL(result, window)) { return (0); }
     }
     else {
         /* ... */
         return (0);
     }
+
+    /* set the context's ownership */
+    result->owner = window;
+    result->owner->context = result;
 
     /* add the result to the '__window_h.context.list' linked list */
     result->next = __window_h.context.list;
@@ -6878,16 +6797,17 @@ WINDEF int winDestroyContext(context_t context) {
 
     /* references */
     struct __window_h_context *ctx = (struct __window_h_context *) context;
-    struct __window_h_window  *win = (struct __window_h_window *) ctx->owner;
 
-    if (win->flags & WINDOW_FLAG_API_NONE) {
+    uint32_t flags = 0;
+    winGetWindowFlags(ctx->owner, &flags);
+    if (flags & WINDOW_FLAG_API_NONE) {
         /* null-check */
         if (!__window_h.x11) { return (0); }
         if (ctx->x11) {
             if (!__winDestroyContextX11(context)) { return (0); }
         }
     }
-    else if (win->flags & WINDOW_FLAG_API_OPENGL) {
+    else if (flags & WINDOW_FLAG_API_OPENGL) {
         /* null-check */
         if (!__window_h.egl) { return (0); }
         if (ctx->egl) {
@@ -8543,14 +8463,15 @@ WININT int __winCreateCursorBlankX11(cursor_t cursor) {
 }
 
 
-WININT int __winCreateContextX11(context_t context) {
+WININT int __winCreateContextX11(context_t context, window_t window) {
     /* null-check */
     if (!__window_h.x11) { return (0); }
     if (!context)        { return (0); }
+    if (!window)         { return (0); }
 
     /* references */
     struct __window_h_context *ctx = (struct __window_h_context *) context;
-    struct __window_h_window  *win = (struct __window_h_window *) ctx->owner;
+    struct __window_h_window  *win = (struct __window_h_window *) window;
     
     ctx->x11 = calloc(1, sizeof(struct __window_h_context_x11));
     if (!ctx->x11) { return (0); }
@@ -8618,6 +8539,74 @@ WININT int __winDestroyContextX11(context_t context) {
  
     /* deallocate context object */
     free(ctx->x11);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winCreateContextEGL(context_t context, window_t window) {
+    /* null-check */
+    if (!__window_h.egl) { return (0); }
+    if (!context)        { return (0); }
+    if (!window)         { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    struct __window_h_window  *win = (struct __window_h_window *) window;
+
+    /* egl references */
+    EGLDisplay dpy = __window_h.egl->dpy;
+
+    ctx->egl = calloc(1, sizeof(struct __window_h_context_egl));
+    if (!ctx->egl) { return (0); }
+
+    /* get EGLConfig object */
+    int num_config   = 0;
+    EGLConfig egl_config = 0;
+    if (!eglChooseConfig(dpy, __window_h.egl->attr.config, &egl_config, 1, &num_config)) { return (0); }
+
+    /* get EGLSurface object */
+    EGLSurface egl_surface = eglCreateWindowSurface(dpy, egl_config, win->x11->xlib.client, __window_h.egl->attr.surface);
+    if (egl_surface == EGL_NO_SURFACE) { return (0); }
+
+    /* get EGLContext object */
+    EGLContext egl_context = eglCreateContext(dpy, egl_config, EGL_NO_CONTEXT, __window_h.egl->attr.context);
+    if (egl_context == EGL_NO_CONTEXT) { return (0); }
+    
+    /* set 'result->egl' members */
+    if (!dpy) { return (0); }
+    __window_h.egl->dpy = dpy;
+
+    if (!egl_config) { return (0); }
+    ctx->egl->config = egl_config;
+
+    if (!egl_surface) { return (0); }
+    ctx->egl->surface = egl_surface;
+
+    if (!egl_context) { return (0); }
+    ctx->egl->context = egl_context;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winDestroyContextEGL(context_t context) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+    if (!context)        { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    eglMakeCurrent(__window_h.egl->dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (ctx->egl->context) { eglDestroyContext(__window_h.egl->dpy, ctx->egl->context); }
+    if (ctx->egl->surface) { eglDestroySurface(__window_h.egl->dpy, ctx->egl->surface); }
+ 
+    /* deallocate context object */
+    free(ctx->egl);
 
     /* success */
     return (1);
