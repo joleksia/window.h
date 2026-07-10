@@ -16,15 +16,6 @@
  *                             This should be defined only once in the entire codebase.
  *                             Otherwise, defining this option will cause a multiple-definitions error.
  *
- *      #define WINDOW_BACKEND_X11
- *          - TYPE: OPTIONAL
- *          - DESCRIPTION: Force X11 implementation of window.h.
- *                         Defined by default on GNU/Linux and unix-like systems.
- * 
- *      #define WINDOW_BACKEND_WAYLAND
- *          - TYPE: OPTIONAL
- *          - DESCRIPTION: Force wayland implementation of window.h.
- *
  *
  *  Constants (MUST NOT be defined by user):
  *
@@ -56,11 +47,6 @@
 #  define WINDOW_PLATFORM "linux"
 #  define WINDOW_PLATFORM_LINUX 1
 #
-#  define WINDOW_BACKEND_EGL 1 /* by default window.h picks EGL */
-#  if !defined (WINDOW_BACKEND_X11) && !defined (WINDOW_BACKEND_WAYLAND)
-#   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 */
-#  endif
-#
 # elif defined (__APPLE__) || defined (__MACH__)
 #  define WINDOW_PLATFORM "apple"
 #  define WINDOW_PLATFORM_APPLE 1
@@ -68,17 +54,11 @@
 #
 # elif defined (__CYGWIN__) || defined (_WIN32)
 #  define WINDOW_PLATFORM "win32"
-#  define WINDOW_PLATFORM_WIN32 1 /* default and only option for window.h */
-#  define WINDOW_BACKEND_WGL 1 /* by default window.h picks WGL */
+#  define WINDOW_PLATFORM_WIN32 1
 #
 # elif defined (__FreeBSD__) || defined (__NetBSD__) || defined (__bsdi__) || defined (__DragonFly__) || defined (__MidnightBSD__)
 #  define WINDOW_PLATFORM "bsd"
 #  define WINDOW_PLATFORM_BSD 1
-#
-#  define WINDOW_BACKEND_EGL 1 /* by default window.h picks EGL */
-#  if !defined (WINDOW_BACKEND_X11) && !defined (WINDOW_BACKEND_WAYLAND)
-#   define WINDOW_BACKEND_X11 1 /* by default window.h picks X11 */
-#  endif
 #
 # else
 #  error /* No valid platform found */
@@ -555,6 +535,19 @@ enum {
 
 
 enum {
+    WINDOW_PLATFORM_NONE = 0,
+    WINDOW_PLATFORM_X11,
+    WINDOW_PLATFORM_WAYLAND, /* unsupported */
+    WINDOW_PLATFORM_WIN32,   /* unsupported */
+    WINDOW_PLATFORM_COCOA,   /* unsupported */
+
+    /* ... */
+
+    WINDOW_PLATFORM_ANY
+};
+
+
+enum {
     WINDOW_PROP_PLATFORM_NONE = 0,
     
     /* X11 properties */
@@ -665,10 +658,10 @@ enum {
 typedef void *window_t;
 
 
-typedef void *cursor_t;
-
-
 typedef void *context_t;
+
+
+typedef void *cursor_t;
 
 
 typedef struct s_eventCommon t_eventCommon;
@@ -809,8 +802,6 @@ WINDEF int winInit(void);
 
 WINDEF int winQuit(void);
 
-WINDEF int winGetSize(size_t *, size_t *);
-
 WINDEF void *winGetProperty(const uint32_t);
 
 /* windowing functions */
@@ -921,9 +912,16 @@ WINDEF int winSendEvent(uint32_t, ...);
 
 WINDEF int winPeekEvent(t_event *);
 
-WINDEF int winFlushEvents(void);
-
 /* clipboard functions */
+
+/* TODO:
+ *  Consider abstracting this functions to work based on selection ID:
+ *  
+ *      winCopy(const uint32_t, const char *)
+ *      winPaste(const uint32_t, char **)
+ *
+ *  ...where 'const uint32_t' is the ID of the selection
+ * */
 
 WINDEF int winCopyClipboard(const char *);
 
@@ -944,16 +942,29 @@ WINDEF int winWaitTime(uint64_t);
 #  include <assert.h>
 #  include <string.h>
 
+/* __window_h_event: event queue struct */
 struct __window_h_event;
 
+/* __window_h_selection: selection struct for:
+ * - primary selection
+ * - secondary selection
+ * - clipboard selection
+ * */
 struct __window_h_selection;
 
+/* __window_h_platform: platform structure containing API callbacks */
+struct __window_h_platform;
+
+/* __window_h_window: generic, type-agnostic window struct */
 struct __window_h_window;
 
+/* __context_h_context: generic, type-agnostic context struct */
 struct __window_h_context;
 
+/* __cursor_h_cursor: generic, type-agnostic cursor struct */
 struct __window_h_cursor;
 
+/* __window_h: global window.h struct */
 struct __window_h;
 
 
@@ -978,6 +989,100 @@ struct __window_h_selection{
         char  *data;
         size_t size;
     } clipboard;
+};
+
+
+struct __window_h_platform {
+    uint32_t id; /* ID of the platform */
+    
+    int (*init) (void);
+
+    int (*quit) (void);
+
+    void *(*getProperty) (const uint32_t);
+
+    /* (*dog functions */
+
+    int (*createWindow) (window_t *, const size_t, const size_t, const char *, uint32_t);
+    int (*createNestedWindow) (window_t *, window_t, const size_t, const size_t, const char *, uint32_t);
+    int (*destroyWindow) (window_t);
+    int (*getWindowFlags) (window_t, uint32_t *);
+    int (*setWindowFlags) (window_t, const uint32_t);
+    int (*toggleWindowFlags) (window_t, const uint32_t);
+    void *(*getWindowProperty) (window_t, const uint32_t);
+    int (*mapWindow) (window_t);
+    int (*unmapWindow) (window_t);
+    int (*getWindowSize) (window_t, size_t *, size_t *);
+    int (*setWindowSize) (window_t, const size_t, const size_t);
+    int (*setWindowMinSize) (window_t, const size_t, const size_t);
+    int (*setWindowMaxSize) (window_t, const size_t, const size_t);
+    int (*getWindowPosition) (window_t, size_t *, size_t *);
+    int (*setWindowPosition) (window_t, const size_t, const size_t);
+    int (*getWindowTitle) (window_t, char **);
+    int (*setWindowTitle) (window_t, const char *);
+    int (*getWindowContext) (window_t, context_t *);
+    int (*setWindowContext) (window_t, context_t);
+    int (*dowFocused) (window_t);
+    int (*dowFullscreen) (window_t);
+    int (*dowMinimized) (window_t);
+    int (*dowMaximized) (window_t);
+
+    /* context functions */
+
+    int (*createContext) (context_t *, window_t);
+    int (*destroyContext) (context_t);
+    int (*getContextBuffer) (context_t, uint8_t **, size_t *, size_t *);
+    int (*drawBuffer) (context_t);
+    int (*getContextOwner) (context_t, window_t *);
+    int (*setContextOwner) (context_t, window_t);
+
+    /* opengl context functions */
+
+    int (*GLSetAttribute) (const int, const int);
+    int (*GLMakeCurrent) (context_t);
+    int (*GLSwapBuffers) (context_t);
+    int (*GLSwapInterval) (context_t, const int);
+    void *(*GLGetProcAddress) (const char *);
+
+    /* cursor functions */
+
+    int (*createCursor) (cursor_t *, window_t);
+    int (*destroyCursor) (cursor_t);
+    int (*getCursorPosition) (window_t, size_t *, size_t *);
+    int (*setCursorPosition) (window_t, const size_t, const size_t);
+    int (*setCursorPositionCenter) (window_t);
+    int (*getCursorMode) (window_t, uint32_t *);
+    int (*setCursorMode) (window_t, const uint32_t);
+    int (*getCursorRawMotion) (window_t, uint8_t *);
+    int (*setCursorRawMotion) (window_t, const uint8_t);
+
+    /* event functions */
+
+    int (*pollEvents) (t_event *);
+    int (*waitEvents) (t_event *);
+    int (*pushEvent) (t_event *);
+    int (*popEvent) (t_event *);
+    int (*sendEvent) (uint32_t, ...);
+    int (*peekEvent) (t_event *);
+
+    /* clipboard functions */
+
+    /* TODO:
+     *  Consider abstracting this functions to work based on selection ID:
+     *  
+     *      (*copy) (const uint32_t, const char *)
+     *      (*paste) (const uint32_t, char **)
+     *
+     *  ...where 'const uint32_t' is the ID of the selection
+     * */
+    
+    int (*copyClipboard) (const char *);
+    int (*pasteClipboard) (char **);
+
+    /* timing functions */
+
+    uint64_t (*getTime) (void);
+    int (*waitTime) (uint64_t);
 };
 
 
@@ -1107,6 +1212,8 @@ static struct __window_h {
     /* selections */
     struct __window_h_selection selection;
 
+    /* platform */
+    struct __window_h_platform platform;
 
     /* x11-implementation of window.h */
     struct __window_h_x11 *x11;
@@ -7490,18 +7597,6 @@ WINDEF int winPeekEvent(t_event *event) {
 
     /* assign the first node to the reference */
     *event = eq ? eq->event : (t_event) { 0 };
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int winFlushEvents(void) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-    
-    /* flush */
-    if (!XFlush(__window_h.x11->xlib.dpy)) { return (0); }
 
     /* success */
     return (1);
