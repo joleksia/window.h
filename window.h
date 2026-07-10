@@ -917,6 +917,8 @@ WINDEF int winPushEvent(t_event *);
 
 WINDEF int winPopEvent(t_event *);
 
+WINDEF int winSendEvent(uint32_t, ...);
+
 WINDEF int winPeekEvent(t_event *);
 
 WINDEF int winFlushEvents(void);
@@ -5957,8 +5959,6 @@ WININT int __winUpdateWindowFlagsX11(window_t);
 
 WININT int __winPollEvents(void);
 
-WININT int __winSendEvent(uint32_t, ...);
-
 WININT int __winHandleSelectionX11(XEvent *);
 
 WININT int __winSetSelectionStringX11(const char *, const Atom);
@@ -6636,7 +6636,7 @@ WINDEF int winWindowFullscreen(window_t window) {
     /* return events */
     if (fullscr != win->fullscreen) {
         win->fullscreen = fullscr;
-        __winSendEvent(WINDOW_EVENT_WINDOW_FULLSCREEN, window, fullscr, 0);
+        winSendEvent(WINDOW_EVENT_WINDOW_FULLSCREEN, window, fullscr, 0);
     }
 
     return (fullscr);
@@ -6690,7 +6690,7 @@ WINDEF int winWindowMinimized(window_t window) {
     /* return events */
     if (minim != win->minimized) {
         win->minimized = minim;
-        __winSendEvent(WINDOW_EVENT_WINDOW_MINIMIZE, window, minim, 0);
+        winSendEvent(WINDOW_EVENT_WINDOW_MINIMIZE, window, minim, 0);
     }
 
     return (minim);
@@ -6746,7 +6746,7 @@ WINDEF int winWindowMaximized(window_t window) {
     /* return events */
     if (maxim != win->maximized) {
         win->maximized = maxim;
-        __winSendEvent(WINDOW_EVENT_WINDOW_MAXIMIZE, window, maxim, 0);
+        winSendEvent(WINDOW_EVENT_WINDOW_MAXIMIZE, window, maxim, 0);
     }
 
     return (maxim);
@@ -7370,6 +7370,117 @@ WINDEF int winPopEvent(t_event *event) {
 }
 
 
+/* winSendEvent:
+ *  
+ *  This function accepts a variadic argument list of parameters which MUST follows
+ *  the layout of members of the desired event.
+ *
+ *  Let's say we're passing a list of data for 'WINDOW_EVENT_WINDOW_' event.
+ *  With it's layout:
+ *  - window_t window,
+ *  - uint32_t data1,
+ *  - uint32_t data2,
+ *  ... va_list should be constructed of: window_t, uint32_t, uint32_t.
+ * */
+WINDEF int winSendEvent(uint32_t type, ...) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+
+    /* default 'event' object */
+    t_event event = { 0 };
+    event.type = type;
+    event.time = winGetTime();
+
+    /* intialize variadic list */
+    va_list va;
+    va_start(va, 0);
+    switch (type) {
+
+        case (WINDOW_EVENT_QUIT): { } break;
+
+        /* Mouse events */
+
+        case (WINDOW_EVENT_MOUSE_MOTION): {
+            event.mouse.window = va_arg(va, window_t);
+            event.mouse.which  = va_arg(va, uint64_t);
+            event.mouse.x    = va_arg(va, int32_t);
+            event.mouse.xrel = va_arg(va, int32_t);
+            event.mouse.y    = va_arg(va, int32_t);
+            event.mouse.yrel = va_arg(va, int32_t);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_BUTTON): {
+            event.mouse.window = va_arg(va, window_t);
+            event.mouse.which  = va_arg(va, uint64_t);
+            event.mouse.btn   = va_arg(va, int);
+            event.mouse.state = va_arg(va, int);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_SCROLL): {
+            event.mouse.window = va_arg(va, window_t);
+            event.mouse.which  = va_arg(va, uint64_t);
+            event.mouse.scroll_x = va_arg(va, int32_t);
+            event.mouse.scroll_y = va_arg(va, int32_t);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_ADDED): { } break;
+
+        case (WINDOW_EVENT_MOUSE_REMOVED): { } break;
+
+        /* Keyboard events */
+
+        case (WINDOW_EVENT_KEYBOARD_KEY): {
+            event.keyboard.window = va_arg(va, window_t);
+            event.keyboard.which  = va_arg(va, uint64_t);
+            event.keyboard.keysym  = va_arg(va, uint64_t);
+            event.keyboard.keycode = va_arg(va, uint32_t);
+            event.keyboard.keymod  = va_arg(va, uint32_t);
+            event.keyboard.keyraw  = va_arg(va, uint32_t);
+            event.keyboard.state  = va_arg(va, uint32_t);
+            event.keyboard.repeat = va_arg(va, uint32_t);
+        } break;
+
+        case (WINDOW_EVENT_KEYBOARD_ADDED): { } break;
+
+        case (WINDOW_EVENT_KEYBOARD_REMOVED): { } break;
+
+        /* Window events */
+
+        case (WINDOW_EVENT_WINDOW_CREATE):
+        case (WINDOW_EVENT_WINDOW_DESTROY):
+        case (WINDOW_EVENT_WINDOW_MAP):
+        case (WINDOW_EVENT_WINDOW_UNMAP):
+        case (WINDOW_EVENT_WINDOW_RESIZE):
+        case (WINDOW_EVENT_WINDOW_MOTION):
+        case (WINDOW_EVENT_WINDOW_ENTER):
+        case (WINDOW_EVENT_WINDOW_LEAVE):
+        case (WINDOW_EVENT_WINDOW_MAXIMIZE):
+        case (WINDOW_EVENT_WINDOW_MINIMIZE):
+        case (WINDOW_EVENT_WINDOW_FULLSCREEN): {
+            event.window.window = va_arg(va, window_t);
+            event.window.data1  = va_arg(va, uint32_t);
+            event.window.data2  = va_arg(va, uint32_t);
+        } break;
+
+        case (WINDOW_EVENT_CLIPBOARD_COPY):
+        case (WINDOW_EVENT_CLIPBOARD_PASTE): {
+            event.clipboard.data   = va_arg(va, void *);
+            event.clipboard.size   = va_arg(va, size_t);
+        } break;
+
+        /* ... */
+
+        default: { } break;
+    }
+
+    /* release variadic list */
+    va_end(va);
+
+    /* status based on result of 'winPushEvent' */
+    return (winPushEvent(&event));
+}
+
+
 WINDEF int winPeekEvent(t_event *event) {
     /* null-check */
     if (!event) { return (0); }
@@ -7733,7 +7844,7 @@ WININT int __winPollEvents(void) {
 
                     /* WINDOW_EVENT_QUIT */
                     if (data == WM_DELETE_WINDOW) {
-                        __winSendEvent(WINDOW_EVENT_QUIT);
+                        winSendEvent(WINDOW_EVENT_QUIT);
                     }
                 }
             } break;
@@ -7747,7 +7858,7 @@ WININT int __winPollEvents(void) {
                 __winGetWindowFromIDX11((window_t *) &window, xcreatewindow.window);
                 if (!window) { break; }
 
-                __winSendEvent(WINDOW_EVENT_WINDOW_CREATE, window, 0, 0); 
+                winSendEvent(WINDOW_EVENT_WINDOW_CREATE, window, 0, 0); 
             } break;
 
             case (DestroyNotify): {
@@ -7759,7 +7870,7 @@ WININT int __winPollEvents(void) {
                 __winGetWindowFromIDX11((window_t *) &window, xdestroywindow.window);
                 if (!window) { break; }
 
-                __winSendEvent(WINDOW_EVENT_WINDOW_DESTROY, window, 0, 0); 
+                winSendEvent(WINDOW_EVENT_WINDOW_DESTROY, window, 0, 0); 
             } break;
 
             case (MapNotify): {
@@ -7771,7 +7882,7 @@ WININT int __winPollEvents(void) {
                 __winGetWindowFromIDX11((window_t *) &window, xmap.window);
                 if (!window) { break; }
 
-                __winSendEvent(WINDOW_EVENT_WINDOW_MAP, window, 0, 0); 
+                winSendEvent(WINDOW_EVENT_WINDOW_MAP, window, 0, 0); 
             } break;
 
             case (UnmapNotify): {
@@ -7783,7 +7894,7 @@ WININT int __winPollEvents(void) {
                 __winGetWindowFromIDX11((window_t *) &window, xunmap.window);
                 if (!window) { break; }
 
-                __winSendEvent(WINDOW_EVENT_WINDOW_UNMAP, window, 0, 0); 
+                winSendEvent(WINDOW_EVENT_WINDOW_UNMAP, window, 0, 0); 
             } break;
 
             case (EnterNotify): {
@@ -7795,7 +7906,7 @@ WININT int __winPollEvents(void) {
                 __winGetWindowFromIDX11((window_t *) &window, xcrossing.window);
                 if (!window) { break; }
 
-                __winSendEvent(WINDOW_EVENT_WINDOW_ENTER, window, 0, 0); 
+                winSendEvent(WINDOW_EVENT_WINDOW_ENTER, window, 0, 0); 
             } break;
 
             case (LeaveNotify): {
@@ -7807,7 +7918,7 @@ WININT int __winPollEvents(void) {
                 __winGetWindowFromIDX11((window_t *) &window, xcrossing.window);
                 if (!window) { break; }
 
-                __winSendEvent(WINDOW_EVENT_WINDOW_LEAVE, window, 0, 0); 
+                winSendEvent(WINDOW_EVENT_WINDOW_LEAVE, window, 0, 0); 
             } break;
 
             case (GenericEvent): {
@@ -7863,7 +7974,7 @@ WININT int __winPollEvents(void) {
                          y = xmotion.y;
                 uint32_t xrel = xmotion.x_root,
                          yrel = xmotion.y_root;
-                __winSendEvent(WINDOW_EVENT_MOUSE_MOTION, window, 0, x, xrel, y, yrel);
+                winSendEvent(WINDOW_EVENT_MOUSE_MOTION, window, 0, x, xrel, y, yrel);
             } break;
 
             case (ButtonPress):
@@ -7889,7 +8000,7 @@ WININT int __winPollEvents(void) {
                         case (3): { btn = WINDOW_BUTTON_RIGHT;  } break; /* right */
                     }
                     state = xbutton.type == ButtonPress ? 1 : 0;
-                    __winSendEvent(WINDOW_EVENT_MOUSE_BUTTON, window, which, btn, state);
+                    winSendEvent(WINDOW_EVENT_MOUSE_BUTTON, window, which, btn, state);
                 }
                 else if (xbutton.button >= 4 && xbutton.button <= 7) {
                     /* WINDOW_EVENT_MOUSE_SCROLL members layout */
@@ -7901,7 +8012,7 @@ WININT int __winPollEvents(void) {
                     else if (xbutton.button == 5) { scroll_y = -1; }
                     else if (xbutton.button == 6) { scroll_x =  1; }
                     else if (xbutton.button == 7) { scroll_x = -1; }
-                    __winSendEvent(WINDOW_EVENT_MOUSE_SCROLL, window, which, scroll_x, scroll_y);
+                    winSendEvent(WINDOW_EVENT_MOUSE_SCROLL, window, which, scroll_x, scroll_y);
                 }
                 else {
                     /* WINDOW_EVENT_MOUSE_BUTTON members layout */
@@ -7910,7 +8021,7 @@ WININT int __winPollEvents(void) {
 
                     btn   = xbutton.button - Button1 - 4;
                     state = xbutton.type == ButtonPress ? 1 : 0;
-                    __winSendEvent(WINDOW_EVENT_MOUSE_BUTTON, window, which, btn, state);
+                    winSendEvent(WINDOW_EVENT_MOUSE_BUTTON, window, which, btn, state);
                 }
             } break;
 
@@ -7967,7 +8078,7 @@ WININT int __winPollEvents(void) {
                 /* TODO */
                 repeat = 0;
 
-                __winSendEvent(WINDOW_EVENT_KEYBOARD_KEY, window, which, keysym, keycode, keymod, keyraw, state, repeat);
+                winSendEvent(WINDOW_EVENT_KEYBOARD_KEY, window, which, keysym, keycode, keymod, keyraw, state, repeat);
             } break;
 
             case (ConfigureNotify): {
@@ -7988,7 +8099,7 @@ WININT int __winPollEvents(void) {
                 ) {
                     window->siz_w = data1 = xconfigure.width;
                     window->siz_h = data2 = xconfigure.height;
-                    __winSendEvent(WINDOW_EVENT_WINDOW_RESIZE, window, data1, data2);
+                    winSendEvent(WINDOW_EVENT_WINDOW_RESIZE, window, data1, data2);
                 }
                 
                 /* WINDOW_EVENT_WINDOW_MOTION */
@@ -7997,7 +8108,7 @@ WININT int __winPollEvents(void) {
                 ) {
                     window->pos_x = data1 = xconfigure.x;
                     window->pos_y = data2 = xconfigure.y;
-                    __winSendEvent(WINDOW_EVENT_WINDOW_MOTION, window, data1, data2);
+                    winSendEvent(WINDOW_EVENT_WINDOW_MOTION, window, data1, data2);
                 }
             } break;
 
@@ -8026,14 +8137,14 @@ WININT int __winPollEvents(void) {
        
             case (SelectionRequest): {
                 if (__winHandleSelectionX11(&xevent)) {
-                    __winSendEvent(WINDOW_EVENT_CLIPBOARD_COPY, __window_h.selection.clipboard.data,
+                    winSendEvent(WINDOW_EVENT_CLIPBOARD_COPY, __window_h.selection.clipboard.data,
                                                                 __window_h.selection.clipboard.size);
                 }                    
             } break; 
 
             case (SelectionNotify): {
                 if (__winHandleSelectionX11(&xevent)) {
-                    __winSendEvent(WINDOW_EVENT_CLIPBOARD_PASTE, __window_h.selection.clipboard.data,
+                    winSendEvent(WINDOW_EVENT_CLIPBOARD_PASTE, __window_h.selection.clipboard.data,
                                                                  __window_h.selection.clipboard.size);
                 }                    
             } break; 
@@ -8044,117 +8155,6 @@ WININT int __winPollEvents(void) {
 
     /* success */
     return (1);
-}
-
-
-/* __winSendEvent:
- *  
- *  This function accepts a variadic argument list of parameters which MUST follows
- *  the layout of members of the desired event.
- *
- *  Let's say we're passing a list of data for 'WINDOW_EVENT_WINDOW_' event.
- *  With it's layout:
- *  - window_t window,
- *  - uint32_t data1,
- *  - uint32_t data2,
- *  ... va_list should be constructed of: window_t, uint32_t, uint32_.
- * */
-WININT int __winSendEvent(uint32_t type, ...) {
-    /* null-check */
-    if (!__window_h.x11) { return (0); }
-
-    /* default 'event' object */
-    t_event event = { 0 };
-    event.type = type;
-    event.time = winGetTime();
-
-    /* intialize variadic list */
-    va_list va;
-    va_start(va, 0);
-    switch (type) {
-
-        case (WINDOW_EVENT_QUIT): { } break;
-
-        /* Mouse events */
-
-        case (WINDOW_EVENT_MOUSE_MOTION): {
-            event.mouse.window = va_arg(va, window_t);
-            event.mouse.which  = va_arg(va, uint64_t);
-            event.mouse.x    = va_arg(va, int32_t);
-            event.mouse.xrel = va_arg(va, int32_t);
-            event.mouse.y    = va_arg(va, int32_t);
-            event.mouse.yrel = va_arg(va, int32_t);
-        } break;
-
-        case (WINDOW_EVENT_MOUSE_BUTTON): {
-            event.mouse.window = va_arg(va, window_t);
-            event.mouse.which  = va_arg(va, uint64_t);
-            event.mouse.btn   = va_arg(va, int);
-            event.mouse.state = va_arg(va, int);
-        } break;
-
-        case (WINDOW_EVENT_MOUSE_SCROLL): {
-            event.mouse.window = va_arg(va, window_t);
-            event.mouse.which  = va_arg(va, uint64_t);
-            event.mouse.scroll_x = va_arg(va, int32_t);
-            event.mouse.scroll_y = va_arg(va, int32_t);
-        } break;
-
-        case (WINDOW_EVENT_MOUSE_ADDED): { } break;
-
-        case (WINDOW_EVENT_MOUSE_REMOVED): { } break;
-
-        /* Keyboard events */
-
-        case (WINDOW_EVENT_KEYBOARD_KEY): {
-            event.keyboard.window = va_arg(va, window_t);
-            event.keyboard.which  = va_arg(va, uint64_t);
-            event.keyboard.keysym  = va_arg(va, uint64_t);
-            event.keyboard.keycode = va_arg(va, uint32_t);
-            event.keyboard.keymod  = va_arg(va, uint32_t);
-            event.keyboard.keyraw  = va_arg(va, uint32_t);
-            event.keyboard.state  = va_arg(va, uint32_t);
-            event.keyboard.repeat = va_arg(va, uint32_t);
-        } break;
-
-        case (WINDOW_EVENT_KEYBOARD_ADDED): { } break;
-
-        case (WINDOW_EVENT_KEYBOARD_REMOVED): { } break;
-
-        /* Window events */
-
-        case (WINDOW_EVENT_WINDOW_CREATE):
-        case (WINDOW_EVENT_WINDOW_DESTROY):
-        case (WINDOW_EVENT_WINDOW_MAP):
-        case (WINDOW_EVENT_WINDOW_UNMAP):
-        case (WINDOW_EVENT_WINDOW_RESIZE):
-        case (WINDOW_EVENT_WINDOW_MOTION):
-        case (WINDOW_EVENT_WINDOW_ENTER):
-        case (WINDOW_EVENT_WINDOW_LEAVE):
-        case (WINDOW_EVENT_WINDOW_MAXIMIZE):
-        case (WINDOW_EVENT_WINDOW_MINIMIZE):
-        case (WINDOW_EVENT_WINDOW_FULLSCREEN): {
-            event.window.window = va_arg(va, window_t);
-            event.window.data1  = va_arg(va, uint32_t);
-            event.window.data2  = va_arg(va, uint32_t);
-        } break;
-
-        case (WINDOW_EVENT_CLIPBOARD_COPY):
-        case (WINDOW_EVENT_CLIPBOARD_PASTE): {
-            event.clipboard.data   = va_arg(va, void *);
-            event.clipboard.size   = va_arg(va, size_t);
-        } break;
-
-        /* ... */
-
-        default: { } break;
-    }
-
-    /* release variadic list */
-    va_end(va);
-
-    /* status based on result of 'winPushEvent' */
-    return (winPushEvent(&event));
 }
 
 
