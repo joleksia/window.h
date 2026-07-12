@@ -46,28 +46,44 @@
 # if defined (__linux__)
 #  define WINDOW_PLATFORM "linux"
 #  define WINDOW_PLATFORM_LINUX 1
-#  define WINDOW_BACKEND_X11 1
+#
 #  define WINDOW_BACKEND_EGL 1
+#  if !defined (WINDOW_BACKEND_WAYLAND)
+#   define WINDOW_BACKEND_X11 1
+#  else
+#   /* ensure 'WINDOW_BACKEND_WAYLAND' equals to '2' */
+#   undef  WINDOW_BACKEND_WAYLAND
+#   define WINDOW_BACKEND_WAYLAND 2
+#  endif
 #
 # elif defined (__APPLE__) || defined (__MACH__)
 #  define WINDOW_PLATFORM "apple"
 #  define WINDOW_PLATFORM_APPLE 1
-#  define WINDOW_BACKEND_COCOA 4
+#
 #  define WINDOW_BACKEND_EGL 1
+#  define WINDOW_BACKEND_COCOA 4
 #  error /* platform not supported right now */
 #
 # elif defined (__CYGWIN__) || defined (_WIN32)
 #  define WINDOW_PLATFORM "win32"
 #  define WINDOW_PLATFORM_WIN32 1
-#  define WINDOW_BACKEND_WIN32 3
+#
 #  define WINDOW_BACKEND_WGL 2
+#  define WINDOW_BACKEND_WIN32 3
 #  error /* platform not supported right now */
 #
 # elif defined (__FreeBSD__) || defined (__NetBSD__) || defined (__bsdi__) || defined (__DragonFly__) || defined (__MidnightBSD__)
 #  define WINDOW_PLATFORM "bsd"
 #  define WINDOW_PLATFORM_BSD 1
-#  define WINDOW_BACKEND_X11 1
+#
 #  define WINDOW_BACKEND_EGL 1
+#  if !defined (WINDOW_BACKEND_WAYLAND)
+#   define WINDOW_BACKEND_X11 1
+#  else
+#   /* ensure 'WINDOW_BACKEND_WAYLAND' equals to '2' */
+#   undef  WINDOW_BACKEND_WAYLAND
+#   define WINDOW_BACKEND_WAYLAND 2
+#  endif
 #
 # else
 #  error /* No valid platform found */
@@ -1346,7 +1362,6 @@ WINDEF int winWaitTime(uint64_t t) { return (__window_h.platform.waitTime(t)); }
 
 #  /* WINDOW_BACKEND_X11 - X11 implementation */
 #  if defined (WINDOW_BACKEND_X11)
-#
 #   include <X11/Xlib.h>
 #   include <X11/Xutil.h>
 #   include <X11/Xatom.h>
@@ -1358,2775 +1373,2775 @@ WINDEF int winWaitTime(uint64_t t) { return (__window_h.platform.waitTime(t)); }
 
 typedef int (* PFN_XActivateScreenSaver_PROC) (Display *);
 PFN_XActivateScreenSaver_PROC XActivateScreenSaver_PROC = 0;
-#  define XActivateScreenSaver (assert(XActivateScreenSaver_PROC != 0), XActivateScreenSaver_PROC)
+#   define XActivateScreenSaver (assert(XActivateScreenSaver_PROC != 0), XActivateScreenSaver_PROC)
 
 typedef int (* PFN_XAddConnectionWatch_PROC) (Display *, XConnectionWatchProc, XPointer);
 PFN_XAddConnectionWatch_PROC XAddConnectionWatch_PROC = 0;
-#  define XAddConnectionWatch (assert(XAddConnectionWatch_PROC != 0), XAddConnectionWatch_PROC)
+#   define XAddConnectionWatch (assert(XAddConnectionWatch_PROC != 0), XAddConnectionWatch_PROC)
 
 typedef XExtCodes *(* PFN_XAddExtension_PROC) (Display *);
 PFN_XAddExtension_PROC XAddExtension_PROC = 0;
-#  define XAddExtension (assert(XAddExtension_PROC != 0), XAddExtension_PROC)
+#   define XAddExtension (assert(XAddExtension_PROC != 0), XAddExtension_PROC)
 
 typedef int (* PFN_XAddHost_PROC) (Display *, XHostAddress *);
 PFN_XAddHost_PROC XAddHost_PROC = 0;
-#  define XAddHost (assert(XAddHost_PROC != 0), XAddHost_PROC)
+#   define XAddHost (assert(XAddHost_PROC != 0), XAddHost_PROC)
 
 typedef int (* PFN_XAddHosts_PROC) (Display *, XHostAddress *, int);
 PFN_XAddHosts_PROC XAddHosts_PROC = 0;
-#  define XAddHosts (assert(XAddHosts_PROC != 0), XAddHosts_PROC)
+#   define XAddHosts (assert(XAddHosts_PROC != 0), XAddHosts_PROC)
 
 typedef int (* PFN_XAddToExtensionList_PROC) (struct _XExtData **, XExtData *);
 PFN_XAddToExtensionList_PROC XAddToExtensionList_PROC = 0;
-#  define XAddToExtensionList (assert(XAddToExtensionList_PROC != 0), XAddToExtensionList_PROC)
+#   define XAddToExtensionList (assert(XAddToExtensionList_PROC != 0), XAddToExtensionList_PROC)
 
 typedef int (* PFN_XAddToSaveSet_PROC) (Display *, Window);
 PFN_XAddToSaveSet_PROC XAddToSaveSet_PROC = 0;
-#  define XAddToSaveSet (assert(XAddToSaveSet_PROC != 0), XAddToSaveSet_PROC)
+#   define XAddToSaveSet (assert(XAddToSaveSet_PROC != 0), XAddToSaveSet_PROC)
 
 typedef unsigned long (* PFN_XAllPlanes_PROC) (void);
 PFN_XAllPlanes_PROC XAllPlanes_PROC = 0;
-#  define XAllPlanes (assert(XAllPlanes_PROC != 0), XAllPlanes_PROC)
+#   define XAllPlanes (assert(XAllPlanes_PROC != 0), XAllPlanes_PROC)
 
 typedef int (* PFN_XAllocColor_PROC) (Display *, Colormap, XColor *);
 PFN_XAllocColor_PROC XAllocColor_PROC = 0;
-#  define XAllocColor (assert(XAllocColor_PROC != 0), XAllocColor_PROC)
+#   define XAllocColor (assert(XAllocColor_PROC != 0), XAllocColor_PROC)
 
 typedef int (* PFN_XAllocColorCells_PROC) (Display *, Colormap, int, unsigned long *, unsigned int, unsigned long *, unsigned int);
 PFN_XAllocColorCells_PROC XAllocColorCells_PROC = 0;
-#  define XAllocColorCells (assert(XAllocColorCells_PROC != 0), XAllocColorCells_PROC)
+#   define XAllocColorCells (assert(XAllocColorCells_PROC != 0), XAllocColorCells_PROC)
 
 typedef int (* PFN_XAllocColorPlanes_PROC) (Display *, Colormap, int, unsigned long *, int, int, int, int, unsigned long *, unsigned long *, unsigned long *);
 PFN_XAllocColorPlanes_PROC XAllocColorPlanes_PROC = 0;
-#  define XAllocColorPlanes (assert(XAllocColorPlanes_PROC != 0), XAllocColorPlanes_PROC)
+#   define XAllocColorPlanes (assert(XAllocColorPlanes_PROC != 0), XAllocColorPlanes_PROC)
 
 typedef int (* PFN_XAllocNamedColor_PROC) (Display *, Colormap, const char *, XColor *, XColor *);
 PFN_XAllocNamedColor_PROC XAllocNamedColor_PROC = 0;
-#  define XAllocNamedColor (assert(XAllocNamedColor_PROC != 0), XAllocNamedColor_PROC)
+#   define XAllocNamedColor (assert(XAllocNamedColor_PROC != 0), XAllocNamedColor_PROC)
 
 typedef int (* PFN_XAllowEvents_PROC) (Display *, int, Time);
 PFN_XAllowEvents_PROC XAllowEvents_PROC = 0;
-#  define XAllowEvents (assert(XAllowEvents_PROC != 0), XAllowEvents_PROC)
+#   define XAllowEvents (assert(XAllowEvents_PROC != 0), XAllowEvents_PROC)
 
 typedef int (* PFN_XAutoRepeatOff_PROC) (Display *);
 PFN_XAutoRepeatOff_PROC XAutoRepeatOff_PROC = 0;
-#  define XAutoRepeatOff (assert(XAutoRepeatOff_PROC != 0), XAutoRepeatOff_PROC)
+#   define XAutoRepeatOff (assert(XAutoRepeatOff_PROC != 0), XAutoRepeatOff_PROC)
 
 typedef int (* PFN_XAutoRepeatOn_PROC) (Display *);
 PFN_XAutoRepeatOn_PROC XAutoRepeatOn_PROC = 0;
-#  define XAutoRepeatOn (assert(XAutoRepeatOn_PROC != 0), XAutoRepeatOn_PROC)
+#   define XAutoRepeatOn (assert(XAutoRepeatOn_PROC != 0), XAutoRepeatOn_PROC)
 
 typedef char *(* PFN_XBaseFontNameListOfFontSet_PROC) (XFontSet);
 PFN_XBaseFontNameListOfFontSet_PROC XBaseFontNameListOfFontSet_PROC = 0;
-#  define XBaseFontNameListOfFontSet (assert(XBaseFontNameListOfFontSet_PROC != 0), XBaseFontNameListOfFontSet_PROC)
+#   define XBaseFontNameListOfFontSet (assert(XBaseFontNameListOfFontSet_PROC != 0), XBaseFontNameListOfFontSet_PROC)
 
 typedef int (* PFN_XBell_PROC) (Display *, int);
 PFN_XBell_PROC XBell_PROC = 0;
-#  define XBell (assert(XBell_PROC != 0), XBell_PROC)
+#   define XBell (assert(XBell_PROC != 0), XBell_PROC)
 
 typedef int (* PFN_XBitmapBitOrder_PROC) (Display *);
 PFN_XBitmapBitOrder_PROC XBitmapBitOrder_PROC = 0;
-#  define XBitmapBitOrder (assert(XBitmapBitOrder_PROC != 0), XBitmapBitOrder_PROC)
+#   define XBitmapBitOrder (assert(XBitmapBitOrder_PROC != 0), XBitmapBitOrder_PROC)
 
 typedef int (* PFN_XBitmapPad_PROC) (Display *);
 PFN_XBitmapPad_PROC XBitmapPad_PROC = 0;
-#  define XBitmapPad (assert(XBitmapPad_PROC != 0), XBitmapPad_PROC)
+#   define XBitmapPad (assert(XBitmapPad_PROC != 0), XBitmapPad_PROC)
 
 typedef int (* PFN_XBitmapUnit_PROC) (Display *);
 PFN_XBitmapUnit_PROC XBitmapUnit_PROC = 0;
-#  define XBitmapUnit (assert(XBitmapUnit_PROC != 0), XBitmapUnit_PROC)
+#   define XBitmapUnit (assert(XBitmapUnit_PROC != 0), XBitmapUnit_PROC)
 
 typedef unsigned long (* PFN_XBlackPixel_PROC) (Display *, int);
 PFN_XBlackPixel_PROC XBlackPixel_PROC = 0;
-#  define XBlackPixel (assert(XBlackPixel_PROC != 0), XBlackPixel_PROC)
+#   define XBlackPixel (assert(XBlackPixel_PROC != 0), XBlackPixel_PROC)
 
 typedef unsigned long (* PFN_XBlackPixelOfScreen_PROC) (Screen *);
 PFN_XBlackPixelOfScreen_PROC XBlackPixelOfScreen_PROC = 0;
-#  define XBlackPixelOfScreen (assert(XBlackPixelOfScreen_PROC != 0), XBlackPixelOfScreen_PROC)
+#   define XBlackPixelOfScreen (assert(XBlackPixelOfScreen_PROC != 0), XBlackPixelOfScreen_PROC)
 
 typedef int (* PFN_XCellsOfScreen_PROC) (Screen *);
 PFN_XCellsOfScreen_PROC XCellsOfScreen_PROC = 0;
-#  define XCellsOfScreen (assert(XCellsOfScreen_PROC != 0), XCellsOfScreen_PROC)
+#   define XCellsOfScreen (assert(XCellsOfScreen_PROC != 0), XCellsOfScreen_PROC)
 
 typedef int (* PFN_XChangeActivePointerGrab_PROC) (Display *, unsigned int, Cursor, Time);
 PFN_XChangeActivePointerGrab_PROC XChangeActivePointerGrab_PROC = 0;
-#  define XChangeActivePointerGrab (assert(XChangeActivePointerGrab_PROC != 0), XChangeActivePointerGrab_PROC)
+#   define XChangeActivePointerGrab (assert(XChangeActivePointerGrab_PROC != 0), XChangeActivePointerGrab_PROC)
 
 typedef int (* PFN_XChangeGC_PROC) (Display *, GC, unsigned long, XGCValues *);
 PFN_XChangeGC_PROC XChangeGC_PROC = 0;
-#  define XChangeGC (assert(XChangeGC_PROC != 0), XChangeGC_PROC)
+#   define XChangeGC (assert(XChangeGC_PROC != 0), XChangeGC_PROC)
 
 typedef int (* PFN_XChangeKeyboardControl_PROC) (Display *, unsigned long, XKeyboardControl *);
 PFN_XChangeKeyboardControl_PROC XChangeKeyboardControl_PROC = 0;
-#  define XChangeKeyboardControl (assert(XChangeKeyboardControl_PROC != 0), XChangeKeyboardControl_PROC)
+#   define XChangeKeyboardControl (assert(XChangeKeyboardControl_PROC != 0), XChangeKeyboardControl_PROC)
 
 typedef int (* PFN_XChangeKeyboardMapping_PROC) (Display *, int, int, KeySym *, int);
 PFN_XChangeKeyboardMapping_PROC XChangeKeyboardMapping_PROC = 0;
-#  define XChangeKeyboardMapping (assert(XChangeKeyboardMapping_PROC != 0), XChangeKeyboardMapping_PROC)
+#   define XChangeKeyboardMapping (assert(XChangeKeyboardMapping_PROC != 0), XChangeKeyboardMapping_PROC)
 
 typedef int (* PFN_XChangePointerControl_PROC) (Display *, int, int, int, int, int);
 PFN_XChangePointerControl_PROC XChangePointerControl_PROC = 0;
-#  define XChangePointerControl (assert(XChangePointerControl_PROC != 0), XChangePointerControl_PROC)
+#   define XChangePointerControl (assert(XChangePointerControl_PROC != 0), XChangePointerControl_PROC)
 
 typedef int (* PFN_XChangeProperty_PROC) (Display *, Window, Atom, Atom, int, int, const unsigned char *, int);
 PFN_XChangeProperty_PROC XChangeProperty_PROC = 0;
-#  define XChangeProperty (assert(XChangeProperty_PROC != 0), XChangeProperty_PROC)
+#   define XChangeProperty (assert(XChangeProperty_PROC != 0), XChangeProperty_PROC)
 
 typedef int (* PFN_XChangeSaveSet_PROC) (Display *, Window, int);
 PFN_XChangeSaveSet_PROC XChangeSaveSet_PROC = 0;
-#  define XChangeSaveSet (assert(XChangeSaveSet_PROC != 0), XChangeSaveSet_PROC)
+#   define XChangeSaveSet (assert(XChangeSaveSet_PROC != 0), XChangeSaveSet_PROC)
 
 typedef int (* PFN_XChangeWindowAttributes_PROC) (Display *, Window, unsigned long, XSetWindowAttributes *);
 PFN_XChangeWindowAttributes_PROC XChangeWindowAttributes_PROC = 0;
-#  define XChangeWindowAttributes (assert(XChangeWindowAttributes_PROC != 0), XChangeWindowAttributes_PROC)
+#   define XChangeWindowAttributes (assert(XChangeWindowAttributes_PROC != 0), XChangeWindowAttributes_PROC)
 
 typedef int (* PFN_XCheckIfEvent_PROC) (Display *, XEvent *, int (*)(Display *, XEvent *, XPointer), XPointer);
 PFN_XCheckIfEvent_PROC XCheckIfEvent_PROC = 0;
-#  define XCheckIfEvent (assert(XCheckIfEvent_PROC != 0), XCheckIfEvent_PROC)
+#   define XCheckIfEvent (assert(XCheckIfEvent_PROC != 0), XCheckIfEvent_PROC)
 
 typedef int (* PFN_XCheckMaskEvent_PROC) (Display *, long, XEvent *);
 PFN_XCheckMaskEvent_PROC XCheckMaskEvent_PROC = 0;
-#  define XCheckMaskEvent (assert(XCheckMaskEvent_PROC != 0), XCheckMaskEvent_PROC)
+#   define XCheckMaskEvent (assert(XCheckMaskEvent_PROC != 0), XCheckMaskEvent_PROC)
 
 typedef int (* PFN_XCheckTypedEvent_PROC) (Display *, int, XEvent *);
 PFN_XCheckTypedEvent_PROC XCheckTypedEvent_PROC = 0;
-#  define XCheckTypedEvent (assert(XCheckTypedEvent_PROC != 0), XCheckTypedEvent_PROC)
+#   define XCheckTypedEvent (assert(XCheckTypedEvent_PROC != 0), XCheckTypedEvent_PROC)
 
 typedef int (* PFN_XCheckTypedWindowEvent_PROC) (Display *, Window, int, XEvent *);
 PFN_XCheckTypedWindowEvent_PROC XCheckTypedWindowEvent_PROC = 0;
-#  define XCheckTypedWindowEvent (assert(XCheckTypedWindowEvent_PROC != 0), XCheckTypedWindowEvent_PROC)
+#   define XCheckTypedWindowEvent (assert(XCheckTypedWindowEvent_PROC != 0), XCheckTypedWindowEvent_PROC)
 
 typedef int (* PFN_XCheckWindowEvent_PROC) (Display *, Window, long, XEvent *);
 PFN_XCheckWindowEvent_PROC XCheckWindowEvent_PROC = 0;
-#  define XCheckWindowEvent (assert(XCheckWindowEvent_PROC != 0), XCheckWindowEvent_PROC)
+#   define XCheckWindowEvent (assert(XCheckWindowEvent_PROC != 0), XCheckWindowEvent_PROC)
 
 typedef int (* PFN_XCirculateSubwindows_PROC) (Display *, Window, int);
 PFN_XCirculateSubwindows_PROC XCirculateSubwindows_PROC = 0;
-#  define XCirculateSubwindows (assert(XCirculateSubwindows_PROC != 0), XCirculateSubwindows_PROC)
+#   define XCirculateSubwindows (assert(XCirculateSubwindows_PROC != 0), XCirculateSubwindows_PROC)
 
 typedef int (* PFN_XCirculateSubwindowsDown_PROC) (Display *, Window);
 PFN_XCirculateSubwindowsDown_PROC XCirculateSubwindowsDown_PROC = 0;
-#  define XCirculateSubwindowsDown (assert(XCirculateSubwindowsDown_PROC != 0), XCirculateSubwindowsDown_PROC)
+#   define XCirculateSubwindowsDown (assert(XCirculateSubwindowsDown_PROC != 0), XCirculateSubwindowsDown_PROC)
 
 typedef int (* PFN_XCirculateSubwindowsUp_PROC) (Display *, Window);
 PFN_XCirculateSubwindowsUp_PROC XCirculateSubwindowsUp_PROC = 0;
-#  define XCirculateSubwindowsUp (assert(XCirculateSubwindowsUp_PROC != 0), XCirculateSubwindowsUp_PROC)
+#   define XCirculateSubwindowsUp (assert(XCirculateSubwindowsUp_PROC != 0), XCirculateSubwindowsUp_PROC)
 
 typedef int (* PFN_XClearArea_PROC) (Display *, Window, int, int, unsigned int, unsigned int, int);
 PFN_XClearArea_PROC XClearArea_PROC = 0;
-#  define XClearArea (assert(XClearArea_PROC != 0), XClearArea_PROC)
+#   define XClearArea (assert(XClearArea_PROC != 0), XClearArea_PROC)
 
 typedef int (* PFN_XClearWindow_PROC) (Display *, Window);
 PFN_XClearWindow_PROC XClearWindow_PROC = 0;
-#  define XClearWindow (assert(XClearWindow_PROC != 0), XClearWindow_PROC)
+#   define XClearWindow (assert(XClearWindow_PROC != 0), XClearWindow_PROC)
 
 typedef int (* PFN_XCloseDisplay_PROC) (Display *);
 PFN_XCloseDisplay_PROC XCloseDisplay_PROC = 0;
-#  define XCloseDisplay (assert(XCloseDisplay_PROC != 0), XCloseDisplay_PROC)
+#   define XCloseDisplay (assert(XCloseDisplay_PROC != 0), XCloseDisplay_PROC)
 
 typedef int (* PFN_XCloseIM_PROC) (XIM);
 PFN_XCloseIM_PROC XCloseIM_PROC = 0;
-#  define XCloseIM (assert(XCloseIM_PROC != 0), XCloseIM_PROC)
+#   define XCloseIM (assert(XCloseIM_PROC != 0), XCloseIM_PROC)
 
 typedef int (* PFN_XCloseOM_PROC) (XOM);
 PFN_XCloseOM_PROC XCloseOM_PROC = 0;
-#  define XCloseOM (assert(XCloseOM_PROC != 0), XCloseOM_PROC)
+#   define XCloseOM (assert(XCloseOM_PROC != 0), XCloseOM_PROC)
 
 typedef int (* PFN_XConfigureWindow_PROC) (Display *, Window, unsigned int, XWindowChanges *);
 PFN_XConfigureWindow_PROC XConfigureWindow_PROC = 0;
-#  define XConfigureWindow (assert(XConfigureWindow_PROC != 0), XConfigureWindow_PROC)
+#   define XConfigureWindow (assert(XConfigureWindow_PROC != 0), XConfigureWindow_PROC)
 
 typedef int (* PFN_XConnectionNumber_PROC) (Display *);
 PFN_XConnectionNumber_PROC XConnectionNumber_PROC = 0;
-#  define XConnectionNumber (assert(XConnectionNumber_PROC != 0), XConnectionNumber_PROC)
+#   define XConnectionNumber (assert(XConnectionNumber_PROC != 0), XConnectionNumber_PROC)
 
 typedef int (* PFN_XContextDependentDrawing_PROC) (XFontSet);
 PFN_XContextDependentDrawing_PROC XContextDependentDrawing_PROC = 0;
-#  define XContextDependentDrawing (assert(XContextDependentDrawing_PROC != 0), XContextDependentDrawing_PROC)
+#   define XContextDependentDrawing (assert(XContextDependentDrawing_PROC != 0), XContextDependentDrawing_PROC)
 
 typedef int (* PFN_XContextualDrawing_PROC) (XFontSet);
 PFN_XContextualDrawing_PROC XContextualDrawing_PROC = 0;
-#  define XContextualDrawing (assert(XContextualDrawing_PROC != 0), XContextualDrawing_PROC)
+#   define XContextualDrawing (assert(XContextualDrawing_PROC != 0), XContextualDrawing_PROC)
 
 typedef int (* PFN_XConvertSelection_PROC) (Display *, Atom, Atom, Atom, Window, Time);
 PFN_XConvertSelection_PROC XConvertSelection_PROC = 0;
-#  define XConvertSelection (assert(XConvertSelection_PROC != 0), XConvertSelection_PROC)
+#   define XConvertSelection (assert(XConvertSelection_PROC != 0), XConvertSelection_PROC)
 
 typedef int (* PFN_XCopyArea_PROC) (Display *, Drawable, Drawable, GC, int, int, unsigned int, unsigned int, int, int);
 PFN_XCopyArea_PROC XCopyArea_PROC = 0;
-#  define XCopyArea (assert(XCopyArea_PROC != 0), XCopyArea_PROC)
+#   define XCopyArea (assert(XCopyArea_PROC != 0), XCopyArea_PROC)
 
 typedef Colormap (* PFN_XCopyColormapAndFree_PROC) (Display *, Colormap);
 PFN_XCopyColormapAndFree_PROC XCopyColormapAndFree_PROC = 0;
-#  define XCopyColormapAndFree (assert(XCopyColormapAndFree_PROC != 0), XCopyColormapAndFree_PROC)
+#   define XCopyColormapAndFree (assert(XCopyColormapAndFree_PROC != 0), XCopyColormapAndFree_PROC)
 
 typedef int (* PFN_XCopyGC_PROC) (Display *, GC, unsigned long, GC);
 PFN_XCopyGC_PROC XCopyGC_PROC = 0;
-#  define XCopyGC (assert(XCopyGC_PROC != 0), XCopyGC_PROC)
+#   define XCopyGC (assert(XCopyGC_PROC != 0), XCopyGC_PROC)
 
 typedef int (* PFN_XCopyPlane_PROC) (Display *, Drawable, Drawable, GC, int, int, unsigned int, unsigned int, int, int, unsigned long);
 PFN_XCopyPlane_PROC XCopyPlane_PROC = 0;
-#  define XCopyPlane (assert(XCopyPlane_PROC != 0), XCopyPlane_PROC)
+#   define XCopyPlane (assert(XCopyPlane_PROC != 0), XCopyPlane_PROC)
 
 typedef Pixmap (* PFN_XCreateBitmapFromData_PROC) (Display *, Drawable, const char *, unsigned int, unsigned int);
 PFN_XCreateBitmapFromData_PROC XCreateBitmapFromData_PROC = 0;
-#  define XCreateBitmapFromData (assert(XCreateBitmapFromData_PROC != 0), XCreateBitmapFromData_PROC)
+#   define XCreateBitmapFromData (assert(XCreateBitmapFromData_PROC != 0), XCreateBitmapFromData_PROC)
 
 typedef Colormap (* PFN_XCreateColormap_PROC) (Display *, Window, Visual *, int);
 PFN_XCreateColormap_PROC XCreateColormap_PROC = 0;
-#  define XCreateColormap (assert(XCreateColormap_PROC != 0), XCreateColormap_PROC)
+#   define XCreateColormap (assert(XCreateColormap_PROC != 0), XCreateColormap_PROC)
 
 typedef Cursor (* PFN_XCreateFontCursor_PROC) (Display *, unsigned int);
 PFN_XCreateFontCursor_PROC XCreateFontCursor_PROC = 0;
-#  define XCreateFontCursor (assert(XCreateFontCursor_PROC != 0), XCreateFontCursor_PROC)
+#   define XCreateFontCursor (assert(XCreateFontCursor_PROC != 0), XCreateFontCursor_PROC)
 
 typedef XFontSet (* PFN_XCreateFontSet_PROC) (Display *, const char *, char ***, int *, char **);
 PFN_XCreateFontSet_PROC XCreateFontSet_PROC = 0;
-#  define XCreateFontSet (assert(XCreateFontSet_PROC != 0), XCreateFontSet_PROC)
+#   define XCreateFontSet (assert(XCreateFontSet_PROC != 0), XCreateFontSet_PROC)
 
 typedef GC (* PFN_XCreateGC_PROC) (Display *, Drawable, unsigned long, XGCValues *);
 PFN_XCreateGC_PROC XCreateGC_PROC = 0;
-#  define XCreateGC (assert(XCreateGC_PROC != 0), XCreateGC_PROC)
+#   define XCreateGC (assert(XCreateGC_PROC != 0), XCreateGC_PROC)
 
 typedef Cursor (* PFN_XCreateGlyphCursor_PROC) (Display *, Font, Font, unsigned int, unsigned int, const XColor *, const XColor *);
 PFN_XCreateGlyphCursor_PROC XCreateGlyphCursor_PROC = 0;
-#  define XCreateGlyphCursor (assert(XCreateGlyphCursor_PROC != 0), XCreateGlyphCursor_PROC)
+#   define XCreateGlyphCursor (assert(XCreateGlyphCursor_PROC != 0), XCreateGlyphCursor_PROC)
 
 typedef XIC (* PFN_XCreateIC_PROC) (XIM, ...);
 PFN_XCreateIC_PROC XCreateIC_PROC = 0;
-#  define XCreateIC (assert(XCreateIC_PROC != 0), XCreateIC_PROC)
+#   define XCreateIC (assert(XCreateIC_PROC != 0), XCreateIC_PROC)
 
 typedef XImage *(* PFN_XCreateImage_PROC) (Display *, Visual *, unsigned int, int, int, char *, unsigned int, unsigned int, int, int);
 PFN_XCreateImage_PROC XCreateImage_PROC = 0;
-#  define XCreateImage (assert(XCreateImage_PROC != 0), XCreateImage_PROC)
+#   define XCreateImage (assert(XCreateImage_PROC != 0), XCreateImage_PROC)
 
 typedef XOC (* PFN_XCreateOC_PROC) (XOM, ...);
 PFN_XCreateOC_PROC XCreateOC_PROC = 0;
-#  define XCreateOC (assert(XCreateOC_PROC != 0), XCreateOC_PROC)
+#   define XCreateOC (assert(XCreateOC_PROC != 0), XCreateOC_PROC)
 
 typedef Pixmap (* PFN_XCreatePixmap_PROC) (Display *, Drawable, unsigned int, unsigned int, unsigned int);
 PFN_XCreatePixmap_PROC XCreatePixmap_PROC = 0;
-#  define XCreatePixmap (assert(XCreatePixmap_PROC != 0), XCreatePixmap_PROC)
+#   define XCreatePixmap (assert(XCreatePixmap_PROC != 0), XCreatePixmap_PROC)
 
 typedef Cursor (* PFN_XCreatePixmapCursor_PROC) (Display *, Pixmap, Pixmap, XColor *, XColor *, unsigned int, unsigned int);
 PFN_XCreatePixmapCursor_PROC XCreatePixmapCursor_PROC = 0;
-#  define XCreatePixmapCursor (assert(XCreatePixmapCursor_PROC != 0), XCreatePixmapCursor_PROC)
+#   define XCreatePixmapCursor (assert(XCreatePixmapCursor_PROC != 0), XCreatePixmapCursor_PROC)
 
 typedef Pixmap (* PFN_XCreatePixmapFromBitmapData_PROC) (Display *, Drawable, char *, unsigned int, unsigned int, unsigned long, unsigned long, unsigned int);
 PFN_XCreatePixmapFromBitmapData_PROC XCreatePixmapFromBitmapData_PROC = 0;
-#  define XCreatePixmapFromBitmapData (assert(XCreatePixmapFromBitmapData_PROC != 0), XCreatePixmapFromBitmapData_PROC)
+#   define XCreatePixmapFromBitmapData (assert(XCreatePixmapFromBitmapData_PROC != 0), XCreatePixmapFromBitmapData_PROC)
 
 typedef Window (* PFN_XCreateSimpleWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int, unsigned int, unsigned long, unsigned long);
 PFN_XCreateSimpleWindow_PROC XCreateSimpleWindow_PROC = 0;
-#  define XCreateSimpleWindow (assert(XCreateSimpleWindow_PROC != 0), XCreateSimpleWindow_PROC)
+#   define XCreateSimpleWindow (assert(XCreateSimpleWindow_PROC != 0), XCreateSimpleWindow_PROC)
 
 typedef Window (* PFN_XCreateWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int, unsigned int, int, unsigned int, Visual *, unsigned long, XSetWindowAttributes *);
 PFN_XCreateWindow_PROC XCreateWindow_PROC = 0;
-#  define XCreateWindow (assert(XCreateWindow_PROC != 0), XCreateWindow_PROC)
+#   define XCreateWindow (assert(XCreateWindow_PROC != 0), XCreateWindow_PROC)
 
 typedef Colormap (* PFN_XDefaultColormap_PROC) (Display *, int);
 PFN_XDefaultColormap_PROC XDefaultColormap_PROC = 0;
-#  define XDefaultColormap (assert(XDefaultColormap_PROC != 0), XDefaultColormap_PROC)
+#   define XDefaultColormap (assert(XDefaultColormap_PROC != 0), XDefaultColormap_PROC)
 
 typedef Colormap (* PFN_XDefaultColormapOfScreen_PROC) (Screen *);
 PFN_XDefaultColormapOfScreen_PROC XDefaultColormapOfScreen_PROC = 0;
-#  define XDefaultColormapOfScreen (assert(XDefaultColormapOfScreen_PROC != 0), XDefaultColormapOfScreen_PROC)
+#   define XDefaultColormapOfScreen (assert(XDefaultColormapOfScreen_PROC != 0), XDefaultColormapOfScreen_PROC)
 
 typedef int (* PFN_XDefaultDepth_PROC) (Display *, int);
 PFN_XDefaultDepth_PROC XDefaultDepth_PROC = 0;
-#  define XDefaultDepth (assert(XDefaultDepth_PROC != 0), XDefaultDepth_PROC)
+#   define XDefaultDepth (assert(XDefaultDepth_PROC != 0), XDefaultDepth_PROC)
 
 typedef int (* PFN_XDefaultDepthOfScreen_PROC) (Screen *);
 PFN_XDefaultDepthOfScreen_PROC XDefaultDepthOfScreen_PROC = 0;
-#  define XDefaultDepthOfScreen (assert(XDefaultDepthOfScreen_PROC != 0), XDefaultDepthOfScreen_PROC)
+#   define XDefaultDepthOfScreen (assert(XDefaultDepthOfScreen_PROC != 0), XDefaultDepthOfScreen_PROC)
 
 typedef GC (* PFN_XDefaultGC_PROC) (Display *, int);
 PFN_XDefaultGC_PROC XDefaultGC_PROC = 0;
-#  define XDefaultGC (assert(XDefaultGC_PROC != 0), XDefaultGC_PROC)
+#   define XDefaultGC (assert(XDefaultGC_PROC != 0), XDefaultGC_PROC)
 
 typedef GC (* PFN_XDefaultGCOfScreen_PROC) (Screen *);
 PFN_XDefaultGCOfScreen_PROC XDefaultGCOfScreen_PROC = 0;
-#  define XDefaultGCOfScreen (assert(XDefaultGCOfScreen_PROC != 0), XDefaultGCOfScreen_PROC)
+#   define XDefaultGCOfScreen (assert(XDefaultGCOfScreen_PROC != 0), XDefaultGCOfScreen_PROC)
 
 typedef Window (* PFN_XDefaultRootWindow_PROC) (Display *);
 PFN_XDefaultRootWindow_PROC XDefaultRootWindow_PROC = 0;
-#  define XDefaultRootWindow (assert(XDefaultRootWindow_PROC != 0), XDefaultRootWindow_PROC)
+#   define XDefaultRootWindow (assert(XDefaultRootWindow_PROC != 0), XDefaultRootWindow_PROC)
 
 typedef int (* PFN_XDefaultScreen_PROC) (Display *);
 PFN_XDefaultScreen_PROC XDefaultScreen_PROC = 0;
-#  define XDefaultScreen (assert(XDefaultScreen_PROC != 0), XDefaultScreen_PROC)
+#   define XDefaultScreen (assert(XDefaultScreen_PROC != 0), XDefaultScreen_PROC)
 
 typedef Screen *(* PFN_XDefaultScreenOfDisplay_PROC) (Display *);
 PFN_XDefaultScreenOfDisplay_PROC XDefaultScreenOfDisplay_PROC = 0;
-#  define XDefaultScreenOfDisplay (assert(XDefaultScreenOfDisplay_PROC != 0), XDefaultScreenOfDisplay_PROC)
+#   define XDefaultScreenOfDisplay (assert(XDefaultScreenOfDisplay_PROC != 0), XDefaultScreenOfDisplay_PROC)
 
 typedef Visual *(* PFN_XDefaultVisual_PROC) (Display *, int);
 PFN_XDefaultVisual_PROC XDefaultVisual_PROC = 0;
-#  define XDefaultVisual (assert(XDefaultVisual_PROC != 0), XDefaultVisual_PROC)
+#   define XDefaultVisual (assert(XDefaultVisual_PROC != 0), XDefaultVisual_PROC)
 
 typedef Visual *(* PFN_XDefaultVisualOfScreen_PROC) (Screen *);
 PFN_XDefaultVisualOfScreen_PROC XDefaultVisualOfScreen_PROC = 0;
-#  define XDefaultVisualOfScreen (assert(XDefaultVisualOfScreen_PROC != 0), XDefaultVisualOfScreen_PROC)
+#   define XDefaultVisualOfScreen (assert(XDefaultVisualOfScreen_PROC != 0), XDefaultVisualOfScreen_PROC)
 
 typedef int (* PFN_XDefineCursor_PROC) (Display *, Window, Cursor);
 PFN_XDefineCursor_PROC XDefineCursor_PROC = 0;
-#  define XDefineCursor (assert(XDefineCursor_PROC != 0), XDefineCursor_PROC)
+#   define XDefineCursor (assert(XDefineCursor_PROC != 0), XDefineCursor_PROC)
 
 typedef XModifierKeymap *(* PFN_XDeleteModifiermapEntry_PROC) (XModifierKeymap *, KeyCode, int);
 PFN_XDeleteModifiermapEntry_PROC XDeleteModifiermapEntry_PROC = 0;
-#  define XDeleteModifiermapEntry (assert(XDeleteModifiermapEntry_PROC != 0), XDeleteModifiermapEntry_PROC)
+#   define XDeleteModifiermapEntry (assert(XDeleteModifiermapEntry_PROC != 0), XDeleteModifiermapEntry_PROC)
 
 typedef int (* PFN_XDeleteProperty_PROC) (Display *, Window, Atom);
 PFN_XDeleteProperty_PROC XDeleteProperty_PROC = 0;
-#  define XDeleteProperty (assert(XDeleteProperty_PROC != 0), XDeleteProperty_PROC)
+#   define XDeleteProperty (assert(XDeleteProperty_PROC != 0), XDeleteProperty_PROC)
 
 typedef void (* PFN_XDestroyIC_PROC) (XIC);
 PFN_XDestroyIC_PROC XDestroyIC_PROC = 0;
-#  define XDestroyIC (assert(XDestroyIC_PROC != 0), XDestroyIC_PROC)
+#   define XDestroyIC (assert(XDestroyIC_PROC != 0), XDestroyIC_PROC)
 
 typedef void (* PFN_XDestroyOC_PROC) (XOC);
 PFN_XDestroyOC_PROC XDestroyOC_PROC = 0;
-#  define XDestroyOC (assert(XDestroyOC_PROC != 0), XDestroyOC_PROC)
+#   define XDestroyOC (assert(XDestroyOC_PROC != 0), XDestroyOC_PROC)
 
 typedef int (* PFN_XDestroySubwindows_PROC) (Display *, Window);
 PFN_XDestroySubwindows_PROC XDestroySubwindows_PROC = 0;
-#  define XDestroySubwindows (assert(XDestroySubwindows_PROC != 0), XDestroySubwindows_PROC)
+#   define XDestroySubwindows (assert(XDestroySubwindows_PROC != 0), XDestroySubwindows_PROC)
 
 typedef int (* PFN_XDestroyWindow_PROC) (Display *, Window);
 PFN_XDestroyWindow_PROC XDestroyWindow_PROC = 0;
-#  define XDestroyWindow (assert(XDestroyWindow_PROC != 0), XDestroyWindow_PROC)
+#   define XDestroyWindow (assert(XDestroyWindow_PROC != 0), XDestroyWindow_PROC)
 
 typedef int (* PFN_XDirectionalDependentDrawing_PROC) (XFontSet);
 PFN_XDirectionalDependentDrawing_PROC XDirectionalDependentDrawing_PROC = 0;
-#  define XDirectionalDependentDrawing (assert(XDirectionalDependentDrawing_PROC != 0), XDirectionalDependentDrawing_PROC)
+#   define XDirectionalDependentDrawing (assert(XDirectionalDependentDrawing_PROC != 0), XDirectionalDependentDrawing_PROC)
 
 typedef int (* PFN_XDisableAccessControl_PROC) (Display *);
 PFN_XDisableAccessControl_PROC XDisableAccessControl_PROC = 0;
-#  define XDisableAccessControl (assert(XDisableAccessControl_PROC != 0), XDisableAccessControl_PROC)
+#   define XDisableAccessControl (assert(XDisableAccessControl_PROC != 0), XDisableAccessControl_PROC)
 
 typedef int (* PFN_XDisplayCells_PROC) (Display *, int);
 PFN_XDisplayCells_PROC XDisplayCells_PROC = 0;
-#  define XDisplayCells (assert(XDisplayCells_PROC != 0), XDisplayCells_PROC)
+#   define XDisplayCells (assert(XDisplayCells_PROC != 0), XDisplayCells_PROC)
 
 typedef int (* PFN_XDisplayHeight_PROC) (Display *, int);
 PFN_XDisplayHeight_PROC XDisplayHeight_PROC = 0;
-#  define XDisplayHeight (assert(XDisplayHeight_PROC != 0), XDisplayHeight_PROC)
+#   define XDisplayHeight (assert(XDisplayHeight_PROC != 0), XDisplayHeight_PROC)
 
 typedef int (* PFN_XDisplayHeightMM_PROC) (Display *, int);
 PFN_XDisplayHeightMM_PROC XDisplayHeightMM_PROC = 0;
-#  define XDisplayHeightMM (assert(XDisplayHeightMM_PROC != 0), XDisplayHeightMM_PROC)
+#   define XDisplayHeightMM (assert(XDisplayHeightMM_PROC != 0), XDisplayHeightMM_PROC)
 
 typedef int (* PFN_XDisplayKeycodes_PROC) (Display *, int *, int *);
 PFN_XDisplayKeycodes_PROC XDisplayKeycodes_PROC = 0;
-#  define XDisplayKeycodes (assert(XDisplayKeycodes_PROC != 0), XDisplayKeycodes_PROC)
+#   define XDisplayKeycodes (assert(XDisplayKeycodes_PROC != 0), XDisplayKeycodes_PROC)
 
 typedef unsigned long (* PFN_XDisplayMotionBufferSize_PROC) (Display *);
 PFN_XDisplayMotionBufferSize_PROC XDisplayMotionBufferSize_PROC = 0;
-#  define XDisplayMotionBufferSize (assert(XDisplayMotionBufferSize_PROC != 0), XDisplayMotionBufferSize_PROC)
+#   define XDisplayMotionBufferSize (assert(XDisplayMotionBufferSize_PROC != 0), XDisplayMotionBufferSize_PROC)
 
 typedef char *(* PFN_XDisplayName_PROC) (const char *);
 PFN_XDisplayName_PROC XDisplayName_PROC = 0;
-#  define XDisplayName (assert(XDisplayName_PROC != 0), XDisplayName_PROC)
+#   define XDisplayName (assert(XDisplayName_PROC != 0), XDisplayName_PROC)
 
 typedef Display *(* PFN_XDisplayOfIM_PROC) (XIM);
 PFN_XDisplayOfIM_PROC XDisplayOfIM_PROC = 0;
-#  define XDisplayOfIM (assert(XDisplayOfIM_PROC != 0), XDisplayOfIM_PROC)
+#   define XDisplayOfIM (assert(XDisplayOfIM_PROC != 0), XDisplayOfIM_PROC)
 
 typedef Display *(* PFN_XDisplayOfOM_PROC) (XOM);
 PFN_XDisplayOfOM_PROC XDisplayOfOM_PROC = 0;
-#  define XDisplayOfOM (assert(XDisplayOfOM_PROC != 0), XDisplayOfOM_PROC)
+#   define XDisplayOfOM (assert(XDisplayOfOM_PROC != 0), XDisplayOfOM_PROC)
 
 typedef Display *(* PFN_XDisplayOfScreen_PROC) (Screen *);
 PFN_XDisplayOfScreen_PROC XDisplayOfScreen_PROC = 0;
-#  define XDisplayOfScreen (assert(XDisplayOfScreen_PROC != 0), XDisplayOfScreen_PROC)
+#   define XDisplayOfScreen (assert(XDisplayOfScreen_PROC != 0), XDisplayOfScreen_PROC)
 
 typedef int (* PFN_XDisplayPlanes_PROC) (Display *, int);
 PFN_XDisplayPlanes_PROC XDisplayPlanes_PROC = 0;
-#  define XDisplayPlanes (assert(XDisplayPlanes_PROC != 0), XDisplayPlanes_PROC)
+#   define XDisplayPlanes (assert(XDisplayPlanes_PROC != 0), XDisplayPlanes_PROC)
 
 typedef char *(* PFN_XDisplayString_PROC) (Display *);
 PFN_XDisplayString_PROC XDisplayString_PROC = 0;
-#  define XDisplayString (assert(XDisplayString_PROC != 0), XDisplayString_PROC)
+#   define XDisplayString (assert(XDisplayString_PROC != 0), XDisplayString_PROC)
 
 typedef int (* PFN_XDisplayWidth_PROC) (Display *, int);
 PFN_XDisplayWidth_PROC XDisplayWidth_PROC = 0;
-#  define XDisplayWidth (assert(XDisplayWidth_PROC != 0), XDisplayWidth_PROC)
+#   define XDisplayWidth (assert(XDisplayWidth_PROC != 0), XDisplayWidth_PROC)
 
 typedef int (* PFN_XDisplayWidthMM_PROC) (Display *, int);
 PFN_XDisplayWidthMM_PROC XDisplayWidthMM_PROC = 0;
-#  define XDisplayWidthMM (assert(XDisplayWidthMM_PROC != 0), XDisplayWidthMM_PROC)
+#   define XDisplayWidthMM (assert(XDisplayWidthMM_PROC != 0), XDisplayWidthMM_PROC)
 
 typedef int (* PFN_XDoesBackingStore_PROC) (Screen *);
 PFN_XDoesBackingStore_PROC XDoesBackingStore_PROC = 0;
-#  define XDoesBackingStore (assert(XDoesBackingStore_PROC != 0), XDoesBackingStore_PROC)
+#   define XDoesBackingStore (assert(XDoesBackingStore_PROC != 0), XDoesBackingStore_PROC)
 
 typedef int (* PFN_XDoesSaveUnders_PROC) (Screen *);
 PFN_XDoesSaveUnders_PROC XDoesSaveUnders_PROC = 0;
-#  define XDoesSaveUnders (assert(XDoesSaveUnders_PROC != 0), XDoesSaveUnders_PROC)
+#   define XDoesSaveUnders (assert(XDoesSaveUnders_PROC != 0), XDoesSaveUnders_PROC)
 
 typedef int (* PFN_XDrawArc_PROC) (Display *, Drawable, GC, int, int, unsigned int, unsigned int, int, int);
 PFN_XDrawArc_PROC XDrawArc_PROC = 0;
-#  define XDrawArc (assert(XDrawArc_PROC != 0), XDrawArc_PROC)
+#   define XDrawArc (assert(XDrawArc_PROC != 0), XDrawArc_PROC)
 
 typedef int (* PFN_XDrawArcs_PROC) (Display *, Drawable, GC, XArc *, int);
 PFN_XDrawArcs_PROC XDrawArcs_PROC = 0;
-#  define XDrawArcs (assert(XDrawArcs_PROC != 0), XDrawArcs_PROC)
+#   define XDrawArcs (assert(XDrawArcs_PROC != 0), XDrawArcs_PROC)
 
 typedef int (* PFN_XDrawImageString_PROC) (Display *, Drawable, GC, int, int, const char *, int);
 PFN_XDrawImageString_PROC XDrawImageString_PROC = 0;
-#  define XDrawImageString (assert(XDrawImageString_PROC != 0), XDrawImageString_PROC)
+#   define XDrawImageString (assert(XDrawImageString_PROC != 0), XDrawImageString_PROC)
 
 typedef int (* PFN_XDrawImageString16_PROC) (Display *, Drawable, GC, int, int, const XChar2b *, int);
 PFN_XDrawImageString16_PROC XDrawImageString16_PROC = 0;
-#  define XDrawImageString16 (assert(XDrawImageString16_PROC != 0), XDrawImageString16_PROC)
+#   define XDrawImageString16 (assert(XDrawImageString16_PROC != 0), XDrawImageString16_PROC)
 
 typedef int (* PFN_XDrawLine_PROC) (Display *, Drawable, GC, int, int, int, int);
 PFN_XDrawLine_PROC XDrawLine_PROC = 0;
-#  define XDrawLine (assert(XDrawLine_PROC != 0), XDrawLine_PROC)
+#   define XDrawLine (assert(XDrawLine_PROC != 0), XDrawLine_PROC)
 
 typedef int (* PFN_XDrawLines_PROC) (Display *, Drawable, GC, XPoint *, int, int);
 PFN_XDrawLines_PROC XDrawLines_PROC = 0;
-#  define XDrawLines (assert(XDrawLines_PROC != 0), XDrawLines_PROC)
+#   define XDrawLines (assert(XDrawLines_PROC != 0), XDrawLines_PROC)
 
 typedef int (* PFN_XDrawPoint_PROC) (Display *, Drawable, GC, int, int);
 PFN_XDrawPoint_PROC XDrawPoint_PROC = 0;
-#  define XDrawPoint (assert(XDrawPoint_PROC != 0), XDrawPoint_PROC)
+#   define XDrawPoint (assert(XDrawPoint_PROC != 0), XDrawPoint_PROC)
 
 typedef int (* PFN_XDrawPoints_PROC) (Display *, Drawable, GC, XPoint *, int, int);
 PFN_XDrawPoints_PROC XDrawPoints_PROC = 0;
-#  define XDrawPoints (assert(XDrawPoints_PROC != 0), XDrawPoints_PROC)
+#   define XDrawPoints (assert(XDrawPoints_PROC != 0), XDrawPoints_PROC)
 
 typedef int (* PFN_XDrawRectangle_PROC) (Display *, Drawable, GC, int, int, unsigned int, unsigned int);
 PFN_XDrawRectangle_PROC XDrawRectangle_PROC = 0;
-#  define XDrawRectangle (assert(XDrawRectangle_PROC != 0), XDrawRectangle_PROC)
+#   define XDrawRectangle (assert(XDrawRectangle_PROC != 0), XDrawRectangle_PROC)
 
 typedef int (* PFN_XDrawRectangles_PROC) (Display *, Drawable, GC, XRectangle *, int);
 PFN_XDrawRectangles_PROC XDrawRectangles_PROC = 0;
-#  define XDrawRectangles (assert(XDrawRectangles_PROC != 0), XDrawRectangles_PROC)
+#   define XDrawRectangles (assert(XDrawRectangles_PROC != 0), XDrawRectangles_PROC)
 
 typedef int (* PFN_XDrawSegments_PROC) (Display *, Drawable, GC, XSegment *, int);
 PFN_XDrawSegments_PROC XDrawSegments_PROC = 0;
-#  define XDrawSegments (assert(XDrawSegments_PROC != 0), XDrawSegments_PROC)
+#   define XDrawSegments (assert(XDrawSegments_PROC != 0), XDrawSegments_PROC)
 
 typedef int (* PFN_XDrawString_PROC) (Display *, Drawable, GC, int, int, const char *, int);
 PFN_XDrawString_PROC XDrawString_PROC = 0;
-#  define XDrawString (assert(XDrawString_PROC != 0), XDrawString_PROC)
+#   define XDrawString (assert(XDrawString_PROC != 0), XDrawString_PROC)
 
 typedef int (* PFN_XDrawString16_PROC) (Display *, Drawable, GC, int, int, const XChar2b *, int);
 PFN_XDrawString16_PROC XDrawString16_PROC = 0;
-#  define XDrawString16 (assert(XDrawString16_PROC != 0), XDrawString16_PROC)
+#   define XDrawString16 (assert(XDrawString16_PROC != 0), XDrawString16_PROC)
 
 typedef int (* PFN_XDrawText_PROC) (Display *, Drawable, GC, int, int, XTextItem *, int);
 PFN_XDrawText_PROC XDrawText_PROC = 0;
-#  define XDrawText (assert(XDrawText_PROC != 0), XDrawText_PROC)
+#   define XDrawText (assert(XDrawText_PROC != 0), XDrawText_PROC)
 
 typedef int (* PFN_XDrawText16_PROC) (Display *, Drawable, GC, int, int, XTextItem16 *, int);
 PFN_XDrawText16_PROC XDrawText16_PROC = 0;
-#  define XDrawText16 (assert(XDrawText16_PROC != 0), XDrawText16_PROC)
+#   define XDrawText16 (assert(XDrawText16_PROC != 0), XDrawText16_PROC)
 
 typedef XExtData **(* PFN_XEHeadOfExtensionList_PROC) (XEDataObject);
 PFN_XEHeadOfExtensionList_PROC XEHeadOfExtensionList_PROC = 0;
-#  define XEHeadOfExtensionList (assert(XEHeadOfExtensionList_PROC != 0), XEHeadOfExtensionList_PROC)
+#   define XEHeadOfExtensionList (assert(XEHeadOfExtensionList_PROC != 0), XEHeadOfExtensionList_PROC)
 
 typedef int (* PFN_XEnableAccessControl_PROC) (Display *);
 PFN_XEnableAccessControl_PROC XEnableAccessControl_PROC = 0;
-#  define XEnableAccessControl (assert(XEnableAccessControl_PROC != 0), XEnableAccessControl_PROC)
+#   define XEnableAccessControl (assert(XEnableAccessControl_PROC != 0), XEnableAccessControl_PROC)
 
 typedef long (* PFN_XEventMaskOfScreen_PROC) (Screen *);
 PFN_XEventMaskOfScreen_PROC XEventMaskOfScreen_PROC = 0;
-#  define XEventMaskOfScreen (assert(XEventMaskOfScreen_PROC != 0), XEventMaskOfScreen_PROC)
+#   define XEventMaskOfScreen (assert(XEventMaskOfScreen_PROC != 0), XEventMaskOfScreen_PROC)
 
 typedef int (* PFN_XEventsQueued_PROC) (Display *, int);
 PFN_XEventsQueued_PROC XEventsQueued_PROC = 0;
-#  define XEventsQueued (assert(XEventsQueued_PROC != 0), XEventsQueued_PROC)
+#   define XEventsQueued (assert(XEventsQueued_PROC != 0), XEventsQueued_PROC)
 
 typedef long (* PFN_XExtendedMaxRequestSize_PROC) (Display *);
 PFN_XExtendedMaxRequestSize_PROC XExtendedMaxRequestSize_PROC = 0;
-#  define XExtendedMaxRequestSize (assert(XExtendedMaxRequestSize_PROC != 0), XExtendedMaxRequestSize_PROC)
+#   define XExtendedMaxRequestSize (assert(XExtendedMaxRequestSize_PROC != 0), XExtendedMaxRequestSize_PROC)
 
 typedef XFontSetExtents *(* PFN_XExtentsOfFontSet_PROC) (XFontSet);
 PFN_XExtentsOfFontSet_PROC XExtentsOfFontSet_PROC = 0;
-#  define XExtentsOfFontSet (assert(XExtentsOfFontSet_PROC != 0), XExtentsOfFontSet_PROC)
+#   define XExtentsOfFontSet (assert(XExtentsOfFontSet_PROC != 0), XExtentsOfFontSet_PROC)
 
 typedef char *(* PFN_XFetchBuffer_PROC) (Display *, int *, int);
 PFN_XFetchBuffer_PROC XFetchBuffer_PROC = 0;
-#  define XFetchBuffer (assert(XFetchBuffer_PROC != 0), XFetchBuffer_PROC)
+#   define XFetchBuffer (assert(XFetchBuffer_PROC != 0), XFetchBuffer_PROC)
 
 typedef char *(* PFN_XFetchBytes_PROC) (Display *, int *);
 PFN_XFetchBytes_PROC XFetchBytes_PROC = 0;
-#  define XFetchBytes (assert(XFetchBytes_PROC != 0), XFetchBytes_PROC)
+#   define XFetchBytes (assert(XFetchBytes_PROC != 0), XFetchBytes_PROC)
 
 typedef int (* PFN_XFetchName_PROC) (Display *, Window, char **);
 PFN_XFetchName_PROC XFetchName_PROC = 0;
-#  define XFetchName (assert(XFetchName_PROC != 0), XFetchName_PROC)
+#   define XFetchName (assert(XFetchName_PROC != 0), XFetchName_PROC)
 
 typedef int (* PFN_XFillArc_PROC) (Display *, Drawable, GC, int, int, unsigned int, unsigned int, int, int);
 PFN_XFillArc_PROC XFillArc_PROC = 0;
-#  define XFillArc (assert(XFillArc_PROC != 0), XFillArc_PROC)
+#   define XFillArc (assert(XFillArc_PROC != 0), XFillArc_PROC)
 
 typedef int (* PFN_XFillArcs_PROC) (Display *, Drawable, GC, XArc *, int);
 PFN_XFillArcs_PROC XFillArcs_PROC = 0;
-#  define XFillArcs (assert(XFillArcs_PROC != 0), XFillArcs_PROC)
+#   define XFillArcs (assert(XFillArcs_PROC != 0), XFillArcs_PROC)
 
 typedef int (* PFN_XFillPolygon_PROC) (Display *, Drawable, GC, XPoint *, int, int, int);
 PFN_XFillPolygon_PROC XFillPolygon_PROC = 0;
-#  define XFillPolygon (assert(XFillPolygon_PROC != 0), XFillPolygon_PROC)
+#   define XFillPolygon (assert(XFillPolygon_PROC != 0), XFillPolygon_PROC)
 
 typedef int (* PFN_XFillRectangle_PROC) (Display *, Drawable, GC, int, int, unsigned int, unsigned int);
 PFN_XFillRectangle_PROC XFillRectangle_PROC = 0;
-#  define XFillRectangle (assert(XFillRectangle_PROC != 0), XFillRectangle_PROC)
+#   define XFillRectangle (assert(XFillRectangle_PROC != 0), XFillRectangle_PROC)
 
 typedef int (* PFN_XFillRectangles_PROC) (Display *, Drawable, GC, XRectangle *, int);
 PFN_XFillRectangles_PROC XFillRectangles_PROC = 0;
-#  define XFillRectangles (assert(XFillRectangles_PROC != 0), XFillRectangles_PROC)
+#   define XFillRectangles (assert(XFillRectangles_PROC != 0), XFillRectangles_PROC)
 
 typedef int (* PFN_XFilterEvent_PROC) (XEvent *, Window);
 PFN_XFilterEvent_PROC XFilterEvent_PROC = 0;
-#  define XFilterEvent (assert(XFilterEvent_PROC != 0), XFilterEvent_PROC)
+#   define XFilterEvent (assert(XFilterEvent_PROC != 0), XFilterEvent_PROC)
 
 typedef XExtData *(* PFN_XFindOnExtensionList_PROC) (XExtData **, int);
 PFN_XFindOnExtensionList_PROC XFindOnExtensionList_PROC = 0;
-#  define XFindOnExtensionList (assert(XFindOnExtensionList_PROC != 0), XFindOnExtensionList_PROC)
+#   define XFindOnExtensionList (assert(XFindOnExtensionList_PROC != 0), XFindOnExtensionList_PROC)
 
 typedef int (* PFN_XFlush_PROC) (Display *);
 PFN_XFlush_PROC XFlush_PROC = 0;
-#  define XFlush (assert(XFlush_PROC != 0), XFlush_PROC)
+#   define XFlush (assert(XFlush_PROC != 0), XFlush_PROC)
 
 typedef void (* PFN_XFlushGC_PROC) (Display *, GC);
 PFN_XFlushGC_PROC XFlushGC_PROC = 0;
-#  define XFlushGC (assert(XFlushGC_PROC != 0), XFlushGC_PROC)
+#   define XFlushGC (assert(XFlushGC_PROC != 0), XFlushGC_PROC)
 
 typedef int (* PFN_XFontsOfFontSet_PROC) (XFontSet, XFontStruct ***, char ***);
 PFN_XFontsOfFontSet_PROC XFontsOfFontSet_PROC = 0;
-#  define XFontsOfFontSet (assert(XFontsOfFontSet_PROC != 0), XFontsOfFontSet_PROC)
+#   define XFontsOfFontSet (assert(XFontsOfFontSet_PROC != 0), XFontsOfFontSet_PROC)
 
 typedef int (* PFN_XForceScreenSaver_PROC) (Display *, int);
 PFN_XForceScreenSaver_PROC XForceScreenSaver_PROC = 0;
-#  define XForceScreenSaver (assert(XForceScreenSaver_PROC != 0), XForceScreenSaver_PROC)
+#   define XForceScreenSaver (assert(XForceScreenSaver_PROC != 0), XForceScreenSaver_PROC)
 
 typedef int (* PFN_XFree_PROC) (void *);
 PFN_XFree_PROC XFree_PROC = 0;
-#  define XFree (assert(XFree_PROC != 0), XFree_PROC)
+#   define XFree (assert(XFree_PROC != 0), XFree_PROC)
 
 typedef int (* PFN_XFreeColormap_PROC) (Display *, Colormap);
 PFN_XFreeColormap_PROC XFreeColormap_PROC = 0;
-#  define XFreeColormap (assert(XFreeColormap_PROC != 0), XFreeColormap_PROC)
+#   define XFreeColormap (assert(XFreeColormap_PROC != 0), XFreeColormap_PROC)
 
 typedef int (* PFN_XFreeColors_PROC) (Display *, Colormap, unsigned long *, int, unsigned long);
 PFN_XFreeColors_PROC XFreeColors_PROC = 0;
-#  define XFreeColors (assert(XFreeColors_PROC != 0), XFreeColors_PROC)
+#   define XFreeColors (assert(XFreeColors_PROC != 0), XFreeColors_PROC)
 
 typedef int (* PFN_XFreeCursor_PROC) (Display *, Cursor);
 PFN_XFreeCursor_PROC XFreeCursor_PROC = 0;
-#  define XFreeCursor (assert(XFreeCursor_PROC != 0), XFreeCursor_PROC)
+#   define XFreeCursor (assert(XFreeCursor_PROC != 0), XFreeCursor_PROC)
 
 typedef void (* PFN_XFreeEventData_PROC) (Display *, XGenericEventCookie *);
 PFN_XFreeEventData_PROC XFreeEventData_PROC = 0;
-#  define XFreeEventData (assert(XFreeEventData_PROC != 0), XFreeEventData_PROC)
+#   define XFreeEventData (assert(XFreeEventData_PROC != 0), XFreeEventData_PROC)
 
 typedef int (* PFN_XFreeExtensionList_PROC) (char **);
 PFN_XFreeExtensionList_PROC XFreeExtensionList_PROC = 0;
-#  define XFreeExtensionList (assert(XFreeExtensionList_PROC != 0), XFreeExtensionList_PROC)
+#   define XFreeExtensionList (assert(XFreeExtensionList_PROC != 0), XFreeExtensionList_PROC)
 
 typedef int (* PFN_XFreeFont_PROC) (Display *, XFontStruct *);
 PFN_XFreeFont_PROC XFreeFont_PROC = 0;
-#  define XFreeFont (assert(XFreeFont_PROC != 0), XFreeFont_PROC)
+#   define XFreeFont (assert(XFreeFont_PROC != 0), XFreeFont_PROC)
 
 typedef int (* PFN_XFreeFontInfo_PROC) (char **, XFontStruct *, int);
 PFN_XFreeFontInfo_PROC XFreeFontInfo_PROC = 0;
-#  define XFreeFontInfo (assert(XFreeFontInfo_PROC != 0), XFreeFontInfo_PROC)
+#   define XFreeFontInfo (assert(XFreeFontInfo_PROC != 0), XFreeFontInfo_PROC)
 
 typedef int (* PFN_XFreeFontNames_PROC) (char **);
 PFN_XFreeFontNames_PROC XFreeFontNames_PROC = 0;
-#  define XFreeFontNames (assert(XFreeFontNames_PROC != 0), XFreeFontNames_PROC)
+#   define XFreeFontNames (assert(XFreeFontNames_PROC != 0), XFreeFontNames_PROC)
 
 typedef int (* PFN_XFreeFontPath_PROC) (char **);
 PFN_XFreeFontPath_PROC XFreeFontPath_PROC = 0;
-#  define XFreeFontPath (assert(XFreeFontPath_PROC != 0), XFreeFontPath_PROC)
+#   define XFreeFontPath (assert(XFreeFontPath_PROC != 0), XFreeFontPath_PROC)
 
 typedef void (* PFN_XFreeFontSet_PROC) (Display *, XFontSet);
 PFN_XFreeFontSet_PROC XFreeFontSet_PROC = 0;
-#  define XFreeFontSet (assert(XFreeFontSet_PROC != 0), XFreeFontSet_PROC)
+#   define XFreeFontSet (assert(XFreeFontSet_PROC != 0), XFreeFontSet_PROC)
 
 typedef int (* PFN_XFreeGC_PROC) (Display *, GC);
 PFN_XFreeGC_PROC XFreeGC_PROC = 0;
-#  define XFreeGC (assert(XFreeGC_PROC != 0), XFreeGC_PROC)
+#   define XFreeGC (assert(XFreeGC_PROC != 0), XFreeGC_PROC)
 
 typedef int (* PFN_XFreeModifiermap_PROC) (XModifierKeymap *);
 PFN_XFreeModifiermap_PROC XFreeModifiermap_PROC = 0;
-#  define XFreeModifiermap (assert(XFreeModifiermap_PROC != 0), XFreeModifiermap_PROC)
+#   define XFreeModifiermap (assert(XFreeModifiermap_PROC != 0), XFreeModifiermap_PROC)
 
 typedef int (* PFN_XFreePixmap_PROC) (Display *, Pixmap);
 PFN_XFreePixmap_PROC XFreePixmap_PROC = 0;
-#  define XFreePixmap (assert(XFreePixmap_PROC != 0), XFreePixmap_PROC)
+#   define XFreePixmap (assert(XFreePixmap_PROC != 0), XFreePixmap_PROC)
 
 typedef void (* PFN_XFreeStringList_PROC) (char **);
 PFN_XFreeStringList_PROC XFreeStringList_PROC = 0;
-#  define XFreeStringList (assert(XFreeStringList_PROC != 0), XFreeStringList_PROC)
+#   define XFreeStringList (assert(XFreeStringList_PROC != 0), XFreeStringList_PROC)
 
 typedef int (* PFN_XFreeThreads_PROC) (void);
 PFN_XFreeThreads_PROC XFreeThreads_PROC = 0;
-#  define XFreeThreads (assert(XFreeThreads_PROC != 0), XFreeThreads_PROC)
+#   define XFreeThreads (assert(XFreeThreads_PROC != 0), XFreeThreads_PROC)
 
 typedef GContext (* PFN_XGContextFromGC_PROC) (GC);
 PFN_XGContextFromGC_PROC XGContextFromGC_PROC = 0;
-#  define XGContextFromGC (assert(XGContextFromGC_PROC != 0), XGContextFromGC_PROC)
+#   define XGContextFromGC (assert(XGContextFromGC_PROC != 0), XGContextFromGC_PROC)
 
 typedef int (* PFN_XGeometry_PROC) (Display *, int, const char *, const char *, unsigned int, unsigned int, unsigned int, int, int, int *, int *, int *, int *);
 PFN_XGeometry_PROC XGeometry_PROC = 0;
-#  define XGeometry (assert(XGeometry_PROC != 0), XGeometry_PROC)
+#   define XGeometry (assert(XGeometry_PROC != 0), XGeometry_PROC)
 
 typedef char *(* PFN_XGetAtomName_PROC) (Display *, Atom);
 PFN_XGetAtomName_PROC XGetAtomName_PROC = 0;
-#  define XGetAtomName (assert(XGetAtomName_PROC != 0), XGetAtomName_PROC)
+#   define XGetAtomName (assert(XGetAtomName_PROC != 0), XGetAtomName_PROC)
 
 typedef int (* PFN_XGetAtomNames_PROC) (Display *, Atom *, int, char **);
 PFN_XGetAtomNames_PROC XGetAtomNames_PROC = 0;
-#  define XGetAtomNames (assert(XGetAtomNames_PROC != 0), XGetAtomNames_PROC)
+#   define XGetAtomNames (assert(XGetAtomNames_PROC != 0), XGetAtomNames_PROC)
 
 typedef int (* PFN_XGetCommand_PROC) (Display *, Window, char ***, int *);
 PFN_XGetCommand_PROC XGetCommand_PROC = 0;
-#  define XGetCommand (assert(XGetCommand_PROC != 0), XGetCommand_PROC)
+#   define XGetCommand (assert(XGetCommand_PROC != 0), XGetCommand_PROC)
 
 typedef char *(* PFN_XGetDefault_PROC) (Display *, const char *, const char *);
 PFN_XGetDefault_PROC XGetDefault_PROC = 0;
-#  define XGetDefault (assert(XGetDefault_PROC != 0), XGetDefault_PROC)
+#   define XGetDefault (assert(XGetDefault_PROC != 0), XGetDefault_PROC)
 
 typedef int (* PFN_XGetErrorDatabaseText_PROC) (Display *, const char *, const char *, const char *, char *, int);
 PFN_XGetErrorDatabaseText_PROC XGetErrorDatabaseText_PROC = 0;
-#  define XGetErrorDatabaseText (assert(XGetErrorDatabaseText_PROC != 0), XGetErrorDatabaseText_PROC)
+#   define XGetErrorDatabaseText (assert(XGetErrorDatabaseText_PROC != 0), XGetErrorDatabaseText_PROC)
 
 typedef int (* PFN_XGetErrorText_PROC) (Display *, int, char *, int);
 PFN_XGetErrorText_PROC XGetErrorText_PROC = 0;
-#  define XGetErrorText (assert(XGetErrorText_PROC != 0), XGetErrorText_PROC)
+#   define XGetErrorText (assert(XGetErrorText_PROC != 0), XGetErrorText_PROC)
 
 typedef int (* PFN_XGetEventData_PROC) (Display *, XGenericEventCookie *);
 PFN_XGetEventData_PROC XGetEventData_PROC = 0;
-#  define XGetEventData (assert(XGetEventData_PROC != 0), XGetEventData_PROC)
+#   define XGetEventData (assert(XGetEventData_PROC != 0), XGetEventData_PROC)
 
 typedef char **(* PFN_XGetFontPath_PROC) (Display *, int *);
 PFN_XGetFontPath_PROC XGetFontPath_PROC = 0;
-#  define XGetFontPath (assert(XGetFontPath_PROC != 0), XGetFontPath_PROC)
+#   define XGetFontPath (assert(XGetFontPath_PROC != 0), XGetFontPath_PROC)
 
 typedef int (* PFN_XGetFontProperty_PROC) (XFontStruct *, Atom, unsigned long *);
 PFN_XGetFontProperty_PROC XGetFontProperty_PROC = 0;
-#  define XGetFontProperty (assert(XGetFontProperty_PROC != 0), XGetFontProperty_PROC)
+#   define XGetFontProperty (assert(XGetFontProperty_PROC != 0), XGetFontProperty_PROC)
 
 typedef int (* PFN_XGetGCValues_PROC) (Display *, GC, unsigned long, XGCValues *);
 PFN_XGetGCValues_PROC XGetGCValues_PROC = 0;
-#  define XGetGCValues (assert(XGetGCValues_PROC != 0), XGetGCValues_PROC)
+#   define XGetGCValues (assert(XGetGCValues_PROC != 0), XGetGCValues_PROC)
 
 typedef int (* PFN_XGetGeometry_PROC) (Display *, Drawable, Window *, int *, int *, unsigned int *, unsigned int *, unsigned int *, unsigned int *);
 PFN_XGetGeometry_PROC XGetGeometry_PROC = 0;
-#  define XGetGeometry (assert(XGetGeometry_PROC != 0), XGetGeometry_PROC)
+#   define XGetGeometry (assert(XGetGeometry_PROC != 0), XGetGeometry_PROC)
 
 typedef char *(* PFN_XGetICValues_PROC) (XIC, ...);
 PFN_XGetICValues_PROC XGetICValues_PROC = 0;
-#  define XGetICValues (assert(XGetICValues_PROC != 0), XGetICValues_PROC)
+#   define XGetICValues (assert(XGetICValues_PROC != 0), XGetICValues_PROC)
 
 typedef char *(* PFN_XGetIMValues_PROC) (XIM, ...);
 PFN_XGetIMValues_PROC XGetIMValues_PROC = 0;
-#  define XGetIMValues (assert(XGetIMValues_PROC != 0), XGetIMValues_PROC)
+#   define XGetIMValues (assert(XGetIMValues_PROC != 0), XGetIMValues_PROC)
 
 typedef int (* PFN_XGetIconName_PROC) (Display *, Window, char **);
 PFN_XGetIconName_PROC XGetIconName_PROC = 0;
-#  define XGetIconName (assert(XGetIconName_PROC != 0), XGetIconName_PROC)
+#   define XGetIconName (assert(XGetIconName_PROC != 0), XGetIconName_PROC)
 
 typedef XImage *(* PFN_XGetImage_PROC) (Display *, Drawable, int, int, unsigned int, unsigned int, unsigned long, int);
 PFN_XGetImage_PROC XGetImage_PROC = 0;
-#  define XGetImage (assert(XGetImage_PROC != 0), XGetImage_PROC)
+#   define XGetImage (assert(XGetImage_PROC != 0), XGetImage_PROC)
 
 typedef int (* PFN_XGetInputFocus_PROC) (Display *, Window *, int *);
 PFN_XGetInputFocus_PROC XGetInputFocus_PROC = 0;
-#  define XGetInputFocus (assert(XGetInputFocus_PROC != 0), XGetInputFocus_PROC)
+#   define XGetInputFocus (assert(XGetInputFocus_PROC != 0), XGetInputFocus_PROC)
 
 typedef int (* PFN_XGetKeyboardControl_PROC) (Display *, XKeyboardState *);
 PFN_XGetKeyboardControl_PROC XGetKeyboardControl_PROC = 0;
-#  define XGetKeyboardControl (assert(XGetKeyboardControl_PROC != 0), XGetKeyboardControl_PROC)
+#   define XGetKeyboardControl (assert(XGetKeyboardControl_PROC != 0), XGetKeyboardControl_PROC)
 
 typedef KeySym *(* PFN_XGetKeyboardMapping_PROC) (Display *, KeyCode, int, int *);
 PFN_XGetKeyboardMapping_PROC XGetKeyboardMapping_PROC = 0;
-#  define XGetKeyboardMapping (assert(XGetKeyboardMapping_PROC != 0), XGetKeyboardMapping_PROC)
+#   define XGetKeyboardMapping (assert(XGetKeyboardMapping_PROC != 0), XGetKeyboardMapping_PROC)
 
 typedef XModifierKeymap *(* PFN_XGetModifierMapping_PROC) (Display *);
 PFN_XGetModifierMapping_PROC XGetModifierMapping_PROC = 0;
-#  define XGetModifierMapping (assert(XGetModifierMapping_PROC != 0), XGetModifierMapping_PROC)
+#   define XGetModifierMapping (assert(XGetModifierMapping_PROC != 0), XGetModifierMapping_PROC)
 
 typedef XTimeCoord *(* PFN_XGetMotionEvents_PROC) (Display *, Window, Time, Time, int *);
 PFN_XGetMotionEvents_PROC XGetMotionEvents_PROC = 0;
-#  define XGetMotionEvents (assert(XGetMotionEvents_PROC != 0), XGetMotionEvents_PROC)
+#   define XGetMotionEvents (assert(XGetMotionEvents_PROC != 0), XGetMotionEvents_PROC)
 
 typedef char *(* PFN_XGetOCValues_PROC) (XOC, ...);
 PFN_XGetOCValues_PROC XGetOCValues_PROC = 0;
-#  define XGetOCValues (assert(XGetOCValues_PROC != 0), XGetOCValues_PROC)
+#   define XGetOCValues (assert(XGetOCValues_PROC != 0), XGetOCValues_PROC)
 
 typedef char *(* PFN_XGetOMValues_PROC) (XOM, ...);
 PFN_XGetOMValues_PROC XGetOMValues_PROC = 0;
-#  define XGetOMValues (assert(XGetOMValues_PROC != 0), XGetOMValues_PROC)
+#   define XGetOMValues (assert(XGetOMValues_PROC != 0), XGetOMValues_PROC)
 
 typedef int (* PFN_XGetPointerControl_PROC) (Display *, int *, int *, int *);
 PFN_XGetPointerControl_PROC XGetPointerControl_PROC = 0;
-#  define XGetPointerControl (assert(XGetPointerControl_PROC != 0), XGetPointerControl_PROC)
+#   define XGetPointerControl (assert(XGetPointerControl_PROC != 0), XGetPointerControl_PROC)
 
 typedef int (* PFN_XGetPointerMapping_PROC) (Display *, unsigned char *, int);
 PFN_XGetPointerMapping_PROC XGetPointerMapping_PROC = 0;
-#  define XGetPointerMapping (assert(XGetPointerMapping_PROC != 0), XGetPointerMapping_PROC)
+#   define XGetPointerMapping (assert(XGetPointerMapping_PROC != 0), XGetPointerMapping_PROC)
 
 typedef int (* PFN_XGetScreenSaver_PROC) (Display *, int *, int *, int *, int *);
 PFN_XGetScreenSaver_PROC XGetScreenSaver_PROC = 0;
-#  define XGetScreenSaver (assert(XGetScreenSaver_PROC != 0), XGetScreenSaver_PROC)
+#   define XGetScreenSaver (assert(XGetScreenSaver_PROC != 0), XGetScreenSaver_PROC)
 
 typedef Window (* PFN_XGetSelectionOwner_PROC) (Display *, Atom);
 PFN_XGetSelectionOwner_PROC XGetSelectionOwner_PROC = 0;
-#  define XGetSelectionOwner (assert(XGetSelectionOwner_PROC != 0), XGetSelectionOwner_PROC)
+#   define XGetSelectionOwner (assert(XGetSelectionOwner_PROC != 0), XGetSelectionOwner_PROC)
 
 typedef XImage *(* PFN_XGetSubImage_PROC) (Display *, Drawable, int, int, unsigned int, unsigned int, unsigned long, int, XImage *, int, int);
 PFN_XGetSubImage_PROC XGetSubImage_PROC = 0;
-#  define XGetSubImage (assert(XGetSubImage_PROC != 0), XGetSubImage_PROC)
+#   define XGetSubImage (assert(XGetSubImage_PROC != 0), XGetSubImage_PROC)
 
 typedef int (* PFN_XGetTransientForHint_PROC) (Display *, Window, Window *);
 PFN_XGetTransientForHint_PROC XGetTransientForHint_PROC = 0;
-#  define XGetTransientForHint (assert(XGetTransientForHint_PROC != 0), XGetTransientForHint_PROC)
+#   define XGetTransientForHint (assert(XGetTransientForHint_PROC != 0), XGetTransientForHint_PROC)
 
 typedef int (* PFN_XGetWMColormapWindows_PROC) (Display *, Window, Window **, int *);
 PFN_XGetWMColormapWindows_PROC XGetWMColormapWindows_PROC = 0;
-#  define XGetWMColormapWindows (assert(XGetWMColormapWindows_PROC != 0), XGetWMColormapWindows_PROC)
+#   define XGetWMColormapWindows (assert(XGetWMColormapWindows_PROC != 0), XGetWMColormapWindows_PROC)
 
 typedef int (* PFN_XGetWMProtocols_PROC) (Display *, Window, Atom **, int *);
 PFN_XGetWMProtocols_PROC XGetWMProtocols_PROC = 0;
-#  define XGetWMProtocols (assert(XGetWMProtocols_PROC != 0), XGetWMProtocols_PROC)
+#   define XGetWMProtocols (assert(XGetWMProtocols_PROC != 0), XGetWMProtocols_PROC)
 
 typedef int (* PFN_XGetWindowAttributes_PROC) (Display *, Window, XWindowAttributes *);
 PFN_XGetWindowAttributes_PROC XGetWindowAttributes_PROC = 0;
-#  define XGetWindowAttributes (assert(XGetWindowAttributes_PROC != 0), XGetWindowAttributes_PROC)
+#   define XGetWindowAttributes (assert(XGetWindowAttributes_PROC != 0), XGetWindowAttributes_PROC)
 
 typedef int (* PFN_XGetWindowProperty_PROC) (Display *, Window, Atom, long, long, int, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
 PFN_XGetWindowProperty_PROC XGetWindowProperty_PROC = 0;
-#  define XGetWindowProperty (assert(XGetWindowProperty_PROC != 0), XGetWindowProperty_PROC)
+#   define XGetWindowProperty (assert(XGetWindowProperty_PROC != 0), XGetWindowProperty_PROC)
 
 typedef int (* PFN_XGrabButton_PROC) (Display *, unsigned int, unsigned int, Window, int, unsigned int, int, int, Window, Cursor);
 PFN_XGrabButton_PROC XGrabButton_PROC = 0;
-#  define XGrabButton (assert(XGrabButton_PROC != 0), XGrabButton_PROC)
+#   define XGrabButton (assert(XGrabButton_PROC != 0), XGrabButton_PROC)
 
 typedef int (* PFN_XGrabKey_PROC) (Display *, int, unsigned int, Window, int, int, int);
 PFN_XGrabKey_PROC XGrabKey_PROC = 0;
-#  define XGrabKey (assert(XGrabKey_PROC != 0), XGrabKey_PROC)
+#   define XGrabKey (assert(XGrabKey_PROC != 0), XGrabKey_PROC)
 
 typedef int (* PFN_XGrabKeyboard_PROC) (Display *, Window, int, int, int, Time);
 PFN_XGrabKeyboard_PROC XGrabKeyboard_PROC = 0;
-#  define XGrabKeyboard (assert(XGrabKeyboard_PROC != 0), XGrabKeyboard_PROC)
+#   define XGrabKeyboard (assert(XGrabKeyboard_PROC != 0), XGrabKeyboard_PROC)
 
 typedef int (* PFN_XGrabPointer_PROC) (Display *, Window, int, unsigned int, int, int, Window, Cursor, Time);
 PFN_XGrabPointer_PROC XGrabPointer_PROC = 0;
-#  define XGrabPointer (assert(XGrabPointer_PROC != 0), XGrabPointer_PROC)
+#   define XGrabPointer (assert(XGrabPointer_PROC != 0), XGrabPointer_PROC)
 
 typedef int (* PFN_XGrabServer_PROC) (Display *);
 PFN_XGrabServer_PROC XGrabServer_PROC = 0;
-#  define XGrabServer (assert(XGrabServer_PROC != 0), XGrabServer_PROC)
+#   define XGrabServer (assert(XGrabServer_PROC != 0), XGrabServer_PROC)
 
 typedef int (* PFN_XHeightMMOfScreen_PROC) (Screen *);
 PFN_XHeightMMOfScreen_PROC XHeightMMOfScreen_PROC = 0;
-#  define XHeightMMOfScreen (assert(XHeightMMOfScreen_PROC != 0), XHeightMMOfScreen_PROC)
+#   define XHeightMMOfScreen (assert(XHeightMMOfScreen_PROC != 0), XHeightMMOfScreen_PROC)
 
 typedef int (* PFN_XHeightOfScreen_PROC) (Screen *);
 PFN_XHeightOfScreen_PROC XHeightOfScreen_PROC = 0;
-#  define XHeightOfScreen (assert(XHeightOfScreen_PROC != 0), XHeightOfScreen_PROC)
+#   define XHeightOfScreen (assert(XHeightOfScreen_PROC != 0), XHeightOfScreen_PROC)
 
 typedef XIM (* PFN_XIMOfIC_PROC) (XIC);
 PFN_XIMOfIC_PROC XIMOfIC_PROC = 0;
-#  define XIMOfIC (assert(XIMOfIC_PROC != 0), XIMOfIC_PROC)
+#   define XIMOfIC (assert(XIMOfIC_PROC != 0), XIMOfIC_PROC)
 
 typedef int (* PFN_XIconifyWindow_PROC) (Display *, Window, int);
 PFN_XIconifyWindow_PROC XIconifyWindow_PROC = 0;
-#  define XIconifyWindow (assert(XIconifyWindow_PROC != 0), XIconifyWindow_PROC)
+#   define XIconifyWindow (assert(XIconifyWindow_PROC != 0), XIconifyWindow_PROC)
 
 typedef int (* PFN_XIfEvent_PROC) (Display *, XEvent *, int (*)(Display *, XEvent *, XPointer), XPointer);
 PFN_XIfEvent_PROC XIfEvent_PROC = 0;
-#  define XIfEvent (assert(XIfEvent_PROC != 0), XIfEvent_PROC)
+#   define XIfEvent (assert(XIfEvent_PROC != 0), XIfEvent_PROC)
 
 typedef int (* PFN_XImageByteOrder_PROC) (Display *);
 PFN_XImageByteOrder_PROC XImageByteOrder_PROC = 0;
-#  define XImageByteOrder (assert(XImageByteOrder_PROC != 0), XImageByteOrder_PROC)
+#   define XImageByteOrder (assert(XImageByteOrder_PROC != 0), XImageByteOrder_PROC)
 
 typedef XExtCodes *(* PFN_XInitExtension_PROC) (Display *, const char *);
 PFN_XInitExtension_PROC XInitExtension_PROC = 0;
-#  define XInitExtension (assert(XInitExtension_PROC != 0), XInitExtension_PROC)
+#   define XInitExtension (assert(XInitExtension_PROC != 0), XInitExtension_PROC)
 
 typedef int (* PFN_XInitImage_PROC) (XImage *);
 PFN_XInitImage_PROC XInitImage_PROC = 0;
-#  define XInitImage (assert(XInitImage_PROC != 0), XInitImage_PROC)
+#   define XInitImage (assert(XInitImage_PROC != 0), XInitImage_PROC)
 
 typedef int (* PFN_XInitThreads_PROC) (void);
 PFN_XInitThreads_PROC XInitThreads_PROC = 0;
-#  define XInitThreads (assert(XInitThreads_PROC != 0), XInitThreads_PROC)
+#   define XInitThreads (assert(XInitThreads_PROC != 0), XInitThreads_PROC)
 
 typedef XModifierKeymap *(* PFN_XInsertModifiermapEntry_PROC) (XModifierKeymap *, KeyCode, int);
 PFN_XInsertModifiermapEntry_PROC XInsertModifiermapEntry_PROC = 0;
-#  define XInsertModifiermapEntry (assert(XInsertModifiermapEntry_PROC != 0), XInsertModifiermapEntry_PROC)
+#   define XInsertModifiermapEntry (assert(XInsertModifiermapEntry_PROC != 0), XInsertModifiermapEntry_PROC)
 
 typedef int (* PFN_XInstallColormap_PROC) (Display *, Colormap);
 PFN_XInstallColormap_PROC XInstallColormap_PROC = 0;
-#  define XInstallColormap (assert(XInstallColormap_PROC != 0), XInstallColormap_PROC)
+#   define XInstallColormap (assert(XInstallColormap_PROC != 0), XInstallColormap_PROC)
 
 typedef Atom (* PFN_XInternAtom_PROC) (Display *, const char *, int);
 PFN_XInternAtom_PROC XInternAtom_PROC = 0;
-#  define XInternAtom (assert(XInternAtom_PROC != 0), XInternAtom_PROC)
+#   define XInternAtom (assert(XInternAtom_PROC != 0), XInternAtom_PROC)
 
 typedef int (* PFN_XInternAtoms_PROC) (Display *, char **, int, int, Atom *);
 PFN_XInternAtoms_PROC XInternAtoms_PROC = 0;
-#  define XInternAtoms (assert(XInternAtoms_PROC != 0), XInternAtoms_PROC)
+#   define XInternAtoms (assert(XInternAtoms_PROC != 0), XInternAtoms_PROC)
 
 typedef int (* PFN_XInternalConnectionNumbers_PROC) (Display *, int **, int *);
 PFN_XInternalConnectionNumbers_PROC XInternalConnectionNumbers_PROC = 0;
-#  define XInternalConnectionNumbers (assert(XInternalConnectionNumbers_PROC != 0), XInternalConnectionNumbers_PROC)
+#   define XInternalConnectionNumbers (assert(XInternalConnectionNumbers_PROC != 0), XInternalConnectionNumbers_PROC)
 
 typedef KeySym (* PFN_XKeycodeToKeysym_PROC) (Display *, KeyCode, int);
 PFN_XKeycodeToKeysym_PROC XKeycodeToKeysym_PROC = 0;
-#  define XKeycodeToKeysym (assert(XKeycodeToKeysym_PROC != 0), XKeycodeToKeysym_PROC)
+#   define XKeycodeToKeysym (assert(XKeycodeToKeysym_PROC != 0), XKeycodeToKeysym_PROC)
 
 typedef KeyCode (* PFN_XKeysymToKeycode_PROC) (Display *, KeySym);
 PFN_XKeysymToKeycode_PROC XKeysymToKeycode_PROC = 0;
-#  define XKeysymToKeycode (assert(XKeysymToKeycode_PROC != 0), XKeysymToKeycode_PROC)
+#   define XKeysymToKeycode (assert(XKeysymToKeycode_PROC != 0), XKeysymToKeycode_PROC)
 
 typedef char *(* PFN_XKeysymToString_PROC) (KeySym);
 PFN_XKeysymToString_PROC XKeysymToString_PROC = 0;
-#  define XKeysymToString (assert(XKeysymToString_PROC != 0), XKeysymToString_PROC)
+#   define XKeysymToString (assert(XKeysymToString_PROC != 0), XKeysymToString_PROC)
 
 typedef int (* PFN_XKillClient_PROC) (Display *, XID);
 PFN_XKillClient_PROC XKillClient_PROC = 0;
-#  define XKillClient (assert(XKillClient_PROC != 0), XKillClient_PROC)
+#   define XKillClient (assert(XKillClient_PROC != 0), XKillClient_PROC)
 
 typedef unsigned long (* PFN_XLastKnownRequestProcessed_PROC) (Display *);
 PFN_XLastKnownRequestProcessed_PROC XLastKnownRequestProcessed_PROC = 0;
-#  define XLastKnownRequestProcessed (assert(XLastKnownRequestProcessed_PROC != 0), XLastKnownRequestProcessed_PROC)
+#   define XLastKnownRequestProcessed (assert(XLastKnownRequestProcessed_PROC != 0), XLastKnownRequestProcessed_PROC)
 
 typedef int *(* PFN_XListDepths_PROC) (Display *, int, int *);
 PFN_XListDepths_PROC XListDepths_PROC = 0;
-#  define XListDepths (assert(XListDepths_PROC != 0), XListDepths_PROC)
+#   define XListDepths (assert(XListDepths_PROC != 0), XListDepths_PROC)
 
 typedef char **(* PFN_XListExtensions_PROC) (Display *, int *);
 PFN_XListExtensions_PROC XListExtensions_PROC = 0;
-#  define XListExtensions (assert(XListExtensions_PROC != 0), XListExtensions_PROC)
+#   define XListExtensions (assert(XListExtensions_PROC != 0), XListExtensions_PROC)
 
 typedef char **(* PFN_XListFonts_PROC) (Display *, const char *, int, int *);
 PFN_XListFonts_PROC XListFonts_PROC = 0;
-#  define XListFonts (assert(XListFonts_PROC != 0), XListFonts_PROC)
+#   define XListFonts (assert(XListFonts_PROC != 0), XListFonts_PROC)
 
 typedef char **(* PFN_XListFontsWithInfo_PROC) (Display *, const char *, int, int *, XFontStruct **);
 PFN_XListFontsWithInfo_PROC XListFontsWithInfo_PROC = 0;
-#  define XListFontsWithInfo (assert(XListFontsWithInfo_PROC != 0), XListFontsWithInfo_PROC)
+#   define XListFontsWithInfo (assert(XListFontsWithInfo_PROC != 0), XListFontsWithInfo_PROC)
 
 typedef XHostAddress *(* PFN_XListHosts_PROC) (Display *, int *, int *);
 PFN_XListHosts_PROC XListHosts_PROC = 0;
-#  define XListHosts (assert(XListHosts_PROC != 0), XListHosts_PROC)
+#   define XListHosts (assert(XListHosts_PROC != 0), XListHosts_PROC)
 
 typedef Colormap *(* PFN_XListInstalledColormaps_PROC) (Display *, Window, int *);
 PFN_XListInstalledColormaps_PROC XListInstalledColormaps_PROC = 0;
-#  define XListInstalledColormaps (assert(XListInstalledColormaps_PROC != 0), XListInstalledColormaps_PROC)
+#   define XListInstalledColormaps (assert(XListInstalledColormaps_PROC != 0), XListInstalledColormaps_PROC)
 
 typedef XPixmapFormatValues *(* PFN_XListPixmapFormats_PROC) (Display *, int *);
 PFN_XListPixmapFormats_PROC XListPixmapFormats_PROC = 0;
-#  define XListPixmapFormats (assert(XListPixmapFormats_PROC != 0), XListPixmapFormats_PROC)
+#   define XListPixmapFormats (assert(XListPixmapFormats_PROC != 0), XListPixmapFormats_PROC)
 
 typedef Atom *(* PFN_XListProperties_PROC) (Display *, Window, int *);
 PFN_XListProperties_PROC XListProperties_PROC = 0;
-#  define XListProperties (assert(XListProperties_PROC != 0), XListProperties_PROC)
+#   define XListProperties (assert(XListProperties_PROC != 0), XListProperties_PROC)
 
 typedef Font (* PFN_XLoadFont_PROC) (Display *, const char *);
 PFN_XLoadFont_PROC XLoadFont_PROC = 0;
-#  define XLoadFont (assert(XLoadFont_PROC != 0), XLoadFont_PROC)
+#   define XLoadFont (assert(XLoadFont_PROC != 0), XLoadFont_PROC)
 
 typedef XFontStruct *(* PFN_XLoadQueryFont_PROC) (Display *, const char *);
 PFN_XLoadQueryFont_PROC XLoadQueryFont_PROC = 0;
-#  define XLoadQueryFont (assert(XLoadQueryFont_PROC != 0), XLoadQueryFont_PROC)
+#   define XLoadQueryFont (assert(XLoadQueryFont_PROC != 0), XLoadQueryFont_PROC)
 
 typedef char *(* PFN_XLocaleOfFontSet_PROC) (XFontSet);
 PFN_XLocaleOfFontSet_PROC XLocaleOfFontSet_PROC = 0;
-#  define XLocaleOfFontSet (assert(XLocaleOfFontSet_PROC != 0), XLocaleOfFontSet_PROC)
+#   define XLocaleOfFontSet (assert(XLocaleOfFontSet_PROC != 0), XLocaleOfFontSet_PROC)
 
 typedef char *(* PFN_XLocaleOfIM_PROC) (XIM);
 PFN_XLocaleOfIM_PROC XLocaleOfIM_PROC = 0;
-#  define XLocaleOfIM (assert(XLocaleOfIM_PROC != 0), XLocaleOfIM_PROC)
+#   define XLocaleOfIM (assert(XLocaleOfIM_PROC != 0), XLocaleOfIM_PROC)
 
 typedef char *(* PFN_XLocaleOfOM_PROC) (XOM);
 PFN_XLocaleOfOM_PROC XLocaleOfOM_PROC = 0;
-#  define XLocaleOfOM (assert(XLocaleOfOM_PROC != 0), XLocaleOfOM_PROC)
+#   define XLocaleOfOM (assert(XLocaleOfOM_PROC != 0), XLocaleOfOM_PROC)
 
 typedef void (* PFN_XLockDisplay_PROC) (Display *);
 PFN_XLockDisplay_PROC XLockDisplay_PROC = 0;
-#  define XLockDisplay (assert(XLockDisplay_PROC != 0), XLockDisplay_PROC)
+#   define XLockDisplay (assert(XLockDisplay_PROC != 0), XLockDisplay_PROC)
 
 typedef int (* PFN_XLookupColor_PROC) (Display *, Colormap, const char *, XColor *, XColor *);
 PFN_XLookupColor_PROC XLookupColor_PROC = 0;
-#  define XLookupColor (assert(XLookupColor_PROC != 0), XLookupColor_PROC)
+#   define XLookupColor (assert(XLookupColor_PROC != 0), XLookupColor_PROC)
 
 typedef KeySym (* PFN_XLookupKeysym_PROC) (XKeyEvent *, int);
 PFN_XLookupKeysym_PROC XLookupKeysym_PROC = 0;
-#  define XLookupKeysym (assert(XLookupKeysym_PROC != 0), XLookupKeysym_PROC)
+#   define XLookupKeysym (assert(XLookupKeysym_PROC != 0), XLookupKeysym_PROC)
 
 typedef int (* PFN_XLowerWindow_PROC) (Display *, Window);
 PFN_XLowerWindow_PROC XLowerWindow_PROC = 0;
-#  define XLowerWindow (assert(XLowerWindow_PROC != 0), XLowerWindow_PROC)
+#   define XLowerWindow (assert(XLowerWindow_PROC != 0), XLowerWindow_PROC)
 
 typedef int (* PFN_XMapRaised_PROC) (Display *, Window);
 PFN_XMapRaised_PROC XMapRaised_PROC = 0;
-#  define XMapRaised (assert(XMapRaised_PROC != 0), XMapRaised_PROC)
+#   define XMapRaised (assert(XMapRaised_PROC != 0), XMapRaised_PROC)
 
 typedef int (* PFN_XMapSubwindows_PROC) (Display *, Window);
 PFN_XMapSubwindows_PROC XMapSubwindows_PROC = 0;
-#  define XMapSubwindows (assert(XMapSubwindows_PROC != 0), XMapSubwindows_PROC)
+#   define XMapSubwindows (assert(XMapSubwindows_PROC != 0), XMapSubwindows_PROC)
 
 typedef int (* PFN_XMapWindow_PROC) (Display *, Window);
 PFN_XMapWindow_PROC XMapWindow_PROC = 0;
-#  define XMapWindow (assert(XMapWindow_PROC != 0), XMapWindow_PROC)
+#   define XMapWindow (assert(XMapWindow_PROC != 0), XMapWindow_PROC)
 
 typedef int (* PFN_XMaskEvent_PROC) (Display *, long, XEvent *);
 PFN_XMaskEvent_PROC XMaskEvent_PROC = 0;
-#  define XMaskEvent (assert(XMaskEvent_PROC != 0), XMaskEvent_PROC)
+#   define XMaskEvent (assert(XMaskEvent_PROC != 0), XMaskEvent_PROC)
 
 typedef int (* PFN_XMaxCmapsOfScreen_PROC) (Screen *);
 PFN_XMaxCmapsOfScreen_PROC XMaxCmapsOfScreen_PROC = 0;
-#  define XMaxCmapsOfScreen (assert(XMaxCmapsOfScreen_PROC != 0), XMaxCmapsOfScreen_PROC)
+#   define XMaxCmapsOfScreen (assert(XMaxCmapsOfScreen_PROC != 0), XMaxCmapsOfScreen_PROC)
 
 typedef long (* PFN_XMaxRequestSize_PROC) (Display *);
 PFN_XMaxRequestSize_PROC XMaxRequestSize_PROC = 0;
-#  define XMaxRequestSize (assert(XMaxRequestSize_PROC != 0), XMaxRequestSize_PROC)
+#   define XMaxRequestSize (assert(XMaxRequestSize_PROC != 0), XMaxRequestSize_PROC)
 
 typedef int (* PFN_XMinCmapsOfScreen_PROC) (Screen *);
 PFN_XMinCmapsOfScreen_PROC XMinCmapsOfScreen_PROC = 0;
-#  define XMinCmapsOfScreen (assert(XMinCmapsOfScreen_PROC != 0), XMinCmapsOfScreen_PROC)
+#   define XMinCmapsOfScreen (assert(XMinCmapsOfScreen_PROC != 0), XMinCmapsOfScreen_PROC)
 
 typedef int (* PFN_XMoveResizeWindow_PROC) (Display *, Window, int, int, unsigned int, unsigned int);
 PFN_XMoveResizeWindow_PROC XMoveResizeWindow_PROC = 0;
-#  define XMoveResizeWindow (assert(XMoveResizeWindow_PROC != 0), XMoveResizeWindow_PROC)
+#   define XMoveResizeWindow (assert(XMoveResizeWindow_PROC != 0), XMoveResizeWindow_PROC)
 
 typedef int (* PFN_XMoveWindow_PROC) (Display *, Window, int, int);
 PFN_XMoveWindow_PROC XMoveWindow_PROC = 0;
-#  define XMoveWindow (assert(XMoveWindow_PROC != 0), XMoveWindow_PROC)
+#   define XMoveWindow (assert(XMoveWindow_PROC != 0), XMoveWindow_PROC)
 
 typedef XModifierKeymap *(* PFN_XNewModifiermap_PROC) (int);
 PFN_XNewModifiermap_PROC XNewModifiermap_PROC = 0;
-#  define XNewModifiermap (assert(XNewModifiermap_PROC != 0), XNewModifiermap_PROC)
+#   define XNewModifiermap (assert(XNewModifiermap_PROC != 0), XNewModifiermap_PROC)
 
 typedef int (* PFN_XNextEvent_PROC) (Display *, XEvent *);
 PFN_XNextEvent_PROC XNextEvent_PROC = 0;
-#  define XNextEvent (assert(XNextEvent_PROC != 0), XNextEvent_PROC)
+#   define XNextEvent (assert(XNextEvent_PROC != 0), XNextEvent_PROC)
 
 typedef unsigned long (* PFN_XNextRequest_PROC) (Display *);
 PFN_XNextRequest_PROC XNextRequest_PROC = 0;
-#  define XNextRequest (assert(XNextRequest_PROC != 0), XNextRequest_PROC)
+#   define XNextRequest (assert(XNextRequest_PROC != 0), XNextRequest_PROC)
 
 typedef int (* PFN_XNoOp_PROC) (Display *);
 PFN_XNoOp_PROC XNoOp_PROC = 0;
-#  define XNoOp (assert(XNoOp_PROC != 0), XNoOp_PROC)
+#   define XNoOp (assert(XNoOp_PROC != 0), XNoOp_PROC)
 
 typedef XOM (* PFN_XOMOfOC_PROC) (XOC);
 PFN_XOMOfOC_PROC XOMOfOC_PROC = 0;
-#  define XOMOfOC (assert(XOMOfOC_PROC != 0), XOMOfOC_PROC)
+#   define XOMOfOC (assert(XOMOfOC_PROC != 0), XOMOfOC_PROC)
 
 typedef Display *(* PFN_XOpenDisplay_PROC) (const char *);
 PFN_XOpenDisplay_PROC XOpenDisplay_PROC = 0;
-#  define XOpenDisplay (assert(XOpenDisplay_PROC != 0), XOpenDisplay_PROC)
+#   define XOpenDisplay (assert(XOpenDisplay_PROC != 0), XOpenDisplay_PROC)
 
 typedef XIM (* PFN_XOpenIM_PROC) (Display *, struct _XrmHashBucketRec *, char *, char *);
 PFN_XOpenIM_PROC XOpenIM_PROC = 0;
-#  define XOpenIM (assert(XOpenIM_PROC != 0), XOpenIM_PROC)
+#   define XOpenIM (assert(XOpenIM_PROC != 0), XOpenIM_PROC)
 
 typedef XOM (* PFN_XOpenOM_PROC) (Display *, struct _XrmHashBucketRec *, const char *, const char *);
 PFN_XOpenOM_PROC XOpenOM_PROC = 0;
-#  define XOpenOM (assert(XOpenOM_PROC != 0), XOpenOM_PROC)
+#   define XOpenOM (assert(XOpenOM_PROC != 0), XOpenOM_PROC)
 
 typedef int (* PFN_XParseColor_PROC) (Display *, Colormap, const char *, XColor *);
 PFN_XParseColor_PROC XParseColor_PROC = 0;
-#  define XParseColor (assert(XParseColor_PROC != 0), XParseColor_PROC)
+#   define XParseColor (assert(XParseColor_PROC != 0), XParseColor_PROC)
 
 typedef int (* PFN_XParseGeometry_PROC) (const char *, int *, int *, unsigned int *, unsigned int *);
 PFN_XParseGeometry_PROC XParseGeometry_PROC = 0;
-#  define XParseGeometry (assert(XParseGeometry_PROC != 0), XParseGeometry_PROC)
+#   define XParseGeometry (assert(XParseGeometry_PROC != 0), XParseGeometry_PROC)
 
 typedef int (* PFN_XPeekEvent_PROC) (Display *, XEvent *);
 PFN_XPeekEvent_PROC XPeekEvent_PROC = 0;
-#  define XPeekEvent (assert(XPeekEvent_PROC != 0), XPeekEvent_PROC)
+#   define XPeekEvent (assert(XPeekEvent_PROC != 0), XPeekEvent_PROC)
 
 typedef int (* PFN_XPeekIfEvent_PROC) (Display *, XEvent *, int (*)(Display *, XEvent *, XPointer), XPointer);
 PFN_XPeekIfEvent_PROC XPeekIfEvent_PROC = 0;
-#  define XPeekIfEvent (assert(XPeekIfEvent_PROC != 0), XPeekIfEvent_PROC)
+#   define XPeekIfEvent (assert(XPeekIfEvent_PROC != 0), XPeekIfEvent_PROC)
 
 typedef int (* PFN_XPending_PROC) (Display *);
 PFN_XPending_PROC XPending_PROC = 0;
-#  define XPending (assert(XPending_PROC != 0), XPending_PROC)
+#   define XPending (assert(XPending_PROC != 0), XPending_PROC)
 
 typedef int (* PFN_XPlanesOfScreen_PROC) (Screen *);
 PFN_XPlanesOfScreen_PROC XPlanesOfScreen_PROC = 0;
-#  define XPlanesOfScreen (assert(XPlanesOfScreen_PROC != 0), XPlanesOfScreen_PROC)
+#   define XPlanesOfScreen (assert(XPlanesOfScreen_PROC != 0), XPlanesOfScreen_PROC)
 
 typedef void (* PFN_XProcessInternalConnection_PROC) (Display *, int);
 PFN_XProcessInternalConnection_PROC XProcessInternalConnection_PROC = 0;
-#  define XProcessInternalConnection (assert(XProcessInternalConnection_PROC != 0), XProcessInternalConnection_PROC)
+#   define XProcessInternalConnection (assert(XProcessInternalConnection_PROC != 0), XProcessInternalConnection_PROC)
 
 typedef int (* PFN_XProtocolRevision_PROC) (Display *);
 PFN_XProtocolRevision_PROC XProtocolRevision_PROC = 0;
-#  define XProtocolRevision (assert(XProtocolRevision_PROC != 0), XProtocolRevision_PROC)
+#   define XProtocolRevision (assert(XProtocolRevision_PROC != 0), XProtocolRevision_PROC)
 
 typedef int (* PFN_XProtocolVersion_PROC) (Display *);
 PFN_XProtocolVersion_PROC XProtocolVersion_PROC = 0;
-#  define XProtocolVersion (assert(XProtocolVersion_PROC != 0), XProtocolVersion_PROC)
+#   define XProtocolVersion (assert(XProtocolVersion_PROC != 0), XProtocolVersion_PROC)
 
 typedef int (* PFN_XPutBackEvent_PROC) (Display *, XEvent *);
 PFN_XPutBackEvent_PROC XPutBackEvent_PROC = 0;
-#  define XPutBackEvent (assert(XPutBackEvent_PROC != 0), XPutBackEvent_PROC)
+#   define XPutBackEvent (assert(XPutBackEvent_PROC != 0), XPutBackEvent_PROC)
 
 typedef int (* PFN_XPutImage_PROC) (Display *, Drawable, GC, XImage *, int, int, int, int, unsigned int, unsigned int);
 PFN_XPutImage_PROC XPutImage_PROC = 0;
-#  define XPutImage (assert(XPutImage_PROC != 0), XPutImage_PROC)
+#   define XPutImage (assert(XPutImage_PROC != 0), XPutImage_PROC)
 
 typedef int (* PFN_XQLength_PROC) (Display *);
 PFN_XQLength_PROC XQLength_PROC = 0;
-#  define XQLength (assert(XQLength_PROC != 0), XQLength_PROC)
+#   define XQLength (assert(XQLength_PROC != 0), XQLength_PROC)
 
 typedef int (* PFN_XQueryBestCursor_PROC) (Display *, Drawable, unsigned int, unsigned int, unsigned int *, unsigned int *);
 PFN_XQueryBestCursor_PROC XQueryBestCursor_PROC = 0;
-#  define XQueryBestCursor (assert(XQueryBestCursor_PROC != 0), XQueryBestCursor_PROC)
+#   define XQueryBestCursor (assert(XQueryBestCursor_PROC != 0), XQueryBestCursor_PROC)
 
 typedef int (* PFN_XQueryBestSize_PROC) (Display *, int, Drawable, unsigned int, unsigned int, unsigned int *, unsigned int *);
 PFN_XQueryBestSize_PROC XQueryBestSize_PROC = 0;
-#  define XQueryBestSize (assert(XQueryBestSize_PROC != 0), XQueryBestSize_PROC)
+#   define XQueryBestSize (assert(XQueryBestSize_PROC != 0), XQueryBestSize_PROC)
 
 typedef int (* PFN_XQueryBestStipple_PROC) (Display *, Drawable, unsigned int, unsigned int, unsigned int *, unsigned int *);
 PFN_XQueryBestStipple_PROC XQueryBestStipple_PROC = 0;
-#  define XQueryBestStipple (assert(XQueryBestStipple_PROC != 0), XQueryBestStipple_PROC)
+#   define XQueryBestStipple (assert(XQueryBestStipple_PROC != 0), XQueryBestStipple_PROC)
 
 typedef int (* PFN_XQueryBestTile_PROC) (Display *, Drawable, unsigned int, unsigned int, unsigned int *, unsigned int *);
 PFN_XQueryBestTile_PROC XQueryBestTile_PROC = 0;
-#  define XQueryBestTile (assert(XQueryBestTile_PROC != 0), XQueryBestTile_PROC)
+#   define XQueryBestTile (assert(XQueryBestTile_PROC != 0), XQueryBestTile_PROC)
 
 typedef int (* PFN_XQueryColor_PROC) (Display *, Colormap, XColor *);
 PFN_XQueryColor_PROC XQueryColor_PROC = 0;
-#  define XQueryColor (assert(XQueryColor_PROC != 0), XQueryColor_PROC)
+#   define XQueryColor (assert(XQueryColor_PROC != 0), XQueryColor_PROC)
 
 typedef int (* PFN_XQueryColors_PROC) (Display *, Colormap, XColor *, int);
 PFN_XQueryColors_PROC XQueryColors_PROC = 0;
-#  define XQueryColors (assert(XQueryColors_PROC != 0), XQueryColors_PROC)
+#   define XQueryColors (assert(XQueryColors_PROC != 0), XQueryColors_PROC)
 
 typedef int (* PFN_XQueryExtension_PROC) (Display *, const char *, int *, int *, int *);
 PFN_XQueryExtension_PROC XQueryExtension_PROC = 0;
-#  define XQueryExtension (assert(XQueryExtension_PROC != 0), XQueryExtension_PROC)
+#   define XQueryExtension (assert(XQueryExtension_PROC != 0), XQueryExtension_PROC)
 
 typedef XFontStruct *(* PFN_XQueryFont_PROC) (Display *, XID);
 PFN_XQueryFont_PROC XQueryFont_PROC = 0;
-#  define XQueryFont (assert(XQueryFont_PROC != 0), XQueryFont_PROC)
+#   define XQueryFont (assert(XQueryFont_PROC != 0), XQueryFont_PROC)
 
 typedef int (* PFN_XQueryKeymap_PROC) (Display *, char[32]);
 PFN_XQueryKeymap_PROC XQueryKeymap_PROC = 0;
-#  define XQueryKeymap (assert(XQueryKeymap_PROC != 0), XQueryKeymap_PROC)
+#   define XQueryKeymap (assert(XQueryKeymap_PROC != 0), XQueryKeymap_PROC)
 
 typedef int (* PFN_XQueryPointer_PROC) (Display *, Window, Window *, Window *, int *, int *, int *, int *, unsigned int *);
 PFN_XQueryPointer_PROC XQueryPointer_PROC = 0;
-#  define XQueryPointer (assert(XQueryPointer_PROC != 0), XQueryPointer_PROC)
+#   define XQueryPointer (assert(XQueryPointer_PROC != 0), XQueryPointer_PROC)
 
 typedef int (* PFN_XQueryTextExtents_PROC) (Display *, XID, const char *, int, int *, int *, int *, XCharStruct *);
 PFN_XQueryTextExtents_PROC XQueryTextExtents_PROC = 0;
-#  define XQueryTextExtents (assert(XQueryTextExtents_PROC != 0), XQueryTextExtents_PROC)
+#   define XQueryTextExtents (assert(XQueryTextExtents_PROC != 0), XQueryTextExtents_PROC)
 
 typedef int (* PFN_XQueryTextExtents16_PROC) (Display *, XID, const XChar2b *, int, int *, int *, int *, XCharStruct *);
 PFN_XQueryTextExtents16_PROC XQueryTextExtents16_PROC = 0;
-#  define XQueryTextExtents16 (assert(XQueryTextExtents16_PROC != 0), XQueryTextExtents16_PROC)
+#   define XQueryTextExtents16 (assert(XQueryTextExtents16_PROC != 0), XQueryTextExtents16_PROC)
 
 typedef int (* PFN_XQueryTree_PROC) (Display *, Window, Window *, Window *, Window **, unsigned int *);
 PFN_XQueryTree_PROC XQueryTree_PROC = 0;
-#  define XQueryTree (assert(XQueryTree_PROC != 0), XQueryTree_PROC)
+#   define XQueryTree (assert(XQueryTree_PROC != 0), XQueryTree_PROC)
 
 typedef int (* PFN_XRaiseWindow_PROC) (Display *, Window);
 PFN_XRaiseWindow_PROC XRaiseWindow_PROC = 0;
-#  define XRaiseWindow (assert(XRaiseWindow_PROC != 0), XRaiseWindow_PROC)
+#   define XRaiseWindow (assert(XRaiseWindow_PROC != 0), XRaiseWindow_PROC)
 
 typedef int (* PFN_XReadBitmapFile_PROC) (Display *, Drawable, const char *, unsigned int *, unsigned int *, Pixmap *, int *, int *);
 PFN_XReadBitmapFile_PROC XReadBitmapFile_PROC = 0;
-#  define XReadBitmapFile (assert(XReadBitmapFile_PROC != 0), XReadBitmapFile_PROC)
+#   define XReadBitmapFile (assert(XReadBitmapFile_PROC != 0), XReadBitmapFile_PROC)
 
 typedef int (* PFN_XReadBitmapFileData_PROC) (const char *, unsigned int *, unsigned int *, unsigned char **, int *, int *);
 PFN_XReadBitmapFileData_PROC XReadBitmapFileData_PROC = 0;
-#  define XReadBitmapFileData (assert(XReadBitmapFileData_PROC != 0), XReadBitmapFileData_PROC)
+#   define XReadBitmapFileData (assert(XReadBitmapFileData_PROC != 0), XReadBitmapFileData_PROC)
 
 typedef int (* PFN_XRebindKeysym_PROC) (Display *, KeySym, KeySym *, int, const unsigned char *, int);
 PFN_XRebindKeysym_PROC XRebindKeysym_PROC = 0;
-#  define XRebindKeysym (assert(XRebindKeysym_PROC != 0), XRebindKeysym_PROC)
+#   define XRebindKeysym (assert(XRebindKeysym_PROC != 0), XRebindKeysym_PROC)
 
 typedef int (* PFN_XRecolorCursor_PROC) (Display *, Cursor, XColor *, XColor *);
 PFN_XRecolorCursor_PROC XRecolorCursor_PROC = 0;
-#  define XRecolorCursor (assert(XRecolorCursor_PROC != 0), XRecolorCursor_PROC)
+#   define XRecolorCursor (assert(XRecolorCursor_PROC != 0), XRecolorCursor_PROC)
 
 typedef int (* PFN_XReconfigureWMWindow_PROC) (Display *, Window, int, unsigned int, XWindowChanges *);
 PFN_XReconfigureWMWindow_PROC XReconfigureWMWindow_PROC = 0;
-#  define XReconfigureWMWindow (assert(XReconfigureWMWindow_PROC != 0), XReconfigureWMWindow_PROC)
+#   define XReconfigureWMWindow (assert(XReconfigureWMWindow_PROC != 0), XReconfigureWMWindow_PROC)
 
 typedef int (* PFN_XRefreshKeyboardMapping_PROC) (XMappingEvent *);
 PFN_XRefreshKeyboardMapping_PROC XRefreshKeyboardMapping_PROC = 0;
-#  define XRefreshKeyboardMapping (assert(XRefreshKeyboardMapping_PROC != 0), XRefreshKeyboardMapping_PROC)
+#   define XRefreshKeyboardMapping (assert(XRefreshKeyboardMapping_PROC != 0), XRefreshKeyboardMapping_PROC)
 
 typedef int (* PFN_XRegisterIMInstantiateCallback_PROC) (Display *, struct _XrmHashBucketRec *, char *, char *, XIDProc, XPointer);
 PFN_XRegisterIMInstantiateCallback_PROC XRegisterIMInstantiateCallback_PROC = 0;
-#  define XRegisterIMInstantiateCallback (assert(XRegisterIMInstantiateCallback_PROC != 0), XRegisterIMInstantiateCallback_PROC)
+#   define XRegisterIMInstantiateCallback (assert(XRegisterIMInstantiateCallback_PROC != 0), XRegisterIMInstantiateCallback_PROC)
 
 typedef void (* PFN_XRemoveConnectionWatch_PROC) (Display *, XConnectionWatchProc, XPointer);
 PFN_XRemoveConnectionWatch_PROC XRemoveConnectionWatch_PROC = 0;
-#  define XRemoveConnectionWatch (assert(XRemoveConnectionWatch_PROC != 0), XRemoveConnectionWatch_PROC)
+#   define XRemoveConnectionWatch (assert(XRemoveConnectionWatch_PROC != 0), XRemoveConnectionWatch_PROC)
 
 typedef int (* PFN_XRemoveFromSaveSet_PROC) (Display *, Window);
 PFN_XRemoveFromSaveSet_PROC XRemoveFromSaveSet_PROC = 0;
-#  define XRemoveFromSaveSet (assert(XRemoveFromSaveSet_PROC != 0), XRemoveFromSaveSet_PROC)
+#   define XRemoveFromSaveSet (assert(XRemoveFromSaveSet_PROC != 0), XRemoveFromSaveSet_PROC)
 
 typedef int (* PFN_XRemoveHost_PROC) (Display *, XHostAddress *);
 PFN_XRemoveHost_PROC XRemoveHost_PROC = 0;
-#  define XRemoveHost (assert(XRemoveHost_PROC != 0), XRemoveHost_PROC)
+#   define XRemoveHost (assert(XRemoveHost_PROC != 0), XRemoveHost_PROC)
 
 typedef int (* PFN_XRemoveHosts_PROC) (Display *, XHostAddress *, int);
 PFN_XRemoveHosts_PROC XRemoveHosts_PROC = 0;
-#  define XRemoveHosts (assert(XRemoveHosts_PROC != 0), XRemoveHosts_PROC)
+#   define XRemoveHosts (assert(XRemoveHosts_PROC != 0), XRemoveHosts_PROC)
 
 typedef int (* PFN_XReparentWindow_PROC) (Display *, Window, Window, int, int);
 PFN_XReparentWindow_PROC XReparentWindow_PROC = 0;
-#  define XReparentWindow (assert(XReparentWindow_PROC != 0), XReparentWindow_PROC)
+#   define XReparentWindow (assert(XReparentWindow_PROC != 0), XReparentWindow_PROC)
 
 typedef int (* PFN_XResetScreenSaver_PROC) (Display *);
 PFN_XResetScreenSaver_PROC XResetScreenSaver_PROC = 0;
-#  define XResetScreenSaver (assert(XResetScreenSaver_PROC != 0), XResetScreenSaver_PROC)
+#   define XResetScreenSaver (assert(XResetScreenSaver_PROC != 0), XResetScreenSaver_PROC)
 
 typedef int (* PFN_XResizeWindow_PROC) (Display *, Window, unsigned int, unsigned int);
 PFN_XResizeWindow_PROC XResizeWindow_PROC = 0;
-#  define XResizeWindow (assert(XResizeWindow_PROC != 0), XResizeWindow_PROC)
+#   define XResizeWindow (assert(XResizeWindow_PROC != 0), XResizeWindow_PROC)
 
 typedef char *(* PFN_XResourceManagerString_PROC) (Display *);
 PFN_XResourceManagerString_PROC XResourceManagerString_PROC = 0;
-#  define XResourceManagerString (assert(XResourceManagerString_PROC != 0), XResourceManagerString_PROC)
+#   define XResourceManagerString (assert(XResourceManagerString_PROC != 0), XResourceManagerString_PROC)
 
 typedef int (* PFN_XRestackWindows_PROC) (Display *, Window *, int);
 PFN_XRestackWindows_PROC XRestackWindows_PROC = 0;
-#  define XRestackWindows (assert(XRestackWindows_PROC != 0), XRestackWindows_PROC)
+#   define XRestackWindows (assert(XRestackWindows_PROC != 0), XRestackWindows_PROC)
 
 typedef Window (* PFN_XRootWindow_PROC) (Display *, int);
 PFN_XRootWindow_PROC XRootWindow_PROC = 0;
-#  define XRootWindow (assert(XRootWindow_PROC != 0), XRootWindow_PROC)
+#   define XRootWindow (assert(XRootWindow_PROC != 0), XRootWindow_PROC)
 
 typedef Window (* PFN_XRootWindowOfScreen_PROC) (Screen *);
 PFN_XRootWindowOfScreen_PROC XRootWindowOfScreen_PROC = 0;
-#  define XRootWindowOfScreen (assert(XRootWindowOfScreen_PROC != 0), XRootWindowOfScreen_PROC)
+#   define XRootWindowOfScreen (assert(XRootWindowOfScreen_PROC != 0), XRootWindowOfScreen_PROC)
 
 typedef int (* PFN_XRotateBuffers_PROC) (Display *, int);
 PFN_XRotateBuffers_PROC XRotateBuffers_PROC = 0;
-#  define XRotateBuffers (assert(XRotateBuffers_PROC != 0), XRotateBuffers_PROC)
+#   define XRotateBuffers (assert(XRotateBuffers_PROC != 0), XRotateBuffers_PROC)
 
 typedef int (* PFN_XRotateWindowProperties_PROC) (Display *, Window, Atom *, int, int);
 PFN_XRotateWindowProperties_PROC XRotateWindowProperties_PROC = 0;
-#  define XRotateWindowProperties (assert(XRotateWindowProperties_PROC != 0), XRotateWindowProperties_PROC)
+#   define XRotateWindowProperties (assert(XRotateWindowProperties_PROC != 0), XRotateWindowProperties_PROC)
 
 typedef int (* PFN_XScreenCount_PROC) (Display *);
 PFN_XScreenCount_PROC XScreenCount_PROC = 0;
-#  define XScreenCount (assert(XScreenCount_PROC != 0), XScreenCount_PROC)
+#   define XScreenCount (assert(XScreenCount_PROC != 0), XScreenCount_PROC)
 
 typedef int (* PFN_XScreenNumberOfScreen_PROC) (Screen *);
 PFN_XScreenNumberOfScreen_PROC XScreenNumberOfScreen_PROC = 0;
-#  define XScreenNumberOfScreen (assert(XScreenNumberOfScreen_PROC != 0), XScreenNumberOfScreen_PROC)
+#   define XScreenNumberOfScreen (assert(XScreenNumberOfScreen_PROC != 0), XScreenNumberOfScreen_PROC)
 
 typedef Screen *(* PFN_XScreenOfDisplay_PROC) (Display *, int);
 PFN_XScreenOfDisplay_PROC XScreenOfDisplay_PROC = 0;
-#  define XScreenOfDisplay (assert(XScreenOfDisplay_PROC != 0), XScreenOfDisplay_PROC)
+#   define XScreenOfDisplay (assert(XScreenOfDisplay_PROC != 0), XScreenOfDisplay_PROC)
 
 typedef char *(* PFN_XScreenResourceString_PROC) (Screen *);
 PFN_XScreenResourceString_PROC XScreenResourceString_PROC = 0;
-#  define XScreenResourceString (assert(XScreenResourceString_PROC != 0), XScreenResourceString_PROC)
+#   define XScreenResourceString (assert(XScreenResourceString_PROC != 0), XScreenResourceString_PROC)
 
 typedef int (* PFN_XSelectInput_PROC) (Display *, Window, long);
 PFN_XSelectInput_PROC XSelectInput_PROC = 0;
-#  define XSelectInput (assert(XSelectInput_PROC != 0), XSelectInput_PROC)
+#   define XSelectInput (assert(XSelectInput_PROC != 0), XSelectInput_PROC)
 
 typedef int (* PFN_XSendEvent_PROC) (Display *, Window, int, long, XEvent *);
 PFN_XSendEvent_PROC XSendEvent_PROC = 0;
-#  define XSendEvent (assert(XSendEvent_PROC != 0), XSendEvent_PROC)
+#   define XSendEvent (assert(XSendEvent_PROC != 0), XSendEvent_PROC)
 
 typedef char *(* PFN_XServerVendor_PROC) (Display *);
 PFN_XServerVendor_PROC XServerVendor_PROC = 0;
-#  define XServerVendor (assert(XServerVendor_PROC != 0), XServerVendor_PROC)
+#   define XServerVendor (assert(XServerVendor_PROC != 0), XServerVendor_PROC)
 
 typedef int (* PFN_XSetAccessControl_PROC) (Display *, int);
 PFN_XSetAccessControl_PROC XSetAccessControl_PROC = 0;
-#  define XSetAccessControl (assert(XSetAccessControl_PROC != 0), XSetAccessControl_PROC)
+#   define XSetAccessControl (assert(XSetAccessControl_PROC != 0), XSetAccessControl_PROC)
 
 typedef int (* PFN_XSetArcMode_PROC) (Display *, GC, int);
 PFN_XSetArcMode_PROC XSetArcMode_PROC = 0;
-#  define XSetArcMode (assert(XSetArcMode_PROC != 0), XSetArcMode_PROC)
+#   define XSetArcMode (assert(XSetArcMode_PROC != 0), XSetArcMode_PROC)
 
 typedef void (* PFN_XSetAuthorization_PROC) (char *, int, char *, int);
 PFN_XSetAuthorization_PROC XSetAuthorization_PROC = 0;
-#  define XSetAuthorization (assert(XSetAuthorization_PROC != 0), XSetAuthorization_PROC)
+#   define XSetAuthorization (assert(XSetAuthorization_PROC != 0), XSetAuthorization_PROC)
 
 typedef int (* PFN_XSetBackground_PROC) (Display *, GC, unsigned long);
 PFN_XSetBackground_PROC XSetBackground_PROC = 0;
-#  define XSetBackground (assert(XSetBackground_PROC != 0), XSetBackground_PROC)
+#   define XSetBackground (assert(XSetBackground_PROC != 0), XSetBackground_PROC)
 
 typedef int (* PFN_XSetClipMask_PROC) (Display *, GC, Pixmap);
 PFN_XSetClipMask_PROC XSetClipMask_PROC = 0;
-#  define XSetClipMask (assert(XSetClipMask_PROC != 0), XSetClipMask_PROC)
+#   define XSetClipMask (assert(XSetClipMask_PROC != 0), XSetClipMask_PROC)
 
 typedef int (* PFN_XSetClipOrigin_PROC) (Display *, GC, int, int);
 PFN_XSetClipOrigin_PROC XSetClipOrigin_PROC = 0;
-#  define XSetClipOrigin (assert(XSetClipOrigin_PROC != 0), XSetClipOrigin_PROC)
+#   define XSetClipOrigin (assert(XSetClipOrigin_PROC != 0), XSetClipOrigin_PROC)
 
 typedef int (* PFN_XSetClipRectangles_PROC) (Display *, GC, int, int, XRectangle *, int, int);
 PFN_XSetClipRectangles_PROC XSetClipRectangles_PROC = 0;
-#  define XSetClipRectangles (assert(XSetClipRectangles_PROC != 0), XSetClipRectangles_PROC)
+#   define XSetClipRectangles (assert(XSetClipRectangles_PROC != 0), XSetClipRectangles_PROC)
 
 typedef int (* PFN_XSetCloseDownMode_PROC) (Display *, int);
 PFN_XSetCloseDownMode_PROC XSetCloseDownMode_PROC = 0;
-#  define XSetCloseDownMode (assert(XSetCloseDownMode_PROC != 0), XSetCloseDownMode_PROC)
+#   define XSetCloseDownMode (assert(XSetCloseDownMode_PROC != 0), XSetCloseDownMode_PROC)
 
 typedef int (* PFN_XSetCommand_PROC) (Display *, Window, char **, int);
 PFN_XSetCommand_PROC XSetCommand_PROC = 0;
-#  define XSetCommand (assert(XSetCommand_PROC != 0), XSetCommand_PROC)
+#   define XSetCommand (assert(XSetCommand_PROC != 0), XSetCommand_PROC)
 
 typedef int (* PFN_XSetDashes_PROC) (Display *, GC, int, const char *, int);
 PFN_XSetDashes_PROC XSetDashes_PROC = 0;
-#  define XSetDashes (assert(XSetDashes_PROC != 0), XSetDashes_PROC)
+#   define XSetDashes (assert(XSetDashes_PROC != 0), XSetDashes_PROC)
 
 typedef XErrorHandler (* PFN_XSetErrorHandler_PROC) (XErrorHandler);
 PFN_XSetErrorHandler_PROC XSetErrorHandler_PROC = 0;
-#  define XSetErrorHandler (assert(XSetErrorHandler_PROC != 0), XSetErrorHandler_PROC)
+#   define XSetErrorHandler (assert(XSetErrorHandler_PROC != 0), XSetErrorHandler_PROC)
 
 typedef int (* PFN_XSetFillRule_PROC) (Display *, GC, int);
 PFN_XSetFillRule_PROC XSetFillRule_PROC = 0;
-#  define XSetFillRule (assert(XSetFillRule_PROC != 0), XSetFillRule_PROC)
+#   define XSetFillRule (assert(XSetFillRule_PROC != 0), XSetFillRule_PROC)
 
 typedef int (* PFN_XSetFillStyle_PROC) (Display *, GC, int);
 PFN_XSetFillStyle_PROC XSetFillStyle_PROC = 0;
-#  define XSetFillStyle (assert(XSetFillStyle_PROC != 0), XSetFillStyle_PROC)
+#   define XSetFillStyle (assert(XSetFillStyle_PROC != 0), XSetFillStyle_PROC)
 
 typedef int (* PFN_XSetFont_PROC) (Display *, GC, Font);
 PFN_XSetFont_PROC XSetFont_PROC = 0;
-#  define XSetFont (assert(XSetFont_PROC != 0), XSetFont_PROC)
+#   define XSetFont (assert(XSetFont_PROC != 0), XSetFont_PROC)
 
 typedef int (* PFN_XSetFontPath_PROC) (Display *, char **, int);
 PFN_XSetFontPath_PROC XSetFontPath_PROC = 0;
-#  define XSetFontPath (assert(XSetFontPath_PROC != 0), XSetFontPath_PROC)
+#   define XSetFontPath (assert(XSetFontPath_PROC != 0), XSetFontPath_PROC)
 
 typedef int (* PFN_XSetForeground_PROC) (Display *, GC, unsigned long);
 PFN_XSetForeground_PROC XSetForeground_PROC = 0;
-#  define XSetForeground (assert(XSetForeground_PROC != 0), XSetForeground_PROC)
+#   define XSetForeground (assert(XSetForeground_PROC != 0), XSetForeground_PROC)
 
 typedef int (* PFN_XSetFunction_PROC) (Display *, GC, int);
 PFN_XSetFunction_PROC XSetFunction_PROC = 0;
-#  define XSetFunction (assert(XSetFunction_PROC != 0), XSetFunction_PROC)
+#   define XSetFunction (assert(XSetFunction_PROC != 0), XSetFunction_PROC)
 
 typedef int (* PFN_XSetGraphicsExposures_PROC) (Display *, GC, int);
 PFN_XSetGraphicsExposures_PROC XSetGraphicsExposures_PROC = 0;
-#  define XSetGraphicsExposures (assert(XSetGraphicsExposures_PROC != 0), XSetGraphicsExposures_PROC)
+#   define XSetGraphicsExposures (assert(XSetGraphicsExposures_PROC != 0), XSetGraphicsExposures_PROC)
 
 typedef void (* PFN_XSetICFocus_PROC) (XIC);
 PFN_XSetICFocus_PROC XSetICFocus_PROC = 0;
-#  define XSetICFocus (assert(XSetICFocus_PROC != 0), XSetICFocus_PROC)
+#   define XSetICFocus (assert(XSetICFocus_PROC != 0), XSetICFocus_PROC)
 
 typedef char *(* PFN_XSetICValues_PROC) (XIC, ...);
 PFN_XSetICValues_PROC XSetICValues_PROC = 0;
-#  define XSetICValues (assert(XSetICValues_PROC != 0), XSetICValues_PROC)
+#   define XSetICValues (assert(XSetICValues_PROC != 0), XSetICValues_PROC)
 
 typedef char *(* PFN_XSetIMValues_PROC) (XIM, ...);
 PFN_XSetIMValues_PROC XSetIMValues_PROC = 0;
-#  define XSetIMValues (assert(XSetIMValues_PROC != 0), XSetIMValues_PROC)
+#   define XSetIMValues (assert(XSetIMValues_PROC != 0), XSetIMValues_PROC)
 
 typedef void (* PFN_XSetIOErrorExitHandler_PROC) (Display *, XIOErrorExitHandler, void *);
 PFN_XSetIOErrorExitHandler_PROC XSetIOErrorExitHandler_PROC = 0;
-#  define XSetIOErrorExitHandler (assert(XSetIOErrorExitHandler_PROC != 0), XSetIOErrorExitHandler_PROC)
+#   define XSetIOErrorExitHandler (assert(XSetIOErrorExitHandler_PROC != 0), XSetIOErrorExitHandler_PROC)
 
 typedef XIOErrorHandler (* PFN_XSetIOErrorHandler_PROC) (XIOErrorHandler);
 PFN_XSetIOErrorHandler_PROC XSetIOErrorHandler_PROC = 0;
-#  define XSetIOErrorHandler (assert(XSetIOErrorHandler_PROC != 0), XSetIOErrorHandler_PROC)
+#   define XSetIOErrorHandler (assert(XSetIOErrorHandler_PROC != 0), XSetIOErrorHandler_PROC)
 
 typedef int (* PFN_XSetIconName_PROC) (Display *, Window, const char *);
 PFN_XSetIconName_PROC XSetIconName_PROC = 0;
-#  define XSetIconName (assert(XSetIconName_PROC != 0), XSetIconName_PROC)
+#   define XSetIconName (assert(XSetIconName_PROC != 0), XSetIconName_PROC)
 
 typedef int (* PFN_XSetInputFocus_PROC) (Display *, Window, int, Time);
 PFN_XSetInputFocus_PROC XSetInputFocus_PROC = 0;
-#  define XSetInputFocus (assert(XSetInputFocus_PROC != 0), XSetInputFocus_PROC)
+#   define XSetInputFocus (assert(XSetInputFocus_PROC != 0), XSetInputFocus_PROC)
 
 typedef int (* PFN_XSetLineAttributes_PROC) (Display *, GC, unsigned int, int, int, int);
 PFN_XSetLineAttributes_PROC XSetLineAttributes_PROC = 0;
-#  define XSetLineAttributes (assert(XSetLineAttributes_PROC != 0), XSetLineAttributes_PROC)
+#   define XSetLineAttributes (assert(XSetLineAttributes_PROC != 0), XSetLineAttributes_PROC)
 
 typedef char *(* PFN_XSetLocaleModifiers_PROC) (const char *);
 PFN_XSetLocaleModifiers_PROC XSetLocaleModifiers_PROC = 0;
-#  define XSetLocaleModifiers (assert(XSetLocaleModifiers_PROC != 0), XSetLocaleModifiers_PROC)
+#   define XSetLocaleModifiers (assert(XSetLocaleModifiers_PROC != 0), XSetLocaleModifiers_PROC)
 
 typedef int (* PFN_XSetModifierMapping_PROC) (Display *, XModifierKeymap *);
 PFN_XSetModifierMapping_PROC XSetModifierMapping_PROC = 0;
-#  define XSetModifierMapping (assert(XSetModifierMapping_PROC != 0), XSetModifierMapping_PROC)
+#   define XSetModifierMapping (assert(XSetModifierMapping_PROC != 0), XSetModifierMapping_PROC)
 
 typedef char *(* PFN_XSetOCValues_PROC) (XOC, ...);
 PFN_XSetOCValues_PROC XSetOCValues_PROC = 0;
-#  define XSetOCValues (assert(XSetOCValues_PROC != 0), XSetOCValues_PROC)
+#   define XSetOCValues (assert(XSetOCValues_PROC != 0), XSetOCValues_PROC)
 
 typedef char *(* PFN_XSetOMValues_PROC) (XOM, ...);
 PFN_XSetOMValues_PROC XSetOMValues_PROC = 0;
-#  define XSetOMValues (assert(XSetOMValues_PROC != 0), XSetOMValues_PROC)
+#   define XSetOMValues (assert(XSetOMValues_PROC != 0), XSetOMValues_PROC)
 
 typedef int (* PFN_XSetPlaneMask_PROC) (Display *, GC, unsigned long);
 PFN_XSetPlaneMask_PROC XSetPlaneMask_PROC = 0;
-#  define XSetPlaneMask (assert(XSetPlaneMask_PROC != 0), XSetPlaneMask_PROC)
+#   define XSetPlaneMask (assert(XSetPlaneMask_PROC != 0), XSetPlaneMask_PROC)
 
 typedef int (* PFN_XSetPointerMapping_PROC) (Display *, const unsigned char *, int);
 PFN_XSetPointerMapping_PROC XSetPointerMapping_PROC = 0;
-#  define XSetPointerMapping (assert(XSetPointerMapping_PROC != 0), XSetPointerMapping_PROC)
+#   define XSetPointerMapping (assert(XSetPointerMapping_PROC != 0), XSetPointerMapping_PROC)
 
 typedef int (* PFN_XSetScreenSaver_PROC) (Display *, int, int, int, int);
 PFN_XSetScreenSaver_PROC XSetScreenSaver_PROC = 0;
-#  define XSetScreenSaver (assert(XSetScreenSaver_PROC != 0), XSetScreenSaver_PROC)
+#   define XSetScreenSaver (assert(XSetScreenSaver_PROC != 0), XSetScreenSaver_PROC)
 
 typedef int (* PFN_XSetSelectionOwner_PROC) (Display *, Atom, Window, Time);
 PFN_XSetSelectionOwner_PROC XSetSelectionOwner_PROC = 0;
-#  define XSetSelectionOwner (assert(XSetSelectionOwner_PROC != 0), XSetSelectionOwner_PROC)
+#   define XSetSelectionOwner (assert(XSetSelectionOwner_PROC != 0), XSetSelectionOwner_PROC)
 
 typedef int (* PFN_XSetState_PROC) (Display *, GC, unsigned long, unsigned long, int, unsigned long);
 PFN_XSetState_PROC XSetState_PROC = 0;
-#  define XSetState (assert(XSetState_PROC != 0), XSetState_PROC)
+#   define XSetState (assert(XSetState_PROC != 0), XSetState_PROC)
 
 typedef int (* PFN_XSetStipple_PROC) (Display *, GC, Pixmap);
 PFN_XSetStipple_PROC XSetStipple_PROC = 0;
-#  define XSetStipple (assert(XSetStipple_PROC != 0), XSetStipple_PROC)
+#   define XSetStipple (assert(XSetStipple_PROC != 0), XSetStipple_PROC)
 
 typedef int (* PFN_XSetSubwindowMode_PROC) (Display *, GC, int);
 PFN_XSetSubwindowMode_PROC XSetSubwindowMode_PROC = 0;
-#  define XSetSubwindowMode (assert(XSetSubwindowMode_PROC != 0), XSetSubwindowMode_PROC)
+#   define XSetSubwindowMode (assert(XSetSubwindowMode_PROC != 0), XSetSubwindowMode_PROC)
 
 typedef int (* PFN_XSetTSOrigin_PROC) (Display *, GC, int, int);
 PFN_XSetTSOrigin_PROC XSetTSOrigin_PROC = 0;
-#  define XSetTSOrigin (assert(XSetTSOrigin_PROC != 0), XSetTSOrigin_PROC)
+#   define XSetTSOrigin (assert(XSetTSOrigin_PROC != 0), XSetTSOrigin_PROC)
 
 typedef int (* PFN_XSetTile_PROC) (Display *, GC, Pixmap);
 PFN_XSetTile_PROC XSetTile_PROC = 0;
-#  define XSetTile (assert(XSetTile_PROC != 0), XSetTile_PROC)
+#   define XSetTile (assert(XSetTile_PROC != 0), XSetTile_PROC)
 
 typedef int (* PFN_XSetTransientForHint_PROC) (Display *, Window, Window);
 PFN_XSetTransientForHint_PROC XSetTransientForHint_PROC = 0;
-#  define XSetTransientForHint (assert(XSetTransientForHint_PROC != 0), XSetTransientForHint_PROC)
+#   define XSetTransientForHint (assert(XSetTransientForHint_PROC != 0), XSetTransientForHint_PROC)
 
 typedef int (* PFN_XSetWMColormapWindows_PROC) (Display *, Window, Window *, int);
 PFN_XSetWMColormapWindows_PROC XSetWMColormapWindows_PROC = 0;
-#  define XSetWMColormapWindows (assert(XSetWMColormapWindows_PROC != 0), XSetWMColormapWindows_PROC)
+#   define XSetWMColormapWindows (assert(XSetWMColormapWindows_PROC != 0), XSetWMColormapWindows_PROC)
 
 typedef int (* PFN_XSetWMProtocols_PROC) (Display *, Window, Atom *, int);
 PFN_XSetWMProtocols_PROC XSetWMProtocols_PROC = 0;
-#  define XSetWMProtocols (assert(XSetWMProtocols_PROC != 0), XSetWMProtocols_PROC)
+#   define XSetWMProtocols (assert(XSetWMProtocols_PROC != 0), XSetWMProtocols_PROC)
 
 typedef int (* PFN_XSetWindowBackground_PROC) (Display *, Window, unsigned long);
 PFN_XSetWindowBackground_PROC XSetWindowBackground_PROC = 0;
-#  define XSetWindowBackground (assert(XSetWindowBackground_PROC != 0), XSetWindowBackground_PROC)
+#   define XSetWindowBackground (assert(XSetWindowBackground_PROC != 0), XSetWindowBackground_PROC)
 
 typedef int (* PFN_XSetWindowBackgroundPixmap_PROC) (Display *, Window, Pixmap);
 PFN_XSetWindowBackgroundPixmap_PROC XSetWindowBackgroundPixmap_PROC = 0;
-#  define XSetWindowBackgroundPixmap (assert(XSetWindowBackgroundPixmap_PROC != 0), XSetWindowBackgroundPixmap_PROC)
+#   define XSetWindowBackgroundPixmap (assert(XSetWindowBackgroundPixmap_PROC != 0), XSetWindowBackgroundPixmap_PROC)
 
 typedef int (* PFN_XSetWindowBorder_PROC) (Display *, Window, unsigned long);
 PFN_XSetWindowBorder_PROC XSetWindowBorder_PROC = 0;
-#  define XSetWindowBorder (assert(XSetWindowBorder_PROC != 0), XSetWindowBorder_PROC)
+#   define XSetWindowBorder (assert(XSetWindowBorder_PROC != 0), XSetWindowBorder_PROC)
 
 typedef int (* PFN_XSetWindowBorderPixmap_PROC) (Display *, Window, Pixmap);
 PFN_XSetWindowBorderPixmap_PROC XSetWindowBorderPixmap_PROC = 0;
-#  define XSetWindowBorderPixmap (assert(XSetWindowBorderPixmap_PROC != 0), XSetWindowBorderPixmap_PROC)
+#   define XSetWindowBorderPixmap (assert(XSetWindowBorderPixmap_PROC != 0), XSetWindowBorderPixmap_PROC)
 
 typedef int (* PFN_XSetWindowBorderWidth_PROC) (Display *, Window, unsigned int);
 PFN_XSetWindowBorderWidth_PROC XSetWindowBorderWidth_PROC = 0;
-#  define XSetWindowBorderWidth (assert(XSetWindowBorderWidth_PROC != 0), XSetWindowBorderWidth_PROC)
+#   define XSetWindowBorderWidth (assert(XSetWindowBorderWidth_PROC != 0), XSetWindowBorderWidth_PROC)
 
 typedef int (* PFN_XSetWindowColormap_PROC) (Display *, Window, Colormap);
 PFN_XSetWindowColormap_PROC XSetWindowColormap_PROC = 0;
-#  define XSetWindowColormap (assert(XSetWindowColormap_PROC != 0), XSetWindowColormap_PROC)
+#   define XSetWindowColormap (assert(XSetWindowColormap_PROC != 0), XSetWindowColormap_PROC)
 
 typedef int (* PFN_XStoreBuffer_PROC) (Display *, const char *, int, int);
 PFN_XStoreBuffer_PROC XStoreBuffer_PROC = 0;
-#  define XStoreBuffer (assert(XStoreBuffer_PROC != 0), XStoreBuffer_PROC)
+#   define XStoreBuffer (assert(XStoreBuffer_PROC != 0), XStoreBuffer_PROC)
 
 typedef int (* PFN_XStoreBytes_PROC) (Display *, const char *, int);
 PFN_XStoreBytes_PROC XStoreBytes_PROC = 0;
-#  define XStoreBytes (assert(XStoreBytes_PROC != 0), XStoreBytes_PROC)
+#   define XStoreBytes (assert(XStoreBytes_PROC != 0), XStoreBytes_PROC)
 
 typedef int (* PFN_XStoreColor_PROC) (Display *, Colormap, XColor *);
 PFN_XStoreColor_PROC XStoreColor_PROC = 0;
-#  define XStoreColor (assert(XStoreColor_PROC != 0), XStoreColor_PROC)
+#   define XStoreColor (assert(XStoreColor_PROC != 0), XStoreColor_PROC)
 
 typedef int (* PFN_XStoreColors_PROC) (Display *, Colormap, XColor *, int);
 PFN_XStoreColors_PROC XStoreColors_PROC = 0;
-#  define XStoreColors (assert(XStoreColors_PROC != 0), XStoreColors_PROC)
+#   define XStoreColors (assert(XStoreColors_PROC != 0), XStoreColors_PROC)
 
 typedef int (* PFN_XStoreName_PROC) (Display *, Window, const char *);
 PFN_XStoreName_PROC XStoreName_PROC = 0;
-#  define XStoreName (assert(XStoreName_PROC != 0), XStoreName_PROC)
+#   define XStoreName (assert(XStoreName_PROC != 0), XStoreName_PROC)
 
 typedef int (* PFN_XStoreNamedColor_PROC) (Display *, Colormap, const char *, unsigned long, int);
 PFN_XStoreNamedColor_PROC XStoreNamedColor_PROC = 0;
-#  define XStoreNamedColor (assert(XStoreNamedColor_PROC != 0), XStoreNamedColor_PROC)
+#   define XStoreNamedColor (assert(XStoreNamedColor_PROC != 0), XStoreNamedColor_PROC)
 
 typedef KeySym (* PFN_XStringToKeysym_PROC) (const char *);
 PFN_XStringToKeysym_PROC XStringToKeysym_PROC = 0;
-#  define XStringToKeysym (assert(XStringToKeysym_PROC != 0), XStringToKeysym_PROC)
+#   define XStringToKeysym (assert(XStringToKeysym_PROC != 0), XStringToKeysym_PROC)
 
 typedef int (* PFN_XSupportsLocale_PROC) (void);
 PFN_XSupportsLocale_PROC XSupportsLocale_PROC = 0;
-#  define XSupportsLocale (assert(XSupportsLocale_PROC != 0), XSupportsLocale_PROC)
+#   define XSupportsLocale (assert(XSupportsLocale_PROC != 0), XSupportsLocale_PROC)
 
 typedef int (* PFN_XSync_PROC) (Display *, int);
 PFN_XSync_PROC XSync_PROC = 0;
-#  define XSync (assert(XSync_PROC != 0), XSync_PROC)
+#   define XSync (assert(XSync_PROC != 0), XSync_PROC)
 
 typedef int (* PFN_XTextExtents_PROC) (XFontStruct *, const char *, int, int *, int *, int *, XCharStruct *);
 PFN_XTextExtents_PROC XTextExtents_PROC = 0;
-#  define XTextExtents (assert(XTextExtents_PROC != 0), XTextExtents_PROC)
+#   define XTextExtents (assert(XTextExtents_PROC != 0), XTextExtents_PROC)
 
 typedef int (* PFN_XTextExtents16_PROC) (XFontStruct *, const XChar2b *, int, int *, int *, int *, XCharStruct *);
 PFN_XTextExtents16_PROC XTextExtents16_PROC = 0;
-#  define XTextExtents16 (assert(XTextExtents16_PROC != 0), XTextExtents16_PROC)
+#   define XTextExtents16 (assert(XTextExtents16_PROC != 0), XTextExtents16_PROC)
 
 typedef int (* PFN_XTextWidth_PROC) (XFontStruct *, const char *, int);
 PFN_XTextWidth_PROC XTextWidth_PROC = 0;
-#  define XTextWidth (assert(XTextWidth_PROC != 0), XTextWidth_PROC)
+#   define XTextWidth (assert(XTextWidth_PROC != 0), XTextWidth_PROC)
 
 typedef int (* PFN_XTextWidth16_PROC) (XFontStruct *, const XChar2b *, int);
 PFN_XTextWidth16_PROC XTextWidth16_PROC = 0;
-#  define XTextWidth16 (assert(XTextWidth16_PROC != 0), XTextWidth16_PROC)
+#   define XTextWidth16 (assert(XTextWidth16_PROC != 0), XTextWidth16_PROC)
 
 typedef int (* PFN_XTranslateCoordinates_PROC) (Display *, Window, Window, int, int, int *, int *, Window *);
 PFN_XTranslateCoordinates_PROC XTranslateCoordinates_PROC = 0;
-#  define XTranslateCoordinates (assert(XTranslateCoordinates_PROC != 0), XTranslateCoordinates_PROC)
+#   define XTranslateCoordinates (assert(XTranslateCoordinates_PROC != 0), XTranslateCoordinates_PROC)
 
 typedef int (* PFN_XUndefineCursor_PROC) (Display *, Window);
 PFN_XUndefineCursor_PROC XUndefineCursor_PROC = 0;
-#  define XUndefineCursor (assert(XUndefineCursor_PROC != 0), XUndefineCursor_PROC)
+#   define XUndefineCursor (assert(XUndefineCursor_PROC != 0), XUndefineCursor_PROC)
 
 typedef int (* PFN_XUngrabButton_PROC) (Display *, unsigned int, unsigned int, Window);
 PFN_XUngrabButton_PROC XUngrabButton_PROC = 0;
-#  define XUngrabButton (assert(XUngrabButton_PROC != 0), XUngrabButton_PROC)
+#   define XUngrabButton (assert(XUngrabButton_PROC != 0), XUngrabButton_PROC)
 
 typedef int (* PFN_XUngrabKey_PROC) (Display *, int, unsigned int, Window);
 PFN_XUngrabKey_PROC XUngrabKey_PROC = 0;
-#  define XUngrabKey (assert(XUngrabKey_PROC != 0), XUngrabKey_PROC)
+#   define XUngrabKey (assert(XUngrabKey_PROC != 0), XUngrabKey_PROC)
 
 typedef int (* PFN_XUngrabKeyboard_PROC) (Display *, Time);
 PFN_XUngrabKeyboard_PROC XUngrabKeyboard_PROC = 0;
-#  define XUngrabKeyboard (assert(XUngrabKeyboard_PROC != 0), XUngrabKeyboard_PROC)
+#   define XUngrabKeyboard (assert(XUngrabKeyboard_PROC != 0), XUngrabKeyboard_PROC)
 
 typedef int (* PFN_XUngrabPointer_PROC) (Display *, Time);
 PFN_XUngrabPointer_PROC XUngrabPointer_PROC = 0;
-#  define XUngrabPointer (assert(XUngrabPointer_PROC != 0), XUngrabPointer_PROC)
+#   define XUngrabPointer (assert(XUngrabPointer_PROC != 0), XUngrabPointer_PROC)
 
 typedef int (* PFN_XUngrabServer_PROC) (Display *);
 PFN_XUngrabServer_PROC XUngrabServer_PROC = 0;
-#  define XUngrabServer (assert(XUngrabServer_PROC != 0), XUngrabServer_PROC)
+#   define XUngrabServer (assert(XUngrabServer_PROC != 0), XUngrabServer_PROC)
 
 typedef int (* PFN_XUninstallColormap_PROC) (Display *, Colormap);
 PFN_XUninstallColormap_PROC XUninstallColormap_PROC = 0;
-#  define XUninstallColormap (assert(XUninstallColormap_PROC != 0), XUninstallColormap_PROC)
+#   define XUninstallColormap (assert(XUninstallColormap_PROC != 0), XUninstallColormap_PROC)
 
 typedef int (* PFN_XUnloadFont_PROC) (Display *, Font);
 PFN_XUnloadFont_PROC XUnloadFont_PROC = 0;
-#  define XUnloadFont (assert(XUnloadFont_PROC != 0), XUnloadFont_PROC)
+#   define XUnloadFont (assert(XUnloadFont_PROC != 0), XUnloadFont_PROC)
 
 typedef void (* PFN_XUnlockDisplay_PROC) (Display *);
 PFN_XUnlockDisplay_PROC XUnlockDisplay_PROC = 0;
-#  define XUnlockDisplay (assert(XUnlockDisplay_PROC != 0), XUnlockDisplay_PROC)
+#   define XUnlockDisplay (assert(XUnlockDisplay_PROC != 0), XUnlockDisplay_PROC)
 
 typedef int (* PFN_XUnmapSubwindows_PROC) (Display *, Window);
 PFN_XUnmapSubwindows_PROC XUnmapSubwindows_PROC = 0;
-#  define XUnmapSubwindows (assert(XUnmapSubwindows_PROC != 0), XUnmapSubwindows_PROC)
+#   define XUnmapSubwindows (assert(XUnmapSubwindows_PROC != 0), XUnmapSubwindows_PROC)
 
 typedef int (* PFN_XUnmapWindow_PROC) (Display *, Window);
 PFN_XUnmapWindow_PROC XUnmapWindow_PROC = 0;
-#  define XUnmapWindow (assert(XUnmapWindow_PROC != 0), XUnmapWindow_PROC)
+#   define XUnmapWindow (assert(XUnmapWindow_PROC != 0), XUnmapWindow_PROC)
 
 typedef int (* PFN_XUnregisterIMInstantiateCallback_PROC) (Display *, struct _XrmHashBucketRec *, char *, char *, XIDProc, XPointer);
 PFN_XUnregisterIMInstantiateCallback_PROC XUnregisterIMInstantiateCallback_PROC = 0;
-#  define XUnregisterIMInstantiateCallback (assert(XUnregisterIMInstantiateCallback_PROC != 0), XUnregisterIMInstantiateCallback_PROC)
+#   define XUnregisterIMInstantiateCallback (assert(XUnregisterIMInstantiateCallback_PROC != 0), XUnregisterIMInstantiateCallback_PROC)
 
 typedef void (* PFN_XUnsetICFocus_PROC) (XIC);
 PFN_XUnsetICFocus_PROC XUnsetICFocus_PROC = 0;
-#  define XUnsetICFocus (assert(XUnsetICFocus_PROC != 0), XUnsetICFocus_PROC)
+#   define XUnsetICFocus (assert(XUnsetICFocus_PROC != 0), XUnsetICFocus_PROC)
 
 typedef XVaNestedList (* PFN_XVaCreateNestedList_PROC) (int, ...);
 PFN_XVaCreateNestedList_PROC XVaCreateNestedList_PROC = 0;
-#  define XVaCreateNestedList (assert(XVaCreateNestedList_PROC != 0), XVaCreateNestedList_PROC)
+#   define XVaCreateNestedList (assert(XVaCreateNestedList_PROC != 0), XVaCreateNestedList_PROC)
 
 typedef int (* PFN_XVendorRelease_PROC) (Display *);
 PFN_XVendorRelease_PROC XVendorRelease_PROC = 0;
-#  define XVendorRelease (assert(XVendorRelease_PROC != 0), XVendorRelease_PROC)
+#   define XVendorRelease (assert(XVendorRelease_PROC != 0), XVendorRelease_PROC)
 
 typedef VisualID (* PFN_XVisualIDFromVisual_PROC) (Visual *);
 PFN_XVisualIDFromVisual_PROC XVisualIDFromVisual_PROC = 0;
-#  define XVisualIDFromVisual (assert(XVisualIDFromVisual_PROC != 0), XVisualIDFromVisual_PROC)
+#   define XVisualIDFromVisual (assert(XVisualIDFromVisual_PROC != 0), XVisualIDFromVisual_PROC)
 
 typedef int (* PFN_XWarpPointer_PROC) (Display *, Window, Window, int, int, unsigned int, unsigned int, int, int);
 PFN_XWarpPointer_PROC XWarpPointer_PROC = 0;
-#  define XWarpPointer (assert(XWarpPointer_PROC != 0), XWarpPointer_PROC)
+#   define XWarpPointer (assert(XWarpPointer_PROC != 0), XWarpPointer_PROC)
 
 typedef unsigned long (* PFN_XWhitePixel_PROC) (Display *, int);
 PFN_XWhitePixel_PROC XWhitePixel_PROC = 0;
-#  define XWhitePixel (assert(XWhitePixel_PROC != 0), XWhitePixel_PROC)
+#   define XWhitePixel (assert(XWhitePixel_PROC != 0), XWhitePixel_PROC)
 
 typedef unsigned long (* PFN_XWhitePixelOfScreen_PROC) (Screen *);
 PFN_XWhitePixelOfScreen_PROC XWhitePixelOfScreen_PROC = 0;
-#  define XWhitePixelOfScreen (assert(XWhitePixelOfScreen_PROC != 0), XWhitePixelOfScreen_PROC)
+#   define XWhitePixelOfScreen (assert(XWhitePixelOfScreen_PROC != 0), XWhitePixelOfScreen_PROC)
 
 typedef int (* PFN_XWidthMMOfScreen_PROC) (Screen *);
 PFN_XWidthMMOfScreen_PROC XWidthMMOfScreen_PROC = 0;
-#  define XWidthMMOfScreen (assert(XWidthMMOfScreen_PROC != 0), XWidthMMOfScreen_PROC)
+#   define XWidthMMOfScreen (assert(XWidthMMOfScreen_PROC != 0), XWidthMMOfScreen_PROC)
 
 typedef int (* PFN_XWidthOfScreen_PROC) (Screen *);
 PFN_XWidthOfScreen_PROC XWidthOfScreen_PROC = 0;
-#  define XWidthOfScreen (assert(XWidthOfScreen_PROC != 0), XWidthOfScreen_PROC)
+#   define XWidthOfScreen (assert(XWidthOfScreen_PROC != 0), XWidthOfScreen_PROC)
 
 typedef int (* PFN_XWindowEvent_PROC) (Display *, Window, long, XEvent *);
 PFN_XWindowEvent_PROC XWindowEvent_PROC = 0;
-#  define XWindowEvent (assert(XWindowEvent_PROC != 0), XWindowEvent_PROC)
+#   define XWindowEvent (assert(XWindowEvent_PROC != 0), XWindowEvent_PROC)
 
 typedef int (* PFN_XWithdrawWindow_PROC) (Display *, Window, int);
 PFN_XWithdrawWindow_PROC XWithdrawWindow_PROC = 0;
-#  define XWithdrawWindow (assert(XWithdrawWindow_PROC != 0), XWithdrawWindow_PROC)
+#   define XWithdrawWindow (assert(XWithdrawWindow_PROC != 0), XWithdrawWindow_PROC)
 
 typedef int (* PFN_XWriteBitmapFile_PROC) (Display *, const char *, Pixmap, unsigned int, unsigned int, int, int);
 PFN_XWriteBitmapFile_PROC XWriteBitmapFile_PROC = 0;
-#  define XWriteBitmapFile (assert(XWriteBitmapFile_PROC != 0), XWriteBitmapFile_PROC)
+#   define XWriteBitmapFile (assert(XWriteBitmapFile_PROC != 0), XWriteBitmapFile_PROC)
 
 typedef void (* PFN_XmbDrawImageString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const char *, int);
 PFN_XmbDrawImageString_PROC XmbDrawImageString_PROC = 0;
-#  define XmbDrawImageString (assert(XmbDrawImageString_PROC != 0), XmbDrawImageString_PROC)
+#   define XmbDrawImageString (assert(XmbDrawImageString_PROC != 0), XmbDrawImageString_PROC)
 
 typedef void (* PFN_XmbDrawString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const char *, int);
 PFN_XmbDrawString_PROC XmbDrawString_PROC = 0;
-#  define XmbDrawString (assert(XmbDrawString_PROC != 0), XmbDrawString_PROC)
+#   define XmbDrawString (assert(XmbDrawString_PROC != 0), XmbDrawString_PROC)
 
 typedef void (* PFN_XmbDrawText_PROC) (Display *, Drawable, GC, int, int, XmbTextItem *, int);
 PFN_XmbDrawText_PROC XmbDrawText_PROC = 0;
-#  define XmbDrawText (assert(XmbDrawText_PROC != 0), XmbDrawText_PROC)
+#   define XmbDrawText (assert(XmbDrawText_PROC != 0), XmbDrawText_PROC)
 
 typedef int (* PFN_XmbLookupString_PROC) (XIC, XKeyPressedEvent *, char *, int, KeySym *, int *);
 PFN_XmbLookupString_PROC XmbLookupString_PROC = 0;
-#  define XmbLookupString (assert(XmbLookupString_PROC != 0), XmbLookupString_PROC)
+#   define XmbLookupString (assert(XmbLookupString_PROC != 0), XmbLookupString_PROC)
 
 typedef char *(* PFN_XmbResetIC_PROC) (XIC);
 PFN_XmbResetIC_PROC XmbResetIC_PROC = 0;
-#  define XmbResetIC (assert(XmbResetIC_PROC != 0), XmbResetIC_PROC)
+#   define XmbResetIC (assert(XmbResetIC_PROC != 0), XmbResetIC_PROC)
 
 typedef int (* PFN_XmbTextEscapement_PROC) (XFontSet, const char *, int);
 PFN_XmbTextEscapement_PROC XmbTextEscapement_PROC = 0;
-#  define XmbTextEscapement (assert(XmbTextEscapement_PROC != 0), XmbTextEscapement_PROC)
+#   define XmbTextEscapement (assert(XmbTextEscapement_PROC != 0), XmbTextEscapement_PROC)
 
 typedef int (* PFN_XmbTextExtents_PROC) (XFontSet, const char *, int, XRectangle *, XRectangle *);
 PFN_XmbTextExtents_PROC XmbTextExtents_PROC = 0;
-#  define XmbTextExtents (assert(XmbTextExtents_PROC != 0), XmbTextExtents_PROC)
+#   define XmbTextExtents (assert(XmbTextExtents_PROC != 0), XmbTextExtents_PROC)
 
 typedef int (* PFN_XmbTextPerCharExtents_PROC) (XFontSet, const char *, int, XRectangle *, XRectangle *, int, int *, XRectangle *, XRectangle *);
 PFN_XmbTextPerCharExtents_PROC XmbTextPerCharExtents_PROC = 0;
-#  define XmbTextPerCharExtents (assert(XmbTextPerCharExtents_PROC != 0), XmbTextPerCharExtents_PROC)
+#   define XmbTextPerCharExtents (assert(XmbTextPerCharExtents_PROC != 0), XmbTextPerCharExtents_PROC)
 
 typedef void (* PFN_XrmInitialize_PROC) (void);
 PFN_XrmInitialize_PROC XrmInitialize_PROC = 0;
-#  define XrmInitialize (assert(XrmInitialize_PROC != 0), XrmInitialize_PROC)
+#   define XrmInitialize (assert(XrmInitialize_PROC != 0), XrmInitialize_PROC)
 
 typedef void (* PFN_Xutf8DrawImageString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const char *, int);
 PFN_Xutf8DrawImageString_PROC Xutf8DrawImageString_PROC = 0;
-#  define Xutf8DrawImageString (assert(Xutf8DrawImageString_PROC != 0), Xutf8DrawImageString_PROC)
+#   define Xutf8DrawImageString (assert(Xutf8DrawImageString_PROC != 0), Xutf8DrawImageString_PROC)
 
 typedef void (* PFN_Xutf8DrawString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const char *, int);
 PFN_Xutf8DrawString_PROC Xutf8DrawString_PROC = 0;
-#  define Xutf8DrawString (assert(Xutf8DrawString_PROC != 0), Xutf8DrawString_PROC)
+#   define Xutf8DrawString (assert(Xutf8DrawString_PROC != 0), Xutf8DrawString_PROC)
 
 typedef void (* PFN_Xutf8DrawText_PROC) (Display *, Drawable, GC, int, int, XmbTextItem *, int);
 PFN_Xutf8DrawText_PROC Xutf8DrawText_PROC = 0;
-#  define Xutf8DrawText (assert(Xutf8DrawText_PROC != 0), Xutf8DrawText_PROC)
+#   define Xutf8DrawText (assert(Xutf8DrawText_PROC != 0), Xutf8DrawText_PROC)
 
 typedef int (* PFN_Xutf8LookupString_PROC) (XIC, XKeyPressedEvent *, char *, int, KeySym *, int *);
 PFN_Xutf8LookupString_PROC Xutf8LookupString_PROC = 0;
-#  define Xutf8LookupString (assert(Xutf8LookupString_PROC != 0), Xutf8LookupString_PROC)
+#   define Xutf8LookupString (assert(Xutf8LookupString_PROC != 0), Xutf8LookupString_PROC)
 
 typedef char *(* PFN_Xutf8ResetIC_PROC) (XIC);
 PFN_Xutf8ResetIC_PROC Xutf8ResetIC_PROC = 0;
-#  define Xutf8ResetIC (assert(Xutf8ResetIC_PROC != 0), Xutf8ResetIC_PROC)
+#   define Xutf8ResetIC (assert(Xutf8ResetIC_PROC != 0), Xutf8ResetIC_PROC)
 
 typedef int (* PFN_Xutf8TextEscapement_PROC) (XFontSet, const char *, int);
 PFN_Xutf8TextEscapement_PROC Xutf8TextEscapement_PROC = 0;
-#  define Xutf8TextEscapement (assert(Xutf8TextEscapement_PROC != 0), Xutf8TextEscapement_PROC)
+#   define Xutf8TextEscapement (assert(Xutf8TextEscapement_PROC != 0), Xutf8TextEscapement_PROC)
 
 typedef int (* PFN_Xutf8TextExtents_PROC) (XFontSet, const char *, int, XRectangle *, XRectangle *);
 PFN_Xutf8TextExtents_PROC Xutf8TextExtents_PROC = 0;
-#  define Xutf8TextExtents (assert(Xutf8TextExtents_PROC != 0), Xutf8TextExtents_PROC)
+#   define Xutf8TextExtents (assert(Xutf8TextExtents_PROC != 0), Xutf8TextExtents_PROC)
 
 typedef int (* PFN_Xutf8TextPerCharExtents_PROC) (XFontSet, const char *, int, XRectangle *, XRectangle *, int, int *, XRectangle *, XRectangle *);
 PFN_Xutf8TextPerCharExtents_PROC Xutf8TextPerCharExtents_PROC = 0;
-#  define Xutf8TextPerCharExtents (assert(Xutf8TextPerCharExtents_PROC != 0), Xutf8TextPerCharExtents_PROC)
+#   define Xutf8TextPerCharExtents (assert(Xutf8TextPerCharExtents_PROC != 0), Xutf8TextPerCharExtents_PROC)
 
 typedef void (* PFN_XwcDrawImageString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const wchar_t *, int);
 PFN_XwcDrawImageString_PROC XwcDrawImageString_PROC = 0;
-#  define XwcDrawImageString (assert(XwcDrawImageString_PROC != 0), XwcDrawImageString_PROC)
+#   define XwcDrawImageString (assert(XwcDrawImageString_PROC != 0), XwcDrawImageString_PROC)
 
 typedef void (* PFN_XwcDrawString_PROC) (Display *, Drawable, XFontSet, GC, int, int, const wchar_t *, int);
 PFN_XwcDrawString_PROC XwcDrawString_PROC = 0;
-#  define XwcDrawString (assert(XwcDrawString_PROC != 0), XwcDrawString_PROC)
+#   define XwcDrawString (assert(XwcDrawString_PROC != 0), XwcDrawString_PROC)
 
 typedef void (* PFN_XwcDrawText_PROC) (Display *, Drawable, GC, int, int, XwcTextItem *, int);
 PFN_XwcDrawText_PROC XwcDrawText_PROC = 0;
-#  define XwcDrawText (assert(XwcDrawText_PROC != 0), XwcDrawText_PROC)
+#   define XwcDrawText (assert(XwcDrawText_PROC != 0), XwcDrawText_PROC)
 
 typedef int (* PFN_XwcLookupString_PROC) (XIC, XKeyPressedEvent *, wchar_t *, int, KeySym *, int *);
 PFN_XwcLookupString_PROC XwcLookupString_PROC = 0;
-#  define XwcLookupString (assert(XwcLookupString_PROC != 0), XwcLookupString_PROC)
+#   define XwcLookupString (assert(XwcLookupString_PROC != 0), XwcLookupString_PROC)
 
 typedef wchar_t *(* PFN_XwcResetIC_PROC) (XIC);
 PFN_XwcResetIC_PROC XwcResetIC_PROC = 0;
-#  define XwcResetIC (assert(XwcResetIC_PROC != 0), XwcResetIC_PROC)
+#   define XwcResetIC (assert(XwcResetIC_PROC != 0), XwcResetIC_PROC)
 
 typedef int (* PFN_XwcTextEscapement_PROC) (XFontSet, const wchar_t *, int);
 PFN_XwcTextEscapement_PROC XwcTextEscapement_PROC = 0;
-#  define XwcTextEscapement (assert(XwcTextEscapement_PROC != 0), XwcTextEscapement_PROC)
+#   define XwcTextEscapement (assert(XwcTextEscapement_PROC != 0), XwcTextEscapement_PROC)
 
 typedef int (* PFN_XwcTextExtents_PROC) (XFontSet, const wchar_t *, int, XRectangle *, XRectangle *);
 PFN_XwcTextExtents_PROC XwcTextExtents_PROC = 0;
-#  define XwcTextExtents (assert(XwcTextExtents_PROC != 0), XwcTextExtents_PROC)
+#   define XwcTextExtents (assert(XwcTextExtents_PROC != 0), XwcTextExtents_PROC)
 
 typedef int (* PFN_XwcTextPerCharExtents_PROC) (XFontSet, const wchar_t *, int, XRectangle *, XRectangle *, int, int *, XRectangle *, XRectangle *);
 PFN_XwcTextPerCharExtents_PROC XwcTextPerCharExtents_PROC = 0;
-#  define XwcTextPerCharExtents (assert(XwcTextPerCharExtents_PROC != 0), XwcTextPerCharExtents_PROC)
+#   define XwcTextPerCharExtents (assert(XwcTextPerCharExtents_PROC != 0), XwcTextPerCharExtents_PROC)
 
 typedef int (* PFN__Xmblen_PROC) (char *, int);
 PFN__Xmblen_PROC _Xmblen_PROC = 0;
-#  define _Xmblen (assert(_Xmblen_PROC != 0), _Xmblen_PROC)
+#   define _Xmblen (assert(_Xmblen_PROC != 0), _Xmblen_PROC)
 
 typedef int (* PFN__Xmbtowc_PROC) (wchar_t *, char *, int);
 PFN__Xmbtowc_PROC _Xmbtowc_PROC = 0;
-#  define _Xmbtowc (assert(_Xmbtowc_PROC != 0), _Xmbtowc_PROC)
+#   define _Xmbtowc (assert(_Xmbtowc_PROC != 0), _Xmbtowc_PROC)
 
 typedef int (* PFN__Xwctomb_PROC) (char *, wchar_t);
 PFN__Xwctomb_PROC _Xwctomb_PROC = 0;
-#  define _Xwctomb (assert(_Xwctomb_PROC != 0), _Xwctomb_PROC)
+#   define _Xwctomb (assert(_Xwctomb_PROC != 0), _Xwctomb_PROC)
 
 
 /* libX11: Xutil.h */
 typedef XClassHint *(* PFN_XAllocClassHint_PROC) (void);
 PFN_XAllocClassHint_PROC XAllocClassHint_PROC = 0;
-#  define XAllocClassHint (assert(XAllocClassHint_PROC != 0), XAllocClassHint_PROC)
+#   define XAllocClassHint (assert(XAllocClassHint_PROC != 0), XAllocClassHint_PROC)
 
 typedef XIconSize *(* PFN_XAllocIconSize_PROC) (void);
 PFN_XAllocIconSize_PROC XAllocIconSize_PROC = 0;
-#  define XAllocIconSize (assert(XAllocIconSize_PROC != 0), XAllocIconSize_PROC)
+#   define XAllocIconSize (assert(XAllocIconSize_PROC != 0), XAllocIconSize_PROC)
 
 typedef XSizeHints *(* PFN_XAllocSizeHints_PROC) (void);
 PFN_XAllocSizeHints_PROC XAllocSizeHints_PROC = 0;
-#  define XAllocSizeHints (assert(XAllocSizeHints_PROC != 0), XAllocSizeHints_PROC)
+#   define XAllocSizeHints (assert(XAllocSizeHints_PROC != 0), XAllocSizeHints_PROC)
 
 typedef XStandardColormap *(* PFN_XAllocStandardColormap_PROC) (void);
 PFN_XAllocStandardColormap_PROC XAllocStandardColormap_PROC = 0;
-#  define XAllocStandardColormap (assert(XAllocStandardColormap_PROC != 0), XAllocStandardColormap_PROC)
+#   define XAllocStandardColormap (assert(XAllocStandardColormap_PROC != 0), XAllocStandardColormap_PROC)
 
 typedef XWMHints *(* PFN_XAllocWMHints_PROC) (void);
 PFN_XAllocWMHints_PROC XAllocWMHints_PROC = 0;
-#  define XAllocWMHints (assert(XAllocWMHints_PROC != 0), XAllocWMHints_PROC)
+#   define XAllocWMHints (assert(XAllocWMHints_PROC != 0), XAllocWMHints_PROC)
 
 typedef int (* PFN_XClipBox_PROC) (Region, XRectangle *);
 PFN_XClipBox_PROC XClipBox_PROC = 0;
-#  define XClipBox (assert(XClipBox_PROC != 0), XClipBox_PROC)
+#   define XClipBox (assert(XClipBox_PROC != 0), XClipBox_PROC)
 
 typedef void (* PFN_XConvertCase_PROC) (KeySym, KeySym *, KeySym *);
 PFN_XConvertCase_PROC XConvertCase_PROC = 0;
-#  define XConvertCase (assert(XConvertCase_PROC != 0), XConvertCase_PROC)
+#   define XConvertCase (assert(XConvertCase_PROC != 0), XConvertCase_PROC)
 
 typedef Region (* PFN_XCreateRegion_PROC) (void);
 PFN_XCreateRegion_PROC XCreateRegion_PROC = 0;
-#  define XCreateRegion (assert(XCreateRegion_PROC != 0), XCreateRegion_PROC)
+#   define XCreateRegion (assert(XCreateRegion_PROC != 0), XCreateRegion_PROC)
 
 typedef const char *(* PFN_XDefaultString_PROC) (void);
 PFN_XDefaultString_PROC XDefaultString_PROC = 0;
-#  define XDefaultString (assert(XDefaultString_PROC != 0), XDefaultString_PROC)
+#   define XDefaultString (assert(XDefaultString_PROC != 0), XDefaultString_PROC)
 
 typedef int (* PFN_XDeleteContext_PROC) (Display *, XID, XContext);
 PFN_XDeleteContext_PROC XDeleteContext_PROC = 0;
-#  define XDeleteContext (assert(XDeleteContext_PROC != 0), XDeleteContext_PROC)
+#   define XDeleteContext (assert(XDeleteContext_PROC != 0), XDeleteContext_PROC)
 
 typedef int (* PFN_XDestroyRegion_PROC) (Region);
 PFN_XDestroyRegion_PROC XDestroyRegion_PROC = 0;
-#  define XDestroyRegion (assert(XDestroyRegion_PROC != 0), XDestroyRegion_PROC)
+#   define XDestroyRegion (assert(XDestroyRegion_PROC != 0), XDestroyRegion_PROC)
 
 typedef int (* PFN_XEmptyRegion_PROC) (Region);
 PFN_XEmptyRegion_PROC XEmptyRegion_PROC = 0;
-#  define XEmptyRegion (assert(XEmptyRegion_PROC != 0), XEmptyRegion_PROC)
+#   define XEmptyRegion (assert(XEmptyRegion_PROC != 0), XEmptyRegion_PROC)
 
 typedef int (* PFN_XEqualRegion_PROC) (Region, Region);
 PFN_XEqualRegion_PROC XEqualRegion_PROC = 0;
-#  define XEqualRegion (assert(XEqualRegion_PROC != 0), XEqualRegion_PROC)
+#   define XEqualRegion (assert(XEqualRegion_PROC != 0), XEqualRegion_PROC)
 
 typedef int (* PFN_XFindContext_PROC) (Display *, XID, XContext, XPointer *);
 PFN_XFindContext_PROC XFindContext_PROC = 0;
-#  define XFindContext (assert(XFindContext_PROC != 0), XFindContext_PROC)
+#   define XFindContext (assert(XFindContext_PROC != 0), XFindContext_PROC)
 
 typedef int (* PFN_XGetClassHint_PROC) (Display *, Window, XClassHint *);
 PFN_XGetClassHint_PROC XGetClassHint_PROC = 0;
-#  define XGetClassHint (assert(XGetClassHint_PROC != 0), XGetClassHint_PROC)
+#   define XGetClassHint (assert(XGetClassHint_PROC != 0), XGetClassHint_PROC)
 
 typedef int (* PFN_XGetIconSizes_PROC) (Display *, Window, XIconSize **, int *);
 PFN_XGetIconSizes_PROC XGetIconSizes_PROC = 0;
-#  define XGetIconSizes (assert(XGetIconSizes_PROC != 0), XGetIconSizes_PROC)
+#   define XGetIconSizes (assert(XGetIconSizes_PROC != 0), XGetIconSizes_PROC)
 
 typedef int (* PFN_XGetNormalHints_PROC) (Display *, Window, XSizeHints *);
 PFN_XGetNormalHints_PROC XGetNormalHints_PROC = 0;
-#  define XGetNormalHints (assert(XGetNormalHints_PROC != 0), XGetNormalHints_PROC)
+#   define XGetNormalHints (assert(XGetNormalHints_PROC != 0), XGetNormalHints_PROC)
 
 typedef int (* PFN_XGetRGBColormaps_PROC) (Display *, Window, XStandardColormap **, int *, Atom);
 PFN_XGetRGBColormaps_PROC XGetRGBColormaps_PROC = 0;
-#  define XGetRGBColormaps (assert(XGetRGBColormaps_PROC != 0), XGetRGBColormaps_PROC)
+#   define XGetRGBColormaps (assert(XGetRGBColormaps_PROC != 0), XGetRGBColormaps_PROC)
 
 typedef int (* PFN_XGetSizeHints_PROC) (Display *, Window, XSizeHints *, Atom);
 PFN_XGetSizeHints_PROC XGetSizeHints_PROC = 0;
-#  define XGetSizeHints (assert(XGetSizeHints_PROC != 0), XGetSizeHints_PROC)
+#   define XGetSizeHints (assert(XGetSizeHints_PROC != 0), XGetSizeHints_PROC)
 
 typedef int (* PFN_XGetStandardColormap_PROC) (Display *, Window, XStandardColormap *, Atom);
 PFN_XGetStandardColormap_PROC XGetStandardColormap_PROC = 0;
-#  define XGetStandardColormap (assert(XGetStandardColormap_PROC != 0), XGetStandardColormap_PROC)
+#   define XGetStandardColormap (assert(XGetStandardColormap_PROC != 0), XGetStandardColormap_PROC)
 
 typedef int (* PFN_XGetTextProperty_PROC) (Display *, Window, XTextProperty *, Atom);
 PFN_XGetTextProperty_PROC XGetTextProperty_PROC = 0;
-#  define XGetTextProperty (assert(XGetTextProperty_PROC != 0), XGetTextProperty_PROC)
+#   define XGetTextProperty (assert(XGetTextProperty_PROC != 0), XGetTextProperty_PROC)
 
 typedef XVisualInfo *(* PFN_XGetVisualInfo_PROC) (Display *, long, XVisualInfo *, int *);
 PFN_XGetVisualInfo_PROC XGetVisualInfo_PROC = 0;
-#  define XGetVisualInfo (assert(XGetVisualInfo_PROC != 0), XGetVisualInfo_PROC)
+#   define XGetVisualInfo (assert(XGetVisualInfo_PROC != 0), XGetVisualInfo_PROC)
 
 typedef int (* PFN_XGetWMClientMachine_PROC) (Display *, Window, XTextProperty *);
 PFN_XGetWMClientMachine_PROC XGetWMClientMachine_PROC = 0;
-#  define XGetWMClientMachine (assert(XGetWMClientMachine_PROC != 0), XGetWMClientMachine_PROC)
+#   define XGetWMClientMachine (assert(XGetWMClientMachine_PROC != 0), XGetWMClientMachine_PROC)
 
 typedef XWMHints *(* PFN_XGetWMHints_PROC) (Display *, Window);
 PFN_XGetWMHints_PROC XGetWMHints_PROC = 0;
-#  define XGetWMHints (assert(XGetWMHints_PROC != 0), XGetWMHints_PROC)
+#   define XGetWMHints (assert(XGetWMHints_PROC != 0), XGetWMHints_PROC)
 
 typedef int (* PFN_XGetWMIconName_PROC) (Display *, Window, XTextProperty *);
 PFN_XGetWMIconName_PROC XGetWMIconName_PROC = 0;
-#  define XGetWMIconName (assert(XGetWMIconName_PROC != 0), XGetWMIconName_PROC)
+#   define XGetWMIconName (assert(XGetWMIconName_PROC != 0), XGetWMIconName_PROC)
 
 typedef int (* PFN_XGetWMName_PROC) (Display *, Window, XTextProperty *);
 PFN_XGetWMName_PROC XGetWMName_PROC = 0;
-#  define XGetWMName (assert(XGetWMName_PROC != 0), XGetWMName_PROC)
+#   define XGetWMName (assert(XGetWMName_PROC != 0), XGetWMName_PROC)
 
 typedef int (* PFN_XGetWMNormalHints_PROC) (Display *, Window, XSizeHints *, long *);
 PFN_XGetWMNormalHints_PROC XGetWMNormalHints_PROC = 0;
-#  define XGetWMNormalHints (assert(XGetWMNormalHints_PROC != 0), XGetWMNormalHints_PROC)
+#   define XGetWMNormalHints (assert(XGetWMNormalHints_PROC != 0), XGetWMNormalHints_PROC)
 
 typedef int (* PFN_XGetWMSizeHints_PROC) (Display *, Window, XSizeHints *, long *, Atom);
 PFN_XGetWMSizeHints_PROC XGetWMSizeHints_PROC = 0;
-#  define XGetWMSizeHints (assert(XGetWMSizeHints_PROC != 0), XGetWMSizeHints_PROC)
+#   define XGetWMSizeHints (assert(XGetWMSizeHints_PROC != 0), XGetWMSizeHints_PROC)
 
 typedef int (* PFN_XGetZoomHints_PROC) (Display *, Window, XSizeHints *);
 PFN_XGetZoomHints_PROC XGetZoomHints_PROC = 0;
-#  define XGetZoomHints (assert(XGetZoomHints_PROC != 0), XGetZoomHints_PROC)
+#   define XGetZoomHints (assert(XGetZoomHints_PROC != 0), XGetZoomHints_PROC)
 
 typedef int (* PFN_XIntersectRegion_PROC) (Region, Region, Region);
 PFN_XIntersectRegion_PROC XIntersectRegion_PROC = 0;
-#  define XIntersectRegion (assert(XIntersectRegion_PROC != 0), XIntersectRegion_PROC)
+#   define XIntersectRegion (assert(XIntersectRegion_PROC != 0), XIntersectRegion_PROC)
 
 typedef int (* PFN_XLookupString_PROC) (XKeyEvent *, char *, int, KeySym *, XComposeStatus *);
 PFN_XLookupString_PROC XLookupString_PROC = 0;
-#  define XLookupString (assert(XLookupString_PROC != 0), XLookupString_PROC)
+#   define XLookupString (assert(XLookupString_PROC != 0), XLookupString_PROC)
 
 typedef int (* PFN_XMatchVisualInfo_PROC) (Display *, int, int, int, XVisualInfo *);
 PFN_XMatchVisualInfo_PROC XMatchVisualInfo_PROC = 0;
-#  define XMatchVisualInfo (assert(XMatchVisualInfo_PROC != 0), XMatchVisualInfo_PROC)
+#   define XMatchVisualInfo (assert(XMatchVisualInfo_PROC != 0), XMatchVisualInfo_PROC)
 
 typedef int (* PFN_XOffsetRegion_PROC) (Region, int, int);
 PFN_XOffsetRegion_PROC XOffsetRegion_PROC = 0;
-#  define XOffsetRegion (assert(XOffsetRegion_PROC != 0), XOffsetRegion_PROC)
+#   define XOffsetRegion (assert(XOffsetRegion_PROC != 0), XOffsetRegion_PROC)
 
 typedef int (* PFN_XPointInRegion_PROC) (Region, int, int);
 PFN_XPointInRegion_PROC XPointInRegion_PROC = 0;
-#  define XPointInRegion (assert(XPointInRegion_PROC != 0), XPointInRegion_PROC)
+#   define XPointInRegion (assert(XPointInRegion_PROC != 0), XPointInRegion_PROC)
 
 typedef Region (* PFN_XPolygonRegion_PROC) (XPoint *, int, int);
 PFN_XPolygonRegion_PROC XPolygonRegion_PROC = 0;
-#  define XPolygonRegion (assert(XPolygonRegion_PROC != 0), XPolygonRegion_PROC)
+#   define XPolygonRegion (assert(XPolygonRegion_PROC != 0), XPolygonRegion_PROC)
 
 typedef int (* PFN_XRectInRegion_PROC) (Region, int, int, unsigned int, unsigned int);
 PFN_XRectInRegion_PROC XRectInRegion_PROC = 0;
-#  define XRectInRegion (assert(XRectInRegion_PROC != 0), XRectInRegion_PROC)
+#   define XRectInRegion (assert(XRectInRegion_PROC != 0), XRectInRegion_PROC)
 
 typedef int (* PFN_XSaveContext_PROC) (Display *, XID, XContext, const char *);
 PFN_XSaveContext_PROC XSaveContext_PROC = 0;
-#  define XSaveContext (assert(XSaveContext_PROC != 0), XSaveContext_PROC)
+#   define XSaveContext (assert(XSaveContext_PROC != 0), XSaveContext_PROC)
 
 typedef int (* PFN_XSetClassHint_PROC) (Display *, Window, XClassHint *);
 PFN_XSetClassHint_PROC XSetClassHint_PROC = 0;
-#  define XSetClassHint (assert(XSetClassHint_PROC != 0), XSetClassHint_PROC)
+#   define XSetClassHint (assert(XSetClassHint_PROC != 0), XSetClassHint_PROC)
 
 typedef int (* PFN_XSetIconSizes_PROC) (Display *, Window, XIconSize *, int);
 PFN_XSetIconSizes_PROC XSetIconSizes_PROC = 0;
-#  define XSetIconSizes (assert(XSetIconSizes_PROC != 0), XSetIconSizes_PROC)
+#   define XSetIconSizes (assert(XSetIconSizes_PROC != 0), XSetIconSizes_PROC)
 
 typedef int (* PFN_XSetNormalHints_PROC) (Display *, Window, XSizeHints *);
 PFN_XSetNormalHints_PROC XSetNormalHints_PROC = 0;
-#  define XSetNormalHints (assert(XSetNormalHints_PROC != 0), XSetNormalHints_PROC)
+#   define XSetNormalHints (assert(XSetNormalHints_PROC != 0), XSetNormalHints_PROC)
 
 typedef void (* PFN_XSetRGBColormaps_PROC) (Display *, Window, XStandardColormap *, int, Atom);
 PFN_XSetRGBColormaps_PROC XSetRGBColormaps_PROC = 0;
-#  define XSetRGBColormaps (assert(XSetRGBColormaps_PROC != 0), XSetRGBColormaps_PROC)
+#   define XSetRGBColormaps (assert(XSetRGBColormaps_PROC != 0), XSetRGBColormaps_PROC)
 
 typedef int (* PFN_XSetRegion_PROC) (Display *, GC, Region);
 PFN_XSetRegion_PROC XSetRegion_PROC = 0;
-#  define XSetRegion (assert(XSetRegion_PROC != 0), XSetRegion_PROC)
+#   define XSetRegion (assert(XSetRegion_PROC != 0), XSetRegion_PROC)
 
 typedef int (* PFN_XSetSizeHints_PROC) (Display *, Window, XSizeHints *, Atom);
 PFN_XSetSizeHints_PROC XSetSizeHints_PROC = 0;
-#  define XSetSizeHints (assert(XSetSizeHints_PROC != 0), XSetSizeHints_PROC)
+#   define XSetSizeHints (assert(XSetSizeHints_PROC != 0), XSetSizeHints_PROC)
 
 typedef void (* PFN_XSetStandardColormap_PROC) (Display *, Window, XStandardColormap *, Atom);
 PFN_XSetStandardColormap_PROC XSetStandardColormap_PROC = 0;
-#  define XSetStandardColormap (assert(XSetStandardColormap_PROC != 0), XSetStandardColormap_PROC)
+#   define XSetStandardColormap (assert(XSetStandardColormap_PROC != 0), XSetStandardColormap_PROC)
 
 typedef int (* PFN_XSetStandardProperties_PROC) (Display *, Window, const char *, const char *, Pixmap, char **, int, XSizeHints *);
 PFN_XSetStandardProperties_PROC XSetStandardProperties_PROC = 0;
-#  define XSetStandardProperties (assert(XSetStandardProperties_PROC != 0), XSetStandardProperties_PROC)
+#   define XSetStandardProperties (assert(XSetStandardProperties_PROC != 0), XSetStandardProperties_PROC)
 
 typedef void (* PFN_XSetTextProperty_PROC) (Display *, Window, XTextProperty *, Atom);
 PFN_XSetTextProperty_PROC XSetTextProperty_PROC = 0;
-#  define XSetTextProperty (assert(XSetTextProperty_PROC != 0), XSetTextProperty_PROC)
+#   define XSetTextProperty (assert(XSetTextProperty_PROC != 0), XSetTextProperty_PROC)
 
 typedef void (* PFN_XSetWMClientMachine_PROC) (Display *, Window, XTextProperty *);
 PFN_XSetWMClientMachine_PROC XSetWMClientMachine_PROC = 0;
-#  define XSetWMClientMachine (assert(XSetWMClientMachine_PROC != 0), XSetWMClientMachine_PROC)
+#   define XSetWMClientMachine (assert(XSetWMClientMachine_PROC != 0), XSetWMClientMachine_PROC)
 
 typedef int (* PFN_XSetWMHints_PROC) (Display *, Window, XWMHints *);
 PFN_XSetWMHints_PROC XSetWMHints_PROC = 0;
-#  define XSetWMHints (assert(XSetWMHints_PROC != 0), XSetWMHints_PROC)
+#   define XSetWMHints (assert(XSetWMHints_PROC != 0), XSetWMHints_PROC)
 
 typedef void (* PFN_XSetWMIconName_PROC) (Display *, Window, XTextProperty *);
 PFN_XSetWMIconName_PROC XSetWMIconName_PROC = 0;
-#  define XSetWMIconName (assert(XSetWMIconName_PROC != 0), XSetWMIconName_PROC)
+#   define XSetWMIconName (assert(XSetWMIconName_PROC != 0), XSetWMIconName_PROC)
 
 typedef void (* PFN_XSetWMName_PROC) (Display *, Window, XTextProperty *);
 PFN_XSetWMName_PROC XSetWMName_PROC = 0;
-#  define XSetWMName (assert(XSetWMName_PROC != 0), XSetWMName_PROC)
+#   define XSetWMName (assert(XSetWMName_PROC != 0), XSetWMName_PROC)
 
 typedef void (* PFN_XSetWMNormalHints_PROC) (Display *, Window, XSizeHints *);
 PFN_XSetWMNormalHints_PROC XSetWMNormalHints_PROC = 0;
-#  define XSetWMNormalHints (assert(XSetWMNormalHints_PROC != 0), XSetWMNormalHints_PROC)
+#   define XSetWMNormalHints (assert(XSetWMNormalHints_PROC != 0), XSetWMNormalHints_PROC)
 
 typedef void (* PFN_XSetWMProperties_PROC) (Display *, Window, XTextProperty *, XTextProperty *, char **, int, XSizeHints *, XWMHints *, XClassHint *);
 PFN_XSetWMProperties_PROC XSetWMProperties_PROC = 0;
-#  define XSetWMProperties (assert(XSetWMProperties_PROC != 0), XSetWMProperties_PROC)
+#   define XSetWMProperties (assert(XSetWMProperties_PROC != 0), XSetWMProperties_PROC)
 
 typedef void (* PFN_XSetWMSizeHints_PROC) (Display *, Window, XSizeHints *, Atom);
 PFN_XSetWMSizeHints_PROC XSetWMSizeHints_PROC = 0;
-#  define XSetWMSizeHints (assert(XSetWMSizeHints_PROC != 0), XSetWMSizeHints_PROC)
+#   define XSetWMSizeHints (assert(XSetWMSizeHints_PROC != 0), XSetWMSizeHints_PROC)
 
 typedef int (* PFN_XSetZoomHints_PROC) (Display *, Window, XSizeHints *);
 PFN_XSetZoomHints_PROC XSetZoomHints_PROC = 0;
-#  define XSetZoomHints (assert(XSetZoomHints_PROC != 0), XSetZoomHints_PROC)
+#   define XSetZoomHints (assert(XSetZoomHints_PROC != 0), XSetZoomHints_PROC)
 
 typedef int (* PFN_XShrinkRegion_PROC) (Region, int, int);
 PFN_XShrinkRegion_PROC XShrinkRegion_PROC = 0;
-#  define XShrinkRegion (assert(XShrinkRegion_PROC != 0), XShrinkRegion_PROC)
+#   define XShrinkRegion (assert(XShrinkRegion_PROC != 0), XShrinkRegion_PROC)
 
 typedef int (* PFN_XStringListToTextProperty_PROC) (char **, int, XTextProperty *);
 PFN_XStringListToTextProperty_PROC XStringListToTextProperty_PROC = 0;
-#  define XStringListToTextProperty (assert(XStringListToTextProperty_PROC != 0), XStringListToTextProperty_PROC)
+#   define XStringListToTextProperty (assert(XStringListToTextProperty_PROC != 0), XStringListToTextProperty_PROC)
 
 typedef int (* PFN_XSubtractRegion_PROC) (Region, Region, Region);
 PFN_XSubtractRegion_PROC XSubtractRegion_PROC = 0;
-#  define XSubtractRegion (assert(XSubtractRegion_PROC != 0), XSubtractRegion_PROC)
+#   define XSubtractRegion (assert(XSubtractRegion_PROC != 0), XSubtractRegion_PROC)
 
 typedef int (* PFN_XTextPropertyToStringList_PROC) (XTextProperty *, char ***, int *);
 PFN_XTextPropertyToStringList_PROC XTextPropertyToStringList_PROC = 0;
-#  define XTextPropertyToStringList (assert(XTextPropertyToStringList_PROC != 0), XTextPropertyToStringList_PROC)
+#   define XTextPropertyToStringList (assert(XTextPropertyToStringList_PROC != 0), XTextPropertyToStringList_PROC)
 
 typedef int (* PFN_XUnionRectWithRegion_PROC) (XRectangle *, Region, Region);
 PFN_XUnionRectWithRegion_PROC XUnionRectWithRegion_PROC = 0;
-#  define XUnionRectWithRegion (assert(XUnionRectWithRegion_PROC != 0), XUnionRectWithRegion_PROC)
+#   define XUnionRectWithRegion (assert(XUnionRectWithRegion_PROC != 0), XUnionRectWithRegion_PROC)
 
 typedef int (* PFN_XUnionRegion_PROC) (Region, Region, Region);
 PFN_XUnionRegion_PROC XUnionRegion_PROC = 0;
-#  define XUnionRegion (assert(XUnionRegion_PROC != 0), XUnionRegion_PROC)
+#   define XUnionRegion (assert(XUnionRegion_PROC != 0), XUnionRegion_PROC)
 
 typedef int (* PFN_XWMGeometry_PROC) (Display *, int, const char *, const char *, unsigned int, XSizeHints *, int *, int *, int *, int *, int *);
 PFN_XWMGeometry_PROC XWMGeometry_PROC = 0;
-#  define XWMGeometry (assert(XWMGeometry_PROC != 0), XWMGeometry_PROC)
+#   define XWMGeometry (assert(XWMGeometry_PROC != 0), XWMGeometry_PROC)
 
 typedef int (* PFN_XXorRegion_PROC) (Region, Region, Region);
 PFN_XXorRegion_PROC XXorRegion_PROC = 0;
-#  define XXorRegion (assert(XXorRegion_PROC != 0), XXorRegion_PROC)
+#   define XXorRegion (assert(XXorRegion_PROC != 0), XXorRegion_PROC)
 
 typedef void (* PFN_XmbSetWMProperties_PROC) (Display *, Window, const char *, const char *, char **, int, XSizeHints *, XWMHints *, XClassHint *);
 PFN_XmbSetWMProperties_PROC XmbSetWMProperties_PROC = 0;
-#  define XmbSetWMProperties (assert(XmbSetWMProperties_PROC != 0), XmbSetWMProperties_PROC)
+#   define XmbSetWMProperties (assert(XmbSetWMProperties_PROC != 0), XmbSetWMProperties_PROC)
 
 typedef int (* PFN_XmbTextListToTextProperty_PROC) (Display *, char **, int, XICCEncodingStyle, XTextProperty *);
 PFN_XmbTextListToTextProperty_PROC XmbTextListToTextProperty_PROC = 0;
-#  define XmbTextListToTextProperty (assert(XmbTextListToTextProperty_PROC != 0), XmbTextListToTextProperty_PROC)
+#   define XmbTextListToTextProperty (assert(XmbTextListToTextProperty_PROC != 0), XmbTextListToTextProperty_PROC)
 
 typedef int (* PFN_XmbTextPropertyToTextList_PROC) (Display *, const XTextProperty *, char ***, int *);
 PFN_XmbTextPropertyToTextList_PROC XmbTextPropertyToTextList_PROC = 0;
-#  define XmbTextPropertyToTextList (assert(XmbTextPropertyToTextList_PROC != 0), XmbTextPropertyToTextList_PROC)
+#   define XmbTextPropertyToTextList (assert(XmbTextPropertyToTextList_PROC != 0), XmbTextPropertyToTextList_PROC)
 
 typedef void (* PFN_Xutf8SetWMProperties_PROC) (Display *, Window, const char *, const char *, char **, int, XSizeHints *, XWMHints *, XClassHint *);
 PFN_Xutf8SetWMProperties_PROC Xutf8SetWMProperties_PROC = 0;
-#  define Xutf8SetWMProperties (assert(Xutf8SetWMProperties_PROC != 0), Xutf8SetWMProperties_PROC)
+#   define Xutf8SetWMProperties (assert(Xutf8SetWMProperties_PROC != 0), Xutf8SetWMProperties_PROC)
 
 typedef int (* PFN_Xutf8TextListToTextProperty_PROC) (Display *, char **, int, XICCEncodingStyle, XTextProperty *);
 PFN_Xutf8TextListToTextProperty_PROC Xutf8TextListToTextProperty_PROC = 0;
-#  define Xutf8TextListToTextProperty (assert(Xutf8TextListToTextProperty_PROC != 0), Xutf8TextListToTextProperty_PROC)
+#   define Xutf8TextListToTextProperty (assert(Xutf8TextListToTextProperty_PROC != 0), Xutf8TextListToTextProperty_PROC)
 
 typedef int (* PFN_Xutf8TextPropertyToTextList_PROC) (Display *, const XTextProperty *, char ***, int *);
 PFN_Xutf8TextPropertyToTextList_PROC Xutf8TextPropertyToTextList_PROC = 0;
-#  define Xutf8TextPropertyToTextList (assert(Xutf8TextPropertyToTextList_PROC != 0), Xutf8TextPropertyToTextList_PROC)
+#   define Xutf8TextPropertyToTextList (assert(Xutf8TextPropertyToTextList_PROC != 0), Xutf8TextPropertyToTextList_PROC)
 
 typedef void (* PFN_XwcFreeStringList_PROC) (wchar_t **);
 PFN_XwcFreeStringList_PROC XwcFreeStringList_PROC = 0;
-#  define XwcFreeStringList (assert(XwcFreeStringList_PROC != 0), XwcFreeStringList_PROC)
+#   define XwcFreeStringList (assert(XwcFreeStringList_PROC != 0), XwcFreeStringList_PROC)
 
 typedef int (* PFN_XwcTextListToTextProperty_PROC) (Display *, wchar_t **, int, XICCEncodingStyle, XTextProperty *);
 PFN_XwcTextListToTextProperty_PROC XwcTextListToTextProperty_PROC = 0;
-#  define XwcTextListToTextProperty (assert(XwcTextListToTextProperty_PROC != 0), XwcTextListToTextProperty_PROC)
+#   define XwcTextListToTextProperty (assert(XwcTextListToTextProperty_PROC != 0), XwcTextListToTextProperty_PROC)
 
 typedef int (* PFN_XwcTextPropertyToTextList_PROC) (Display *, const XTextProperty *, wchar_t ***, int *);
 PFN_XwcTextPropertyToTextList_PROC XwcTextPropertyToTextList_PROC = 0;
-#  define XwcTextPropertyToTextList (assert(XwcTextPropertyToTextList_PROC != 0), XwcTextPropertyToTextList_PROC)
+#   define XwcTextPropertyToTextList (assert(XwcTextPropertyToTextList_PROC != 0), XwcTextPropertyToTextList_PROC)
 
 
 /* libX11: XKBlib.h */
 typedef XkbDeviceLedInfoPtr (* PFN_XkbAddDeviceLedInfo_PROC) (XkbDeviceInfoPtr, unsigned int, unsigned int);
 PFN_XkbAddDeviceLedInfo_PROC XkbAddDeviceLedInfo_PROC = 0;
-#  define XkbAddDeviceLedInfo (assert(XkbAddDeviceLedInfo_PROC != 0), XkbAddDeviceLedInfo_PROC)
+#   define XkbAddDeviceLedInfo (assert(XkbAddDeviceLedInfo_PROC != 0), XkbAddDeviceLedInfo_PROC)
 
 typedef XkbKeyTypePtr (* PFN_XkbAddKeyType_PROC) (XkbDescPtr, Atom, int, int, int);
 PFN_XkbAddKeyType_PROC XkbAddKeyType_PROC = 0;
-#  define XkbAddKeyType (assert(XkbAddKeyType_PROC != 0), XkbAddKeyType_PROC)
+#   define XkbAddKeyType (assert(XkbAddKeyType_PROC != 0), XkbAddKeyType_PROC)
 
 typedef int (* PFN_XkbAllocClientMap_PROC) (XkbDescPtr, unsigned int, unsigned int);
 PFN_XkbAllocClientMap_PROC XkbAllocClientMap_PROC = 0;
-#  define XkbAllocClientMap (assert(XkbAllocClientMap_PROC != 0), XkbAllocClientMap_PROC)
+#   define XkbAllocClientMap (assert(XkbAllocClientMap_PROC != 0), XkbAllocClientMap_PROC)
 
 typedef int (* PFN_XkbAllocCompatMap_PROC) (XkbDescPtr, unsigned int, unsigned int);
 PFN_XkbAllocCompatMap_PROC XkbAllocCompatMap_PROC = 0;
-#  define XkbAllocCompatMap (assert(XkbAllocCompatMap_PROC != 0), XkbAllocCompatMap_PROC)
+#   define XkbAllocCompatMap (assert(XkbAllocCompatMap_PROC != 0), XkbAllocCompatMap_PROC)
 
 typedef int (* PFN_XkbAllocControls_PROC) (XkbDescPtr, unsigned int);
 PFN_XkbAllocControls_PROC XkbAllocControls_PROC = 0;
-#  define XkbAllocControls (assert(XkbAllocControls_PROC != 0), XkbAllocControls_PROC)
+#   define XkbAllocControls (assert(XkbAllocControls_PROC != 0), XkbAllocControls_PROC)
 
 typedef XkbDeviceInfoPtr (* PFN_XkbAllocDeviceInfo_PROC) (unsigned int, unsigned int, unsigned int);
 PFN_XkbAllocDeviceInfo_PROC XkbAllocDeviceInfo_PROC = 0;
-#  define XkbAllocDeviceInfo (assert(XkbAllocDeviceInfo_PROC != 0), XkbAllocDeviceInfo_PROC)
+#   define XkbAllocDeviceInfo (assert(XkbAllocDeviceInfo_PROC != 0), XkbAllocDeviceInfo_PROC)
 
 typedef int (* PFN_XkbAllocIndicatorMaps_PROC) (XkbDescPtr);
 PFN_XkbAllocIndicatorMaps_PROC XkbAllocIndicatorMaps_PROC = 0;
-#  define XkbAllocIndicatorMaps (assert(XkbAllocIndicatorMaps_PROC != 0), XkbAllocIndicatorMaps_PROC)
+#   define XkbAllocIndicatorMaps (assert(XkbAllocIndicatorMaps_PROC != 0), XkbAllocIndicatorMaps_PROC)
 
 typedef XkbDescPtr (* PFN_XkbAllocKeyboard_PROC) (void);
 PFN_XkbAllocKeyboard_PROC XkbAllocKeyboard_PROC = 0;
-#  define XkbAllocKeyboard (assert(XkbAllocKeyboard_PROC != 0), XkbAllocKeyboard_PROC)
+#   define XkbAllocKeyboard (assert(XkbAllocKeyboard_PROC != 0), XkbAllocKeyboard_PROC)
 
 typedef int (* PFN_XkbAllocNames_PROC) (XkbDescPtr, unsigned int, int, int);
 PFN_XkbAllocNames_PROC XkbAllocNames_PROC = 0;
-#  define XkbAllocNames (assert(XkbAllocNames_PROC != 0), XkbAllocNames_PROC)
+#   define XkbAllocNames (assert(XkbAllocNames_PROC != 0), XkbAllocNames_PROC)
 
 typedef int (* PFN_XkbAllocServerMap_PROC) (XkbDescPtr, unsigned int, unsigned int);
 PFN_XkbAllocServerMap_PROC XkbAllocServerMap_PROC = 0;
-#  define XkbAllocServerMap (assert(XkbAllocServerMap_PROC != 0), XkbAllocServerMap_PROC)
+#   define XkbAllocServerMap (assert(XkbAllocServerMap_PROC != 0), XkbAllocServerMap_PROC)
 
 typedef int (* PFN_XkbApplyCompatMapToKey_PROC) (XkbDescPtr, KeyCode, XkbChangesPtr);
 PFN_XkbApplyCompatMapToKey_PROC XkbApplyCompatMapToKey_PROC = 0;
-#  define XkbApplyCompatMapToKey (assert(XkbApplyCompatMapToKey_PROC != 0), XkbApplyCompatMapToKey_PROC)
+#   define XkbApplyCompatMapToKey (assert(XkbApplyCompatMapToKey_PROC != 0), XkbApplyCompatMapToKey_PROC)
 
 typedef int (* PFN_XkbApplyVirtualModChanges_PROC) (XkbDescPtr, unsigned int, XkbChangesPtr);
 PFN_XkbApplyVirtualModChanges_PROC XkbApplyVirtualModChanges_PROC = 0;
-#  define XkbApplyVirtualModChanges (assert(XkbApplyVirtualModChanges_PROC != 0), XkbApplyVirtualModChanges_PROC)
+#   define XkbApplyVirtualModChanges (assert(XkbApplyVirtualModChanges_PROC != 0), XkbApplyVirtualModChanges_PROC)
 
 typedef int (* PFN_XkbBell_PROC) (Display *, Window, int, Atom);
 PFN_XkbBell_PROC XkbBell_PROC = 0;
-#  define XkbBell (assert(XkbBell_PROC != 0), XkbBell_PROC)
+#   define XkbBell (assert(XkbBell_PROC != 0), XkbBell_PROC)
 
 typedef int (* PFN_XkbBellEvent_PROC) (Display *, Window, int, Atom);
 PFN_XkbBellEvent_PROC XkbBellEvent_PROC = 0;
-#  define XkbBellEvent (assert(XkbBellEvent_PROC != 0), XkbBellEvent_PROC)
+#   define XkbBellEvent (assert(XkbBellEvent_PROC != 0), XkbBellEvent_PROC)
 
 typedef int (* PFN_XkbChangeDeviceInfo_PROC) (Display *, XkbDeviceInfoPtr, XkbDeviceChangesPtr);
 PFN_XkbChangeDeviceInfo_PROC XkbChangeDeviceInfo_PROC = 0;
-#  define XkbChangeDeviceInfo (assert(XkbChangeDeviceInfo_PROC != 0), XkbChangeDeviceInfo_PROC)
+#   define XkbChangeDeviceInfo (assert(XkbChangeDeviceInfo_PROC != 0), XkbChangeDeviceInfo_PROC)
 
 typedef int (* PFN_XkbChangeEnabledControls_PROC) (Display *, unsigned int, unsigned int, unsigned int);
 PFN_XkbChangeEnabledControls_PROC XkbChangeEnabledControls_PROC = 0;
-#  define XkbChangeEnabledControls (assert(XkbChangeEnabledControls_PROC != 0), XkbChangeEnabledControls_PROC)
+#   define XkbChangeEnabledControls (assert(XkbChangeEnabledControls_PROC != 0), XkbChangeEnabledControls_PROC)
 
 typedef int (* PFN_XkbChangeKeycodeRange_PROC) (XkbDescPtr, int, int, XkbChangesPtr);
 PFN_XkbChangeKeycodeRange_PROC XkbChangeKeycodeRange_PROC = 0;
-#  define XkbChangeKeycodeRange (assert(XkbChangeKeycodeRange_PROC != 0), XkbChangeKeycodeRange_PROC)
+#   define XkbChangeKeycodeRange (assert(XkbChangeKeycodeRange_PROC != 0), XkbChangeKeycodeRange_PROC)
 
 typedef int (* PFN_XkbChangeMap_PROC) (Display *, XkbDescPtr, XkbMapChangesPtr);
 PFN_XkbChangeMap_PROC XkbChangeMap_PROC = 0;
-#  define XkbChangeMap (assert(XkbChangeMap_PROC != 0), XkbChangeMap_PROC)
+#   define XkbChangeMap (assert(XkbChangeMap_PROC != 0), XkbChangeMap_PROC)
 
 typedef int (* PFN_XkbChangeNames_PROC) (Display *, XkbDescPtr, XkbNameChangesPtr);
 PFN_XkbChangeNames_PROC XkbChangeNames_PROC = 0;
-#  define XkbChangeNames (assert(XkbChangeNames_PROC != 0), XkbChangeNames_PROC)
+#   define XkbChangeNames (assert(XkbChangeNames_PROC != 0), XkbChangeNames_PROC)
 
 typedef int (* PFN_XkbChangeTypesOfKey_PROC) (XkbDescPtr, int, int, unsigned int, int *, XkbMapChangesPtr);
 PFN_XkbChangeTypesOfKey_PROC XkbChangeTypesOfKey_PROC = 0;
-#  define XkbChangeTypesOfKey (assert(XkbChangeTypesOfKey_PROC != 0), XkbChangeTypesOfKey_PROC)
+#   define XkbChangeTypesOfKey (assert(XkbChangeTypesOfKey_PROC != 0), XkbChangeTypesOfKey_PROC)
 
 typedef int (* PFN_XkbComputeEffectiveMap_PROC) (XkbDescPtr, XkbKeyTypePtr, unsigned char *);
 PFN_XkbComputeEffectiveMap_PROC XkbComputeEffectiveMap_PROC = 0;
-#  define XkbComputeEffectiveMap (assert(XkbComputeEffectiveMap_PROC != 0), XkbComputeEffectiveMap_PROC)
+#   define XkbComputeEffectiveMap (assert(XkbComputeEffectiveMap_PROC != 0), XkbComputeEffectiveMap_PROC)
 
 typedef int (* PFN_XkbCopyKeyType_PROC) (XkbKeyTypePtr, XkbKeyTypePtr);
 PFN_XkbCopyKeyType_PROC XkbCopyKeyType_PROC = 0;
-#  define XkbCopyKeyType (assert(XkbCopyKeyType_PROC != 0), XkbCopyKeyType_PROC)
+#   define XkbCopyKeyType (assert(XkbCopyKeyType_PROC != 0), XkbCopyKeyType_PROC)
 
 typedef int (* PFN_XkbCopyKeyTypes_PROC) (XkbKeyTypePtr, XkbKeyTypePtr, int);
 PFN_XkbCopyKeyTypes_PROC XkbCopyKeyTypes_PROC = 0;
-#  define XkbCopyKeyTypes (assert(XkbCopyKeyTypes_PROC != 0), XkbCopyKeyTypes_PROC)
+#   define XkbCopyKeyTypes (assert(XkbCopyKeyTypes_PROC != 0), XkbCopyKeyTypes_PROC)
 
 typedef int (* PFN_XkbDeviceBell_PROC) (Display *, Window, int, int, int, int, Atom);
 PFN_XkbDeviceBell_PROC XkbDeviceBell_PROC = 0;
-#  define XkbDeviceBell (assert(XkbDeviceBell_PROC != 0), XkbDeviceBell_PROC)
+#   define XkbDeviceBell (assert(XkbDeviceBell_PROC != 0), XkbDeviceBell_PROC)
 
 typedef int (* PFN_XkbDeviceBellEvent_PROC) (Display *, Window, int, int, int, int, Atom);
 PFN_XkbDeviceBellEvent_PROC XkbDeviceBellEvent_PROC = 0;
-#  define XkbDeviceBellEvent (assert(XkbDeviceBellEvent_PROC != 0), XkbDeviceBellEvent_PROC)
+#   define XkbDeviceBellEvent (assert(XkbDeviceBellEvent_PROC != 0), XkbDeviceBellEvent_PROC)
 
 typedef int (* PFN_XkbForceBell_PROC) (Display *, int);
 PFN_XkbForceBell_PROC XkbForceBell_PROC = 0;
-#  define XkbForceBell (assert(XkbForceBell_PROC != 0), XkbForceBell_PROC)
+#   define XkbForceBell (assert(XkbForceBell_PROC != 0), XkbForceBell_PROC)
 
 typedef int (* PFN_XkbForceDeviceBell_PROC) (Display *, int, int, int, int);
 PFN_XkbForceDeviceBell_PROC XkbForceDeviceBell_PROC = 0;
-#  define XkbForceDeviceBell (assert(XkbForceDeviceBell_PROC != 0), XkbForceDeviceBell_PROC)
+#   define XkbForceDeviceBell (assert(XkbForceDeviceBell_PROC != 0), XkbForceDeviceBell_PROC)
 
 typedef void (* PFN_XkbFreeClientMap_PROC) (XkbDescPtr, unsigned int, int);
 PFN_XkbFreeClientMap_PROC XkbFreeClientMap_PROC = 0;
-#  define XkbFreeClientMap (assert(XkbFreeClientMap_PROC != 0), XkbFreeClientMap_PROC)
+#   define XkbFreeClientMap (assert(XkbFreeClientMap_PROC != 0), XkbFreeClientMap_PROC)
 
 typedef void (* PFN_XkbFreeCompatMap_PROC) (XkbDescPtr, unsigned int, int);
 PFN_XkbFreeCompatMap_PROC XkbFreeCompatMap_PROC = 0;
-#  define XkbFreeCompatMap (assert(XkbFreeCompatMap_PROC != 0), XkbFreeCompatMap_PROC)
+#   define XkbFreeCompatMap (assert(XkbFreeCompatMap_PROC != 0), XkbFreeCompatMap_PROC)
 
 typedef void (* PFN_XkbFreeComponentList_PROC) (XkbComponentListPtr);
 PFN_XkbFreeComponentList_PROC XkbFreeComponentList_PROC = 0;
-#  define XkbFreeComponentList (assert(XkbFreeComponentList_PROC != 0), XkbFreeComponentList_PROC)
+#   define XkbFreeComponentList (assert(XkbFreeComponentList_PROC != 0), XkbFreeComponentList_PROC)
 
 typedef void (* PFN_XkbFreeControls_PROC) (XkbDescPtr, unsigned int, int);
 PFN_XkbFreeControls_PROC XkbFreeControls_PROC = 0;
-#  define XkbFreeControls (assert(XkbFreeControls_PROC != 0), XkbFreeControls_PROC)
+#   define XkbFreeControls (assert(XkbFreeControls_PROC != 0), XkbFreeControls_PROC)
 
 typedef void (* PFN_XkbFreeDeviceInfo_PROC) (XkbDeviceInfoPtr, unsigned int, int);
 PFN_XkbFreeDeviceInfo_PROC XkbFreeDeviceInfo_PROC = 0;
-#  define XkbFreeDeviceInfo (assert(XkbFreeDeviceInfo_PROC != 0), XkbFreeDeviceInfo_PROC)
+#   define XkbFreeDeviceInfo (assert(XkbFreeDeviceInfo_PROC != 0), XkbFreeDeviceInfo_PROC)
 
 typedef void (* PFN_XkbFreeIndicatorMaps_PROC) (XkbDescPtr);
 PFN_XkbFreeIndicatorMaps_PROC XkbFreeIndicatorMaps_PROC = 0;
-#  define XkbFreeIndicatorMaps (assert(XkbFreeIndicatorMaps_PROC != 0), XkbFreeIndicatorMaps_PROC)
+#   define XkbFreeIndicatorMaps (assert(XkbFreeIndicatorMaps_PROC != 0), XkbFreeIndicatorMaps_PROC)
 
 typedef void (* PFN_XkbFreeKeyboard_PROC) (XkbDescPtr, unsigned int, int);
 PFN_XkbFreeKeyboard_PROC XkbFreeKeyboard_PROC = 0;
-#  define XkbFreeKeyboard (assert(XkbFreeKeyboard_PROC != 0), XkbFreeKeyboard_PROC)
+#   define XkbFreeKeyboard (assert(XkbFreeKeyboard_PROC != 0), XkbFreeKeyboard_PROC)
 
 typedef void (* PFN_XkbFreeNames_PROC) (XkbDescPtr, unsigned int, int);
 PFN_XkbFreeNames_PROC XkbFreeNames_PROC = 0;
-#  define XkbFreeNames (assert(XkbFreeNames_PROC != 0), XkbFreeNames_PROC)
+#   define XkbFreeNames (assert(XkbFreeNames_PROC != 0), XkbFreeNames_PROC)
 
 typedef void (* PFN_XkbFreeServerMap_PROC) (XkbDescPtr, unsigned int, int);
 PFN_XkbFreeServerMap_PROC XkbFreeServerMap_PROC = 0;
-#  define XkbFreeServerMap (assert(XkbFreeServerMap_PROC != 0), XkbFreeServerMap_PROC)
+#   define XkbFreeServerMap (assert(XkbFreeServerMap_PROC != 0), XkbFreeServerMap_PROC)
 
 typedef int (* PFN_XkbGetAutoRepeatRate_PROC) (Display *, unsigned int, unsigned int *, unsigned int *);
 PFN_XkbGetAutoRepeatRate_PROC XkbGetAutoRepeatRate_PROC = 0;
-#  define XkbGetAutoRepeatRate (assert(XkbGetAutoRepeatRate_PROC != 0), XkbGetAutoRepeatRate_PROC)
+#   define XkbGetAutoRepeatRate (assert(XkbGetAutoRepeatRate_PROC != 0), XkbGetAutoRepeatRate_PROC)
 
 typedef int (* PFN_XkbGetAutoResetControls_PROC) (Display *, unsigned int *, unsigned int *);
 PFN_XkbGetAutoResetControls_PROC XkbGetAutoResetControls_PROC = 0;
-#  define XkbGetAutoResetControls (assert(XkbGetAutoResetControls_PROC != 0), XkbGetAutoResetControls_PROC)
+#   define XkbGetAutoResetControls (assert(XkbGetAutoResetControls_PROC != 0), XkbGetAutoResetControls_PROC)
 
 typedef int (* PFN_XkbGetCompatMap_PROC) (Display *, unsigned int, XkbDescPtr);
 PFN_XkbGetCompatMap_PROC XkbGetCompatMap_PROC = 0;
-#  define XkbGetCompatMap (assert(XkbGetCompatMap_PROC != 0), XkbGetCompatMap_PROC)
+#   define XkbGetCompatMap (assert(XkbGetCompatMap_PROC != 0), XkbGetCompatMap_PROC)
 
 typedef int (* PFN_XkbGetControls_PROC) (Display *, unsigned long, XkbDescPtr);
 PFN_XkbGetControls_PROC XkbGetControls_PROC = 0;
-#  define XkbGetControls (assert(XkbGetControls_PROC != 0), XkbGetControls_PROC)
+#   define XkbGetControls (assert(XkbGetControls_PROC != 0), XkbGetControls_PROC)
 
 typedef int (* PFN_XkbGetDetectableAutoRepeat_PROC) (Display *, int *);
 PFN_XkbGetDetectableAutoRepeat_PROC XkbGetDetectableAutoRepeat_PROC = 0;
-#  define XkbGetDetectableAutoRepeat (assert(XkbGetDetectableAutoRepeat_PROC != 0), XkbGetDetectableAutoRepeat_PROC)
+#   define XkbGetDetectableAutoRepeat (assert(XkbGetDetectableAutoRepeat_PROC != 0), XkbGetDetectableAutoRepeat_PROC)
 
 typedef int (* PFN_XkbGetDeviceButtonActions_PROC) (Display *, XkbDeviceInfoPtr, int, unsigned int, unsigned int);
 PFN_XkbGetDeviceButtonActions_PROC XkbGetDeviceButtonActions_PROC = 0;
-#  define XkbGetDeviceButtonActions (assert(XkbGetDeviceButtonActions_PROC != 0), XkbGetDeviceButtonActions_PROC)
+#   define XkbGetDeviceButtonActions (assert(XkbGetDeviceButtonActions_PROC != 0), XkbGetDeviceButtonActions_PROC)
 
 typedef XkbDeviceInfoPtr (* PFN_XkbGetDeviceInfo_PROC) (Display *, unsigned int, unsigned int, unsigned int, unsigned int);
 PFN_XkbGetDeviceInfo_PROC XkbGetDeviceInfo_PROC = 0;
-#  define XkbGetDeviceInfo (assert(XkbGetDeviceInfo_PROC != 0), XkbGetDeviceInfo_PROC)
+#   define XkbGetDeviceInfo (assert(XkbGetDeviceInfo_PROC != 0), XkbGetDeviceInfo_PROC)
 
 typedef int (* PFN_XkbGetDeviceInfoChanges_PROC) (Display *, XkbDeviceInfoPtr, XkbDeviceChangesPtr);
 PFN_XkbGetDeviceInfoChanges_PROC XkbGetDeviceInfoChanges_PROC = 0;
-#  define XkbGetDeviceInfoChanges (assert(XkbGetDeviceInfoChanges_PROC != 0), XkbGetDeviceInfoChanges_PROC)
+#   define XkbGetDeviceInfoChanges (assert(XkbGetDeviceInfoChanges_PROC != 0), XkbGetDeviceInfoChanges_PROC)
 
 typedef int (* PFN_XkbGetDeviceLedInfo_PROC) (Display *, XkbDeviceInfoPtr, unsigned int, unsigned int, unsigned int);
 PFN_XkbGetDeviceLedInfo_PROC XkbGetDeviceLedInfo_PROC = 0;
-#  define XkbGetDeviceLedInfo (assert(XkbGetDeviceLedInfo_PROC != 0), XkbGetDeviceLedInfo_PROC)
+#   define XkbGetDeviceLedInfo (assert(XkbGetDeviceLedInfo_PROC != 0), XkbGetDeviceLedInfo_PROC)
 
 typedef int (* PFN_XkbGetIndicatorMap_PROC) (Display *, unsigned long, XkbDescPtr);
 PFN_XkbGetIndicatorMap_PROC XkbGetIndicatorMap_PROC = 0;
-#  define XkbGetIndicatorMap (assert(XkbGetIndicatorMap_PROC != 0), XkbGetIndicatorMap_PROC)
+#   define XkbGetIndicatorMap (assert(XkbGetIndicatorMap_PROC != 0), XkbGetIndicatorMap_PROC)
 
 typedef int (* PFN_XkbGetIndicatorState_PROC) (Display *, unsigned int, unsigned int *);
 PFN_XkbGetIndicatorState_PROC XkbGetIndicatorState_PROC = 0;
-#  define XkbGetIndicatorState (assert(XkbGetIndicatorState_PROC != 0), XkbGetIndicatorState_PROC)
+#   define XkbGetIndicatorState (assert(XkbGetIndicatorState_PROC != 0), XkbGetIndicatorState_PROC)
 
 typedef int (* PFN_XkbGetKeyActions_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
 PFN_XkbGetKeyActions_PROC XkbGetKeyActions_PROC = 0;
-#  define XkbGetKeyActions (assert(XkbGetKeyActions_PROC != 0), XkbGetKeyActions_PROC)
+#   define XkbGetKeyActions (assert(XkbGetKeyActions_PROC != 0), XkbGetKeyActions_PROC)
 
 typedef int (* PFN_XkbGetKeyBehaviors_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
 PFN_XkbGetKeyBehaviors_PROC XkbGetKeyBehaviors_PROC = 0;
-#  define XkbGetKeyBehaviors (assert(XkbGetKeyBehaviors_PROC != 0), XkbGetKeyBehaviors_PROC)
+#   define XkbGetKeyBehaviors (assert(XkbGetKeyBehaviors_PROC != 0), XkbGetKeyBehaviors_PROC)
 
 typedef int (* PFN_XkbGetKeyExplicitComponents_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
 PFN_XkbGetKeyExplicitComponents_PROC XkbGetKeyExplicitComponents_PROC = 0;
-#  define XkbGetKeyExplicitComponents (assert(XkbGetKeyExplicitComponents_PROC != 0), XkbGetKeyExplicitComponents_PROC)
+#   define XkbGetKeyExplicitComponents (assert(XkbGetKeyExplicitComponents_PROC != 0), XkbGetKeyExplicitComponents_PROC)
 
 typedef int (* PFN_XkbGetKeyModifierMap_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
 PFN_XkbGetKeyModifierMap_PROC XkbGetKeyModifierMap_PROC = 0;
-#  define XkbGetKeyModifierMap (assert(XkbGetKeyModifierMap_PROC != 0), XkbGetKeyModifierMap_PROC)
+#   define XkbGetKeyModifierMap (assert(XkbGetKeyModifierMap_PROC != 0), XkbGetKeyModifierMap_PROC)
 
 typedef int (* PFN_XkbGetKeySyms_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
 PFN_XkbGetKeySyms_PROC XkbGetKeySyms_PROC = 0;
-#  define XkbGetKeySyms (assert(XkbGetKeySyms_PROC != 0), XkbGetKeySyms_PROC)
+#   define XkbGetKeySyms (assert(XkbGetKeySyms_PROC != 0), XkbGetKeySyms_PROC)
 
 typedef int (* PFN_XkbGetKeyTypes_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
 PFN_XkbGetKeyTypes_PROC XkbGetKeyTypes_PROC = 0;
-#  define XkbGetKeyTypes (assert(XkbGetKeyTypes_PROC != 0), XkbGetKeyTypes_PROC)
+#   define XkbGetKeyTypes (assert(XkbGetKeyTypes_PROC != 0), XkbGetKeyTypes_PROC)
 
 typedef int (* PFN_XkbGetKeyVirtualModMap_PROC) (Display *, unsigned int, unsigned int, XkbDescPtr);
 PFN_XkbGetKeyVirtualModMap_PROC XkbGetKeyVirtualModMap_PROC = 0;
-#  define XkbGetKeyVirtualModMap (assert(XkbGetKeyVirtualModMap_PROC != 0), XkbGetKeyVirtualModMap_PROC)
+#   define XkbGetKeyVirtualModMap (assert(XkbGetKeyVirtualModMap_PROC != 0), XkbGetKeyVirtualModMap_PROC)
 
 typedef XkbDescPtr (* PFN_XkbGetKeyboard_PROC) (Display *, unsigned int, unsigned int);
 PFN_XkbGetKeyboard_PROC XkbGetKeyboard_PROC = 0;
-#  define XkbGetKeyboard (assert(XkbGetKeyboard_PROC != 0), XkbGetKeyboard_PROC)
+#   define XkbGetKeyboard (assert(XkbGetKeyboard_PROC != 0), XkbGetKeyboard_PROC)
 
 typedef XkbDescPtr (* PFN_XkbGetKeyboardByName_PROC) (Display *, unsigned int, XkbComponentNamesPtr, unsigned int, unsigned int, int);
 PFN_XkbGetKeyboardByName_PROC XkbGetKeyboardByName_PROC = 0;
-#  define XkbGetKeyboardByName (assert(XkbGetKeyboardByName_PROC != 0), XkbGetKeyboardByName_PROC)
+#   define XkbGetKeyboardByName (assert(XkbGetKeyboardByName_PROC != 0), XkbGetKeyboardByName_PROC)
 
 typedef XkbDescPtr (* PFN_XkbGetMap_PROC) (Display *, unsigned int, unsigned int);
 PFN_XkbGetMap_PROC XkbGetMap_PROC = 0;
-#  define XkbGetMap (assert(XkbGetMap_PROC != 0), XkbGetMap_PROC)
+#   define XkbGetMap (assert(XkbGetMap_PROC != 0), XkbGetMap_PROC)
 
 typedef int (* PFN_XkbGetMapChanges_PROC) (Display *, XkbDescPtr, XkbMapChangesPtr);
 PFN_XkbGetMapChanges_PROC XkbGetMapChanges_PROC = 0;
-#  define XkbGetMapChanges (assert(XkbGetMapChanges_PROC != 0), XkbGetMapChanges_PROC)
+#   define XkbGetMapChanges (assert(XkbGetMapChanges_PROC != 0), XkbGetMapChanges_PROC)
 
 typedef int (* PFN_XkbGetNamedDeviceIndicator_PROC) (Display *, unsigned int, unsigned int, unsigned int, Atom, int *, int *, XkbIndicatorMapPtr, int *);
 PFN_XkbGetNamedDeviceIndicator_PROC XkbGetNamedDeviceIndicator_PROC = 0;
-#  define XkbGetNamedDeviceIndicator (assert(XkbGetNamedDeviceIndicator_PROC != 0), XkbGetNamedDeviceIndicator_PROC)
+#   define XkbGetNamedDeviceIndicator (assert(XkbGetNamedDeviceIndicator_PROC != 0), XkbGetNamedDeviceIndicator_PROC)
 
 typedef int (* PFN_XkbGetNamedIndicator_PROC) (Display *, Atom, int *, int *, XkbIndicatorMapPtr, int *);
 PFN_XkbGetNamedIndicator_PROC XkbGetNamedIndicator_PROC = 0;
-#  define XkbGetNamedIndicator (assert(XkbGetNamedIndicator_PROC != 0), XkbGetNamedIndicator_PROC)
+#   define XkbGetNamedIndicator (assert(XkbGetNamedIndicator_PROC != 0), XkbGetNamedIndicator_PROC)
 
 typedef int (* PFN_XkbGetNames_PROC) (Display *, unsigned int, XkbDescPtr);
 PFN_XkbGetNames_PROC XkbGetNames_PROC = 0;
-#  define XkbGetNames (assert(XkbGetNames_PROC != 0), XkbGetNames_PROC)
+#   define XkbGetNames (assert(XkbGetNames_PROC != 0), XkbGetNames_PROC)
 
 typedef int (* PFN_XkbGetPerClientControls_PROC) (Display *, unsigned int *);
 PFN_XkbGetPerClientControls_PROC XkbGetPerClientControls_PROC = 0;
-#  define XkbGetPerClientControls (assert(XkbGetPerClientControls_PROC != 0), XkbGetPerClientControls_PROC)
+#   define XkbGetPerClientControls (assert(XkbGetPerClientControls_PROC != 0), XkbGetPerClientControls_PROC)
 
 typedef int (* PFN_XkbGetState_PROC) (Display *, unsigned int, XkbStatePtr);
 PFN_XkbGetState_PROC XkbGetState_PROC = 0;
-#  define XkbGetState (assert(XkbGetState_PROC != 0), XkbGetState_PROC)
+#   define XkbGetState (assert(XkbGetState_PROC != 0), XkbGetState_PROC)
 
 typedef int (* PFN_XkbGetUpdatedMap_PROC) (Display *, unsigned int, XkbDescPtr);
 PFN_XkbGetUpdatedMap_PROC XkbGetUpdatedMap_PROC = 0;
-#  define XkbGetUpdatedMap (assert(XkbGetUpdatedMap_PROC != 0), XkbGetUpdatedMap_PROC)
+#   define XkbGetUpdatedMap (assert(XkbGetUpdatedMap_PROC != 0), XkbGetUpdatedMap_PROC)
 
 typedef int (* PFN_XkbGetVirtualMods_PROC) (Display *, unsigned int, XkbDescPtr);
 PFN_XkbGetVirtualMods_PROC XkbGetVirtualMods_PROC = 0;
-#  define XkbGetVirtualMods (assert(XkbGetVirtualMods_PROC != 0), XkbGetVirtualMods_PROC)
+#   define XkbGetVirtualMods (assert(XkbGetVirtualMods_PROC != 0), XkbGetVirtualMods_PROC)
 
 typedef unsigned int (* PFN_XkbGetXlibControls_PROC) (Display *);
 PFN_XkbGetXlibControls_PROC XkbGetXlibControls_PROC = 0;
-#  define XkbGetXlibControls (assert(XkbGetXlibControls_PROC != 0), XkbGetXlibControls_PROC)
+#   define XkbGetXlibControls (assert(XkbGetXlibControls_PROC != 0), XkbGetXlibControls_PROC)
 
 typedef int (* PFN_XkbIgnoreExtension_PROC) (int);
 PFN_XkbIgnoreExtension_PROC XkbIgnoreExtension_PROC = 0;
-#  define XkbIgnoreExtension (assert(XkbIgnoreExtension_PROC != 0), XkbIgnoreExtension_PROC)
+#   define XkbIgnoreExtension (assert(XkbIgnoreExtension_PROC != 0), XkbIgnoreExtension_PROC)
 
 typedef int (* PFN_XkbInitCanonicalKeyTypes_PROC) (XkbDescPtr, unsigned int, int);
 PFN_XkbInitCanonicalKeyTypes_PROC XkbInitCanonicalKeyTypes_PROC = 0;
-#  define XkbInitCanonicalKeyTypes (assert(XkbInitCanonicalKeyTypes_PROC != 0), XkbInitCanonicalKeyTypes_PROC)
+#   define XkbInitCanonicalKeyTypes (assert(XkbInitCanonicalKeyTypes_PROC != 0), XkbInitCanonicalKeyTypes_PROC)
 
 typedef int (* PFN_XkbKeyTypesForCoreSymbols_PROC) (XkbDescPtr, int, KeySym *, unsigned int, int *, KeySym *);
 PFN_XkbKeyTypesForCoreSymbols_PROC XkbKeyTypesForCoreSymbols_PROC = 0;
-#  define XkbKeyTypesForCoreSymbols (assert(XkbKeyTypesForCoreSymbols_PROC != 0), XkbKeyTypesForCoreSymbols_PROC)
+#   define XkbKeyTypesForCoreSymbols (assert(XkbKeyTypesForCoreSymbols_PROC != 0), XkbKeyTypesForCoreSymbols_PROC)
 
 typedef KeySym (* PFN_XkbKeycodeToKeysym_PROC) (Display *, KeyCode, int, int);
 PFN_XkbKeycodeToKeysym_PROC XkbKeycodeToKeysym_PROC = 0;
-#  define XkbKeycodeToKeysym (assert(XkbKeycodeToKeysym_PROC != 0), XkbKeycodeToKeysym_PROC)
+#   define XkbKeycodeToKeysym (assert(XkbKeycodeToKeysym_PROC != 0), XkbKeycodeToKeysym_PROC)
 
 typedef unsigned int (* PFN_XkbKeysymToModifiers_PROC) (Display *, KeySym);
 PFN_XkbKeysymToModifiers_PROC XkbKeysymToModifiers_PROC = 0;
-#  define XkbKeysymToModifiers (assert(XkbKeysymToModifiers_PROC != 0), XkbKeysymToModifiers_PROC)
+#   define XkbKeysymToModifiers (assert(XkbKeysymToModifiers_PROC != 0), XkbKeysymToModifiers_PROC)
 
 typedef int (* PFN_XkbLatchGroup_PROC) (Display *, unsigned int, unsigned int);
 PFN_XkbLatchGroup_PROC XkbLatchGroup_PROC = 0;
-#  define XkbLatchGroup (assert(XkbLatchGroup_PROC != 0), XkbLatchGroup_PROC)
+#   define XkbLatchGroup (assert(XkbLatchGroup_PROC != 0), XkbLatchGroup_PROC)
 
 typedef int (* PFN_XkbLatchModifiers_PROC) (Display *, unsigned int, unsigned int, unsigned int);
 PFN_XkbLatchModifiers_PROC XkbLatchModifiers_PROC = 0;
-#  define XkbLatchModifiers (assert(XkbLatchModifiers_PROC != 0), XkbLatchModifiers_PROC)
+#   define XkbLatchModifiers (assert(XkbLatchModifiers_PROC != 0), XkbLatchModifiers_PROC)
 
 typedef int (* PFN_XkbLibraryVersion_PROC) (int *, int *);
 PFN_XkbLibraryVersion_PROC XkbLibraryVersion_PROC = 0;
-#  define XkbLibraryVersion (assert(XkbLibraryVersion_PROC != 0), XkbLibraryVersion_PROC)
+#   define XkbLibraryVersion (assert(XkbLibraryVersion_PROC != 0), XkbLibraryVersion_PROC)
 
 typedef XkbComponentListPtr (* PFN_XkbListComponents_PROC) (Display *, unsigned int, XkbComponentNamesPtr, int *);
 PFN_XkbListComponents_PROC XkbListComponents_PROC = 0;
-#  define XkbListComponents (assert(XkbListComponents_PROC != 0), XkbListComponents_PROC)
+#   define XkbListComponents (assert(XkbListComponents_PROC != 0), XkbListComponents_PROC)
 
 typedef int (* PFN_XkbLockGroup_PROC) (Display *, unsigned int, unsigned int);
 PFN_XkbLockGroup_PROC XkbLockGroup_PROC = 0;
-#  define XkbLockGroup (assert(XkbLockGroup_PROC != 0), XkbLockGroup_PROC)
+#   define XkbLockGroup (assert(XkbLockGroup_PROC != 0), XkbLockGroup_PROC)
 
 typedef int (* PFN_XkbLockModifiers_PROC) (Display *, unsigned int, unsigned int, unsigned int);
 PFN_XkbLockModifiers_PROC XkbLockModifiers_PROC = 0;
-#  define XkbLockModifiers (assert(XkbLockModifiers_PROC != 0), XkbLockModifiers_PROC)
+#   define XkbLockModifiers (assert(XkbLockModifiers_PROC != 0), XkbLockModifiers_PROC)
 
 typedef int (* PFN_XkbLookupKeyBinding_PROC) (Display *, KeySym, unsigned int, char *, int, int *);
 PFN_XkbLookupKeyBinding_PROC XkbLookupKeyBinding_PROC = 0;
-#  define XkbLookupKeyBinding (assert(XkbLookupKeyBinding_PROC != 0), XkbLookupKeyBinding_PROC)
+#   define XkbLookupKeyBinding (assert(XkbLookupKeyBinding_PROC != 0), XkbLookupKeyBinding_PROC)
 
 typedef int (* PFN_XkbLookupKeySym_PROC) (Display *, KeyCode, unsigned int, unsigned int *, KeySym *);
 PFN_XkbLookupKeySym_PROC XkbLookupKeySym_PROC = 0;
-#  define XkbLookupKeySym (assert(XkbLookupKeySym_PROC != 0), XkbLookupKeySym_PROC)
+#   define XkbLookupKeySym (assert(XkbLookupKeySym_PROC != 0), XkbLookupKeySym_PROC)
 
 typedef void (* PFN_XkbNoteControlsChanges_PROC) (XkbControlsChangesPtr, XkbControlsNotifyEvent *, unsigned int);
 PFN_XkbNoteControlsChanges_PROC XkbNoteControlsChanges_PROC = 0;
-#  define XkbNoteControlsChanges (assert(XkbNoteControlsChanges_PROC != 0), XkbNoteControlsChanges_PROC)
+#   define XkbNoteControlsChanges (assert(XkbNoteControlsChanges_PROC != 0), XkbNoteControlsChanges_PROC)
 
 typedef void (* PFN_XkbNoteDeviceChanges_PROC) (XkbDeviceChangesPtr, XkbExtensionDeviceNotifyEvent *, unsigned int);
 PFN_XkbNoteDeviceChanges_PROC XkbNoteDeviceChanges_PROC = 0;
-#  define XkbNoteDeviceChanges (assert(XkbNoteDeviceChanges_PROC != 0), XkbNoteDeviceChanges_PROC)
+#   define XkbNoteDeviceChanges (assert(XkbNoteDeviceChanges_PROC != 0), XkbNoteDeviceChanges_PROC)
 
 typedef void (* PFN_XkbNoteMapChanges_PROC) (XkbMapChangesPtr, XkbMapNotifyEvent *, unsigned int);
 PFN_XkbNoteMapChanges_PROC XkbNoteMapChanges_PROC = 0;
-#  define XkbNoteMapChanges (assert(XkbNoteMapChanges_PROC != 0), XkbNoteMapChanges_PROC)
+#   define XkbNoteMapChanges (assert(XkbNoteMapChanges_PROC != 0), XkbNoteMapChanges_PROC)
 
 typedef void (* PFN_XkbNoteNameChanges_PROC) (XkbNameChangesPtr, XkbNamesNotifyEvent *, unsigned int);
 PFN_XkbNoteNameChanges_PROC XkbNoteNameChanges_PROC = 0;
-#  define XkbNoteNameChanges (assert(XkbNoteNameChanges_PROC != 0), XkbNoteNameChanges_PROC)
+#   define XkbNoteNameChanges (assert(XkbNoteNameChanges_PROC != 0), XkbNoteNameChanges_PROC)
 
 typedef Display *(* PFN_XkbOpenDisplay_PROC) (const char *, int *, int *, int *, int *, int *);
 PFN_XkbOpenDisplay_PROC XkbOpenDisplay_PROC = 0;
-#  define XkbOpenDisplay (assert(XkbOpenDisplay_PROC != 0), XkbOpenDisplay_PROC)
+#   define XkbOpenDisplay (assert(XkbOpenDisplay_PROC != 0), XkbOpenDisplay_PROC)
 
 typedef int (* PFN_XkbQueryExtension_PROC) (Display *, int *, int *, int *, int *, int *);
 PFN_XkbQueryExtension_PROC XkbQueryExtension_PROC = 0;
-#  define XkbQueryExtension (assert(XkbQueryExtension_PROC != 0), XkbQueryExtension_PROC)
+#   define XkbQueryExtension (assert(XkbQueryExtension_PROC != 0), XkbQueryExtension_PROC)
 
 typedef int (* PFN_XkbRefreshKeyboardMapping_PROC) (XkbMapNotifyEvent *);
 PFN_XkbRefreshKeyboardMapping_PROC XkbRefreshKeyboardMapping_PROC = 0;
-#  define XkbRefreshKeyboardMapping (assert(XkbRefreshKeyboardMapping_PROC != 0), XkbRefreshKeyboardMapping_PROC)
+#   define XkbRefreshKeyboardMapping (assert(XkbRefreshKeyboardMapping_PROC != 0), XkbRefreshKeyboardMapping_PROC)
 
 typedef int (* PFN_XkbResizeDeviceButtonActions_PROC) (XkbDeviceInfoPtr, unsigned int);
 PFN_XkbResizeDeviceButtonActions_PROC XkbResizeDeviceButtonActions_PROC = 0;
-#  define XkbResizeDeviceButtonActions (assert(XkbResizeDeviceButtonActions_PROC != 0), XkbResizeDeviceButtonActions_PROC)
+#   define XkbResizeDeviceButtonActions (assert(XkbResizeDeviceButtonActions_PROC != 0), XkbResizeDeviceButtonActions_PROC)
 
 typedef XkbAction *(* PFN_XkbResizeKeyActions_PROC) (XkbDescPtr, int, int);
 PFN_XkbResizeKeyActions_PROC XkbResizeKeyActions_PROC = 0;
-#  define XkbResizeKeyActions (assert(XkbResizeKeyActions_PROC != 0), XkbResizeKeyActions_PROC)
+#   define XkbResizeKeyActions (assert(XkbResizeKeyActions_PROC != 0), XkbResizeKeyActions_PROC)
 
 typedef KeySym *(* PFN_XkbResizeKeySyms_PROC) (XkbDescPtr, int, int);
 PFN_XkbResizeKeySyms_PROC XkbResizeKeySyms_PROC = 0;
-#  define XkbResizeKeySyms (assert(XkbResizeKeySyms_PROC != 0), XkbResizeKeySyms_PROC)
+#   define XkbResizeKeySyms (assert(XkbResizeKeySyms_PROC != 0), XkbResizeKeySyms_PROC)
 
 typedef int (* PFN_XkbResizeKeyType_PROC) (XkbDescPtr, int, int, int, int);
 PFN_XkbResizeKeyType_PROC XkbResizeKeyType_PROC = 0;
-#  define XkbResizeKeyType (assert(XkbResizeKeyType_PROC != 0), XkbResizeKeyType_PROC)
+#   define XkbResizeKeyType (assert(XkbResizeKeyType_PROC != 0), XkbResizeKeyType_PROC)
 
 typedef int (* PFN_XkbSelectEventDetails_PROC) (Display *, unsigned int, unsigned int, unsigned long, unsigned long);
 PFN_XkbSelectEventDetails_PROC XkbSelectEventDetails_PROC = 0;
-#  define XkbSelectEventDetails (assert(XkbSelectEventDetails_PROC != 0), XkbSelectEventDetails_PROC)
+#   define XkbSelectEventDetails (assert(XkbSelectEventDetails_PROC != 0), XkbSelectEventDetails_PROC)
 
 typedef int (* PFN_XkbSelectEvents_PROC) (Display *, unsigned int, unsigned int, unsigned int);
 PFN_XkbSelectEvents_PROC XkbSelectEvents_PROC = 0;
-#  define XkbSelectEvents (assert(XkbSelectEvents_PROC != 0), XkbSelectEvents_PROC)
+#   define XkbSelectEvents (assert(XkbSelectEvents_PROC != 0), XkbSelectEvents_PROC)
 
 typedef void (* PFN_XkbSetAtomFuncs_PROC) (XkbInternAtomFunc, XkbGetAtomNameFunc);
 PFN_XkbSetAtomFuncs_PROC XkbSetAtomFuncs_PROC = 0;
-#  define XkbSetAtomFuncs (assert(XkbSetAtomFuncs_PROC != 0), XkbSetAtomFuncs_PROC)
+#   define XkbSetAtomFuncs (assert(XkbSetAtomFuncs_PROC != 0), XkbSetAtomFuncs_PROC)
 
 typedef int (* PFN_XkbSetAutoRepeatRate_PROC) (Display *, unsigned int, unsigned int, unsigned int);
 PFN_XkbSetAutoRepeatRate_PROC XkbSetAutoRepeatRate_PROC = 0;
-#  define XkbSetAutoRepeatRate (assert(XkbSetAutoRepeatRate_PROC != 0), XkbSetAutoRepeatRate_PROC)
+#   define XkbSetAutoRepeatRate (assert(XkbSetAutoRepeatRate_PROC != 0), XkbSetAutoRepeatRate_PROC)
 
 typedef int (* PFN_XkbSetAutoResetControls_PROC) (Display *, unsigned int, unsigned int *, unsigned int *);
 PFN_XkbSetAutoResetControls_PROC XkbSetAutoResetControls_PROC = 0;
-#  define XkbSetAutoResetControls (assert(XkbSetAutoResetControls_PROC != 0), XkbSetAutoResetControls_PROC)
+#   define XkbSetAutoResetControls (assert(XkbSetAutoResetControls_PROC != 0), XkbSetAutoResetControls_PROC)
 
 typedef int (* PFN_XkbSetCompatMap_PROC) (Display *, unsigned int, XkbDescPtr, int);
 PFN_XkbSetCompatMap_PROC XkbSetCompatMap_PROC = 0;
-#  define XkbSetCompatMap (assert(XkbSetCompatMap_PROC != 0), XkbSetCompatMap_PROC)
+#   define XkbSetCompatMap (assert(XkbSetCompatMap_PROC != 0), XkbSetCompatMap_PROC)
 
 typedef int (* PFN_XkbSetControls_PROC) (Display *, unsigned long, XkbDescPtr);
 PFN_XkbSetControls_PROC XkbSetControls_PROC = 0;
-#  define XkbSetControls (assert(XkbSetControls_PROC != 0), XkbSetControls_PROC)
+#   define XkbSetControls (assert(XkbSetControls_PROC != 0), XkbSetControls_PROC)
 
 typedef int (* PFN_XkbSetDebuggingFlags_PROC) (Display *, unsigned int, unsigned int, char *, unsigned int, unsigned int, unsigned int *, unsigned int *);
 PFN_XkbSetDebuggingFlags_PROC XkbSetDebuggingFlags_PROC = 0;
-#  define XkbSetDebuggingFlags (assert(XkbSetDebuggingFlags_PROC != 0), XkbSetDebuggingFlags_PROC)
+#   define XkbSetDebuggingFlags (assert(XkbSetDebuggingFlags_PROC != 0), XkbSetDebuggingFlags_PROC)
 
 typedef int (* PFN_XkbSetDetectableAutoRepeat_PROC) (Display *, int, int *);
 PFN_XkbSetDetectableAutoRepeat_PROC XkbSetDetectableAutoRepeat_PROC = 0;
-#  define XkbSetDetectableAutoRepeat (assert(XkbSetDetectableAutoRepeat_PROC != 0), XkbSetDetectableAutoRepeat_PROC)
+#   define XkbSetDetectableAutoRepeat (assert(XkbSetDetectableAutoRepeat_PROC != 0), XkbSetDetectableAutoRepeat_PROC)
 
 typedef int (* PFN_XkbSetDeviceButtonActions_PROC) (Display *, XkbDeviceInfoPtr, unsigned int, unsigned int);
 PFN_XkbSetDeviceButtonActions_PROC XkbSetDeviceButtonActions_PROC = 0;
-#  define XkbSetDeviceButtonActions (assert(XkbSetDeviceButtonActions_PROC != 0), XkbSetDeviceButtonActions_PROC)
+#   define XkbSetDeviceButtonActions (assert(XkbSetDeviceButtonActions_PROC != 0), XkbSetDeviceButtonActions_PROC)
 
 typedef int (* PFN_XkbSetDeviceInfo_PROC) (Display *, unsigned int, XkbDeviceInfoPtr);
 PFN_XkbSetDeviceInfo_PROC XkbSetDeviceInfo_PROC = 0;
-#  define XkbSetDeviceInfo (assert(XkbSetDeviceInfo_PROC != 0), XkbSetDeviceInfo_PROC)
+#   define XkbSetDeviceInfo (assert(XkbSetDeviceInfo_PROC != 0), XkbSetDeviceInfo_PROC)
 
 typedef int (* PFN_XkbSetDeviceLedInfo_PROC) (Display *, XkbDeviceInfoPtr, unsigned int, unsigned int, unsigned int);
 PFN_XkbSetDeviceLedInfo_PROC XkbSetDeviceLedInfo_PROC = 0;
-#  define XkbSetDeviceLedInfo (assert(XkbSetDeviceLedInfo_PROC != 0), XkbSetDeviceLedInfo_PROC)
+#   define XkbSetDeviceLedInfo (assert(XkbSetDeviceLedInfo_PROC != 0), XkbSetDeviceLedInfo_PROC)
 
 typedef int (* PFN_XkbSetIgnoreLockMods_PROC) (Display *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int);
 PFN_XkbSetIgnoreLockMods_PROC XkbSetIgnoreLockMods_PROC = 0;
-#  define XkbSetIgnoreLockMods (assert(XkbSetIgnoreLockMods_PROC != 0), XkbSetIgnoreLockMods_PROC)
+#   define XkbSetIgnoreLockMods (assert(XkbSetIgnoreLockMods_PROC != 0), XkbSetIgnoreLockMods_PROC)
 
 typedef int (* PFN_XkbSetIndicatorMap_PROC) (Display *, unsigned long, XkbDescPtr);
 PFN_XkbSetIndicatorMap_PROC XkbSetIndicatorMap_PROC = 0;
-#  define XkbSetIndicatorMap (assert(XkbSetIndicatorMap_PROC != 0), XkbSetIndicatorMap_PROC)
+#   define XkbSetIndicatorMap (assert(XkbSetIndicatorMap_PROC != 0), XkbSetIndicatorMap_PROC)
 
 typedef int (* PFN_XkbSetMap_PROC) (Display *, unsigned int, XkbDescPtr);
 PFN_XkbSetMap_PROC XkbSetMap_PROC = 0;
-#  define XkbSetMap (assert(XkbSetMap_PROC != 0), XkbSetMap_PROC)
+#   define XkbSetMap (assert(XkbSetMap_PROC != 0), XkbSetMap_PROC)
 
 typedef int (* PFN_XkbSetNamedDeviceIndicator_PROC) (Display *, unsigned int, unsigned int, unsigned int, Atom, int, int, int, XkbIndicatorMapPtr);
 PFN_XkbSetNamedDeviceIndicator_PROC XkbSetNamedDeviceIndicator_PROC = 0;
-#  define XkbSetNamedDeviceIndicator (assert(XkbSetNamedDeviceIndicator_PROC != 0), XkbSetNamedDeviceIndicator_PROC)
+#   define XkbSetNamedDeviceIndicator (assert(XkbSetNamedDeviceIndicator_PROC != 0), XkbSetNamedDeviceIndicator_PROC)
 
 typedef int (* PFN_XkbSetNamedIndicator_PROC) (Display *, Atom, int, int, int, XkbIndicatorMapPtr);
 PFN_XkbSetNamedIndicator_PROC XkbSetNamedIndicator_PROC = 0;
-#  define XkbSetNamedIndicator (assert(XkbSetNamedIndicator_PROC != 0), XkbSetNamedIndicator_PROC)
+#   define XkbSetNamedIndicator (assert(XkbSetNamedIndicator_PROC != 0), XkbSetNamedIndicator_PROC)
 
 typedef int (* PFN_XkbSetNames_PROC) (Display *, unsigned int, unsigned int, unsigned int, XkbDescPtr);
 PFN_XkbSetNames_PROC XkbSetNames_PROC = 0;
-#  define XkbSetNames (assert(XkbSetNames_PROC != 0), XkbSetNames_PROC)
+#   define XkbSetNames (assert(XkbSetNames_PROC != 0), XkbSetNames_PROC)
 
 typedef int (* PFN_XkbSetPerClientControls_PROC) (Display *, unsigned int, unsigned int *);
 PFN_XkbSetPerClientControls_PROC XkbSetPerClientControls_PROC = 0;
-#  define XkbSetPerClientControls (assert(XkbSetPerClientControls_PROC != 0), XkbSetPerClientControls_PROC)
+#   define XkbSetPerClientControls (assert(XkbSetPerClientControls_PROC != 0), XkbSetPerClientControls_PROC)
 
 typedef int (* PFN_XkbSetServerInternalMods_PROC) (Display *, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int);
 PFN_XkbSetServerInternalMods_PROC XkbSetServerInternalMods_PROC = 0;
-#  define XkbSetServerInternalMods (assert(XkbSetServerInternalMods_PROC != 0), XkbSetServerInternalMods_PROC)
+#   define XkbSetServerInternalMods (assert(XkbSetServerInternalMods_PROC != 0), XkbSetServerInternalMods_PROC)
 
 typedef unsigned int (* PFN_XkbSetXlibControls_PROC) (Display *, unsigned int, unsigned int);
 PFN_XkbSetXlibControls_PROC XkbSetXlibControls_PROC = 0;
-#  define XkbSetXlibControls (assert(XkbSetXlibControls_PROC != 0), XkbSetXlibControls_PROC)
+#   define XkbSetXlibControls (assert(XkbSetXlibControls_PROC != 0), XkbSetXlibControls_PROC)
 
 typedef char (* PFN_XkbToControl_PROC) (char);
 PFN_XkbToControl_PROC XkbToControl_PROC = 0;
-#  define XkbToControl (assert(XkbToControl_PROC != 0), XkbToControl_PROC)
+#   define XkbToControl (assert(XkbToControl_PROC != 0), XkbToControl_PROC)
 
 typedef int (* PFN_XkbTranslateKeyCode_PROC) (XkbDescPtr, KeyCode, unsigned int, unsigned int *, KeySym *);
 PFN_XkbTranslateKeyCode_PROC XkbTranslateKeyCode_PROC = 0;
-#  define XkbTranslateKeyCode (assert(XkbTranslateKeyCode_PROC != 0), XkbTranslateKeyCode_PROC)
+#   define XkbTranslateKeyCode (assert(XkbTranslateKeyCode_PROC != 0), XkbTranslateKeyCode_PROC)
 
 typedef int (* PFN_XkbTranslateKeySym_PROC) (Display *, KeySym *, unsigned int, char *, int, int *);
 PFN_XkbTranslateKeySym_PROC XkbTranslateKeySym_PROC = 0;
-#  define XkbTranslateKeySym (assert(XkbTranslateKeySym_PROC != 0), XkbTranslateKeySym_PROC)
+#   define XkbTranslateKeySym (assert(XkbTranslateKeySym_PROC != 0), XkbTranslateKeySym_PROC)
 
 typedef int (* PFN_XkbUpdateActionVirtualMods_PROC) (XkbDescPtr, XkbAction *, unsigned int);
 PFN_XkbUpdateActionVirtualMods_PROC XkbUpdateActionVirtualMods_PROC = 0;
-#  define XkbUpdateActionVirtualMods (assert(XkbUpdateActionVirtualMods_PROC != 0), XkbUpdateActionVirtualMods_PROC)
+#   define XkbUpdateActionVirtualMods (assert(XkbUpdateActionVirtualMods_PROC != 0), XkbUpdateActionVirtualMods_PROC)
 
 typedef void (* PFN_XkbUpdateKeyTypeVirtualMods_PROC) (XkbDescPtr, XkbKeyTypePtr, unsigned int, XkbChangesPtr);
 PFN_XkbUpdateKeyTypeVirtualMods_PROC XkbUpdateKeyTypeVirtualMods_PROC = 0;
-#  define XkbUpdateKeyTypeVirtualMods (assert(XkbUpdateKeyTypeVirtualMods_PROC != 0), XkbUpdateKeyTypeVirtualMods_PROC)
+#   define XkbUpdateKeyTypeVirtualMods (assert(XkbUpdateKeyTypeVirtualMods_PROC != 0), XkbUpdateKeyTypeVirtualMods_PROC)
 
 typedef int (* PFN_XkbUpdateMapFromCore_PROC) (XkbDescPtr, KeyCode, int, int, KeySym *, XkbChangesPtr);
 PFN_XkbUpdateMapFromCore_PROC XkbUpdateMapFromCore_PROC = 0;
-#  define XkbUpdateMapFromCore (assert(XkbUpdateMapFromCore_PROC != 0), XkbUpdateMapFromCore_PROC)
+#   define XkbUpdateMapFromCore (assert(XkbUpdateMapFromCore_PROC != 0), XkbUpdateMapFromCore_PROC)
 
 typedef int (* PFN_XkbUseExtension_PROC) (Display *, int *, int *);
 PFN_XkbUseExtension_PROC XkbUseExtension_PROC = 0;
-#  define XkbUseExtension (assert(XkbUseExtension_PROC != 0), XkbUseExtension_PROC)
+#   define XkbUseExtension (assert(XkbUseExtension_PROC != 0), XkbUseExtension_PROC)
 
 typedef int (* PFN_XkbVirtualModsToReal_PROC) (XkbDescPtr, unsigned int, unsigned int *);
 PFN_XkbVirtualModsToReal_PROC XkbVirtualModsToReal_PROC = 0;
-#  define XkbVirtualModsToReal (assert(XkbVirtualModsToReal_PROC != 0), XkbVirtualModsToReal_PROC)
+#   define XkbVirtualModsToReal (assert(XkbVirtualModsToReal_PROC != 0), XkbVirtualModsToReal_PROC)
 
 typedef unsigned int (* PFN_XkbXlibControlsImplemented_PROC) (void);
 PFN_XkbXlibControlsImplemented_PROC XkbXlibControlsImplemented_PROC = 0;
-#  define XkbXlibControlsImplemented (assert(XkbXlibControlsImplemented_PROC != 0), XkbXlibControlsImplemented_PROC)
+#   define XkbXlibControlsImplemented (assert(XkbXlibControlsImplemented_PROC != 0), XkbXlibControlsImplemented_PROC)
 
 
 /* libXi: XInput.h */
 typedef int (* PFN__XiGetDevicePresenceNotifyEvent_PROC) (Display *);
 PFN__XiGetDevicePresenceNotifyEvent_PROC _XiGetDevicePresenceNotifyEvent_PROC = 0;
-#  define _XiGetDevicePresenceNotifyEvent (assert(_XiGetDevicePresenceNotifyEvent_PROC != 0), _XiGetDevicePresenceNotifyEvent_PROC)
+#   define _XiGetDevicePresenceNotifyEvent (assert(_XiGetDevicePresenceNotifyEvent_PROC != 0), _XiGetDevicePresenceNotifyEvent_PROC)
 
 typedef void (* PFN__xibaddevice_PROC) (Display *, int *);
 PFN__xibaddevice_PROC _xibaddevice_PROC = 0;
-#  define _xibaddevice (assert(_xibaddevice_PROC != 0), _xibaddevice_PROC)
+#   define _xibaddevice (assert(_xibaddevice_PROC != 0), _xibaddevice_PROC)
 
 typedef void (* PFN__xibadclass_PROC) (Display *, int *);
 PFN__xibadclass_PROC _xibadclass_PROC = 0;
-#  define _xibadclass (assert(_xibadclass_PROC != 0), _xibadclass_PROC)
+#   define _xibadclass (assert(_xibadclass_PROC != 0), _xibadclass_PROC)
 
 typedef void (* PFN__xibadevent_PROC) (Display *, int *);
 PFN__xibadevent_PROC _xibadevent_PROC = 0;
-#  define _xibadevent (assert(_xibadevent_PROC != 0), _xibadevent_PROC)
+#   define _xibadevent (assert(_xibadevent_PROC != 0), _xibadevent_PROC)
 
 typedef void (* PFN__xibadmode_PROC) (Display *, int *);
 PFN__xibadmode_PROC _xibadmode_PROC = 0;
-#  define _xibadmode (assert(_xibadmode_PROC != 0), _xibadmode_PROC)
+#   define _xibadmode (assert(_xibadmode_PROC != 0), _xibadmode_PROC)
 
 typedef void (* PFN__xidevicebusy_PROC) (Display *, int *);
 PFN__xidevicebusy_PROC _xidevicebusy_PROC = 0;
-#  define _xidevicebusy (assert(_xidevicebusy_PROC != 0), _xidevicebusy_PROC)
+#   define _xidevicebusy (assert(_xidevicebusy_PROC != 0), _xidevicebusy_PROC)
 
 typedef int (* PFN_XChangeKeyboardDevice_PROC) (Display *, XDevice *);
 PFN_XChangeKeyboardDevice_PROC XChangeKeyboardDevice_PROC = 0;
-#  define XChangeKeyboardDevice (assert(XChangeKeyboardDevice_PROC != 0), XChangeKeyboardDevice_PROC)
+#   define XChangeKeyboardDevice (assert(XChangeKeyboardDevice_PROC != 0), XChangeKeyboardDevice_PROC)
 
 typedef int (* PFN_XChangePointerDevice_PROC) (Display *, XDevice *, int, int);
 PFN_XChangePointerDevice_PROC XChangePointerDevice_PROC = 0;
-#  define XChangePointerDevice (assert(XChangePointerDevice_PROC != 0), XChangePointerDevice_PROC)
+#   define XChangePointerDevice (assert(XChangePointerDevice_PROC != 0), XChangePointerDevice_PROC)
 
 typedef int (* PFN_XGrabDevice_PROC) (Display *, XDevice *, Window, int, int, XEventClass *, int, int, Time);
 PFN_XGrabDevice_PROC XGrabDevice_PROC = 0;
-#  define XGrabDevice (assert(XGrabDevice_PROC != 0), XGrabDevice_PROC)
+#   define XGrabDevice (assert(XGrabDevice_PROC != 0), XGrabDevice_PROC)
 
 typedef int (* PFN_XUngrabDevice_PROC) (Display *, XDevice *, Time);
 PFN_XUngrabDevice_PROC XUngrabDevice_PROC = 0;
-#  define XUngrabDevice (assert(XUngrabDevice_PROC != 0), XUngrabDevice_PROC)
+#   define XUngrabDevice (assert(XUngrabDevice_PROC != 0), XUngrabDevice_PROC)
 
 typedef int (* PFN_XGrabDeviceKey_PROC) (Display *, XDevice *, unsigned int, unsigned int, XDevice *, Window, int, unsigned int, XEventClass *, int, int);
 PFN_XGrabDeviceKey_PROC XGrabDeviceKey_PROC = 0;
-#  define XGrabDeviceKey (assert(XGrabDeviceKey_PROC != 0), XGrabDeviceKey_PROC)
+#   define XGrabDeviceKey (assert(XGrabDeviceKey_PROC != 0), XGrabDeviceKey_PROC)
 
 typedef int (* PFN_XUngrabDeviceKey_PROC) (Display *, XDevice *, unsigned int, unsigned int, XDevice *, Window);
 PFN_XUngrabDeviceKey_PROC XUngrabDeviceKey_PROC = 0;
-#  define XUngrabDeviceKey (assert(XUngrabDeviceKey_PROC != 0), XUngrabDeviceKey_PROC)
+#   define XUngrabDeviceKey (assert(XUngrabDeviceKey_PROC != 0), XUngrabDeviceKey_PROC)
 
 typedef int (* PFN_XGrabDeviceButton_PROC) (Display *, XDevice *, unsigned int, unsigned int, XDevice *, Window, int, unsigned int, XEventClass *, int, int);
 PFN_XGrabDeviceButton_PROC XGrabDeviceButton_PROC = 0;
-#  define XGrabDeviceButton (assert(XGrabDeviceButton_PROC != 0), XGrabDeviceButton_PROC)
+#   define XGrabDeviceButton (assert(XGrabDeviceButton_PROC != 0), XGrabDeviceButton_PROC)
 
 typedef int (* PFN_XUngrabDeviceButton_PROC) (Display *, XDevice *, unsigned int, unsigned int, XDevice *, Window);
 PFN_XUngrabDeviceButton_PROC XUngrabDeviceButton_PROC = 0;
-#  define XUngrabDeviceButton (assert(XUngrabDeviceButton_PROC != 0), XUngrabDeviceButton_PROC)
+#   define XUngrabDeviceButton (assert(XUngrabDeviceButton_PROC != 0), XUngrabDeviceButton_PROC)
 
 typedef int (* PFN_XAllowDeviceEvents_PROC) (Display *, XDevice *, int, Time);
 PFN_XAllowDeviceEvents_PROC XAllowDeviceEvents_PROC = 0;
-#  define XAllowDeviceEvents (assert(XAllowDeviceEvents_PROC != 0), XAllowDeviceEvents_PROC)
+#   define XAllowDeviceEvents (assert(XAllowDeviceEvents_PROC != 0), XAllowDeviceEvents_PROC)
 
 typedef int (* PFN_XGetDeviceFocus_PROC) (Display *, XDevice *, Window *, int *, Time *);
 PFN_XGetDeviceFocus_PROC XGetDeviceFocus_PROC = 0;
-#  define XGetDeviceFocus (assert(XGetDeviceFocus_PROC != 0), XGetDeviceFocus_PROC)
+#   define XGetDeviceFocus (assert(XGetDeviceFocus_PROC != 0), XGetDeviceFocus_PROC)
 
 typedef int (* PFN_XSetDeviceFocus_PROC) (Display *, XDevice *, Window, int, Time);
 PFN_XSetDeviceFocus_PROC XSetDeviceFocus_PROC = 0;
-#  define XSetDeviceFocus (assert(XSetDeviceFocus_PROC != 0), XSetDeviceFocus_PROC)
+#   define XSetDeviceFocus (assert(XSetDeviceFocus_PROC != 0), XSetDeviceFocus_PROC)
 
 typedef XFeedbackState *(* PFN_XGetFeedbackControl_PROC) (Display *, XDevice *, int *);
 PFN_XGetFeedbackControl_PROC XGetFeedbackControl_PROC = 0;
-#  define XGetFeedbackControl (assert(XGetFeedbackControl_PROC != 0), XGetFeedbackControl_PROC)
+#   define XGetFeedbackControl (assert(XGetFeedbackControl_PROC != 0), XGetFeedbackControl_PROC)
 
 typedef void (* PFN_XFreeFeedbackList_PROC) (XFeedbackState *);
 PFN_XFreeFeedbackList_PROC XFreeFeedbackList_PROC = 0;
-#  define XFreeFeedbackList (assert(XFreeFeedbackList_PROC != 0), XFreeFeedbackList_PROC)
+#   define XFreeFeedbackList (assert(XFreeFeedbackList_PROC != 0), XFreeFeedbackList_PROC)
 
 typedef int (* PFN_XChangeFeedbackControl_PROC) (Display *, XDevice *, unsigned long, XFeedbackControl *);
 PFN_XChangeFeedbackControl_PROC XChangeFeedbackControl_PROC = 0;
-#  define XChangeFeedbackControl (assert(XChangeFeedbackControl_PROC != 0), XChangeFeedbackControl_PROC)
+#   define XChangeFeedbackControl (assert(XChangeFeedbackControl_PROC != 0), XChangeFeedbackControl_PROC)
 
 typedef int (* PFN_XDeviceBell_PROC) (Display *, XDevice *, XID, XID, int);
 PFN_XDeviceBell_PROC XDeviceBell_PROC = 0;
-#  define XDeviceBell (assert(XDeviceBell_PROC != 0), XDeviceBell_PROC)
+#   define XDeviceBell (assert(XDeviceBell_PROC != 0), XDeviceBell_PROC)
 
 typedef KeySym *(* PFN_XGetDeviceKeyMapping_PROC) (Display *, XDevice *, KeyCode, int, int *);
 PFN_XGetDeviceKeyMapping_PROC XGetDeviceKeyMapping_PROC = 0;
-#  define XGetDeviceKeyMapping (assert(XGetDeviceKeyMapping_PROC != 0), XGetDeviceKeyMapping_PROC)
+#   define XGetDeviceKeyMapping (assert(XGetDeviceKeyMapping_PROC != 0), XGetDeviceKeyMapping_PROC)
 
 typedef int (* PFN_XChangeDeviceKeyMapping_PROC) (Display *, XDevice *, int, int, KeySym *, int);
 PFN_XChangeDeviceKeyMapping_PROC XChangeDeviceKeyMapping_PROC = 0;
-#  define XChangeDeviceKeyMapping (assert(XChangeDeviceKeyMapping_PROC != 0), XChangeDeviceKeyMapping_PROC)
+#   define XChangeDeviceKeyMapping (assert(XChangeDeviceKeyMapping_PROC != 0), XChangeDeviceKeyMapping_PROC)
 
 typedef XModifierKeymap *(* PFN_XGetDeviceModifierMapping_PROC) (Display *, XDevice *);
 PFN_XGetDeviceModifierMapping_PROC XGetDeviceModifierMapping_PROC = 0;
-#  define XGetDeviceModifierMapping (assert(XGetDeviceModifierMapping_PROC != 0), XGetDeviceModifierMapping_PROC)
+#   define XGetDeviceModifierMapping (assert(XGetDeviceModifierMapping_PROC != 0), XGetDeviceModifierMapping_PROC)
 
 typedef int (* PFN_XSetDeviceModifierMapping_PROC) (Display *, XDevice *, XModifierKeymap *);
 PFN_XSetDeviceModifierMapping_PROC XSetDeviceModifierMapping_PROC = 0;
-#  define XSetDeviceModifierMapping (assert(XSetDeviceModifierMapping_PROC != 0), XSetDeviceModifierMapping_PROC)
+#   define XSetDeviceModifierMapping (assert(XSetDeviceModifierMapping_PROC != 0), XSetDeviceModifierMapping_PROC)
 
 typedef int (* PFN_XSetDeviceButtonMapping_PROC) (Display *, XDevice *, unsigned char *, int);
 PFN_XSetDeviceButtonMapping_PROC XSetDeviceButtonMapping_PROC = 0;
-#  define XSetDeviceButtonMapping (assert(XSetDeviceButtonMapping_PROC != 0), XSetDeviceButtonMapping_PROC)
+#   define XSetDeviceButtonMapping (assert(XSetDeviceButtonMapping_PROC != 0), XSetDeviceButtonMapping_PROC)
 
 typedef int (* PFN_XGetDeviceButtonMapping_PROC) (Display *, XDevice *, unsigned char *, unsigned int);
 PFN_XGetDeviceButtonMapping_PROC XGetDeviceButtonMapping_PROC = 0;
-#  define XGetDeviceButtonMapping (assert(XGetDeviceButtonMapping_PROC != 0), XGetDeviceButtonMapping_PROC)
+#   define XGetDeviceButtonMapping (assert(XGetDeviceButtonMapping_PROC != 0), XGetDeviceButtonMapping_PROC)
 
 typedef XDeviceState *(* PFN_XQueryDeviceState_PROC) (Display *, XDevice *);
 PFN_XQueryDeviceState_PROC XQueryDeviceState_PROC = 0;
-#  define XQueryDeviceState (assert(XQueryDeviceState_PROC != 0), XQueryDeviceState_PROC)
+#   define XQueryDeviceState (assert(XQueryDeviceState_PROC != 0), XQueryDeviceState_PROC)
 
 typedef void (* PFN_XFreeDeviceState_PROC) (XDeviceState *);
 PFN_XFreeDeviceState_PROC XFreeDeviceState_PROC = 0;
-#  define XFreeDeviceState (assert(XFreeDeviceState_PROC != 0), XFreeDeviceState_PROC)
+#   define XFreeDeviceState (assert(XFreeDeviceState_PROC != 0), XFreeDeviceState_PROC)
 
 typedef XExtensionVersion *(* PFN_XGetExtensionVersion_PROC) (Display *, const char *);
 PFN_XGetExtensionVersion_PROC XGetExtensionVersion_PROC = 0;
-#  define XGetExtensionVersion (assert(XGetExtensionVersion_PROC != 0), XGetExtensionVersion_PROC)
+#   define XGetExtensionVersion (assert(XGetExtensionVersion_PROC != 0), XGetExtensionVersion_PROC)
 
 typedef XDeviceInfo *(* PFN_XListInputDevices_PROC) (Display *, int *);
 PFN_XListInputDevices_PROC XListInputDevices_PROC = 0;
-#  define XListInputDevices (assert(XListInputDevices_PROC != 0), XListInputDevices_PROC)
+#   define XListInputDevices (assert(XListInputDevices_PROC != 0), XListInputDevices_PROC)
 
 typedef void (* PFN_XFreeDeviceList_PROC) (XDeviceInfo *);
 PFN_XFreeDeviceList_PROC XFreeDeviceList_PROC = 0;
-#  define XFreeDeviceList (assert(XFreeDeviceList_PROC != 0), XFreeDeviceList_PROC)
+#   define XFreeDeviceList (assert(XFreeDeviceList_PROC != 0), XFreeDeviceList_PROC)
 
 typedef XDevice *(* PFN_XOpenDevice_PROC) (Display *, XID);
 PFN_XOpenDevice_PROC XOpenDevice_PROC = 0;
-#  define XOpenDevice (assert(XOpenDevice_PROC != 0), XOpenDevice_PROC)
+#   define XOpenDevice (assert(XOpenDevice_PROC != 0), XOpenDevice_PROC)
 
 typedef int (* PFN_XCloseDevice_PROC) (Display *, XDevice *);
 PFN_XCloseDevice_PROC XCloseDevice_PROC = 0;
-#  define XCloseDevice (assert(XCloseDevice_PROC != 0), XCloseDevice_PROC)
+#   define XCloseDevice (assert(XCloseDevice_PROC != 0), XCloseDevice_PROC)
 
 typedef int (* PFN_XSetDeviceMode_PROC) (Display *, XDevice *, int);
 PFN_XSetDeviceMode_PROC XSetDeviceMode_PROC = 0;
-#  define XSetDeviceMode (assert(XSetDeviceMode_PROC != 0), XSetDeviceMode_PROC)
+#   define XSetDeviceMode (assert(XSetDeviceMode_PROC != 0), XSetDeviceMode_PROC)
 
 typedef int (* PFN_XSetDeviceValuators_PROC) (Display *, XDevice *, int *, int, int);
 PFN_XSetDeviceValuators_PROC XSetDeviceValuators_PROC = 0;
-#  define XSetDeviceValuators (assert(XSetDeviceValuators_PROC != 0), XSetDeviceValuators_PROC)
+#   define XSetDeviceValuators (assert(XSetDeviceValuators_PROC != 0), XSetDeviceValuators_PROC)
 
 typedef XDeviceControl *(* PFN_XGetDeviceControl_PROC) (Display *, XDevice *, int);
 PFN_XGetDeviceControl_PROC XGetDeviceControl_PROC = 0;
-#  define XGetDeviceControl (assert(XGetDeviceControl_PROC != 0), XGetDeviceControl_PROC)
+#   define XGetDeviceControl (assert(XGetDeviceControl_PROC != 0), XGetDeviceControl_PROC)
 
 typedef int (* PFN_XChangeDeviceControl_PROC) (Display *, XDevice *, int, XDeviceControl *);
 PFN_XChangeDeviceControl_PROC XChangeDeviceControl_PROC = 0;
-#  define XChangeDeviceControl (assert(XChangeDeviceControl_PROC != 0), XChangeDeviceControl_PROC)
+#   define XChangeDeviceControl (assert(XChangeDeviceControl_PROC != 0), XChangeDeviceControl_PROC)
 
 typedef int (* PFN_XSelectExtensionEvent_PROC) (Display *, Window, XEventClass *, int);
 PFN_XSelectExtensionEvent_PROC XSelectExtensionEvent_PROC = 0;
-#  define XSelectExtensionEvent (assert(XSelectExtensionEvent_PROC != 0), XSelectExtensionEvent_PROC)
+#   define XSelectExtensionEvent (assert(XSelectExtensionEvent_PROC != 0), XSelectExtensionEvent_PROC)
 
 typedef int (* PFN_XGetSelectedExtensionEvents_PROC) (Display *, Window, int *, XEventClass **, int *, XEventClass **);
 PFN_XGetSelectedExtensionEvents_PROC XGetSelectedExtensionEvents_PROC = 0;
-#  define XGetSelectedExtensionEvents (assert(XGetSelectedExtensionEvents_PROC != 0), XGetSelectedExtensionEvents_PROC)
+#   define XGetSelectedExtensionEvents (assert(XGetSelectedExtensionEvents_PROC != 0), XGetSelectedExtensionEvents_PROC)
 
 typedef int (* PFN_XChangeDeviceDontPropagateList_PROC) (Display *, Window, int, XEventClass *, int);
 PFN_XChangeDeviceDontPropagateList_PROC XChangeDeviceDontPropagateList_PROC = 0;
-#  define XChangeDeviceDontPropagateList (assert(XChangeDeviceDontPropagateList_PROC != 0), XChangeDeviceDontPropagateList_PROC)
+#   define XChangeDeviceDontPropagateList (assert(XChangeDeviceDontPropagateList_PROC != 0), XChangeDeviceDontPropagateList_PROC)
 
 typedef XEventClass *(* PFN_XGetDeviceDontPropagateList_PROC) (Display *, Window, int *);
 PFN_XGetDeviceDontPropagateList_PROC XGetDeviceDontPropagateList_PROC = 0;
-#  define XGetDeviceDontPropagateList (assert(XGetDeviceDontPropagateList_PROC != 0), XGetDeviceDontPropagateList_PROC)
+#   define XGetDeviceDontPropagateList (assert(XGetDeviceDontPropagateList_PROC != 0), XGetDeviceDontPropagateList_PROC)
 
 typedef int (* PFN_XSendExtensionEvent_PROC) (Display *, XDevice *, Window, int, int, XEventClass *, XEvent *);
 PFN_XSendExtensionEvent_PROC XSendExtensionEvent_PROC = 0;
-#  define XSendExtensionEvent (assert(XSendExtensionEvent_PROC != 0), XSendExtensionEvent_PROC)
+#   define XSendExtensionEvent (assert(XSendExtensionEvent_PROC != 0), XSendExtensionEvent_PROC)
 
 typedef XDeviceTimeCoord *(* PFN_XGetDeviceMotionEvents_PROC) (Display *, XDevice *, Time, Time, int *, int *, int *);
 PFN_XGetDeviceMotionEvents_PROC XGetDeviceMotionEvents_PROC = 0;
-#  define XGetDeviceMotionEvents (assert(XGetDeviceMotionEvents_PROC != 0), XGetDeviceMotionEvents_PROC)
+#   define XGetDeviceMotionEvents (assert(XGetDeviceMotionEvents_PROC != 0), XGetDeviceMotionEvents_PROC)
 
 typedef void (* PFN_XFreeDeviceMotionEvents_PROC) (XDeviceTimeCoord *);
 PFN_XFreeDeviceMotionEvents_PROC XFreeDeviceMotionEvents_PROC = 0;
-#  define XFreeDeviceMotionEvents (assert(XFreeDeviceMotionEvents_PROC != 0), XFreeDeviceMotionEvents_PROC)
+#   define XFreeDeviceMotionEvents (assert(XFreeDeviceMotionEvents_PROC != 0), XFreeDeviceMotionEvents_PROC)
 
 typedef void (* PFN_XFreeDeviceControl_PROC) (XDeviceControl *);
 PFN_XFreeDeviceControl_PROC XFreeDeviceControl_PROC = 0;
-#  define XFreeDeviceControl (assert(XFreeDeviceControl_PROC != 0), XFreeDeviceControl_PROC)
+#   define XFreeDeviceControl (assert(XFreeDeviceControl_PROC != 0), XFreeDeviceControl_PROC)
 
 typedef Atom *(* PFN_XListDeviceProperties_PROC) (Display *, XDevice *, int *);
 PFN_XListDeviceProperties_PROC XListDeviceProperties_PROC = 0;
-#  define XListDeviceProperties (assert(XListDeviceProperties_PROC != 0), XListDeviceProperties_PROC)
+#   define XListDeviceProperties (assert(XListDeviceProperties_PROC != 0), XListDeviceProperties_PROC)
 
 typedef void (* PFN_XChangeDeviceProperty_PROC) (Display *, XDevice *, Atom, Atom, int, int, const unsigned char *, int);
 PFN_XChangeDeviceProperty_PROC XChangeDeviceProperty_PROC = 0;
-#  define XChangeDeviceProperty (assert(XChangeDeviceProperty_PROC != 0), XChangeDeviceProperty_PROC)
+#   define XChangeDeviceProperty (assert(XChangeDeviceProperty_PROC != 0), XChangeDeviceProperty_PROC)
 
 typedef void (* PFN_XDeleteDeviceProperty_PROC) (Display *, XDevice *, Atom);
 PFN_XDeleteDeviceProperty_PROC XDeleteDeviceProperty_PROC = 0;
-#  define XDeleteDeviceProperty (assert(XDeleteDeviceProperty_PROC != 0), XDeleteDeviceProperty_PROC)
+#   define XDeleteDeviceProperty (assert(XDeleteDeviceProperty_PROC != 0), XDeleteDeviceProperty_PROC)
 
 typedef int (* PFN_XGetDeviceProperty_PROC) (Display *, XDevice *, Atom, long, long, int, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
 PFN_XGetDeviceProperty_PROC XGetDeviceProperty_PROC = 0;
-#  define XGetDeviceProperty (assert(XGetDeviceProperty_PROC != 0), XGetDeviceProperty_PROC)
+#   define XGetDeviceProperty (assert(XGetDeviceProperty_PROC != 0), XGetDeviceProperty_PROC)
 
 
 /* libXi: XInput2.h */
 typedef int (* PFN_XIQueryPointer_PROC) (Display *, int, Window, Window *, Window *, double *, double *, double *, double *, XIButtonState *, XIModifierState *, XIGroupState *);
 PFN_XIQueryPointer_PROC XIQueryPointer_PROC = 0;
-#  define XIQueryPointer (assert(XIQueryPointer_PROC != 0), XIQueryPointer_PROC)
+#   define XIQueryPointer (assert(XIQueryPointer_PROC != 0), XIQueryPointer_PROC)
 
 typedef int (* PFN_XIWarpPointer_PROC) (Display *, int, Window, Window, double, double, unsigned int, unsigned int, double, double);
 PFN_XIWarpPointer_PROC XIWarpPointer_PROC = 0;
-#  define XIWarpPointer (assert(XIWarpPointer_PROC != 0), XIWarpPointer_PROC)
+#   define XIWarpPointer (assert(XIWarpPointer_PROC != 0), XIWarpPointer_PROC)
 
 typedef int (* PFN_XIDefineCursor_PROC) (Display *, int, Window, Cursor);
 PFN_XIDefineCursor_PROC XIDefineCursor_PROC = 0;
-#  define XIDefineCursor (assert(XIDefineCursor_PROC != 0), XIDefineCursor_PROC)
+#   define XIDefineCursor (assert(XIDefineCursor_PROC != 0), XIDefineCursor_PROC)
 
 typedef int (* PFN_XIUndefineCursor_PROC) (Display *, int, Window);
 PFN_XIUndefineCursor_PROC XIUndefineCursor_PROC = 0;
-#  define XIUndefineCursor (assert(XIUndefineCursor_PROC != 0), XIUndefineCursor_PROC)
+#   define XIUndefineCursor (assert(XIUndefineCursor_PROC != 0), XIUndefineCursor_PROC)
 
 typedef int (* PFN_XIChangeHierarchy_PROC) (Display *, XIAnyHierarchyChangeInfo *, int);
 PFN_XIChangeHierarchy_PROC XIChangeHierarchy_PROC = 0;
-#  define XIChangeHierarchy (assert(XIChangeHierarchy_PROC != 0), XIChangeHierarchy_PROC)
+#   define XIChangeHierarchy (assert(XIChangeHierarchy_PROC != 0), XIChangeHierarchy_PROC)
 
 typedef int (* PFN_XISetClientPointer_PROC) (Display *, Window, int);
 PFN_XISetClientPointer_PROC XISetClientPointer_PROC = 0;
-#  define XISetClientPointer (assert(XISetClientPointer_PROC != 0), XISetClientPointer_PROC)
+#   define XISetClientPointer (assert(XISetClientPointer_PROC != 0), XISetClientPointer_PROC)
 
 typedef int (* PFN_XIGetClientPointer_PROC) (Display *, Window, int *);
 PFN_XIGetClientPointer_PROC XIGetClientPointer_PROC = 0;
-#  define XIGetClientPointer (assert(XIGetClientPointer_PROC != 0), XIGetClientPointer_PROC)
+#   define XIGetClientPointer (assert(XIGetClientPointer_PROC != 0), XIGetClientPointer_PROC)
 
 typedef int (* PFN_XISelectEvents_PROC) (Display *, Window, XIEventMask *, int);
 PFN_XISelectEvents_PROC XISelectEvents_PROC = 0;
-#  define XISelectEvents (assert(XISelectEvents_PROC != 0), XISelectEvents_PROC)
+#   define XISelectEvents (assert(XISelectEvents_PROC != 0), XISelectEvents_PROC)
 
 typedef XIEventMask *(* PFN_XIGetSelectedEvents_PROC) (Display *, Window, int *);
 PFN_XIGetSelectedEvents_PROC XIGetSelectedEvents_PROC = 0;
-#  define XIGetSelectedEvents (assert(XIGetSelectedEvents_PROC != 0), XIGetSelectedEvents_PROC)
+#   define XIGetSelectedEvents (assert(XIGetSelectedEvents_PROC != 0), XIGetSelectedEvents_PROC)
 
 typedef int (* PFN_XIQueryVersion_PROC) (Display *, int *, int *);
 PFN_XIQueryVersion_PROC XIQueryVersion_PROC = 0;
-#  define XIQueryVersion (assert(XIQueryVersion_PROC != 0), XIQueryVersion_PROC)
+#   define XIQueryVersion (assert(XIQueryVersion_PROC != 0), XIQueryVersion_PROC)
 
 typedef XIDeviceInfo *(* PFN_XIQueryDevice_PROC) (Display *, int, int *);
 PFN_XIQueryDevice_PROC XIQueryDevice_PROC = 0;
-#  define XIQueryDevice (assert(XIQueryDevice_PROC != 0), XIQueryDevice_PROC)
+#   define XIQueryDevice (assert(XIQueryDevice_PROC != 0), XIQueryDevice_PROC)
 
 typedef int (* PFN_XISetFocus_PROC) (Display *, int, Window, Time);
 PFN_XISetFocus_PROC XISetFocus_PROC = 0;
-#  define XISetFocus (assert(XISetFocus_PROC != 0), XISetFocus_PROC)
+#   define XISetFocus (assert(XISetFocus_PROC != 0), XISetFocus_PROC)
 
 typedef int (* PFN_XIGetFocus_PROC) (Display *, int, Window *);
 PFN_XIGetFocus_PROC XIGetFocus_PROC = 0;
-#  define XIGetFocus (assert(XIGetFocus_PROC != 0), XIGetFocus_PROC)
+#   define XIGetFocus (assert(XIGetFocus_PROC != 0), XIGetFocus_PROC)
 
 typedef int (* PFN_XIGrabDevice_PROC) (Display *, int, Window, Time, Cursor, int, int, int, XIEventMask *);
 PFN_XIGrabDevice_PROC XIGrabDevice_PROC = 0;
-#  define XIGrabDevice (assert(XIGrabDevice_PROC != 0), XIGrabDevice_PROC)
+#   define XIGrabDevice (assert(XIGrabDevice_PROC != 0), XIGrabDevice_PROC)
 
 typedef int (* PFN_XIUngrabDevice_PROC) (Display *, int, Time);
 PFN_XIUngrabDevice_PROC XIUngrabDevice_PROC = 0;
-#  define XIUngrabDevice (assert(XIUngrabDevice_PROC != 0), XIUngrabDevice_PROC)
+#   define XIUngrabDevice (assert(XIUngrabDevice_PROC != 0), XIUngrabDevice_PROC)
 
 typedef int (* PFN_XIAllowEvents_PROC) (Display *, int, int, Time);
 PFN_XIAllowEvents_PROC XIAllowEvents_PROC = 0;
-#  define XIAllowEvents (assert(XIAllowEvents_PROC != 0), XIAllowEvents_PROC)
+#   define XIAllowEvents (assert(XIAllowEvents_PROC != 0), XIAllowEvents_PROC)
 
 typedef int (* PFN_XIAllowTouchEvents_PROC) (Display *, int, unsigned int, Window, int);
 PFN_XIAllowTouchEvents_PROC XIAllowTouchEvents_PROC = 0;
-#  define XIAllowTouchEvents (assert(XIAllowTouchEvents_PROC != 0), XIAllowTouchEvents_PROC)
+#   define XIAllowTouchEvents (assert(XIAllowTouchEvents_PROC != 0), XIAllowTouchEvents_PROC)
 
 typedef int (* PFN_XIGrabButton_PROC) (Display *, int, int, Window, Cursor, int, int, int, XIEventMask *, int, XIGrabModifiers *);
 PFN_XIGrabButton_PROC XIGrabButton_PROC = 0;
-#  define XIGrabButton (assert(XIGrabButton_PROC != 0), XIGrabButton_PROC)
+#   define XIGrabButton (assert(XIGrabButton_PROC != 0), XIGrabButton_PROC)
 
 typedef int (* PFN_XIGrabKeycode_PROC) (Display *, int, int, Window, int, int, int, XIEventMask *, int, XIGrabModifiers *);
 PFN_XIGrabKeycode_PROC XIGrabKeycode_PROC = 0;
-#  define XIGrabKeycode (assert(XIGrabKeycode_PROC != 0), XIGrabKeycode_PROC)
+#   define XIGrabKeycode (assert(XIGrabKeycode_PROC != 0), XIGrabKeycode_PROC)
 
 typedef int (* PFN_XIGrabEnter_PROC) (Display *, int, Window, Cursor, int, int, int, XIEventMask *, int, XIGrabModifiers *);
 PFN_XIGrabEnter_PROC XIGrabEnter_PROC = 0;
-#  define XIGrabEnter (assert(XIGrabEnter_PROC != 0), XIGrabEnter_PROC)
+#   define XIGrabEnter (assert(XIGrabEnter_PROC != 0), XIGrabEnter_PROC)
 
 typedef int (* PFN_XIGrabFocusIn_PROC) (Display *, int, Window, int, int, int, XIEventMask *, int, XIGrabModifiers *);
 PFN_XIGrabFocusIn_PROC XIGrabFocusIn_PROC = 0;
-#  define XIGrabFocusIn (assert(XIGrabFocusIn_PROC != 0), XIGrabFocusIn_PROC)
+#   define XIGrabFocusIn (assert(XIGrabFocusIn_PROC != 0), XIGrabFocusIn_PROC)
 
 typedef int (* PFN_XIGrabTouchBegin_PROC) (Display *, int, Window, int, XIEventMask *, int, XIGrabModifiers *);
 PFN_XIGrabTouchBegin_PROC XIGrabTouchBegin_PROC = 0;
-#  define XIGrabTouchBegin (assert(XIGrabTouchBegin_PROC != 0), XIGrabTouchBegin_PROC)
+#   define XIGrabTouchBegin (assert(XIGrabTouchBegin_PROC != 0), XIGrabTouchBegin_PROC)
 
 typedef int (* PFN_XIGrabPinchGestureBegin_PROC) (Display *, int, Window, int, int, int, XIEventMask *, int, XIGrabModifiers *);
 PFN_XIGrabPinchGestureBegin_PROC XIGrabPinchGestureBegin_PROC = 0;
-#  define XIGrabPinchGestureBegin (assert(XIGrabPinchGestureBegin_PROC != 0), XIGrabPinchGestureBegin_PROC)
+#   define XIGrabPinchGestureBegin (assert(XIGrabPinchGestureBegin_PROC != 0), XIGrabPinchGestureBegin_PROC)
 
 typedef int (* PFN_XIGrabSwipeGestureBegin_PROC) (Display *, int, Window, int, int, int, XIEventMask *, int, XIGrabModifiers *);
 PFN_XIGrabSwipeGestureBegin_PROC XIGrabSwipeGestureBegin_PROC = 0;
-#  define XIGrabSwipeGestureBegin (assert(XIGrabSwipeGestureBegin_PROC != 0), XIGrabSwipeGestureBegin_PROC)
+#   define XIGrabSwipeGestureBegin (assert(XIGrabSwipeGestureBegin_PROC != 0), XIGrabSwipeGestureBegin_PROC)
 
 typedef int (* PFN_XIUngrabButton_PROC) (Display *, int, int, Window, int, XIGrabModifiers *);
 PFN_XIUngrabButton_PROC XIUngrabButton_PROC = 0;
-#  define XIUngrabButton (assert(XIUngrabButton_PROC != 0), XIUngrabButton_PROC)
+#   define XIUngrabButton (assert(XIUngrabButton_PROC != 0), XIUngrabButton_PROC)
 
 typedef int (* PFN_XIUngrabKeycode_PROC) (Display *, int, int, Window, int, XIGrabModifiers *);
 PFN_XIUngrabKeycode_PROC XIUngrabKeycode_PROC = 0;
-#  define XIUngrabKeycode (assert(XIUngrabKeycode_PROC != 0), XIUngrabKeycode_PROC)
+#   define XIUngrabKeycode (assert(XIUngrabKeycode_PROC != 0), XIUngrabKeycode_PROC)
 
 typedef int (* PFN_XIUngrabEnter_PROC) (Display *, int, Window, int, XIGrabModifiers *);
 PFN_XIUngrabEnter_PROC XIUngrabEnter_PROC = 0;
-#  define XIUngrabEnter (assert(XIUngrabEnter_PROC != 0), XIUngrabEnter_PROC)
+#   define XIUngrabEnter (assert(XIUngrabEnter_PROC != 0), XIUngrabEnter_PROC)
 
 typedef int (* PFN_XIUngrabFocusIn_PROC) (Display *, int, Window, int, XIGrabModifiers *);
 PFN_XIUngrabFocusIn_PROC XIUngrabFocusIn_PROC = 0;
-#  define XIUngrabFocusIn (assert(XIUngrabFocusIn_PROC != 0), XIUngrabFocusIn_PROC)
+#   define XIUngrabFocusIn (assert(XIUngrabFocusIn_PROC != 0), XIUngrabFocusIn_PROC)
 
 typedef int (* PFN_XIUngrabTouchBegin_PROC) (Display *, int, Window, int, XIGrabModifiers *);
 PFN_XIUngrabTouchBegin_PROC XIUngrabTouchBegin_PROC = 0;
-#  define XIUngrabTouchBegin (assert(XIUngrabTouchBegin_PROC != 0), XIUngrabTouchBegin_PROC)
+#   define XIUngrabTouchBegin (assert(XIUngrabTouchBegin_PROC != 0), XIUngrabTouchBegin_PROC)
 
 typedef int (* PFN_XIUngrabPinchGestureBegin_PROC) (Display *, int, Window, int, XIGrabModifiers *);
 PFN_XIUngrabPinchGestureBegin_PROC XIUngrabPinchGestureBegin_PROC = 0;
-#  define XIUngrabPinchGestureBegin (assert(XIUngrabPinchGestureBegin_PROC != 0), XIUngrabPinchGestureBegin_PROC)
+#   define XIUngrabPinchGestureBegin (assert(XIUngrabPinchGestureBegin_PROC != 0), XIUngrabPinchGestureBegin_PROC)
 
 typedef int (* PFN_XIUngrabSwipeGestureBegin_PROC) (Display *, int, Window, int, XIGrabModifiers *);
 PFN_XIUngrabSwipeGestureBegin_PROC XIUngrabSwipeGestureBegin_PROC = 0;
-#  define XIUngrabSwipeGestureBegin (assert(XIUngrabSwipeGestureBegin_PROC != 0), XIUngrabSwipeGestureBegin_PROC)
+#   define XIUngrabSwipeGestureBegin (assert(XIUngrabSwipeGestureBegin_PROC != 0), XIUngrabSwipeGestureBegin_PROC)
 
 typedef Atom *(* PFN_XIListProperties_PROC) (Display *, int, int *);
 PFN_XIListProperties_PROC XIListProperties_PROC = 0;
-#  define XIListProperties (assert(XIListProperties_PROC != 0), XIListProperties_PROC)
+#   define XIListProperties (assert(XIListProperties_PROC != 0), XIListProperties_PROC)
 
 typedef void (* PFN_XIChangeProperty_PROC) (Display *, int, Atom, Atom, int, int, unsigned char *, int);
 PFN_XIChangeProperty_PROC XIChangeProperty_PROC = 0;
-#  define XIChangeProperty (assert(XIChangeProperty_PROC != 0), XIChangeProperty_PROC)
+#   define XIChangeProperty (assert(XIChangeProperty_PROC != 0), XIChangeProperty_PROC)
 
 typedef void (* PFN_XIDeleteProperty_PROC) (Display *, int, Atom);
 PFN_XIDeleteProperty_PROC XIDeleteProperty_PROC = 0;
-#  define XIDeleteProperty (assert(XIDeleteProperty_PROC != 0), XIDeleteProperty_PROC)
+#   define XIDeleteProperty (assert(XIDeleteProperty_PROC != 0), XIDeleteProperty_PROC)
 
 typedef int (* PFN_XIGetProperty_PROC) (Display *, int, Atom, long, long, int, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
 PFN_XIGetProperty_PROC XIGetProperty_PROC = 0;
-#  define XIGetProperty (assert(XIGetProperty_PROC != 0), XIGetProperty_PROC)
+#   define XIGetProperty (assert(XIGetProperty_PROC != 0), XIGetProperty_PROC)
 
 typedef void (* PFN_XIBarrierReleasePointers_PROC) (Display *, XIBarrierReleasePointerInfo *, int);
 PFN_XIBarrierReleasePointers_PROC XIBarrierReleasePointers_PROC = 0;
-#  define XIBarrierReleasePointers (assert(XIBarrierReleasePointers_PROC != 0), XIBarrierReleasePointers_PROC)
+#   define XIBarrierReleasePointers (assert(XIBarrierReleasePointers_PROC != 0), XIBarrierReleasePointers_PROC)
 
 typedef void (* PFN_XIBarrierReleasePointer_PROC) (Display *, int, PointerBarrier, BarrierEventID);
 PFN_XIBarrierReleasePointer_PROC XIBarrierReleasePointer_PROC = 0;
-#  define XIBarrierReleasePointer (assert(XIBarrierReleasePointer_PROC != 0), XIBarrierReleasePointer_PROC)
+#   define XIBarrierReleasePointer (assert(XIBarrierReleasePointer_PROC != 0), XIBarrierReleasePointer_PROC)
 
 typedef void (* PFN_XIFreeDeviceInfo_PROC) (XIDeviceInfo *);
 PFN_XIFreeDeviceInfo_PROC XIFreeDeviceInfo_PROC = 0;
-#  define XIFreeDeviceInfo (assert(XIFreeDeviceInfo_PROC != 0), XIFreeDeviceInfo_PROC)
+#   define XIFreeDeviceInfo (assert(XIFreeDeviceInfo_PROC != 0), XIFreeDeviceInfo_PROC)
 
 /* keymap layouts base */
 struct __window_h_keymap {
@@ -5520,9 +5535,6 @@ WININT int __winQuitX11(void) {
 #
 #  /* WINDOW_BACKEND_WAYLAND - Wayland implementation */
 #  if defined (WINDOW_BACKEND_WAYLAND)
-#   include <unistd.h>
-#   include <sys/time.h>
-#
 #   include <wayland-util.h>
 #   include <wayland-version.h>
 #   include <wayland-client.h>
@@ -5580,59 +5592,21 @@ struct __window_h_wl {
 
 /* internal functions (declarations) */
 
-WININT int __winLoadWayland(void);
-
-WININT int __winLoadWaylandModules(void);
-
-WININT int __winUnloadWayland(void);
+WININT int __winLoadWayland(struct __window_h_wl *);
 
 /* internal functions (definitions) */
 
-WININT int __winLoadWayland(void) {
-    /* alloc '__window_h.wl' field */
-    if (!__window_h.wl) {
-        __window_h.wl = calloc(1, sizeof(struct __window_h_wl));
-        if (!__window_h.wl) {
-            return (0);
-        }
-    }
-
-    /* try to load libwayland-client symbols */
-    if (!__winLoadWaylandModules()) { return (0); }
-   
-    /* ... */
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winLoadWaylandModules(void) {
+WININT int __winLoadWayland(struct __window_h_wl *wl) {
     /* null-check */
-    if (!__window_h.wl) { return (0); }
+    if (!wl) { return (0); }
 
     /* try to load handle */
     static void *handle  = 0;
 
     /* ... */
 
-    /* set '__window_h.wl->handle' member */ 
-    __window_h.wl->handle = handle;
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winUnloadWayland(void) {
-    /* null-check */
-    if (!__window_h.wl) { return (0); }
-
-    /* release '__window_h.wl->handle' field */
-    /* ... */
-
-    /* release '__window_h.wl' */
-    free(__window_h.wl);
+    /* set 'wl->libwayland_client' member */ 
+    wl->libwayland_client= handle;
 
     /* success */
     return (1);
@@ -5695,64 +5669,25 @@ struct __window_h_win32 {
 
 /* internal functions (declarations) */
 
-WININT int __winLoadWin32(void);
-
-WININT int __winLoadWin32Modules(void);
-
-WININT int __winUnloadWin32(void);
+WININT int __winLoadWin32(struct __window_h_win32 *);
 
 /* internal functions (definitions) */
 
-WININT int __winLoadWin32(void) {
-    /* alloc '__window_h.win32' field */
-    if (!__window_h.win32) {
-        __window_h.win32 = calloc(1, sizeof(struct __window_h_win32));
-        if (!__window_h.win32) {
-            return (0);
-        }
-    }
-
-    /* try to load libwayland-client symbols */
-    if (!__winLoadWin32Modules()) { return (0); }
-   
-    /* ... */
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winLoadWin32Modules(void) {
+WININT int __winLoadWin32(struct __window_h_win32 *win32) {
     /* null-check */
-    if (!__window_h.win32) { return (0); }
+    if (!win32) { return (0); }
 
     /* try to load handle */
     static void *handle  = 0;
 
     /* ... */
 
-    /* set '__window_h.win32->handle' member */ 
-    __window_h.win32->handle = handle;
+    /* set 'win32->user32' member */ 
+    win32->user32 = handle;
 
     /* success */
     return (1);
 }
-
-
-WININT int __winUnloadWin32(void) {
-    /* null-check */
-    if (!__window_h.win32) { return (0); }
-
-    /* release '__window_h.win32->handle' field */
-    /* ... */
-
-    /* release '__window_h.win32' */
-    free(__window_h.win32);
-
-    /* success */
-    return (1);
-}
-
 #  endif /* WINDOW_PLATFORM_WIN32 */
 #
 #  /* WINDOW_BACKEND_EGL - EGL implementation layer */
@@ -6452,53 +6387,15 @@ WININT int __winSelectPlatform(struct __window_h_platform *platform) {
     /* null-check */
     if (!platform) { return (0); }
 
-    /* get the platform ID */
-    uint32_t id = WINDOW_PLATFORM_NONE;
-
-/* unix platform loading */
-#  if defined (WINDOW_PLATFORM_LINUX) || \
-      defined (WINDOW_PLATFORM_APPLE) || \
-      defined (WINDOW_PLATFORM_BSD)
-
-    /* easiest way to get the current session is to check the 'XDG_SESSION_TYPE' environ */
-    const char *xdg_session_type = getenv("XDG_SESSION_TYPE");
-    if (xdg_session_type) {
-        /* 'XDG_SESSION_TYPE' == "x11" */
-        if (!strcmp(xdg_session_type, "x11")) {
-            id = WINDOW_PLATFORM_X11;
-        }
-        
-        /* 'XDG_SESSION_TYPE' == "tty" */
-        else if (!strcmp(xdg_session_type, "tty")) {
-            /* Special case where We run the x11 environment, such as i3,
-             * from default virtual terminal.
-             * In that case I'm defaulting to X11...
-             * */
-            id = WINDOW_PLATFORM_X11;
-        }
-
-        /* error */
-        else { return (0); }
-    }
-    
-/* win32 platform loading */
-#  elif defined (WINDOW_PLATFORM_WIN32)
-
-    /* There's only one way to create a window application on win32.
-     * Thus we only pick 'WINDOW_PLATFORM_win32'
-     * */
-    id = WINDOW_PLATFORM_WIN32;
-
+#  if defined (WINDOW_BACKEND_X11)
+    if (!__winConnectX11(platform)) { return (0); }
+#  elif defined (WINDOW_BACKEND_WAYLAND)
+    if (!__winConnectWayland(platform)) { return (0); }
+#  elif defined (WINDOW_BACKEND_WIN32)
+    if (!__winConnectWin32(platform)) { return (0); }
+#  elif defined (WINDOW_BACKEND_COCOA)
+    if (!__winConnectCocoa(platform)) { return (0); }
 #  endif
-
-    /* now let's connect the platform */
-    switch (id) {
-        case (WINDOW_PLATFORM_X11): {
-             __winConnectX11(platform);
-        } break;
-
-        default: { } return (0);
-    }
 
     /* success */
     return (1);
