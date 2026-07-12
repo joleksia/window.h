@@ -1237,9 +1237,6 @@ WININT int __winSelectPlatform(struct __window_h_platform *);
 /* platform functions */
 
 WINDEF int winInit(void) {
-    /* check if window.h is initialized */
-    if (__window_h.initialized) { return (0); }
-
     /* initialize window.h */
     __window_h = (struct __window_h) { 0 };
 
@@ -1247,18 +1244,20 @@ WINDEF int winInit(void) {
     if (!__winSelectPlatform(&__window_h.platform)) { return (0); }
 
     /* call platform - specific init function */
-    if (__window_h.platform.init()) { return (0); }
-
-    /* success */
-    __window_h.initialized = 1;
+    if (!__window_h.platform.init()) { return (0); }
     return (1);
 }
 
 
 WINDEF int winQuit(void) {
-    /* check if window.h is initialized */
-    if (!__window_h.initialized) { return (0); }
-    
+    /* close all the open windows */
+    struct __window_h_window *window = __window_h.window.list;
+    while (window) {
+        void *next = window->next;
+        winDestroyWindow(window);
+        window = next;
+    }
+
     /* call platform - specific quit function */
     if (!__window_h.platform.quit()) { return (0); }
 
@@ -1665,12 +1664,21 @@ WINDEF int winPaste(const uint32_t selection, char **data) { return (__window_h.
 /* timing functions */
 
 WINDEF uint64_t winGetTime(void) {
+
+#  if defined (WINDOW_PLATFORM_LINUX) || \
+      defined (WINDOW_PLATFORM_APPLE) || \
+      defined (WINDOW_PLATFORM_BSD)
     struct timeval t;
     if (gettimeofday(&t, 0) == -1) {
         return (0);
     }
 
     return (t.tv_sec * 1000 + t.tv_usec / 1000);
+#  elif defined (WINDOW_PLATFORM_WIN32)
+
+
+#  endif
+
 }
 
 WINDEF int winWaitTime(uint64_t ms) {
