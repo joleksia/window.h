@@ -41,7 +41,7 @@ int main(void) {
 
         /* poll events */
         winGLSwapBuffers(ctx);
-        t_event event = { 0 };
+        event_t event = { 0 };
         while (winPollEvents(&event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {

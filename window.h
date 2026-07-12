@@ -112,6 +112,8 @@ enum {
 enum {
     WINDOW_KEYCODE_NONE = 0x0000,
 
+/* {{{ */
+
 /*  
  *  Keyboard/Keypad Page (0x07)
  *      https://usb.org/sites/default/files/hut1_21.pdf#chapter.10
@@ -341,7 +343,9 @@ enum {
     WINDOW_KEYCODE_RIGHTSHIFT = 0x00e5,
     WINDOW_KEYCODE_RIGHTALT = 0x00e6,
     WINDOW_KEYCODE_RIGHTGUI = 0x00e7,
-    
+
+/* }}} */
+
     /* 0x00e8 - 0xffff: reserved */
 
     /* ... */
@@ -357,6 +361,8 @@ enum {
 enum {
     WINDOW_KEYSYM_NONE = 0x0000,
    
+/* {{{ */
+
 /*
  *  ASCII-compliant keysym table
  *
@@ -519,6 +525,8 @@ enum {
     WINDOW_KEYSYM_RIGHTGUI = WINDOW_KEYCODE_TO_KEYSYM(WINDOW_KEYCODE_RIGHTGUI),
 
     /* ... */
+
+/* }}} */
 
 };
 
@@ -686,25 +694,25 @@ typedef void *context_t;
 typedef void *cursor_t;
 
 
-typedef struct s_eventCommon t_eventCommon;
+typedef struct eventCommon_s eventCommon_t;
 
-struct s_eventCommon {
+struct eventCommon_s {
     uint32_t type;
     uint64_t time;
 };
 
 
-typedef struct s_eventQuit t_eventQuit;
+typedef struct eventQuit_s eventQuit_t;
 
-struct s_eventQuit {
+struct eventQuit_s {
     uint32_t type;
     uint64_t time;
 };
 
 
-typedef struct s_eventMouse t_eventMouse;
+typedef struct eventMouse_s eventMouse_t;
 
-struct s_eventMouse {
+struct eventMouse_s {
     uint32_t type;      /* WINDOW_EVENT_MOUSE */
     uint64_t time;      /* event timestampt */
 
@@ -725,9 +733,9 @@ struct s_eventMouse {
 };
 
 
-typedef struct s_eventMouseDevice t_eventMouseDevice;
+typedef struct eventMouseDevice_s eventMouseDevice_t;
 
-struct s_eventMouseDevice {
+struct eventMouseDevice_s {
     uint32_t type;      /* WINDOW_EVENT_MOUSE_ADD, WINDOW_EVENT_MOUSE_REMOVE */
     uint64_t time;      /* event timestampt */
 
@@ -735,9 +743,9 @@ struct s_eventMouseDevice {
 };
 
 
-typedef struct s_eventKeyboard t_eventKeyboard;
+typedef struct eventKeyboard_s eventKeyboard_t;
 
-struct s_eventKeyboard {
+struct eventKeyboard_s {
     uint32_t type;      /* WINDOW_EVENT_KEYBOARD */
     uint64_t time;      /* event timestampt */
 
@@ -752,9 +760,9 @@ struct s_eventKeyboard {
 };
 
 
-typedef struct s_eventKeyboardDevice t_eventKeyboardDevice;
+typedef struct eventKeyboardDevice_s eventKeyboardDevice_t;
 
-struct s_eventKeyboardDevice {
+struct eventKeyboardDevice_s {
     uint32_t type;      /* WINDOW_EVENT_KEYBOARD_ADD, WINDOW_EVENT_KEYBOARD_REMOVE */
     uint64_t time;      /* event timestampt */
 
@@ -762,9 +770,9 @@ struct s_eventKeyboardDevice {
 };
 
 
-typedef struct s_eventWindow t_eventWindow;
+typedef struct eventWindow_s eventWindow_t;
 
-struct s_eventWindow {
+struct eventWindow_s {
     uint32_t type;      /* WINDOW_EVENT_WINDOW */
     uint64_t time;      /* event timestampt */
 
@@ -774,9 +782,9 @@ struct s_eventWindow {
 };
 
 
-typedef struct s_eventClipboard t_eventClipboard;
+typedef struct eventClipboard_s eventClipboard_t;
 
-struct s_eventClipboard {
+struct eventClipboard_s {
     uint32_t type;      /* WINDOW_EVENT_CLIPBOARD */
     uint64_t time;      /* event timestampt */
 
@@ -785,9 +793,9 @@ struct s_eventClipboard {
 };
 
 
-typedef union u_event t_event;
+typedef union event_u event_t;
 
-union u_event {
+union event_u {
     /* default event data */
     struct {
         uint32_t type;  /* WINDOW_EVENT_ */
@@ -795,25 +803,25 @@ union u_event {
     };
 
     /* WINDOW_EVENT_QUIT */
-    t_eventQuit quit;
+    eventQuit_t quit;
 
     /* WINDOW_EVENT_MOUSE */
-    t_eventMouse mouse;
+    eventMouse_t mouse;
 
     /* WINDOW_EVENT_MOUSE_ADD, WINDOW_EVENT_MOUSE_REMOVE */
-    t_eventMouseDevice mouse_device;
+    eventMouseDevice_t mouse_device;
 
     /* WINDOW_EVENT_KEYBOARD */
-    t_eventKeyboard keyboard;
+    eventKeyboard_t keyboard;
 
     /* WINDOW_EVENT_KEYBOARD_ADD, WINDOW_EVENT_KEYBOARD_REMOVE */
-    t_eventKeyboardDevice keyboard_device;
+    eventKeyboardDevice_t keyboard_device;
 
     /* WINDOW_EVENT_WINDOW */
-    t_eventWindow window;
+    eventWindow_t window;
 
     /* WINDOW_EVENT_CLIPBOARD */
-    t_eventClipboard clipboard;
+    eventClipboard_t clipboard;
 
 };
 
@@ -910,17 +918,17 @@ WINDEF int winSetCursorRawMotion(window_t, const uint8_t);
 
 /* event functions */
 
-WINDEF int winPollEvents(t_event *);
+WINDEF int winPollEvents(event_t *);
 
-WINDEF int winWaitEvents(t_event *);
+WINDEF int winWaitEvents(event_t *);
 
-WINDEF int winPushEvent(t_event *);
+WINDEF int winPushEvent(event_t *);
 
-WINDEF int winPopEvent(t_event *);
+WINDEF int winPopEvent(event_t *);
 
 WINDEF int winSendEvent(uint32_t, ...);
 
-WINDEF int winPeekEvent(t_event *);
+WINDEF int winPeekEvent(event_t *);
 
 /* clipboard functions */
 
@@ -984,7 +992,7 @@ struct __window_h;
 
 struct __window_h_event {
     void *next;
-    t_event event;
+    event_t event;
 };
 
 
@@ -1018,9 +1026,7 @@ struct __window_h_platform {
     int (*createWindow) (window_t *, const size_t, const size_t, const char *, uint32_t);
     int (*createNestedWindow) (window_t *, window_t, const size_t, const size_t, const char *, uint32_t);
     int (*destroyWindow) (window_t);
-    int (*getWindowFlags) (window_t, uint32_t *);
-    int (*setWindowFlags) (window_t, const uint32_t);
-    int (*toggleWindowFlags) (window_t, const uint32_t);
+    int (*updateWindowFlags) (window_t, const uint32_t);
     void *(*getWindowProperty) (window_t, const uint32_t);
     int (*mapWindow) (window_t);
     int (*unmapWindow) (window_t);
@@ -1032,8 +1038,6 @@ struct __window_h_platform {
     int (*setWindowPosition) (window_t, const size_t, const size_t);
     int (*getWindowTitle) (window_t, char **);
     int (*setWindowTitle) (window_t, const char *);
-    int (*getWindowContext) (window_t, context_t *);
-    int (*setWindowContext) (window_t, context_t);
 
     /* context functions */
 
@@ -1064,22 +1068,12 @@ struct __window_h_platform {
 
     /* event functions */
 
-    int (*pollEvents) (t_event *);
-    int (*waitEvents) (t_event *);
-    int (*pushEvent) (t_event *);
-    int (*popEvent) (t_event *);
-    int (*sendEvent) (uint32_t, va_list);
-    int (*peekEvent) (t_event *);
+    int (*pollEvents) (void);
 
     /* clipboard functions */
     
     int (*copy) (const uint32_t, const char *);
     int (*paste) (const uint32_t, char **);
-
-    /* timing functions */
-
-    uint64_t (*getTime) (void);
-    int (*waitTime) (uint64_t);
 };
 
 struct __window_h_error {
@@ -1141,8 +1135,8 @@ struct __window_h_context {
     /* pointer to the 'next' node in linked-list of context */
     struct __window_h_context *next;
 
-    /* reference to this context's 'owner' window */
-    struct __window_h_window *owner;
+    /* reference to this context's owner 'window' */
+    struct __window_h_window *window;
 
 
     /* WINDOW_API_NONE */
@@ -1279,12 +1273,132 @@ WINDEF void *winGetProperty(const uint32_t prop) { return (__window_h.platform.g
 
 /* windowing functions */
 
-WINDEF int winCreateWindow(window_t *window, const size_t w, const size_t h, const char *t, uint32_t f) { return (__window_h.platform.createWindow(window, w, h, t, f)); }
-WINDEF int winCreateNestedWindow(window_t *window, window_t parent, const size_t w, const size_t h, const char *t, uint32_t f) { return (__window_h.platform.createNestedWindow(window, parent, w, h, t, f)); }
-WINDEF int winDestroyWindow(window_t window) { return (__window_h.platform.destroyWindow(window)); }
-WINDEF int winGetWindowFlags(window_t window, uint32_t *f_ptr) { return (__window_h.platform.getWindowFlags(window, f_ptr)); }
-WINDEF int winSetWindowFlags(window_t window, const uint32_t f) { return (__window_h.platform.setWindowFlags(window, f)); }
-WINDEF int winToggleWindowFlags(window_t window, const uint32_t f) { return (__window_h.platform.toggleWindowFlags(window, f)); }
+WINDEF int winCreateWindow(window_t *window, const size_t width, const size_t height, const char *title, uint32_t flags) {
+    /* alloc new window object */
+    struct __window_h_window *result = calloc(1, sizeof(struct __window_h_window));
+    if (!result) { return (0); }
+
+    /* set the default 'flags' values if it equals '0' */
+    if (!flags) {
+        flags |= WINDOW_FLAG_API_NONE;  /* by default, we should target 'API_NONE' */
+    }
+    
+    /* call platform - specific create function */
+    if (!__window_h.platform.createWindow((window_t *) &result, width, height, title, flags)) { return (0); }
+    
+    /* update window flags */
+    winSetWindowFlags(result, flags);
+
+    /* update window dimension properites */
+    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
+    winGetWindowSize(result, &result->siz_w, &result->siz_h);
+
+    /* add the result to the '__window_h.window.list' linked list */
+    result->next = __window_h.window.list;
+    __window_h.window.list = result;
+
+    /* and return the result */
+    *window = result;
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winCreateNestedWindow(window_t *window, window_t parent, const size_t width, const size_t height, const char *title, uint32_t flags) {
+    /* alloc new window object */
+    struct __window_h_window *result = calloc(1, sizeof(struct __window_h_window));
+    if (!result) { return (0); }
+
+    /* set the default 'flags' values if it equals '0' */
+    if (!flags) {
+        flags |= WINDOW_FLAG_API_NONE;  /* by default, we should target 'API_NONE' */
+    }
+    
+    /* call platform - specific create nested function */
+    if (!__window_h.platform.createNestedWindow((window_t *) &result, parent, width, height, title, flags)) { return (0); }
+
+    /* set window title */ 
+    winSetWindowTitle(result, title);
+
+    /* update window dimension properites */
+    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
+    winGetWindowSize(result, &result->siz_w, &result->siz_h);
+
+    /* add the result to the '__window_h.window.list' linked list */
+    result->next = __window_h.window.list;
+    __window_h.window.list = result;
+
+    /* and return the result */
+    *window = result;
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winDestroyWindow(window_t window) {
+    /* call platform - specific destroy function */
+    if (!__window_h.platform.destroyWindow(window)) { return (0); }
+
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* unlink 'win' from '__window_h.window.list' */
+    struct __window_h_window **curr = &__window_h.window.list;
+    /* case when 'win' is the first node of '__window_h.window.list' */
+    if (win == (*curr)) {
+        __window_h.window.list = (*curr)->next;
+    }
+    /* case when 'win' is not the first node of '__window_h.window.list' */
+    else {
+        /* search for prepending window for 'win' */
+        while ((*curr) && (*curr)->next != win) {
+            (*curr) = (*curr)->next;
+        }
+
+        if (!(*curr)) { return (0); }
+        (*curr) = win->next;
+    }
+
+    /* deallocate window object */
+    free(win);
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winGetWindowFlags(window_t window, uint32_t *f_ptr) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+   
+    /* return values */
+    if (f_ptr) { *f_ptr = win->flags; }
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winSetWindowFlags(window_t window, const uint32_t f) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* set flags */
+    win->flags = f;
+    
+    /* platform - specific function */
+    return (__window_h.platform.updateWindowFlags(window, f));
+}
+
+WINDEF int winToggleWindowFlags(window_t window, const uint32_t f) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* set flags */
+    win->flags |= f;
+    
+    /* platform - specific function */
+    return (__window_h.platform.updateWindowFlags(window, f));
+}
+
 WINDEF void *winGetWindowProperty(window_t window, const uint32_t prop) { return (__window_h.platform.getWindowProperty(window, prop)); }
 WINDEF int winMapWindow(window_t window) { return (__window_h.platform.mapWindow(window)); }
 WINDEF int winUnmapWindow(window_t window) { return (__window_h.platform.unmapWindow(window)); }
@@ -1296,8 +1410,31 @@ WINDEF int winGetWindowPosition(window_t window, size_t *x_ptr, size_t *y_ptr) {
 WINDEF int winSetWindowPosition(window_t window, const size_t x, const size_t y) { return (__window_h.platform.setWindowPosition(window, x, y)); }
 WINDEF int winGetWindowTitle(window_t window, char **t_ptr) { return (__window_h.platform.getWindowTitle(window, t_ptr)); }
 WINDEF int winSetWindowTitle(window_t window, const char *t) { return (__window_h.platform.setWindowTitle(window, t)); }
-WINDEF int winGetWindowContext(window_t window, context_t *c_ptr) { return (__window_h.platform.getWindowContext(window, c_ptr)); }
-WINDEF int winSetWindowContext(window_t window, context_t context) { return (__window_h.platform.setWindowContext(window, context)); }
+
+WINDEF int winGetWindowContext(window_t window, context_t *c_ptr) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* get the context from the 'win' */
+    if (c_ptr) { *c_ptr = win->context; }
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winSetWindowContext(window_t window, context_t context) {
+    /* references */
+    struct __window_h_window  *win = (struct __window_h_window *) window;
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    /* update the internal references in 'win' and 'ctx' */
+    win->context = context;
+    ctx->window  = window;
+
+    /* success */
+    return (1);
+}
 
 /* context functions */
 
@@ -1328,27 +1465,197 @@ WINDEF int winSetCursorRawMotion(window_t window, const uint8_t raw) { return (_
 
 /* event functions */
 
-WINDEF int winPollEvents(t_event *event) { return (__window_h.platform.pollEvents(event)); }
-WINDEF int winWaitEvents(t_event *event) { return (__window_h.platform.waitEvents(event)); }
-WINDEF int winPushEvent(t_event *event) { return (__window_h.platform.pushEvent(event)); }
-WINDEF int winPopEvent(t_event *event) { return (__window_h.platform.popEvent(event)); }
+WINDEF int winPollEvents(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+
+    /* flush the event queue */
+    if (winPopEvent(event)) { return (1); }
+
+    /* call platform-specific poll events function */
+    __window_h.platform.pollEvents();
+
+    /* this means we don't have any event... */
+    *event = (event_t) { 0 };
+    return (0);
+}
+
+WINDEF int winWaitEvents(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winPushEvent(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+
+    /* references */
+    struct __window_h_event *eq = __window_h.event.queue;
+    /* no events in queue */
+    if (!eq) {
+        eq = calloc(1, sizeof(struct __window_h_event));
+        if (!eq) { return (0); }
+
+        eq->next  = 0;
+        eq->event = *event;
+
+        /* assign back new queue */
+        __window_h.event.queue = eq;
+    } else {
+        /* go to the end of the queue */
+        while (eq->next) { eq = eq->next; }
+
+        /* alloc new event queue member */
+        struct __window_h_event *node = calloc(1, sizeof(struct __window_h_event));
+        if (!node) { return (0); }
+
+        node->next  = 0;
+        node->event = *event;
+
+        /* push the 'node' to the end of 'eq' */
+        eq->next = node;
+    }
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winPopEvent(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+
+    /* references */
+    struct __window_h_event *eq = __window_h.event.queue;
+    /* empty event queue */
+    if (!eq) {
+        *event = (event_t) { 0 };
+        return (0);
+    }
+
+    /* get the event from the top */
+    *event = eq->event;
+
+    /* re-assign the global event queue */
+    __window_h.event.queue = eq->next;
+
+    /* release top event */
+    free(eq);
+
+    /* success */
+    return (1);
+}
 
 WINDEF int winSendEvent(uint32_t type, ...) {
+    /* default 'event' object */
+    event_t event = { 0 };
+    event.type = type;
+    event.time = winGetTime();
+
     /* get the variadic argument list */
     va_list list;
     va_start(list, 0);
-    
-    /* execute */
-    int result = __window_h.platform.sendEvent(type, list);
-    
+    switch (type) {
+
+        case (WINDOW_EVENT_QUIT): { } break;
+
+        /* Mouse events */
+
+        case (WINDOW_EVENT_MOUSE_MOTION): {
+            event.mouse.window = va_arg(list, window_t);
+            event.mouse.which  = va_arg(list, uint64_t);
+            event.mouse.x    = va_arg(list, int32_t);
+            event.mouse.xrel = va_arg(list, int32_t);
+            event.mouse.y    = va_arg(list, int32_t);
+            event.mouse.yrel = va_arg(list, int32_t);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_BUTTON): {
+            event.mouse.window = va_arg(list, window_t);
+            event.mouse.which  = va_arg(list, uint64_t);
+            event.mouse.btn   = va_arg(list, int);
+            event.mouse.state = va_arg(list, int);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_SCROLL): {
+            event.mouse.window = va_arg(list, window_t);
+            event.mouse.which  = va_arg(list, uint64_t);
+            event.mouse.scroll_x = va_arg(list, int32_t);
+            event.mouse.scroll_y = va_arg(list, int32_t);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_ADDED): { } break;
+
+        case (WINDOW_EVENT_MOUSE_REMOVED): { } break;
+
+        /* Keyboard events */
+
+        case (WINDOW_EVENT_KEYBOARD_KEY): {
+            event.keyboard.window = va_arg(list, window_t);
+            event.keyboard.which  = va_arg(list, uint64_t);
+            event.keyboard.keysym  = va_arg(list, uint64_t);
+            event.keyboard.keycode = va_arg(list, uint32_t);
+            event.keyboard.keymod  = va_arg(list, uint32_t);
+            event.keyboard.keyraw  = va_arg(list, uint32_t);
+            event.keyboard.state  = va_arg(list, uint32_t);
+            event.keyboard.repeat = va_arg(list, uint32_t);
+        } break;
+
+        case (WINDOW_EVENT_KEYBOARD_ADDED): { } break;
+
+        case (WINDOW_EVENT_KEYBOARD_REMOVED): { } break;
+
+        /* Window events */
+
+        case (WINDOW_EVENT_WINDOW_CREATE):
+        case (WINDOW_EVENT_WINDOW_DESTROY):
+        case (WINDOW_EVENT_WINDOW_MAP):
+        case (WINDOW_EVENT_WINDOW_UNMAP):
+        case (WINDOW_EVENT_WINDOW_RESIZE):
+        case (WINDOW_EVENT_WINDOW_MOTION):
+        case (WINDOW_EVENT_WINDOW_ENTER):
+        case (WINDOW_EVENT_WINDOW_LEAVE):
+        case (WINDOW_EVENT_WINDOW_MAXIMIZE):
+        case (WINDOW_EVENT_WINDOW_MINIMIZE):
+        case (WINDOW_EVENT_WINDOW_FULLSCREEN): {
+            event.window.window = va_arg(list, window_t);
+            event.window.data1  = va_arg(list, uint32_t);
+            event.window.data2  = va_arg(list, uint32_t);
+        } break;
+
+        case (WINDOW_EVENT_CLIPBOARD_COPY):
+        case (WINDOW_EVENT_CLIPBOARD_PASTE): {
+            event.clipboard.data   = va_arg(list, void *);
+            event.clipboard.size   = va_arg(list, size_t);
+        } break;
+
+        /* ... */
+
+        default: { } break;
+    }
+
+
     /* finish variadic argument list */
     va_end(list);
     
     /* return */
-    return (result);
+    return (winPushEvent(&event));
 }
 
-WINDEF int winPeekEvent(t_event *event) { return (__window_h.platform.peekEvent(event)); }
+WINDEF int winPeekEvent(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+    *event = (event_t) { 0 };
+
+    /* references */
+    struct __window_h_event *eq = __window_h.event.queue;
+    if (eq) { *event = eq->event; }
+
+    /* success */
+    return (1);
+}
 
 /* clipboard functions */
 
@@ -1357,8 +1664,22 @@ WINDEF int winPaste(const uint32_t selection, char **data) { return (__window_h.
 
 /* timing functions */
 
-WINDEF uint64_t winGetTime(void) { return (__window_h.platform.getTime()); }
-WINDEF int winWaitTime(uint64_t t) { return (__window_h.platform.waitTime(t)); }
+WINDEF uint64_t winGetTime(void) {
+    struct timeval t;
+    if (gettimeofday(&t, 0) == -1) {
+        return (0);
+    }
+
+    return (t.tv_sec * 1000 + t.tv_usec / 1000);
+}
+
+WINDEF int winWaitTime(uint64_t ms) {
+    uint64_t t = winGetTime();
+    if (t == 0) { return (0); }
+
+    while ((winGetTime() - t) < ms);
+    return (1);
+}
 
 #  /* WINDOW_BACKEND_X11 - X11 implementation */
 #  if defined (WINDOW_BACKEND_X11)
@@ -1370,6 +1691,8 @@ WINDEF int winWaitTime(uint64_t t) { return (__window_h.platform.waitTime(t)); }
 #   include <X11/keysymdef.h>
 #   include <X11/extensions/XInput.h>
 #   include <X11/extensions/XInput2.h>
+
+/* {{{ */
 
 typedef int (* PFN_XActivateScreenSaver_PROC) (Display *);
 PFN_XActivateScreenSaver_PROC XActivateScreenSaver_PROC = 0;
@@ -4143,6 +4466,8 @@ typedef void (* PFN_XIFreeDeviceInfo_PROC) (XIDeviceInfo *);
 PFN_XIFreeDeviceInfo_PROC XIFreeDeviceInfo_PROC = 0;
 #   define XIFreeDeviceInfo (assert(XIFreeDeviceInfo_PROC != 0), XIFreeDeviceInfo_PROC)
 
+/* }}} */
+
 /* keymap layouts base */
 struct __window_h_keymap {
     uint32_t src;
@@ -4156,6 +4481,8 @@ struct __window_h_keymap {
  *
  * * * * * * * * * * * * * * * * * * * * * * */
 static const struct __window_h_keymap __window_h_keymap_en_us_qwerty[] = {
+
+/* {{{ */
 
     /* '`' / '~' */ 
     { XK_grave, WINDOW_KEYCODE_GRAVE, WINDOW_KEYSYM_GRAVE },
@@ -4465,11 +4792,17 @@ static const struct __window_h_keymap __window_h_keymap_en_us_qwerty[] = {
     /* ... */
 
     { 0, 0, 0 } 
+
+/* }}} */
+
 };
 
 
 struct __window_h_window_x11 {
     struct {
+        /* display reference */
+        Display *dpy;
+
         /* default root window */
         Window root;
 
@@ -4523,24 +4856,6 @@ struct __window_h_x11 {
         /* Atoms: WM */
         Atom WM_PROTOCOLS;
         Atom WM_DELETE_WINDOW;
-
-        /* Atoms: MOTIF */
-        Atom _MOTIF_WM_HINTS;
-
-        /* Atoms: EWMH */
-        Atom _NET_WM_STATE;
-        Atom _NET_WM_STATE_ABOVE;
-        Atom _NET_WM_STATE_FULLSCREEN;
-        Atom _NET_WM_STATE_HIDDEN;
-        Atom _NET_WM_STATE_MAXIMIZED_HORZ;
-        Atom _NET_WM_STATE_MAXIMIZED_VERT;
-
-        /* Atoms: Clipboard */
-        Atom UTF8_STRING;
-        Atom TEXT;
-        Atom TARGETS;
-        Atom CLIPBOARD;
-        Atom XSEL_DATA;
     } xatom;
 
     /* handles */
@@ -4562,7 +4877,6 @@ WININT int __winInitX11(void);
 
 WININT int __winQuitX11(void);
 
-/*
 WININT void *__winGetPropertyX11(const uint32_t);
 
 WININT int __winCreateWindowX11(window_t *, const size_t, const size_t, const char *, uint32_t);
@@ -4571,11 +4885,7 @@ WININT int __winCreateNestedWindowX11(window_t *, window_t, const size_t, const 
 
 WININT int __winDestroyWindowX11(window_t);
 
-WININT int __winGetWindowFlagsX11(window_t, uint32_t *);
-
-WININT int __winSetWindowFlagsX11(window_t, const uint32_t);
-
-WININT int __winToggleWindowFlagsX11(window_t, const uint32_t);
+WININT int __winUpdateWindowFlagsX11(window_t, const uint32_t);
 
 WININT void *__winGetWindowPropertyX11(window_t, const uint32_t);
 
@@ -4599,9 +4909,7 @@ WININT int __winGetWindowTitleX11(window_t, char **);
 
 WININT int __winSetWindowTitleX11(window_t, const char *);
 
-WININT int __winGetWindowContextX11(window_t, context_t *);
-
-WININT int __winSetWindowContextX11(window_t, context_t);
+/*
 
 WININT int __winCreateContextX11(context_t *, window_t);
 
@@ -4639,25 +4947,16 @@ WININT int __winGetCursorRawMotionX11(window_t, uint8_t *);
 
 WININT int __winSetCursorRawMotionX11(window_t, const uint8_t);
 
-WININT int __winPollEventsX11(t_event *);
+*/
 
-WININT int __winWaitEventsX11(t_event *);
+WININT int __winPollEventsX11(void);
 
-WININT int __winPushEventX11(t_event *);
-
-WININT int __winPopEventX11(t_event *);
-
-WININT int __winSendEventX11(uint32_t, va_list);
-
-WININT int __winPeekEventX11(t_event *);
+/*
 
 WININT int __winCopyX11(const uint32_t, const char *);
 
 WININT int __winPasteX11(const uint32_t, char **);
 
-WININT uint64_t __winGetTimeX11(void);
-
-WININT int __winWaitTimeX11(uint64_t);
 */
 
 /* internal functions (definitions) */
@@ -4671,14 +4970,11 @@ WININT int __winConnectX11(struct __window_h_platform *platform) {
 
     x11.init = __winInitX11;                                                                                   
     x11.quit = __winQuitX11;
-    /*
     x11.getProperty = __winGetPropertyX11;
     x11.createWindow = __winCreateWindowX11;
     x11.createNestedWindow = __winCreateNestedWindowX11;
     x11.destroyWindow = __winDestroyWindowX11;
-    x11.getWindowFlags = __winGetWindowFlagsX11;
-    x11.setWindowFlags = __winSetWindowFlagsX11;
-    x11.toggleWindowFlags = __winToggleWindowFlagsX11;
+    x11.updateWindowFlags = __winUpdateWindowFlagsX11;
     x11.getWindowProperty = __winGetWindowPropertyX11;
     x11.mapWindow = __winMapWindowX11;
     x11.unmapWindow = __winUnmapWindowX11;
@@ -4690,8 +4986,7 @@ WININT int __winConnectX11(struct __window_h_platform *platform) {
     x11.setWindowPosition = __winSetWindowPositionX11;
     x11.getWindowTitle = __winGetWindowTitleX11;
     x11.setWindowTitle = __winSetWindowTitleX11;
-    x11.getWindowContext = __winGetWindowContextX11;
-    x11.setWindowContext = __winSetWindowContextX11;
+    /*
     x11.createContext = __winCreateContextX11;
     x11.destroyContext = __winDestroyContextX11;
     x11.getContextOwner = __winGetContextOwnerX11;
@@ -4710,16 +5005,11 @@ WININT int __winConnectX11(struct __window_h_platform *platform) {
     x11.setCursorMode = __winSetCursorModeX11;
     x11.getCursorRawMotion = __winGetCursorRawMotionX11;
     x11.setCursorRawMotion = __winSetCursorRawMotionX11;
+*/
     x11.pollEvents = __winPollEventsX11;
-    x11.waitEvents = __winWaitEventsX11;
-    x11.pushEvent = __winPushEventX11;
-    x11.popEvent = __winPopEventX11;
-    x11.sendEvent = __winSendEventX11;
-    x11.peekEvent = __winPeekEventX11;
+/*
     x11.copy = __winCopyX11;
     x11.paste = __winPasteX11;
-    x11.getTime = __winGetTimeX11;
-    x11.waitTime = __winWaitTimeX11;
 */
     /* return the result */
     *platform = x11;
@@ -4747,6 +5037,9 @@ WININT int __winLoadX11(struct __window_h_x11 *x11) {
     }
     
     /* libX11: Xlib.h */
+
+    /* {{{ */
+
     XActivateScreenSaver_PROC = (PFN_XActivateScreenSaver_PROC) dlsym(handle, "XActivateScreenSaver");
     XAddConnectionWatch_PROC = (PFN_XAddConnectionWatch_PROC) dlsym(handle, "XAddConnectionWatch");
     XAddExtension_PROC = (PFN_XAddExtension_PROC) dlsym(handle, "XAddExtension");
@@ -5355,6 +5648,8 @@ WININT int __winLoadX11(struct __window_h_x11 *x11) {
     XkbVirtualModsToReal_PROC = (PFN_XkbVirtualModsToReal_PROC) dlsym(handle, "XkbVirtualModsToReal");
     XkbXlibControlsImplemented_PROC = (PFN_XkbXlibControlsImplemented_PROC) dlsym(handle, "XkbXlibControlsImplemented");
 
+    /* }}} */
+
     /* set 'x11->libX11' member */ 
     x11->libX11 = handle;
 
@@ -5372,6 +5667,9 @@ WININT int __winLoadX11(struct __window_h_x11 *x11) {
     }
     
     /* libXi: XInput.h */
+
+    /* {{{ */
+
     _XiGetDevicePresenceNotifyEvent_PROC = (PFN__XiGetDevicePresenceNotifyEvent_PROC) dlsym(handle, "_XiGetDevicePresenceNotifyEvent");
     _xibaddevice_PROC = (PFN__xibaddevice_PROC) dlsym(handle, "_xibaddevice");
     _xibadclass_PROC = (PFN__xibadclass_PROC) dlsym(handle, "_xibadclass");
@@ -5463,6 +5761,8 @@ WININT int __winLoadX11(struct __window_h_x11 *x11) {
     XIBarrierReleasePointer_PROC = (PFN_XIBarrierReleasePointer_PROC) dlsym(handle, "XIBarrierReleasePointer");
     XIFreeDeviceInfo_PROC = (PFN_XIFreeDeviceInfo_PROC) dlsym(handle, "XIFreeDeviceInfo");
 
+    /* }}} */
+
     /* set 'x11->libXi' member */ 
     x11->libXi = handle;
 
@@ -5495,11 +5795,25 @@ WININT int __winInitX11(void) {
                                CWEventMask,
                                &attr);
     if (!ipc) { return (0); }
+   
+
+    /* get 'x11->xatom' members  */ 
+    Atom WM_PROTOCOLS = XInternAtom(dpy, "WM_PROTOCOLS", False);
+    if (!WM_PROTOCOLS) { return (0); }
     
+    Atom WM_DELETE_WINDOW = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
+    if (!WM_DELETE_WINDOW) { return (0); }
+
+
     /* set 'x11->xlib' members */ 
     x11->xlib.dpy  = dpy;
     x11->xlib.root = root;
     x11->xlib.ipc  = ipc;
+
+
+    /* set 'x11->xatom' members */ 
+    x11->xatom.WM_PROTOCOLS = WM_PROTOCOLS;
+    x11->xatom.WM_DELETE_WINDOW = WM_DELETE_WINDOW;
 
     /* return 'x11' result */
     __window_h.x11 = x11;
@@ -5530,6 +5844,513 @@ WININT int __winQuitX11(void) {
     /* success */
     return (1);
 }
+
+
+WININT void *__winGetPropertyX11(const uint32_t prop) {
+    /* references */
+    struct __window_h_x11 *x11 = __window_h.x11; 
+    if (!x11) { return (0); }
+
+    /* get X11 props */
+    switch (prop) {
+        case (WINDOW_PROP_PLATFORM_X11_DISPLAY): { return ( x11->xlib.dpy); }
+        case (WINDOW_PROP_PLATFORM_X11_ROOT_ID): { return (&x11->xlib.root); }
+
+        default: { } break;
+    }
+
+    /* failure */
+    return (0);
+}
+
+
+WININT int __winCreateWindowX11(window_t *window, const size_t width, const size_t height, const char *title, uint32_t flags) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) *window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+    Display *dpy = __window_h.x11->xlib.dpy;
+    Window  root = __window_h.x11->xlib.root;
+
+    /* allocate 'x11' window */
+    struct __window_h_window_x11 *x11 = calloc(1, sizeof (struct __window_h_window_x11));
+    if (!x11) { return (0); }
+
+    /* get screen index */
+    int screen = DefaultScreen(dpy);
+
+    /* get the 'depth' and the 'visual' of the window */
+    int depth = 0;
+    Visual *visual = 0;
+    /* 'depth' and 'visual' for no-API */
+    if (flags & WINDOW_FLAG_API_NONE) {
+        /* get default visual from display and screen */
+        visual = DefaultVisual(dpy, screen);
+        
+        /* get default depth value from display and screen */
+        depth = DefaultDepth(dpy, screen);
+    }
+
+    /* create XSetWindowAttributes */
+    XSetWindowAttributes attr = { 0 };
+    attr.colormap = XCreateColormap(dpy, root, visual, AllocNone);
+    attr.event_mask = StructureNotifyMask | SubstructureNotifyMask |
+                      KeyPressMask | KeyReleaseMask |
+                      PointerMotionMask | ButtonPressMask | ButtonReleaseMask |
+                      ExposureMask | FocusChangeMask | VisibilityChangeMask |
+                      EnterWindowMask | LeaveWindowMask | PropertyChangeMask;
+
+    /* create window */
+    Window client = XCreateWindow(dpy, root,
+                                  0, 0,
+                                  width, height,
+                                  0,
+                                  depth,
+                                  InputOutput, visual,
+                                  CWBorderPixel | CWColormap | CWEventMask | CWBackPixel,
+                                  &attr);
+    if (!client) { return (0); }
+
+    /* set the title */
+    XStoreName(dpy, client, title);
+
+    /* set WM protocols atoms */
+    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.WM_PROTOCOLS, 1);
+    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.WM_DELETE_WINDOW, 1);
+
+    /* set 'x11' members */
+    x11->depth = depth;
+
+    /* set 'x11->xlib' members */
+    x11->xlib.dpy    = dpy;
+    x11->xlib.root   = root;
+    x11->xlib.parent = root;
+    x11->xlib.client = client;
+    x11->xlib.visual = visual;
+
+    /* and return the result */
+    win->x11 = x11;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winCreateNestedWindowX11(window_t *window, window_t parent, const size_t width, const size_t height, const char *title, uint32_t flags) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) *window;
+    if (!win) { return (0); }
+    
+    struct __window_h_window *par = (struct __window_h_window *) parent;
+    if (!par) { return (0); }
+
+    /* xlib references */
+    Display *dpy = __window_h.x11->xlib.dpy;
+    Window  root = __window_h.x11->xlib.root;
+    Window  prnt = par->x11->xlib.client;
+
+    /* allocate 'x11' window */
+    struct __window_h_window_x11 *x11 = calloc(1, sizeof (struct __window_h_window_x11));
+    if (!x11) { return (0); }
+
+    /* get screen index */
+    int screen = DefaultScreen(dpy);
+
+    /* get the 'depth' and the 'visual' of the window */
+    int depth = 0;
+    Visual *visual = 0;
+    /* 'depth' and 'visual' for no-API */
+    if (flags & WINDOW_FLAG_API_NONE) {
+        /* get default visual from display and screen */
+        visual = DefaultVisual(dpy, screen);
+        
+        /* get default depth value from display and screen */
+        depth = DefaultDepth(dpy, screen);
+    }
+
+    /* create XSetWindowAttributes */
+    XSetWindowAttributes attr = { 0 };
+    attr.colormap = XCreateColormap(dpy, root, visual, AllocNone);
+    attr.event_mask = StructureNotifyMask | SubstructureNotifyMask |
+                      KeyPressMask | KeyReleaseMask |
+                      PointerMotionMask | ButtonPressMask | ButtonReleaseMask |
+                      ExposureMask | FocusChangeMask | VisibilityChangeMask |
+                      EnterWindowMask | LeaveWindowMask | PropertyChangeMask;
+
+    /* create window */
+    Window client = XCreateWindow(dpy, prnt,
+                                  0, 0,
+                                  width, height,
+                                  0,
+                                  depth,
+                                  InputOutput, visual,
+                                  CWBorderPixel | CWColormap | CWEventMask | CWBackPixel,
+                                  &attr);
+    if (!client) { return (0); }
+
+    /* set the title */
+    XStoreName(dpy, client, title);
+
+    /* set WM protocols atoms */
+    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.WM_PROTOCOLS, 1);
+    XSetWMProtocols(dpy, client, &__window_h.x11->xatom.WM_DELETE_WINDOW, 1);
+
+    /* set 'x11' members */
+    x11->depth = depth;
+
+    /* set 'x11->xlib' members */
+    x11->xlib.dpy    = dpy;
+    x11->xlib.root   = root;
+    x11->xlib.parent = prnt;
+    x11->xlib.client = client;
+    x11->xlib.visual = visual;
+
+    /* and return the result */
+    win->x11 = x11;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winDestroyWindowX11(window_t window) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* destroy client */
+    XDestroyWindow(win->x11->xlib.dpy,
+                   win->x11->xlib.client);
+
+    /* deallocate window object */
+    free(win->x11);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winUpdateWindowFlagsX11(window_t window, const uint32_t flags) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+
+	/* xlib references */
+    Display  *dpy = win->x11->xlib.dpy;
+    Window client = win->x11->xlib.client;
+
+    /* properties that doesn't require the window to be mapped */
+
+    /* WINDOW_FLAG_RESIZABLE */
+    if (flags & WINDOW_FLAG_RESIZABLE) {
+        XSizeHints hints; int64_t supp;
+        XGetWMNormalHints(dpy, client, &hints, &supp);
+
+        hints.flags &= ~PMinSize & ~PMaxSize;
+        XSetWMNormalHints(dpy, client, &hints);
+    } else {
+        size_t w = 0,
+               h = 0;
+        winGetWindowSize(win, &w, &h);
+        winSetWindowMinSize(win, w, h);
+        winSetWindowMaxSize(win, w, h);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT void *__winGetWindowPropertyX11(window_t window, const uint32_t prop) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+    
+    /* get X11 props */
+    switch (prop) {
+        case (WINDOW_PROP_WINDOW_X11_DISPLAY): { return   ( win->x11->xlib.dpy); }
+        case (WINDOW_PROP_WINDOW_X11_ROOT_ID): { return   (&win->x11->xlib.root); }
+        case (WINDOW_PROP_WINDOW_X11_PARENT_ID): { return (&win->x11->xlib.parent); }
+        case (WINDOW_PROP_WINDOW_X11_CLIENT_ID): { return (&win->x11->xlib.client); }
+
+        default: { } break;
+    }
+
+    /* failure */
+    return (0);
+}
+
+
+WININT int __winMapWindowX11(window_t window) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* map window */
+    XMapWindow(dpy, client);
+
+    /* wait for 'MapNotify' to arrive */
+    XEvent xevent = { 0 };
+    do {
+        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
+    } while (xevent.type != MapNotify);
+    win->mapped = 1;
+
+    /* lastly, update all the configs that required mapping */
+    if (!__winUpdateWindowFlagsX11(win, win->flags)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winUnmapWindowX11(window_t window) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* map window */
+    XMapWindow(dpy, client);
+
+    /* wait for 'MapNotify' to arrive */
+    XEvent xevent = { 0 };
+    do {
+        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
+    } while (xevent.type != MapNotify);
+    win->mapped = 0;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGetWindowSizeX11(window_t window, size_t *w_ptr, size_t *h_ptr) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* get window attributes */
+    XWindowAttributes attr = { 0 };
+    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
+
+    /* return values */
+    if (w_ptr) { *w_ptr = attr.width; }
+    if (h_ptr) { *h_ptr = attr.height; }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetWindowSizeX11(window_t window, const size_t w, const size_t h) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* resize window */
+    if (!XResizeWindow(dpy, client, w, h)) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetWindowMinSizeX11(window_t window, const size_t w, const size_t h) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* get WM normal hints */
+    XSizeHints hints;
+    int64_t supp;
+    XGetWMNormalHints(dpy, client, &hints, &supp);
+
+    /* set new WM normal hints with position changed */
+    hints.flags |= PMinSize;
+    hints.min_width  = w;
+    hints.min_height = h;
+    XSetWMNormalHints(dpy, client, &hints);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetWindowMaxSizeX11(window_t window, const size_t w, const size_t h) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* get WM normal hints */
+    XSizeHints hints;
+    int64_t supp;
+    XGetWMNormalHints(dpy, client, &hints, &supp);
+
+    /* set new WM normal hints with position changed */
+    hints.flags |= PMaxSize;
+    hints.max_width  = w;
+    hints.max_height = h;
+    XSetWMNormalHints(dpy, client, &hints);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGetWindowPositionX11(window_t window, size_t *x_ptr, size_t *y_ptr) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* get window attributes */
+    XWindowAttributes attr = { 0 };
+    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
+
+    /* return values */
+    if (x_ptr) { *x_ptr = attr.x; }
+    if (y_ptr) { *y_ptr = attr.y; }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetWindowPositionX11(window_t window, const size_t x, const size_t y) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* resize window */
+    if (!XMoveWindow(dpy, client, x, y)) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGetWindowTitleX11(window_t window, char **t_ptr) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* fetch window title */
+    if (!XFetchName(dpy, client, t_ptr)) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetWindowTitleX11(window_t window, const char *t) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* xlib references */
+	Display   *dpy = win->x11->xlib.dpy;
+    Window  client = win->x11->xlib.client;
+
+    /* fetch window title */
+    if (!XStoreName(dpy, client, t)) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+
+
+
+WININT int __winPollEventsX11(void) {
+    /* references */
+    struct __window_h_x11 *x11 = __window_h.x11; 
+    if (!x11) { return (0); }
+
+    /* xlib references */
+	Display *dpy = x11->xlib.dpy;
+
+    XEvent xevent = { 0 };
+    while (XPending(dpy)) {
+        XNextEvent(dpy, &xevent);
+
+        switch (xevent.type) {
+            case (ClientMessage): {
+                /* get the specific event */
+                XClientMessageEvent xclient = xevent.xclient;
+
+                /* xatom references */
+                Atom WM_PROTOCOLS     = x11->xatom.WM_PROTOCOLS;
+                Atom WM_DELETE_WINDOW = x11->xatom.WM_DELETE_WINDOW;
+
+                /* process different kind of client events */
+                const Atom message_type = xclient.message_type;
+                if (message_type == WM_PROTOCOLS) {
+                    /* get the received atom */
+                    const Atom data = xclient.data.l[0];
+
+                    /* WINDOW_EVENT_QUIT */
+                    if (data == WM_DELETE_WINDOW) {
+                        winSendEvent(WINDOW_EVENT_QUIT);
+                    }
+                }
+            } break;
+        }
+    }
+
+    /* success */
+    return (1);
+}
+
+
+
+
+
 
 #  endif /* WINDOW_BACKEND_X11 */
 #
@@ -5695,6 +6516,8 @@ WININT int __winLoadWin32(struct __window_h_win32 *win32) {
 
 /* libEGL: egl.h */
 
+/* {{{ */
+
 typedef Display *EGLNativeDisplayType;
 typedef Pixmap   EGLNativePixmapType;
 typedef Window   EGLNativeWindowType;
@@ -5719,6 +6542,9 @@ typedef intptr_t EGLAttrib;
 typedef void (*__eglMustCastToProperFunctionPointerType)(void);
 
 typedef uint64_t EGLTime;
+
+/* }}} */
+/* {{{ */
 
 #   define EGL_ALPHA_SIZE 0x3021
 #   define EGL_BAD_ACCESS 0x3002
@@ -5885,6 +6711,9 @@ typedef uint64_t EGLTime;
 #   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 0x30B8
 #   define EGL_IMAGE_PRESERVED 0x30D2
 #   define EGL_NO_IMAGE ((EGLImage) 0)
+
+/* }}} */
+/* {{{ */
 
 typedef EGLBoolean (* PFN_eglBindAPI_PROC) (EGLenum);
 PFN_eglBindAPI_PROC eglBindAPI_PROC = 0;
@@ -6062,12 +6891,15 @@ typedef EGLBoolean (* PFN_eglWaitSync_PROC) (EGLDisplay, EGLSync, EGLint);
 PFN_eglWaitSync_PROC eglWaitSync_PROC = 0;
 #   define eglWaitSync (assert(eglWaitSync_PROC != 0), eglWaitSync_PROC)
 
+/* }}} */
 
 static const struct __window_h_egl_attrmap {
     uint32_t src;
     uint32_t dst;
 } __window_h_egl_attrmap[] = {
     
+/* {{{ */
+
     { EGL_RENDER_BUFFER, WINDOW_GL_DOUBLEBUFFER },
     
     { EGL_RED_SIZE, WINDOW_GL_RED_SIZE },
@@ -6093,6 +6925,8 @@ static const struct __window_h_egl_attrmap {
     /* ... */
 
     { EGL_NONE, WINDOW_GL_NONE }
+
+/* }}} */
 
 };
 
@@ -6222,6 +7056,7 @@ WININT int __winLoadEGLModules(void) {
     }
 
     /* libEGL: egl.h */
+    /* {{{ */
     eglBindAPI_PROC = (PFN_eglBindAPI_PROC) dlsym(handle, "eglBindAPI");
     eglBindTexImage_PROC = (PFN_eglBindTexImage_PROC) dlsym(handle, "eglBindTexImage");
     eglChooseConfig_PROC = (PFN_eglChooseConfig_PROC) dlsym(handle, "eglChooseConfig");
@@ -6266,6 +7101,7 @@ WININT int __winLoadEGLModules(void) {
     eglWaitGL_PROC = (PFN_eglWaitGL_PROC) dlsym(handle, "eglWaitGL");
     eglWaitNative_PROC = (PFN_eglWaitNative_PROC) dlsym(handle, "eglWaitNative");
     eglWaitSync_PROC = (PFN_eglWaitSync_PROC) dlsym(handle, "eglWaitSync");
+    /* }}} */
 
     /* set '__window_h.egl->handle' member */ 
     __window_h.egl->handle = handle;
