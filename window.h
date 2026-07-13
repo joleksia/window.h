@@ -1635,6 +1635,7 @@ PFN_eglWaitSync_PROC eglWaitSync_PROC = 0;
 typedef struct __window_h_context_egl *context_t_egl;
 
 struct __window_h_context_egl {
+    EGLDisplay display;
     EGLConfig  config;
     EGLSurface surface;
     EGLContext context;
@@ -5841,8 +5842,6 @@ WININT int __winCreateContextX11(context_t *, window_t);
 
 WININT int __winDestroyContextX11(context_t);
 
-/*
-
 WININT int __winGLSetAttributeX11(const int, const int);
 
 WININT int __winGLMakeCurrentX11(context_t);
@@ -5852,6 +5851,8 @@ WININT int __winGLSwapBuffersX11(context_t);
 WININT int __winGLSwapIntervalX11(context_t, const int);
 
 WININT void *__winGLGetProcAddressX11(const char *);
+
+/*
 
 WININT int __winCreateCursorX11(cursor_t *, window_t);
 
@@ -5912,12 +5913,12 @@ WININT int __winConnectX11(struct __window_h_platform *platform) {
     x11.setWindowTitle = __winSetWindowTitleX11;
     x11.createContext = __winCreateContextX11;
     x11.destroyContext = __winDestroyContextX11;
-    /*
     x11.GLSetAttribute = __winGLSetAttributeX11;
     x11.GLMakeCurrent = __winGLMakeCurrentX11;
     x11.GLSwapBuffers = __winGLSwapBuffersX11;
     x11.GLSwapInterval = __winGLSwapIntervalX11;
     x11.GLGetProcAddress = __winGLGetProcAddressX11;
+    /*
     x11.createCursor = __winCreateCursorX11;
     x11.destroyCursor = __winDestroyCursorX11;
     x11.getCursorPosition = __winGetCursorPositionX11;
@@ -7293,6 +7294,121 @@ WININT int __winDestroyContextX11(context_t context) {
 
     /* success */
     return (1);
+}
+
+
+WININT int __winGLSetAttributeX11(const int attr, const int value) {
+    struct __window_h_egl *egl = __window_h.egl;
+    if (!egl) { return (0); }
+
+    /* get EGL attribute */
+    EGLint egl_attr = 0;
+    for (size_t i = 0; __window_h_egl_attrmap[i].dst; i++) {
+        if (__window_h_egl_attrmap[i].dst == (const uint32_t) attr) {
+            egl_attr = __window_h_egl_attrmap[i].src;
+            break;
+        }
+    }
+
+    /* unhandled attribute */
+    if (!egl_attr) { return (0); }
+
+    /* iterate over available attributes and set their values */
+    EGLint *list = __window_h.egl->attr.surface;
+    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
+        if (list[i] == egl_attr) {
+            list[i + 1] = value;
+            return (1);
+        }
+    }
+    
+    list = __window_h.egl->attr.context;
+    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
+        if (list[i] == egl_attr) {
+            list[i + 1] = value;
+            return (1);
+        }
+    }
+    
+    list = __window_h.egl->attr.config;
+    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
+        if (list[i] == egl_attr) {
+            list[i + 1] = value;
+            return (1);
+        }
+    }
+
+    /* failure */
+    return (0);
+}
+
+
+WININT int __winGLMakeCurrentX11(context_t context) {
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    if (!ctx) { return (0); }
+    
+    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
+    if (!egl) { return (0); }
+
+    /* set context current */
+    if (!eglMakeCurrent(egl->display,
+                        egl->surface,
+                        egl->surface,
+                        egl->context)
+    ) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGLSwapBuffersX11(context_t context) {
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    if (!ctx) { return (0); }
+    
+    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
+    if (!egl) { return (0); }
+
+    /* set context current */
+    if (!eglSwapBuffers(egl->display, egl->surface)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGLSwapIntervalX11(context_t context, const int interval) {
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    if (!ctx) { return (0); }
+    
+    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
+    if (!egl) { return (0); }
+
+    /* set context current */
+    if (!eglSwapInterval(egl->display, interval)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT void *__winGLGetProcAddressX11(const char *proc) {
+    /* null-check */
+    if (!__window_h.x11) { return (0); }
+    if (!__window_h.egl) { return (0); }
+    if (!proc)           { return (0); }
+    
+    /* success */
+    return (eglGetProcAddress(proc));
 }
 
 
