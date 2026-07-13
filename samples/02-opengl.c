@@ -16,7 +16,7 @@ int main(void) {
     winGLSetAttribute(WINDOW_GL_CONTEXT_PROFILE_MASK, 2);
 
     window_t win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", WINDOW_FLAG_API_OPENGL);
+    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL", WINDOW_API_OPENGL);
 
     context_t ctx;
     winCreateContext(&ctx, win);

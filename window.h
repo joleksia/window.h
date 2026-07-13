@@ -648,6 +648,15 @@ enum {
 
 
 enum {
+    WINDOW_API_NONE = 0x00001000,
+    WINDOW_API_OPENGL = 0x00002000,
+    WINDOW_API_VULCAN = 0x00004000,
+    WINDOW_API_DIRECTX = 0x00008000,
+    WINDOW_API_METAL = 0x00010000,
+};
+
+
+enum {
     WINDOW_FLAG_NONE = 0x00000000,
 
     WINDOW_FLAG_FULLSCREEN = 0x00000001,
@@ -656,12 +665,6 @@ enum {
     WINDOW_FLAG_RESIZABLE = 0x00000008,
     WINDOW_FLAG_TOPMOST = 0x00000010,
     WINDOW_FLAG_UNDECORATED = 0x00000040,
-
-    WINDOW_FLAG_API_NONE = 0x00001000,
-    WINDOW_FLAG_API_OPENGL = 0x00002000,
-    WINDOW_FLAG_API_VULCAN = 0x00004000,
-    WINDOW_FLAG_API_DIRECTX = 0x00008000,
-    WINDOW_FLAG_API_METAL = 0x00010000,
     
     /* ... */
 };
@@ -842,8 +845,6 @@ WINDEF int winCreateNestedWindow(window_t *, window_t, const size_t, const size_
 
 WINDEF int winDestroyWindow(window_t);
 
-WINDEF int winGetWindowFlags(window_t, uint32_t *);
-
 WINDEF int winSetWindowFlags(window_t, const uint32_t);
 
 WINDEF int winToggleWindowFlags(window_t, const uint32_t);
@@ -959,7 +960,28 @@ WINDEF int winWaitTime(uint64_t);
 #   include <unistd.h>
 #   include <sys/time.h>
 #
-#  /* include win32 headers*/
+#  /* include X11 headers */
+#  if defined (WINDOW_BACKEND_X11)
+#   include <X11/Xlib.h>
+#   include <X11/Xutil.h>
+#   include <X11/Xatom.h>
+#   include <X11/XKBlib.h>
+#   include <X11/keysym.h>
+#   include <X11/keysymdef.h>
+#   include <X11/extensions/XInput.h>
+#   include <X11/extensions/XInput2.h>
+#  endif
+#
+#  /* include wayland headers */
+#  if defined (WINDOW_BACKEND_WAYLAND)
+#   include <wayland-util.h>
+#   include <wayland-version.h>
+#   include <wayland-client.h>
+#   include <wayland-client-core.h>
+#   include <wayland-client-protocol.h>
+#  endif
+#
+#  /* include win32 headers */
 #  elif defined (WINDOW_PLATFORM_WIN32)
 #   include <windows.h>
 #  endif
@@ -1026,7 +1048,7 @@ struct __window_h_platform {
     int (*createWindow) (window_t *, const size_t, const size_t, const char *, uint32_t);
     int (*createNestedWindow) (window_t *, window_t, const size_t, const size_t, const char *, uint32_t);
     int (*destroyWindow) (window_t);
-    int (*updateWindowFlags) (window_t, const uint32_t);
+    int (*updateWindowFlags) (window_t);
     void *(*getWindowProperty) (window_t, const uint32_t);
     int (*mapWindow) (window_t);
     int (*unmapWindow) (window_t);
@@ -1097,10 +1119,6 @@ struct __window_h_window {
     /* reference to this window's cursor */
     struct {
         struct __window_h_cursor *handle;
-        size_t pos_restore_x,
-               pos_restore_y;
-        uint32_t mode;
-        uint8_t  raw;
     } cursor;
 
     /* structure data */
@@ -1108,12 +1126,13 @@ struct __window_h_window {
     size_t pos_x, pos_y;
 
     /* window states */
-    uint32_t flags;
-    uint8_t mapped;
-    uint8_t fullscreen;
-    uint8_t minimized;
-    uint8_t maximized;
-
+    uint8_t fullscr;
+    uint8_t minim;
+    uint8_t maxim;
+    uint8_t resize;
+    uint8_t topmost;
+    uint8_t undecor;
+    uint32_t api;
 
     struct __window_h_window_x11 *x11;
 
@@ -1137,6 +1156,9 @@ struct __window_h_context {
 
     /* reference to this context's owner 'window' */
     struct __window_h_window *window;
+
+    /* context's API code */
+    uint32_t api;
 
 
     /* WINDOW_API_NONE */
@@ -1230,475 +1252,440 @@ static struct __window_h {
 
 } __window_h;
 
-/* platform internal functions */
-
-WININT int __winSelectPlatform(struct __window_h_platform *);
-
-/* platform functions */
-
-WINDEF int winInit(void) {
-    /* initialize window.h */
-    __window_h = (struct __window_h) { 0 };
-
-    /* select window.h platform */
-    if (!__winSelectPlatform(&__window_h.platform)) { return (0); }
-
-    /* call platform - specific init function */
-    if (!__window_h.platform.init()) { return (0); }
-    return (1);
-}
-
-
-WINDEF int winQuit(void) {
-    /* close all the open windows */
-    struct __window_h_window *window = __window_h.window.list;
-    while (window) {
-        void *next = window->next;
-        winDestroyWindow(window);
-        window = next;
-    }
-
-    /* call platform - specific quit function */
-    if (!__window_h.platform.quit()) { return (0); }
-
-    /* zero-down the global struct */
-    __window_h = (struct __window_h) { 0 };
-
-    /* success */
-    return (1);
-}
-
-WINDEF void *winGetProperty(const uint32_t prop) { return (__window_h.platform.getProperty(prop)); }
-
-/* windowing functions */
-
-WINDEF int winCreateWindow(window_t *window, const size_t width, const size_t height, const char *title, uint32_t flags) {
-    /* alloc new window object */
-    struct __window_h_window *result = calloc(1, sizeof(struct __window_h_window));
-    if (!result) { return (0); }
-
-    /* set the default 'flags' values if it equals '0' */
-    if (!flags) {
-        flags |= WINDOW_FLAG_API_NONE;  /* by default, we should target 'API_NONE' */
-    }
-    
-    /* call platform - specific create function */
-    if (!__window_h.platform.createWindow((window_t *) &result, width, height, title, flags)) { return (0); }
-    
-    /* update window flags */
-    winSetWindowFlags(result, flags);
-
-    /* update window dimension properites */
-    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
-    winGetWindowSize(result, &result->siz_w, &result->siz_h);
-
-    /* add the result to the '__window_h.window.list' linked list */
-    result->next = __window_h.window.list;
-    __window_h.window.list = result;
-
-    /* and return the result */
-    *window = result;
-
-    /* success */
-    return (1);
-}
-
-WINDEF int winCreateNestedWindow(window_t *window, window_t parent, const size_t width, const size_t height, const char *title, uint32_t flags) {
-    /* alloc new window object */
-    struct __window_h_window *result = calloc(1, sizeof(struct __window_h_window));
-    if (!result) { return (0); }
-
-    /* set the default 'flags' values if it equals '0' */
-    if (!flags) {
-        flags |= WINDOW_FLAG_API_NONE;  /* by default, we should target 'API_NONE' */
-    }
-    
-    /* call platform - specific create nested function */
-    if (!__window_h.platform.createNestedWindow((window_t *) &result, parent, width, height, title, flags)) { return (0); }
-
-    /* set window title */ 
-    winSetWindowTitle(result, title);
-
-    /* update window dimension properites */
-    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
-    winGetWindowSize(result, &result->siz_w, &result->siz_h);
-
-    /* add the result to the '__window_h.window.list' linked list */
-    result->next = __window_h.window.list;
-    __window_h.window.list = result;
-
-    /* and return the result */
-    *window = result;
-
-    /* success */
-    return (1);
-}
-
-WINDEF int winDestroyWindow(window_t window) {
-    /* call platform - specific destroy function */
-    if (!__window_h.platform.destroyWindow(window)) { return (0); }
-
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-
-    /* unlink 'win' from '__window_h.window.list' */
-    struct __window_h_window **curr = &__window_h.window.list;
-    /* case when 'win' is the first node of '__window_h.window.list' */
-    if (win == (*curr)) {
-        __window_h.window.list = (*curr)->next;
-    }
-    /* case when 'win' is not the first node of '__window_h.window.list' */
-    else {
-        /* search for prepending window for 'win' */
-        while ((*curr) && (*curr)->next != win) {
-            (*curr) = (*curr)->next;
-        }
-
-        if (!(*curr)) { return (0); }
-        (*curr) = win->next;
-    }
-
-    /* deallocate window object */
-    free(win);
-
-    /* success */
-    return (1);
-}
-
-WINDEF int winGetWindowFlags(window_t window, uint32_t *f_ptr) {
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-   
-    /* return values */
-    if (f_ptr) { *f_ptr = win->flags; }
-
-    /* success */
-    return (1);
-}
-
-WINDEF int winSetWindowFlags(window_t window, const uint32_t f) {
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-
-    /* set flags */
-    win->flags = f;
-    
-    /* platform - specific function */
-    return (__window_h.platform.updateWindowFlags(window, f));
-}
-
-WINDEF int winToggleWindowFlags(window_t window, const uint32_t f) {
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-
-    /* set flags */
-    win->flags |= f;
-    
-    /* platform - specific function */
-    return (__window_h.platform.updateWindowFlags(window, f));
-}
-
-WINDEF void *winGetWindowProperty(window_t window, const uint32_t prop) { return (__window_h.platform.getWindowProperty(window, prop)); }
-WINDEF int winMapWindow(window_t window) { return (__window_h.platform.mapWindow(window)); }
-WINDEF int winUnmapWindow(window_t window) { return (__window_h.platform.unmapWindow(window)); }
-WINDEF int winGetWindowSize(window_t window, size_t *w_ptr, size_t *h_ptr) { return (__window_h.platform.getWindowSize(window, w_ptr, h_ptr)); }
-WINDEF int winSetWindowSize(window_t window, const size_t w, const size_t h) { return (__window_h.platform.setWindowSize(window, w, h)); }
-WINDEF int winSetWindowMinSize(window_t window, const size_t w, const size_t h) { return (__window_h.platform.setWindowMinSize(window, w, h)); }
-WINDEF int winSetWindowMaxSize(window_t window, const size_t w, const size_t h) { return (__window_h.platform.setWindowMaxSize(window, w, h)); }
-WINDEF int winGetWindowPosition(window_t window, size_t *x_ptr, size_t *y_ptr) { return (__window_h.platform.getWindowPosition(window, x_ptr, y_ptr)); }
-WINDEF int winSetWindowPosition(window_t window, const size_t x, const size_t y) { return (__window_h.platform.setWindowPosition(window, x, y)); }
-WINDEF int winGetWindowTitle(window_t window, char **t_ptr) { return (__window_h.platform.getWindowTitle(window, t_ptr)); }
-WINDEF int winSetWindowTitle(window_t window, const char *t) { return (__window_h.platform.setWindowTitle(window, t)); }
-
-WINDEF int winGetWindowContext(window_t window, context_t *c_ptr) {
-    /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
-    if (!win) { return (0); }
-
-    /* get the context from the 'win' */
-    if (c_ptr) { *c_ptr = win->context; }
-
-    /* success */
-    return (1);
-}
-
-WINDEF int winSetWindowContext(window_t window, context_t context) {
-    /* references */
-    struct __window_h_window  *win = (struct __window_h_window *) window;
-    struct __window_h_context *ctx = (struct __window_h_context *) context;
-
-    /* update the internal references in 'win' and 'ctx' */
-    win->context = context;
-    ctx->window  = window;
-
-    /* success */
-    return (1);
-}
-
-/* context functions */
-
-WINDEF int winCreateContext(context_t *context, window_t window) { return (__window_h.platform.createContext(context, window)); }
-WINDEF int winDestroyContext(context_t context) { return (__window_h.platform.destroyContext(context)); }
-WINDEF int winGetContextOwner(context_t context, window_t *w_ptr) { return (__window_h.platform.getContextOwner(context, w_ptr)); }
-WINDEF int winSetContextOwner(context_t context, window_t window) { return (__window_h.platform.setContextOwner(context, window)); }
-
-/* opengl context functions */
-
-WINDEF int winGLSetAttribute(const int attr, const int value) { return (__window_h.platform.GLSetAttribute(attr, value)); }
-WINDEF int winGLMakeCurrent(context_t context) { return (__window_h.platform.GLMakeCurrent(context)); }
-WINDEF int winGLSwapBuffers(context_t context) { return (__window_h.platform.GLSwapBuffers(context)); }
-WINDEF int winGLSwapInterval(context_t context, const int interval) { return (__window_h.platform.GLSwapInterval(context, interval)); }
-WINDEF void *winGLGetProcAddress(const char *proc) { return (__window_h.platform.GLGetProcAddress(proc)); }
-
-/* cursor functions */
-
-WINDEF int winCreateCursor(cursor_t *cursor, window_t window) { return (__window_h.platform.createCursor(cursor, window)); }
-WINDEF int winDestroyCursor(cursor_t cursor) { return (__window_h.platform.destroyCursor(cursor)); }
-WINDEF int winGetCursorPosition(window_t window, size_t *x_ptr, size_t *y_ptr) { return (__window_h.platform.getCursorPosition(window, x_ptr, y_ptr)); }
-WINDEF int winSetCursorPosition(window_t window, const size_t x, const size_t y) { return (__window_h.platform.setCursorPosition(window, x, y)); }
-WINDEF int winSetCursorPositionCenter(window_t window) { return (__window_h.platform.setCursorPositionCenter(window)); }
-WINDEF int winGetCursorMode(window_t window, uint32_t *m_ptr) { return (__window_h.platform.getCursorMode(window, m_ptr)); }
-WINDEF int winSetCursorMode(window_t window, const uint32_t mode) { return (__window_h.platform.setCursorMode(window, mode)); }
-WINDEF int winGetCursorRawMotion(window_t window, uint8_t *r_ptr) { return (__window_h.platform.getCursorRawMotion(window, r_ptr)); }
-WINDEF int winSetCursorRawMotion(window_t window, const uint8_t raw) { return (__window_h.platform.setCursorRawMotion(window, raw)); }
-
-/* event functions */
-
-WINDEF int winPollEvents(event_t *event) {
-    /* null-check */
-    if (!event) { return (0); }
-
-    /* flush the event queue */
-    if (winPopEvent(event)) { return (1); }
-
-    /* call platform-specific poll events function */
-    __window_h.platform.pollEvents();
-
-    /* this means we don't have any event... */
-    *event = (event_t) { 0 };
-    return (0);
-}
-
-WINDEF int winWaitEvents(event_t *event) {
-    /* null-check */
-    if (!event) { return (0); }
-
-    /* success */
-    return (1);
-}
-
-WINDEF int winPushEvent(event_t *event) {
-    /* null-check */
-    if (!event) { return (0); }
-
-    /* references */
-    struct __window_h_event *eq = __window_h.event.queue;
-    /* no events in queue */
-    if (!eq) {
-        eq = calloc(1, sizeof(struct __window_h_event));
-        if (!eq) { return (0); }
-
-        eq->next  = 0;
-        eq->event = *event;
-
-        /* assign back new queue */
-        __window_h.event.queue = eq;
-    } else {
-        /* go to the end of the queue */
-        while (eq->next) { eq = eq->next; }
-
-        /* alloc new event queue member */
-        struct __window_h_event *node = calloc(1, sizeof(struct __window_h_event));
-        if (!node) { return (0); }
-
-        node->next  = 0;
-        node->event = *event;
-
-        /* push the 'node' to the end of 'eq' */
-        eq->next = node;
-    }
-
-    /* success */
-    return (1);
-}
-
-WINDEF int winPopEvent(event_t *event) {
-    /* null-check */
-    if (!event) { return (0); }
-
-    /* references */
-    struct __window_h_event *eq = __window_h.event.queue;
-    /* empty event queue */
-    if (!eq) {
-        *event = (event_t) { 0 };
-        return (0);
-    }
-
-    /* get the event from the top */
-    *event = eq->event;
-
-    /* re-assign the global event queue */
-    __window_h.event.queue = eq->next;
-
-    /* release top event */
-    free(eq);
-
-    /* success */
-    return (1);
-}
-
-WINDEF int winSendEvent(uint32_t type, ...) {
-    /* default 'event' object */
-    event_t event = { 0 };
-    event.type = type;
-    event.time = winGetTime();
-
-    /* get the variadic argument list */
-    va_list list;
-    va_start(list, 0);
-    switch (type) {
-
-        case (WINDOW_EVENT_QUIT): { } break;
-
-        /* Mouse events */
-
-        case (WINDOW_EVENT_MOUSE_MOTION): {
-            event.mouse.window = va_arg(list, window_t);
-            event.mouse.which  = va_arg(list, uint64_t);
-            event.mouse.x    = va_arg(list, int32_t);
-            event.mouse.xrel = va_arg(list, int32_t);
-            event.mouse.y    = va_arg(list, int32_t);
-            event.mouse.yrel = va_arg(list, int32_t);
-        } break;
-
-        case (WINDOW_EVENT_MOUSE_BUTTON): {
-            event.mouse.window = va_arg(list, window_t);
-            event.mouse.which  = va_arg(list, uint64_t);
-            event.mouse.btn   = va_arg(list, int);
-            event.mouse.state = va_arg(list, int);
-        } break;
-
-        case (WINDOW_EVENT_MOUSE_SCROLL): {
-            event.mouse.window = va_arg(list, window_t);
-            event.mouse.which  = va_arg(list, uint64_t);
-            event.mouse.scroll_x = va_arg(list, int32_t);
-            event.mouse.scroll_y = va_arg(list, int32_t);
-        } break;
-
-        case (WINDOW_EVENT_MOUSE_ADDED): { } break;
-
-        case (WINDOW_EVENT_MOUSE_REMOVED): { } break;
-
-        /* Keyboard events */
-
-        case (WINDOW_EVENT_KEYBOARD_KEY): {
-            event.keyboard.window = va_arg(list, window_t);
-            event.keyboard.which  = va_arg(list, uint64_t);
-            event.keyboard.keysym  = va_arg(list, uint64_t);
-            event.keyboard.keycode = va_arg(list, uint32_t);
-            event.keyboard.keymod  = va_arg(list, uint32_t);
-            event.keyboard.keyraw  = va_arg(list, uint32_t);
-            event.keyboard.state  = va_arg(list, uint32_t);
-            event.keyboard.repeat = va_arg(list, uint32_t);
-        } break;
-
-        case (WINDOW_EVENT_KEYBOARD_ADDED): { } break;
-
-        case (WINDOW_EVENT_KEYBOARD_REMOVED): { } break;
-
-        /* Window events */
-
-        case (WINDOW_EVENT_WINDOW_CREATE):
-        case (WINDOW_EVENT_WINDOW_DESTROY):
-        case (WINDOW_EVENT_WINDOW_MAP):
-        case (WINDOW_EVENT_WINDOW_UNMAP):
-        case (WINDOW_EVENT_WINDOW_RESIZE):
-        case (WINDOW_EVENT_WINDOW_MOTION):
-        case (WINDOW_EVENT_WINDOW_ENTER):
-        case (WINDOW_EVENT_WINDOW_LEAVE):
-        case (WINDOW_EVENT_WINDOW_MAXIMIZE):
-        case (WINDOW_EVENT_WINDOW_MINIMIZE):
-        case (WINDOW_EVENT_WINDOW_FULLSCREEN): {
-            event.window.window = va_arg(list, window_t);
-            event.window.data1  = va_arg(list, uint32_t);
-            event.window.data2  = va_arg(list, uint32_t);
-        } break;
-
-        case (WINDOW_EVENT_CLIPBOARD_COPY):
-        case (WINDOW_EVENT_CLIPBOARD_PASTE): {
-            event.clipboard.data   = va_arg(list, void *);
-            event.clipboard.size   = va_arg(list, size_t);
-        } break;
-
-        /* ... */
-
-        default: { } break;
-    }
-
-
-    /* finish variadic argument list */
-    va_end(list);
-    
-    /* return */
-    return (winPushEvent(&event));
-}
-
-WINDEF int winPeekEvent(event_t *event) {
-    /* null-check */
-    if (!event) { return (0); }
-    *event = (event_t) { 0 };
-
-    /* references */
-    struct __window_h_event *eq = __window_h.event.queue;
-    if (eq) { *event = eq->event; }
-
-    /* success */
-    return (1);
-}
-
-/* clipboard functions */
-
-WINDEF int winCopy(const uint32_t selection, const char *data) { return (__window_h.platform.copy(selection, data)); }
-WINDEF int winPaste(const uint32_t selection, char **data) { return (__window_h.platform.paste(selection, data)); }
-
-/* timing functions */
-
-WINDEF uint64_t winGetTime(void) {
-
-#  if defined (WINDOW_PLATFORM_LINUX) || \
-      defined (WINDOW_PLATFORM_APPLE) || \
-      defined (WINDOW_PLATFORM_BSD)
-    struct timeval t;
-    if (gettimeofday(&t, 0) == -1) {
-        return (0);
-    }
-
-    return (t.tv_sec * 1000 + t.tv_usec / 1000);
-#  elif defined (WINDOW_PLATFORM_WIN32)
-
-
-#  endif
-
-}
-
-WINDEF int winWaitTime(uint64_t ms) {
-    uint64_t t = winGetTime();
-    if (t == 0) { return (0); }
-
-    while ((winGetTime() - t) < ms);
-    return (1);
-}
-
+#  /* WINDOW_BACKEND_EGL - EGL implementation layer */
+#  if defined (WINDOW_BACKEND_EGL)
+
+/* {{{ */
+
+typedef Display *EGLNativeDisplayType;
+typedef Pixmap   EGLNativePixmapType;
+typedef Window   EGLNativeWindowType;
+
+typedef EGLNativeDisplayType NativeDisplayType;
+typedef EGLNativePixmapType  NativePixmapType;
+typedef EGLNativeWindowType  NativeWindowType;
+
+typedef void *EGLDisplay;
+typedef void *EGLConfig;
+typedef void *EGLSurface;
+typedef void *EGLContext;
+typedef void *EGLClientBuffer;
+typedef void *EGLSync;
+typedef void *EGLImage;
+
+typedef int32_t EGLint;
+typedef unsigned int EGLBoolean;
+typedef unsigned int EGLenum;
+typedef intptr_t EGLAttrib;
+
+typedef void (*__eglMustCastToProperFunctionPointerType)(void);
+
+typedef uint64_t EGLTime;
+
+/* }}} */
+/* {{{ */
+
+#   define EGL_ALPHA_SIZE 0x3021
+#   define EGL_BAD_ACCESS 0x3002
+#   define EGL_BAD_ALLOC 0x3003
+#   define EGL_BAD_ATTRIBUTE 0x3004
+#   define EGL_BAD_CONFIG 0x3005
+#   define EGL_BAD_CONTEXT 0x3006
+#   define EGL_BAD_CURRENT_SURFACE 0x3007
+#   define EGL_BAD_DISPLAY 0x3008
+#   define EGL_BAD_MATCH 0x3009
+#   define EGL_BAD_NATIVE_PIXMAP 0x300A
+#   define EGL_BAD_NATIVE_WINDOW 0x300B
+#   define EGL_BAD_PARAMETER 0x300C
+#   define EGL_BAD_SURFACE 0x300D
+#   define EGL_BLUE_SIZE 0x3022
+#   define EGL_BUFFER_SIZE 0x3020
+#   define EGL_CONFIG_CAVEAT 0x3027
+#   define EGL_CONFIG_ID 0x3028
+#   define EGL_CORE_NATIVE_ENGINE 0x305B
+#   define EGL_DEPTH_SIZE 0x3025
+#   define EGL_DONT_CARE ((EGLint) -1)
+#   define EGL_DRAW 0x3059
+#   define EGL_EXTENSIONS 0x3055
+#   define EGL_FALSE 0
+#   define EGL_GREEN_SIZE 0x3023
+#   define EGL_HEIGHT 0x3056
+#   define EGL_LARGEST_PBUFFER 0x3058
+#   define EGL_LEVEL 0x3029
+#   define EGL_MAX_PBUFFER_HEIGHT 0x302A
+#   define EGL_MAX_PBUFFER_PIXELS 0x302B
+#   define EGL_MAX_PBUFFER_WIDTH 0x302C
+#   define EGL_NATIVE_RENDERABLE 0x302D
+#   define EGL_NATIVE_VISUAL_ID 0x302E
+#   define EGL_NATIVE_VISUAL_TYPE 0x302F
+#   define EGL_NONE 0x3038
+#   define EGL_NON_CONFORMANT_CONFIG 0x3051
+#   define EGL_NOT_INITIALIZED 0x3001
+#   define EGL_NO_CONTEXT ((EGLContext) 0)
+#   define EGL_NO_DISPLAY ((EGLDisplay) 0)
+#   define EGL_NO_SURFACE ((EGLSurface) 0)
+#   define EGL_PBUFFER_BIT 0x0001
+#   define EGL_PIXMAP_BIT 0x0002
+#   define EGL_READ 0x305A
+#   define EGL_RED_SIZE 0x3024
+#   define EGL_SAMPLES 0x3031
+#   define EGL_SAMPLE_BUFFERS 0x3032
+#   define EGL_SLOW_CONFIG 0x3050
+#   define EGL_STENCIL_SIZE 0x3026
+#   define EGL_SUCCESS 0x3000
+#   define EGL_SURFACE_TYPE 0x3033
+#   define EGL_TRANSPARENT_BLUE_VALUE 0x3035
+#   define EGL_TRANSPARENT_GREEN_VALUE 0x3036
+#   define EGL_TRANSPARENT_RED_VALUE 0x3037
+#   define EGL_TRANSPARENT_RGB 0x3052
+#   define EGL_TRANSPARENT_TYPE 0x3034
+#   define EGL_TRUE 1
+#   define EGL_VENDOR 0x3053
+#   define EGL_VERSION 0x3054
+#   define EGL_WIDTH 0x3057
+#   define EGL_WINDOW_BIT 0x0004
+#   define EGL_BACK_BUFFER 0x3084
+#   define EGL_BIND_TO_TEXTURE_RGB 0x3039
+#   define EGL_BIND_TO_TEXTURE_RGBA 0x303A
+#   define EGL_CONTEXT_LOST 0x300E
+#   define EGL_MIN_SWAP_INTERVAL 0x303B
+#   define EGL_MAX_SWAP_INTERVAL 0x303C
+#   define EGL_MIPMAP_TEXTURE 0x3082
+#   define EGL_MIPMAP_LEVEL 0x3083
+#   define EGL_NO_TEXTURE 0x305C
+#   define EGL_TEXTURE_2D 0x305F
+#   define EGL_TEXTURE_FORMAT 0x3080
+#   define EGL_TEXTURE_RGB 0x305D
+#   define EGL_TEXTURE_RGBA 0x305E
+#   define EGL_TEXTURE_TARGET 0x3081
+#   define EGL_ALPHA_FORMAT 0x3088
+#   define EGL_ALPHA_FORMAT_NONPRE 0x308B
+#   define EGL_ALPHA_FORMAT_PRE 0x308C
+#   define EGL_ALPHA_MASK_SIZE 0x303E
+#   define EGL_BUFFER_PRESERVED 0x3094
+#   define EGL_BUFFER_DESTROYED 0x3095
+#   define EGL_CLIENT_APIS 0x308D
+#   define EGL_COLORSPACE 0x3087
+#   define EGL_COLORSPACE_sRGB 0x3089
+#   define EGL_COLORSPACE_LINEAR 0x308A
+#   define EGL_COLOR_BUFFER_TYPE 0x303F
+#   define EGL_CONTEXT_CLIENT_TYPE 0x3097
+#   define EGL_DISPLAY_SCALING 10000
+#   define EGL_HORIZONTAL_RESOLUTION 0x3090
+#   define EGL_LUMINANCE_BUFFER 0x308F
+#   define EGL_LUMINANCE_SIZE 0x303D
+#   define EGL_OPENGL_ES_BIT 0x0001
+#   define EGL_OPENVG_BIT 0x0002
+#   define EGL_OPENGL_ES_API 0x30A0
+#   define EGL_OPENVG_API 0x30A1
+#   define EGL_OPENVG_IMAGE 0x3096
+#   define EGL_PIXEL_ASPECT_RATIO 0x3092
+#   define EGL_RENDERABLE_TYPE 0x3040
+#   define EGL_RENDER_BUFFER 0x3086
+#   define EGL_RGB_BUFFER 0x308E
+#   define EGL_SINGLE_BUFFER 0x3085
+#   define EGL_SWAP_BEHAVIOR 0x3093
+#   define EGL_UNKNOWN ((EGLint) -1)
+#   define EGL_VERTICAL_RESOLUTION 0x3091
+#   define EGL_CONFORMANT 0x3042
+#   define EGL_CONTEXT_CLIENT_VERSION 0x3098
+#   define EGL_MATCH_NATIVE_PIXMAP 0x3041
+#   define EGL_OPENGL_ES2_BIT 0x0004
+#   define EGL_VG_ALPHA_FORMAT 0x3088
+#   define EGL_VG_ALPHA_FORMAT_NONPRE 0x308B
+#   define EGL_VG_ALPHA_FORMAT_PRE 0x308C
+#   define EGL_VG_ALPHA_FORMAT_PRE_BIT 0x0040
+#   define EGL_VG_COLORSPACE 0x3087
+#   define EGL_VG_COLORSPACE_sRGB 0x3089
+#   define EGL_VG_COLORSPACE_LINEAR 0x308A
+#   define EGL_VG_COLORSPACE_LINEAR_BIT 0x0020
+#   define EGL_DEFAULT_DISPLAY ((EGLNativeDisplayType) 0)
+#   define EGL_MULTISAMPLE_RESOLVE_BOX_BIT 0x0200
+#   define EGL_MULTISAMPLE_RESOLVE 0x3099
+#   define EGL_MULTISAMPLE_RESOLVE_DEFAULT 0x309A
+#   define EGL_MULTISAMPLE_RESOLVE_BOX 0x309B
+#   define EGL_OPENGL_API 0x30A2
+#   define EGL_OPENGL_BIT 0x0008
+#   define EGL_SWAP_BEHAVIOR_PRESERVED_BIT 0x0400
+#   define EGL_CONTEXT_MAJOR_VERSION 0x3098
+#   define EGL_CONTEXT_MINOR_VERSION 0x30FB
+#   define EGL_CONTEXT_OPENGL_PROFILE_MASK 0x30FD
+#   define EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY 0x31BD
+#   define EGL_NO_RESET_NOTIFICATION 0x31BE
+#   define EGL_LOSE_CONTEXT_ON_RESET 0x31BF
+#   define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT 0x00000001
+#   define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT 0x00000002
+#   define EGL_CONTEXT_OPENGL_DEBUG 0x31B0
+#   define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE 0x31B1
+#   define EGL_CONTEXT_OPENGL_ROBUST_ACCESS 0x31B2
+#   define EGL_OPENGL_ES3_BIT 0x00000040
+#   define EGL_CL_EVENT_HANDLE 0x309C
+#   define EGL_SYNC_CL_EVENT 0x30FE
+#   define EGL_SYNC_CL_EVENT_COMPLETE 0x30FF
+#   define EGL_SYNC_PRIOR_COMMANDS_COMPLETE 0x30F0
+#   define EGL_SYNC_TYPE 0x30F7
+#   define EGL_SYNC_STATUS 0x30F1
+#   define EGL_SYNC_CONDITION 0x30F8
+#   define EGL_SIGNALED 0x30F2
+#   define EGL_UNSIGNALED 0x30F3
+#   define EGL_SYNC_FLUSH_COMMANDS_BIT 0x0001
+#   define EGL_FOREVER 0xFFFFFFFFFFFFFFFFull
+#   define EGL_TIMEOUT_EXPIRED 0x30F5
+#   define EGL_CONDITION_SATISFIED 0x30F6
+#   define EGL_NO_SYNC ((EGLSync) 0)
+#   define EGL_SYNC_FENCE 0x30F9
+#   define EGL_GL_COLORSPACE 0x309D
+#   define EGL_GL_COLORSPACE_SRGB 0x3089
+#   define EGL_GL_COLORSPACE_LINEAR 0x308A
+#   define EGL_GL_RENDERBUFFER 0x30B9
+#   define EGL_GL_TEXTURE_2D 0x30B1
+#   define EGL_GL_TEXTURE_LEVEL 0x30BC
+#   define EGL_GL_TEXTURE_3D 0x30B2
+#   define EGL_GL_TEXTURE_ZOFFSET 0x30BD
+#   define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_X 0x30B3
+#   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_X 0x30B4
+#   define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Y 0x30B5
+#   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y 0x30B6
+#   define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Z 0x30B7
+#   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 0x30B8
+#   define EGL_IMAGE_PRESERVED 0x30D2
+#   define EGL_NO_IMAGE ((EGLImage) 0)
+
+/* }}} */
+/* {{{ */
+
+typedef EGLBoolean (* PFN_eglBindAPI_PROC) (EGLenum);
+PFN_eglBindAPI_PROC eglBindAPI_PROC = 0;
+#   define eglBindAPI (assert(eglBindAPI_PROC != 0), eglBindAPI_PROC)
+
+typedef EGLBoolean (* PFN_eglBindTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
+PFN_eglBindTexImage_PROC eglBindTexImage_PROC = 0;
+#   define eglBindTexImage (assert(eglBindTexImage_PROC != 0), eglBindTexImage_PROC)
+
+typedef EGLBoolean (* PFN_eglChooseConfig_PROC) (EGLDisplay, const EGLint *, EGLConfig *, EGLint, EGLint *);
+PFN_eglChooseConfig_PROC eglChooseConfig_PROC = 0;
+#   define eglChooseConfig (assert(eglChooseConfig_PROC != 0), eglChooseConfig_PROC)
+
+typedef EGLint (* PFN_eglClientWaitSync_PROC) (EGLDisplay, EGLSync, EGLint, EGLTime);
+PFN_eglClientWaitSync_PROC eglClientWaitSync_PROC = 0;
+#   define eglClientWaitSync (assert(eglClientWaitSync_PROC != 0), eglClientWaitSync_PROC)
+
+typedef EGLBoolean (* PFN_eglCopyBuffers_PROC) (EGLDisplay, EGLSurface, EGLNativePixmapType);
+PFN_eglCopyBuffers_PROC eglCopyBuffers_PROC = 0;
+#   define eglCopyBuffers (assert(eglCopyBuffers_PROC != 0), eglCopyBuffers_PROC)
+
+typedef EGLContext (* PFN_eglCreateContext_PROC) (EGLDisplay, EGLConfig, EGLContext, const EGLint *);
+PFN_eglCreateContext_PROC eglCreateContext_PROC = 0;
+#   define eglCreateContext (assert(eglCreateContext_PROC != 0), eglCreateContext_PROC)
+
+typedef EGLImage (* PFN_eglCreateImage_PROC) (EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLAttrib *);
+PFN_eglCreateImage_PROC eglCreateImage_PROC = 0;
+#   define eglCreateImage (assert(eglCreateImage_PROC != 0), eglCreateImage_PROC)
+
+typedef EGLSurface (* PFN_eglCreatePbufferFromClientBuffer_PROC) (EGLDisplay, EGLenum, EGLClientBuffer, EGLConfig, const EGLint *);
+PFN_eglCreatePbufferFromClientBuffer_PROC eglCreatePbufferFromClientBuffer_PROC = 0;
+#   define eglCreatePbufferFromClientBuffer (assert(eglCreatePbufferFromClientBuffer_PROC != 0), eglCreatePbufferFromClientBuffer_PROC)
+
+typedef EGLSurface (* PFN_eglCreatePbufferSurface_PROC) (EGLDisplay, EGLConfig, const EGLint *);
+PFN_eglCreatePbufferSurface_PROC eglCreatePbufferSurface_PROC = 0;
+#   define eglCreatePbufferSurface (assert(eglCreatePbufferSurface_PROC != 0), eglCreatePbufferSurface_PROC)
+
+typedef EGLSurface (* PFN_eglCreatePixmapSurface_PROC) (EGLDisplay, EGLConfig, EGLNativePixmapType, const EGLint *);
+PFN_eglCreatePixmapSurface_PROC eglCreatePixmapSurface_PROC = 0;
+#   define eglCreatePixmapSurface (assert(eglCreatePixmapSurface_PROC != 0), eglCreatePixmapSurface_PROC)
+
+typedef EGLSurface (* PFN_eglCreatePlatformPixmapSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
+PFN_eglCreatePlatformPixmapSurface_PROC eglCreatePlatformPixmapSurface_PROC = 0;
+#   define eglCreatePlatformPixmapSurface (assert(eglCreatePlatformPixmapSurface_PROC != 0), eglCreatePlatformPixmapSurface_PROC)
+
+typedef EGLSurface (* PFN_eglCreatePlatformWindowSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
+PFN_eglCreatePlatformWindowSurface_PROC eglCreatePlatformWindowSurface_PROC = 0;
+#   define eglCreatePlatformWindowSurface (assert(eglCreatePlatformWindowSurface_PROC != 0), eglCreatePlatformWindowSurface_PROC)
+
+typedef EGLSync (* PFN_eglCreateSync_PROC) (EGLDisplay, EGLenum, const EGLAttrib *);
+PFN_eglCreateSync_PROC eglCreateSync_PROC = 0;
+#   define eglCreateSync (assert(eglCreateSync_PROC != 0), eglCreateSync_PROC)
+
+typedef EGLSurface (* PFN_eglCreateWindowSurface_PROC) (EGLDisplay, EGLConfig, EGLNativeWindowType, const EGLint *);
+PFN_eglCreateWindowSurface_PROC eglCreateWindowSurface_PROC = 0;
+#   define eglCreateWindowSurface (assert(eglCreateWindowSurface_PROC != 0), eglCreateWindowSurface_PROC)
+
+typedef EGLBoolean (* PFN_eglDestroyContext_PROC) (EGLDisplay, EGLContext);
+PFN_eglDestroyContext_PROC eglDestroyContext_PROC = 0;
+#   define eglDestroyContext (assert(eglDestroyContext_PROC != 0), eglDestroyContext_PROC)
+
+typedef EGLBoolean (* PFN_eglDestroyImage_PROC) (EGLDisplay, EGLImage);
+PFN_eglDestroyImage_PROC eglDestroyImage_PROC = 0;
+#   define eglDestroyImage (assert(eglDestroyImage_PROC != 0), eglDestroyImage_PROC)
+
+typedef EGLBoolean (* PFN_eglDestroySurface_PROC) (EGLDisplay, EGLSurface);
+PFN_eglDestroySurface_PROC eglDestroySurface_PROC = 0;
+#   define eglDestroySurface (assert(eglDestroySurface_PROC != 0), eglDestroySurface_PROC)
+
+typedef EGLBoolean (* PFN_eglDestroySync_PROC) (EGLDisplay, EGLSync);
+PFN_eglDestroySync_PROC eglDestroySync_PROC = 0;
+#   define eglDestroySync (assert(eglDestroySync_PROC != 0), eglDestroySync_PROC)
+
+typedef EGLBoolean (* PFN_eglGetConfigAttrib_PROC) (EGLDisplay, EGLConfig, EGLint, EGLint *);
+PFN_eglGetConfigAttrib_PROC eglGetConfigAttrib_PROC = 0;
+#   define eglGetConfigAttrib (assert(eglGetConfigAttrib_PROC != 0), eglGetConfigAttrib_PROC)
+
+typedef EGLBoolean (* PFN_eglGetConfigs_PROC) (EGLDisplay, EGLConfig *, EGLint, EGLint *);
+PFN_eglGetConfigs_PROC eglGetConfigs_PROC = 0;
+#   define eglGetConfigs (assert(eglGetConfigs_PROC != 0), eglGetConfigs_PROC)
+
+typedef EGLContext (* PFN_eglGetCurrentContext_PROC) (void);
+PFN_eglGetCurrentContext_PROC eglGetCurrentContext_PROC = 0;
+#   define eglGetCurrentContext (assert(eglGetCurrentContext_PROC != 0), eglGetCurrentContext_PROC)
+
+typedef EGLDisplay (* PFN_eglGetCurrentDisplay_PROC) (void);
+PFN_eglGetCurrentDisplay_PROC eglGetCurrentDisplay_PROC = 0;
+#   define eglGetCurrentDisplay (assert(eglGetCurrentDisplay_PROC != 0), eglGetCurrentDisplay_PROC)
+
+typedef EGLSurface (* PFN_eglGetCurrentSurface_PROC) (EGLint);
+PFN_eglGetCurrentSurface_PROC eglGetCurrentSurface_PROC = 0;
+#   define eglGetCurrentSurface (assert(eglGetCurrentSurface_PROC != 0), eglGetCurrentSurface_PROC)
+
+typedef EGLDisplay (* PFN_eglGetDisplay_PROC) (EGLNativeDisplayType);
+PFN_eglGetDisplay_PROC eglGetDisplay_PROC = 0;
+#   define eglGetDisplay (assert(eglGetDisplay_PROC != 0), eglGetDisplay_PROC)
+
+typedef EGLint (* PFN_eglGetError_PROC) (void);
+PFN_eglGetError_PROC eglGetError_PROC = 0;
+#   define eglGetError (assert(eglGetError_PROC != 0), eglGetError_PROC)
+
+typedef EGLDisplay (* PFN_eglGetPlatformDisplay_PROC) (EGLenum, void *, const EGLAttrib *);
+PFN_eglGetPlatformDisplay_PROC eglGetPlatformDisplay_PROC = 0;
+#   define eglGetPlatformDisplay (assert(eglGetPlatformDisplay_PROC != 0), eglGetPlatformDisplay_PROC)
+
+typedef __eglMustCastToProperFunctionPointerType (* PFN_eglGetProcAddress_PROC) (const char *);
+PFN_eglGetProcAddress_PROC eglGetProcAddress_PROC = 0;
+#   define eglGetProcAddress (assert(eglGetProcAddress_PROC != 0), eglGetProcAddress_PROC)
+
+typedef EGLBoolean (* PFN_eglGetSyncAttrib_PROC) (EGLDisplay, EGLSync, EGLint, EGLAttrib *);
+PFN_eglGetSyncAttrib_PROC eglGetSyncAttrib_PROC = 0;
+#   define eglGetSyncAttrib (assert(eglGetSyncAttrib_PROC != 0), eglGetSyncAttrib_PROC)
+
+typedef EGLBoolean (* PFN_eglInitialize_PROC) (EGLDisplay, EGLint *, EGLint *);
+PFN_eglInitialize_PROC eglInitialize_PROC = 0;
+#   define eglInitialize (assert(eglInitialize_PROC != 0), eglInitialize_PROC)
+
+typedef EGLBoolean (* PFN_eglMakeCurrent_PROC) (EGLDisplay, EGLSurface, EGLSurface, EGLContext);
+PFN_eglMakeCurrent_PROC eglMakeCurrent_PROC = 0;
+#   define eglMakeCurrent (assert(eglMakeCurrent_PROC != 0), eglMakeCurrent_PROC)
+
+typedef EGLenum (* PFN_eglQueryAPI_PROC) (void);
+PFN_eglQueryAPI_PROC eglQueryAPI_PROC = 0;
+#   define eglQueryAPI (assert(eglQueryAPI_PROC != 0), eglQueryAPI_PROC)
+
+typedef EGLBoolean (* PFN_eglQueryContext_PROC) (EGLDisplay, EGLContext, EGLint, EGLint *);
+PFN_eglQueryContext_PROC eglQueryContext_PROC = 0;
+#   define eglQueryContext (assert(eglQueryContext_PROC != 0), eglQueryContext_PROC)
+
+typedef const char *(* PFN_eglQueryString_PROC) (EGLDisplay, EGLint);
+PFN_eglQueryString_PROC eglQueryString_PROC = 0;
+#   define eglQueryString (assert(eglQueryString_PROC != 0), eglQueryString_PROC)
+
+typedef EGLBoolean (* PFN_eglQuerySurface_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint *);
+PFN_eglQuerySurface_PROC eglQuerySurface_PROC = 0;
+#   define eglQuerySurface (assert(eglQuerySurface_PROC != 0), eglQuerySurface_PROC)
+
+typedef EGLBoolean (* PFN_eglReleaseTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
+PFN_eglReleaseTexImage_PROC eglReleaseTexImage_PROC = 0;
+#   define eglReleaseTexImage (assert(eglReleaseTexImage_PROC != 0), eglReleaseTexImage_PROC)
+
+typedef EGLBoolean (* PFN_eglReleaseThread_PROC) (void);
+PFN_eglReleaseThread_PROC eglReleaseThread_PROC = 0;
+#   define eglReleaseThread (assert(eglReleaseThread_PROC != 0), eglReleaseThread_PROC)
+
+typedef EGLBoolean (* PFN_eglSurfaceAttrib_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint);
+PFN_eglSurfaceAttrib_PROC eglSurfaceAttrib_PROC = 0;
+#   define eglSurfaceAttrib (assert(eglSurfaceAttrib_PROC != 0), eglSurfaceAttrib_PROC)
+
+typedef EGLBoolean (* PFN_eglSwapBuffers_PROC) (EGLDisplay, EGLSurface);
+PFN_eglSwapBuffers_PROC eglSwapBuffers_PROC = 0;
+#   define eglSwapBuffers (assert(eglSwapBuffers_PROC != 0), eglSwapBuffers_PROC)
+
+typedef EGLBoolean (* PFN_eglSwapInterval_PROC) (EGLDisplay, EGLint);
+PFN_eglSwapInterval_PROC eglSwapInterval_PROC = 0;
+#   define eglSwapInterval (assert(eglSwapInterval_PROC != 0), eglSwapInterval_PROC)
+
+typedef EGLBoolean (* PFN_eglTerminate_PROC) (EGLDisplay);
+PFN_eglTerminate_PROC eglTerminate_PROC = 0;
+#   define eglTerminate (assert(eglTerminate_PROC != 0), eglTerminate_PROC)
+
+typedef EGLBoolean (* PFN_eglWaitClient_PROC) (void);
+PFN_eglWaitClient_PROC eglWaitClient_PROC = 0;
+#   define eglWaitClient (assert(eglWaitClient_PROC != 0), eglWaitClient_PROC)
+
+typedef EGLBoolean (* PFN_eglWaitGL_PROC) (void);
+PFN_eglWaitGL_PROC eglWaitGL_PROC = 0;
+#   define eglWaitGL (assert(eglWaitGL_PROC != 0), eglWaitGL_PROC)
+
+typedef EGLBoolean (* PFN_eglWaitNative_PROC) (EGLint);
+PFN_eglWaitNative_PROC eglWaitNative_PROC = 0;
+#   define eglWaitNative (assert(eglWaitNative_PROC != 0), eglWaitNative_PROC)
+
+typedef EGLBoolean (* PFN_eglWaitSync_PROC) (EGLDisplay, EGLSync, EGLint);
+PFN_eglWaitSync_PROC eglWaitSync_PROC = 0;
+#   define eglWaitSync (assert(eglWaitSync_PROC != 0), eglWaitSync_PROC)
+
+/* }}} */
+
+typedef struct __window_h_context_egl *context_t_egl;
+
+struct __window_h_context_egl {
+    EGLConfig  config;
+    EGLSurface surface;
+    EGLContext context;
+};
+
+
+typedef struct __window_h_egl *__window_h_egl;
+
+struct __window_h_egl {
+    EGLDisplay dpy;
+
+    struct {
+        int surface[16];
+        int context[32];
+        int  config[64];
+    } attr;
+
+    /* libEGL */
+    void *libEGL;
+};
+
+#  endif /* WINDOW_BACKEND_EGL */
+#
+#  /* WINDOW_BACKEND_WGL - WGL implementation layer */
+#  if defined (WINDOW_BACKEND_WGL)
+#   include <WGL/wgl.h>
+
+typedef struct __window_h_context_wgl *context_t_wgl;
+
+struct __window_h_context_wgl {
+
+    /* ... */
+
+};
+
+
+typedef struct __window_h_wgl *__window_h_wgl;
+
+struct __window_h_wgl {
+
+    /* ... */
+
+    /* opengl32 */
+    void *handle;
+};
+
+
+#  endif /* WINDOW_BACKEND_WGL */
+#
 #  /* WINDOW_BACKEND_X11 - X11 implementation */
 #  if defined (WINDOW_BACKEND_X11)
-#   include <X11/Xlib.h>
-#   include <X11/Xutil.h>
-#   include <X11/Xatom.h>
-#   include <X11/XKBlib.h>
-#   include <X11/keysym.h>
-#   include <X11/keysymdef.h>
-#   include <X11/extensions/XInput.h>
-#   include <X11/extensions/XInput2.h>
 
 /* {{{ */
 
@@ -4476,6 +4463,1007 @@ PFN_XIFreeDeviceInfo_PROC XIFreeDeviceInfo_PROC = 0;
 
 /* }}} */
 
+struct __window_h_window_x11 {
+    struct {
+        /* display reference */
+        Display *dpy;
+
+        /* default root window */
+        Window root;
+
+        /* parent window */
+        Window parent;
+
+        /* child / client / main window */
+        Window client;
+
+        /* X11 visual object */
+        Visual *visual;
+    } xlib;
+
+    /* depth value of visual */
+    int32_t depth;
+};
+
+
+struct __window_h_context_x11 {
+    struct {
+        /* display reference */
+        Display *dpy;
+
+        /* graphics context */
+        GC gc;
+        XGCValues gcv; /* gc-values */
+        uint64_t  gcm; /* gc-mask   */
+    } xlib;
+};
+
+
+struct __window_h_cursor_x11 {
+    struct {
+        /* display reference */
+        Display *dpy;
+
+        /* cursor handle */
+        Cursor handle;
+    } xlib;
+};
+
+
+struct __window_h_x11 {
+    struct {
+        Display *dpy;
+        Window   root;  /* root window */
+        Window   ipc;   /* IPC window */
+    } xlib;
+
+    struct {
+        /* Atoms: WM */
+        Atom WM_PROTOCOLS;
+        Atom WM_DELETE_WINDOW;
+    } xatom;
+
+    /* handles */
+    void *libX11;
+    void *libXi;
+};
+
+#  endif /* WINDOW_BACKEND_X11 */
+#
+#  /* WINDOW_BACKEND_WAYLAND - Wayland implementation */
+#  if defined (WINDOW_BACKEND_WAYLAND)
+
+struct __window_h_window_wl {
+    struct {
+    
+        /* ... */
+
+    } wl;
+
+    /* ... */
+
+};
+
+
+struct __window_h_context_wl {
+    struct {
+    
+        /* ... */
+
+    } wl;
+
+    /* ... */
+
+};
+
+
+struct __window_h_cursor_wl {
+    struct {
+    
+        /* ... */
+
+    } wl;
+};
+
+typedef struct __window_h_wl *__window_h_wl;
+
+struct __window_h_wl {
+    struct {
+    
+        /* ... */
+
+    } wl;
+
+    /* ... */
+
+    /* libwayland-client */
+    void *libwayland_client;
+};
+
+#  endif /* WINDOW_BACKEND_WAYLAND */
+#
+#  /* WINDOW_PLATFORM_WIN32 - Win32 implementation */
+#  if defined (WINDOW_PLATFORM_WIN32)
+
+struct __window_h_window_win32 {
+    struct {
+    
+        /* ... */
+
+    } win32;
+
+    /* ... */
+
+};
+
+
+struct __window_h_context_win32 {
+    struct {
+    
+        /* ... */
+
+    } win32;
+
+    /* ... */
+
+};
+
+
+struct __window_h_cursor_win32 {
+    struct {
+    
+        /* ... */
+
+    } win32;
+};
+
+typedef struct __window_h_win32 *__window_h_win32;
+
+struct __window_h_win32 {
+    struct {
+    
+        /* ... */
+
+    } win32;
+
+    /* ... */
+
+    /* windows libraries */
+    void *user32;
+};
+
+#  endif /* WINDOW_PLATFORM_WIN32 */
+
+/* platform internal functions */
+
+WININT int __winSelectPlatform(struct __window_h_platform *);
+
+/* platform functions */
+
+WINDEF int winInit(void) {
+    /* initialize window.h */
+    __window_h = (struct __window_h) { 0 };
+
+    /* select window.h platform */
+    if (!__winSelectPlatform(&__window_h.platform)) { return (0); }
+
+    /* call platform - specific init function */
+    if (!__window_h.platform.init()) { return (0); }
+    return (1);
+}
+
+
+WINDEF int winQuit(void) {
+    /* destroy all the existing contexts */
+    struct __window_h_context *context = __window_h.context.list;
+    while (context) {
+        void *next = context->next;
+        winDestroyContext(context);
+        context = next;
+    }
+
+    /* close all the open windows */
+    struct __window_h_window *window = __window_h.window.list;
+    while (window) {
+        void *next = window->next;
+        winDestroyWindow(window);
+        window = next;
+    }
+    
+    /* call platform - specific quit function */
+    if (!__window_h.platform.quit()) { return (0); }
+
+    /* zero-down the global struct */
+    __window_h = (struct __window_h) { 0 };
+
+    /* success */
+    return (1);
+}
+
+WINDEF void *winGetProperty(const uint32_t prop) { return (__window_h.platform.getProperty(prop)); }
+
+/* windowing functions */
+
+WINDEF int winCreateWindow(window_t *window, const size_t width, const size_t height, const char *title, uint32_t flags) {
+    /* alloc new window object */
+    struct __window_h_window *result = calloc(1, sizeof(struct __window_h_window));
+    if (!result) { return (0); }
+
+    /* set the default 'flags' values if it equals '0' */
+    if (!flags) {
+        flags |= WINDOW_API_NONE;  /* by default, we should target 'API_NONE' */
+    }
+    
+    /* call platform - specific create function */
+    if (!__window_h.platform.createWindow((window_t *) &result, width, height, title, flags)) { return (0); }
+    
+    /* update window flags */
+    winSetWindowFlags(result, flags);
+
+    /* update window dimension properites */
+    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
+    winGetWindowSize(result, &result->siz_w, &result->siz_h);
+
+    /* add the result to the '__window_h.window.list' linked list */
+    result->next = __window_h.window.list;
+    __window_h.window.list = result;
+
+    /* and return the result */
+    *window = result;
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winCreateNestedWindow(window_t *window, window_t parent, const size_t width, const size_t height, const char *title, uint32_t flags) {
+    /* alloc new window object */
+    struct __window_h_window *result = calloc(1, sizeof(struct __window_h_window));
+    if (!result) { return (0); }
+
+    /* set the default 'flags' values if it equals '0' */
+    if (!flags) {
+        flags |= WINDOW_API_NONE;  /* by default, we should target 'API_NONE' */
+    }
+    
+    /* call platform - specific create nested function */
+    if (!__window_h.platform.createNestedWindow((window_t *) &result, parent, width, height, title, flags)) { return (0); }
+
+    /* set window title */ 
+    winSetWindowTitle(result, title);
+
+    /* update window dimension properites */
+    winGetWindowPosition(result, &result->pos_x, &result->pos_y);
+    winGetWindowSize(result, &result->siz_w, &result->siz_h);
+
+    /* add the result to the '__window_h.window.list' linked list */
+    result->next = __window_h.window.list;
+    __window_h.window.list = result;
+
+    /* and return the result */
+    *window = result;
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winDestroyWindow(window_t window) {
+    /* call platform - specific destroy function */
+    if (!__window_h.platform.destroyWindow(window)) { return (0); }
+
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* unlink 'win' from '__window_h.window.list' */
+    struct __window_h_window **curr = &__window_h.window.list;
+    /* case when 'win' is the first node of '__window_h.window.list' */
+    if (win == (*curr)) {
+        __window_h.window.list = (*curr)->next;
+    }
+    /* case when 'win' is not the first node of '__window_h.window.list' */
+    else {
+        /* search for prepending window for 'win' */
+        while ((*curr) && (*curr)->next != win) {
+            (*curr) = (*curr)->next;
+        }
+
+        if (!(*curr)) { return (0); }
+        (*curr) = win->next;
+    }
+
+    /* deallocate window object */
+    free(win);
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winSetWindowFlags(window_t window, const uint32_t f) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* set states */
+    win->fullscr = (f & WINDOW_FLAG_FULLSCREEN) ? 1 : 0;
+    win->minim   = (f & WINDOW_FLAG_MINIMIZED) ? 1 : 0;
+    win->maxim   = (f & WINDOW_FLAG_MAXIMIZED) ? 1 : 0;
+    win->resize  = (f & WINDOW_FLAG_RESIZABLE) ? 1 : 0;
+    win->topmost = (f & WINDOW_FLAG_TOPMOST) ? 1 : 0;
+    win->undecor = (f & WINDOW_FLAG_UNDECORATED) ? 1 : 0;
+
+    /* set api value (only if value is 0) */
+    if (!win->api) {
+        if (f & WINDOW_API_NONE)    { win->api = WINDOW_API_NONE; }
+        if (f & WINDOW_API_OPENGL)  { win->api = WINDOW_API_OPENGL; }
+        if (f & WINDOW_API_VULCAN)  { win->api = WINDOW_API_VULCAN; }
+        if (f & WINDOW_API_DIRECTX) { win->api = WINDOW_API_DIRECTX; }
+        if (f & WINDOW_API_METAL)   { win->api = WINDOW_API_METAL; }
+    }
+    
+    /* platform - specific function */
+    return (__window_h.platform.updateWindowFlags(window));
+}
+
+WINDEF int winToggleWindowFlags(window_t window, const uint32_t f) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+
+    /* toggle flags */
+    if (f & WINDOW_FLAG_FULLSCREEN) { win->fullscr = !win->fullscr; }
+    if (f & WINDOW_FLAG_MINIMIZED) { win->minim = !win->minim; }
+    if (f & WINDOW_FLAG_MAXIMIZED) { win->maxim = !win->maxim; }
+    if (f & WINDOW_FLAG_RESIZABLE) { win->resize = !win->resize; }
+    if (f & WINDOW_FLAG_TOPMOST) { win->topmost = !win->topmost; }
+    if (f & WINDOW_FLAG_UNDECORATED) { win->undecor = !win->undecor; }
+    
+    /* platform - specific function */
+    return (__window_h.platform.updateWindowFlags(window));
+}
+
+WINDEF void *winGetWindowProperty(window_t window, const uint32_t prop) { return (__window_h.platform.getWindowProperty(window, prop)); }
+WINDEF int winMapWindow(window_t window) { return (__window_h.platform.mapWindow(window)); }
+WINDEF int winUnmapWindow(window_t window) { return (__window_h.platform.unmapWindow(window)); }
+WINDEF int winGetWindowSize(window_t window, size_t *w_ptr, size_t *h_ptr) { return (__window_h.platform.getWindowSize(window, w_ptr, h_ptr)); }
+WINDEF int winSetWindowSize(window_t window, const size_t w, const size_t h) { return (__window_h.platform.setWindowSize(window, w, h)); }
+WINDEF int winSetWindowMinSize(window_t window, const size_t w, const size_t h) { return (__window_h.platform.setWindowMinSize(window, w, h)); }
+WINDEF int winSetWindowMaxSize(window_t window, const size_t w, const size_t h) { return (__window_h.platform.setWindowMaxSize(window, w, h)); }
+WINDEF int winGetWindowPosition(window_t window, size_t *x_ptr, size_t *y_ptr) { return (__window_h.platform.getWindowPosition(window, x_ptr, y_ptr)); }
+WINDEF int winSetWindowPosition(window_t window, const size_t x, const size_t y) { return (__window_h.platform.setWindowPosition(window, x, y)); }
+WINDEF int winGetWindowTitle(window_t window, char **t_ptr) { return (__window_h.platform.getWindowTitle(window, t_ptr)); }
+WINDEF int winSetWindowTitle(window_t window, const char *t) { return (__window_h.platform.setWindowTitle(window, t)); }
+
+WINDEF int winGetWindowContext(window_t window, context_t *c_ptr) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* get the context from the 'win' */
+    if (c_ptr) { *c_ptr = win->context; }
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winSetWindowContext(window_t window, context_t context) {
+    /* references */
+    struct __window_h_window  *win = (struct __window_h_window *) window;
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    /* update the internal references in 'win' and 'ctx' */
+    win->context = context;
+    ctx->window  = window;
+
+    /* success */
+    return (1);
+}
+
+/* context functions */
+
+WINDEF int winCreateContext(context_t *context, window_t window) {
+    /* references */
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+    
+    /* alloc new window object */
+    struct __window_h_context *result = calloc(1, sizeof(struct __window_h_context));
+    if (!result) { return (0); }
+    
+    /* call platform - specific create function */
+    if (!__window_h.platform.createContext((context_t *) &result, window)) { return (0); }
+
+    /* set the context's API */
+    result->api = win->api;
+
+    /* set the context ownership */
+    result->window = window;
+    result->window->context = result;
+
+    /* add the result to the '__window_h.window.list' linked list */
+    result->next = __window_h.context.list;
+    __window_h.context.list = result;
+    
+    /* and return the result */
+    *context = result;
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winDestroyContext(context_t context) {
+    /* call platform - specific destroy function */
+    if (!__window_h.platform.destroyContext(context)) { return (0); }
+
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+
+    /* unlink 'ctx' from '__window_h.context.list' */
+    struct __window_h_context **curr = &__window_h.context.list;
+    /* case when 'ctx' is the first node of '__window_h.context.list' */
+    if (ctx == (*curr)) {
+        __window_h.context.list = (*curr)->next;
+    }
+    /* case when 'ctx' is not the first node of '__window_h.context.list' */
+    else {
+        /* search for prepending window for 'ctx' */
+        while ((*curr) && (*curr)->next != ctx) {
+            (*curr) = (*curr)->next;
+        }
+
+        if (!(*curr)) { return (0); }
+        (*curr) = ctx->next;
+    }
+
+    /* deallocate context object */
+    free(ctx);
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winGetContextOwner(context_t context, window_t *w_ptr) {
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    if (!ctx) { return (0); }
+
+    /* get the context from the 'win' */
+    if (w_ptr) { *w_ptr = ctx->window; }
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winSetContextOwner(context_t context, window_t window) {
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    struct __window_h_window  *win = (struct __window_h_window *) window;
+
+    /* update the internal references in 'win' and 'ctx' */
+    ctx->window  = window;
+    win->context = context;
+
+    /* success */
+    return (1);
+}
+
+/* opengl context functions */
+
+WINDEF int winGLSetAttribute(const int attr, const int value) { return (__window_h.platform.GLSetAttribute(attr, value)); }
+WINDEF int winGLMakeCurrent(context_t context) { return (__window_h.platform.GLMakeCurrent(context)); }
+WINDEF int winGLSwapBuffers(context_t context) { return (__window_h.platform.GLSwapBuffers(context)); }
+WINDEF int winGLSwapInterval(context_t context, const int interval) { return (__window_h.platform.GLSwapInterval(context, interval)); }
+WINDEF void *winGLGetProcAddress(const char *proc) { return (__window_h.platform.GLGetProcAddress(proc)); }
+
+/* cursor functions */
+
+WINDEF int winCreateCursor(cursor_t *cursor, window_t window) { return (__window_h.platform.createCursor(cursor, window)); }
+WINDEF int winDestroyCursor(cursor_t cursor) { return (__window_h.platform.destroyCursor(cursor)); }
+WINDEF int winGetCursorPosition(window_t window, size_t *x_ptr, size_t *y_ptr) { return (__window_h.platform.getCursorPosition(window, x_ptr, y_ptr)); }
+WINDEF int winSetCursorPosition(window_t window, const size_t x, const size_t y) { return (__window_h.platform.setCursorPosition(window, x, y)); }
+WINDEF int winSetCursorPositionCenter(window_t window) { return (__window_h.platform.setCursorPositionCenter(window)); }
+WINDEF int winGetCursorMode(window_t window, uint32_t *m_ptr) { return (__window_h.platform.getCursorMode(window, m_ptr)); }
+WINDEF int winSetCursorMode(window_t window, const uint32_t mode) { return (__window_h.platform.setCursorMode(window, mode)); }
+WINDEF int winGetCursorRawMotion(window_t window, uint8_t *r_ptr) { return (__window_h.platform.getCursorRawMotion(window, r_ptr)); }
+WINDEF int winSetCursorRawMotion(window_t window, const uint8_t raw) { return (__window_h.platform.setCursorRawMotion(window, raw)); }
+
+/* event functions */
+
+WINDEF int winPollEvents(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+
+    /* flush the event queue */
+    if (winPopEvent(event)) { return (1); }
+
+    /* call platform-specific poll events function */
+    __window_h.platform.pollEvents();
+
+    /* this means we don't have any event... */
+    *event = (event_t) { 0 };
+    return (0);
+}
+
+WINDEF int winWaitEvents(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winPushEvent(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+
+    /* references */
+    struct __window_h_event *eq = __window_h.event.queue;
+    /* no events in queue */
+    if (!eq) {
+        eq = calloc(1, sizeof(struct __window_h_event));
+        if (!eq) { return (0); }
+
+        eq->next  = 0;
+        eq->event = *event;
+
+        /* assign back new queue */
+        __window_h.event.queue = eq;
+    } else {
+        /* go to the end of the queue */
+        while (eq->next) { eq = eq->next; }
+
+        /* alloc new event queue member */
+        struct __window_h_event *node = calloc(1, sizeof(struct __window_h_event));
+        if (!node) { return (0); }
+
+        node->next  = 0;
+        node->event = *event;
+
+        /* push the 'node' to the end of 'eq' */
+        eq->next = node;
+    }
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winPopEvent(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+
+    /* references */
+    struct __window_h_event *eq = __window_h.event.queue;
+    /* empty event queue */
+    if (!eq) {
+        *event = (event_t) { 0 };
+        return (0);
+    }
+
+    /* get the event from the top */
+    *event = eq->event;
+
+    /* re-assign the global event queue */
+    __window_h.event.queue = eq->next;
+
+    /* release top event */
+    free(eq);
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winSendEvent(uint32_t type, ...) {
+    /* default 'event' object */
+    event_t event = { 0 };
+    event.type = type;
+    event.time = winGetTime();
+
+    /* get the variadic argument list */
+    va_list list;
+    va_start(list, 0);
+    switch (type) {
+
+        case (WINDOW_EVENT_QUIT): { } break;
+
+        /* Mouse events */
+
+        case (WINDOW_EVENT_MOUSE_MOTION): {
+            event.mouse.window = va_arg(list, window_t);
+            event.mouse.which  = va_arg(list, uint64_t);
+            event.mouse.x    = va_arg(list, int32_t);
+            event.mouse.xrel = va_arg(list, int32_t);
+            event.mouse.y    = va_arg(list, int32_t);
+            event.mouse.yrel = va_arg(list, int32_t);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_BUTTON): {
+            event.mouse.window = va_arg(list, window_t);
+            event.mouse.which  = va_arg(list, uint64_t);
+            event.mouse.btn   = va_arg(list, int);
+            event.mouse.state = va_arg(list, int);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_SCROLL): {
+            event.mouse.window = va_arg(list, window_t);
+            event.mouse.which  = va_arg(list, uint64_t);
+            event.mouse.scroll_x = va_arg(list, int32_t);
+            event.mouse.scroll_y = va_arg(list, int32_t);
+        } break;
+
+        case (WINDOW_EVENT_MOUSE_ADDED): { } break;
+
+        case (WINDOW_EVENT_MOUSE_REMOVED): { } break;
+
+        /* Keyboard events */
+
+        case (WINDOW_EVENT_KEYBOARD_KEY): {
+            event.keyboard.window = va_arg(list, window_t);
+            event.keyboard.which  = va_arg(list, uint64_t);
+            event.keyboard.keysym  = va_arg(list, uint64_t);
+            event.keyboard.keycode = va_arg(list, uint32_t);
+            event.keyboard.keymod  = va_arg(list, uint32_t);
+            event.keyboard.keyraw  = va_arg(list, uint32_t);
+            event.keyboard.state  = va_arg(list, uint32_t);
+            event.keyboard.repeat = va_arg(list, uint32_t);
+        } break;
+
+        case (WINDOW_EVENT_KEYBOARD_ADDED): { } break;
+
+        case (WINDOW_EVENT_KEYBOARD_REMOVED): { } break;
+
+        /* Window events */
+
+        case (WINDOW_EVENT_WINDOW_CREATE):
+        case (WINDOW_EVENT_WINDOW_DESTROY):
+        case (WINDOW_EVENT_WINDOW_MAP):
+        case (WINDOW_EVENT_WINDOW_UNMAP):
+        case (WINDOW_EVENT_WINDOW_RESIZE):
+        case (WINDOW_EVENT_WINDOW_MOTION):
+        case (WINDOW_EVENT_WINDOW_ENTER):
+        case (WINDOW_EVENT_WINDOW_LEAVE):
+        case (WINDOW_EVENT_WINDOW_MAXIMIZE):
+        case (WINDOW_EVENT_WINDOW_MINIMIZE):
+        case (WINDOW_EVENT_WINDOW_FULLSCREEN): {
+            event.window.window = va_arg(list, window_t);
+            event.window.data1  = va_arg(list, uint32_t);
+            event.window.data2  = va_arg(list, uint32_t);
+        } break;
+
+        case (WINDOW_EVENT_CLIPBOARD_COPY):
+        case (WINDOW_EVENT_CLIPBOARD_PASTE): {
+            event.clipboard.data   = va_arg(list, void *);
+            event.clipboard.size   = va_arg(list, size_t);
+        } break;
+
+        /* ... */
+
+        default: { } break;
+    }
+
+
+    /* finish variadic argument list */
+    va_end(list);
+    
+    /* return */
+    return (winPushEvent(&event));
+}
+
+WINDEF int winPeekEvent(event_t *event) {
+    /* null-check */
+    if (!event) { return (0); }
+    *event = (event_t) { 0 };
+
+    /* references */
+    struct __window_h_event *eq = __window_h.event.queue;
+    if (eq) { *event = eq->event; }
+
+    /* success */
+    return (1);
+}
+
+/* clipboard functions */
+
+WINDEF int winCopy(const uint32_t selection, const char *data) { return (__window_h.platform.copy(selection, data)); }
+WINDEF int winPaste(const uint32_t selection, char **data) { return (__window_h.platform.paste(selection, data)); }
+
+/* timing functions */
+
+WINDEF uint64_t winGetTime(void) {
+
+#  if defined (WINDOW_PLATFORM_LINUX) || \
+      defined (WINDOW_PLATFORM_APPLE) || \
+      defined (WINDOW_PLATFORM_BSD)
+    struct timeval t;
+    if (gettimeofday(&t, 0) == -1) {
+        return (0);
+    }
+
+    return (t.tv_sec * 1000 + t.tv_usec / 1000);
+#  elif defined (WINDOW_PLATFORM_WIN32)
+
+
+#  endif
+
+}
+
+WINDEF int winWaitTime(uint64_t ms) {
+    uint64_t t = winGetTime();
+    if (t == 0) { return (0); }
+
+    while ((winGetTime() - t) < ms);
+    return (1);
+}
+
+#  /* WINDOW_BACKEND_EGL - EGL implementation layer */
+#  if defined (WINDOW_BACKEND_EGL)
+
+/* libEGL: egl.h */
+
+static const struct __window_h_egl_attrmap {
+    uint32_t src;
+    uint32_t dst;
+} __window_h_egl_attrmap[] = {
+    
+/* {{{ */
+
+    { EGL_RENDER_BUFFER, WINDOW_GL_DOUBLEBUFFER },
+    
+    { EGL_RED_SIZE, WINDOW_GL_RED_SIZE },
+    
+    { EGL_GREEN_SIZE, WINDOW_GL_GREEN_SIZE },
+    
+    { EGL_BLUE_SIZE, WINDOW_GL_BLUE_SIZE },
+    
+    { EGL_ALPHA_SIZE, WINDOW_GL_ALPHA_SIZE },
+    
+    { EGL_DEPTH_SIZE, WINDOW_GL_DEPTH_SIZE },
+    
+    { EGL_STENCIL_SIZE, WINDOW_GL_STENCIL_SIZE },
+    
+    { EGL_CONTEXT_MAJOR_VERSION, WINDOW_GL_CONTEXT_MAJOR_VERSION },
+    
+    { EGL_CONTEXT_MINOR_VERSION, WINDOW_GL_CONTEXT_MINOR_VERSION },
+    
+    { EGL_CONTEXT_OPENGL_PROFILE_MASK, WINDOW_GL_CONTEXT_PROFILE_MASK },
+    
+    { EGL_CONTEXT_OPENGL_DEBUG, WINDOW_GL_CONTEXT_DEBUG },
+
+    /* ... */
+
+    { EGL_NONE, WINDOW_GL_NONE }
+
+/* }}} */
+
+};
+
+/* internal functions (declarations) */
+
+WININT int __winLoadEGL(void);
+
+WININT int __winUnloadEGL(void);
+
+/* internal functions (definitions) */
+
+WININT int __winLoadEGL(void) {
+    /* references */
+    struct __window_h_x11 *x11 = __window_h.x11; 
+    if (!x11) { return (0); }
+    
+    /* alloc 'egl' library object */
+    struct __window_h_egl *egl = calloc(1, sizeof(struct __window_h_egl));
+    if (!egl) { return (0); }
+
+    /* try to load handle */
+    const char  *names[] = { "libEGL.so", "libEGL.so.1, libEGL.so.1.1.0", 0 };
+    static void *handle  = 0;
+    if (!handle) {
+        for (const char **name = names; *name; name++) {
+            handle = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
+            if (handle) { break; }
+        }
+
+        /* check if handle loaded */
+        if (!handle) { return (0); }
+    }
+
+    /* libEGL: egl.h */
+    /* {{{ */
+    eglBindAPI_PROC = (PFN_eglBindAPI_PROC) dlsym(handle, "eglBindAPI");
+    eglBindTexImage_PROC = (PFN_eglBindTexImage_PROC) dlsym(handle, "eglBindTexImage");
+    eglChooseConfig_PROC = (PFN_eglChooseConfig_PROC) dlsym(handle, "eglChooseConfig");
+    eglClientWaitSync_PROC = (PFN_eglClientWaitSync_PROC) dlsym(handle, "eglClientWaitSync");
+    eglCopyBuffers_PROC = (PFN_eglCopyBuffers_PROC) dlsym(handle, "eglCopyBuffers");
+    eglCreateContext_PROC = (PFN_eglCreateContext_PROC) dlsym(handle, "eglCreateContext");
+    eglCreateImage_PROC = (PFN_eglCreateImage_PROC) dlsym(handle, "eglCreateImage");
+    eglCreatePbufferFromClientBuffer_PROC = (PFN_eglCreatePbufferFromClientBuffer_PROC) dlsym(handle, "eglCreatePbufferFromClientBuffer");
+    eglCreatePbufferSurface_PROC = (PFN_eglCreatePbufferSurface_PROC) dlsym(handle, "eglCreatePbufferSurface");
+    eglCreatePixmapSurface_PROC = (PFN_eglCreatePixmapSurface_PROC) dlsym(handle, "eglCreatePixmapSurface");
+    eglCreatePlatformPixmapSurface_PROC = (PFN_eglCreatePlatformPixmapSurface_PROC) dlsym(handle, "eglCreatePlatformPixmapSurface");
+    eglCreatePlatformWindowSurface_PROC = (PFN_eglCreatePlatformWindowSurface_PROC) dlsym(handle, "eglCreatePlatformWindowSurface");
+    eglCreateSync_PROC = (PFN_eglCreateSync_PROC) dlsym(handle, "eglCreateSync");
+    eglCreateWindowSurface_PROC = (PFN_eglCreateWindowSurface_PROC) dlsym(handle, "eglCreateWindowSurface");
+    eglDestroyContext_PROC = (PFN_eglDestroyContext_PROC) dlsym(handle, "eglDestroyContext");
+    eglDestroyImage_PROC = (PFN_eglDestroyImage_PROC) dlsym(handle, "eglDestroyImage");
+    eglDestroySurface_PROC = (PFN_eglDestroySurface_PROC) dlsym(handle, "eglDestroySurface");
+    eglDestroySync_PROC = (PFN_eglDestroySync_PROC) dlsym(handle, "eglDestroySync");
+    eglGetConfigAttrib_PROC = (PFN_eglGetConfigAttrib_PROC) dlsym(handle, "eglGetConfigAttrib");
+    eglGetConfigs_PROC = (PFN_eglGetConfigs_PROC) dlsym(handle, "eglGetConfigs");
+    eglGetCurrentContext_PROC = (PFN_eglGetCurrentContext_PROC) dlsym(handle, "eglGetCurrentContext");
+    eglGetCurrentDisplay_PROC = (PFN_eglGetCurrentDisplay_PROC) dlsym(handle, "eglGetCurrentDisplay");
+    eglGetCurrentSurface_PROC = (PFN_eglGetCurrentSurface_PROC) dlsym(handle, "eglGetCurrentSurface");
+    eglGetDisplay_PROC = (PFN_eglGetDisplay_PROC) dlsym(handle, "eglGetDisplay");
+    eglGetError_PROC = (PFN_eglGetError_PROC) dlsym(handle, "eglGetError");
+    eglGetPlatformDisplay_PROC = (PFN_eglGetPlatformDisplay_PROC) dlsym(handle, "eglGetPlatformDisplay");
+    eglGetProcAddress_PROC = (PFN_eglGetProcAddress_PROC) dlsym(handle, "eglGetProcAddress");
+    eglGetSyncAttrib_PROC = (PFN_eglGetSyncAttrib_PROC) dlsym(handle, "eglGetSyncAttrib");
+    eglInitialize_PROC = (PFN_eglInitialize_PROC) dlsym(handle, "eglInitialize");
+    eglMakeCurrent_PROC = (PFN_eglMakeCurrent_PROC) dlsym(handle, "eglMakeCurrent");
+    eglQueryAPI_PROC = (PFN_eglQueryAPI_PROC) dlsym(handle, "eglQueryAPI");
+    eglQueryContext_PROC = (PFN_eglQueryContext_PROC) dlsym(handle, "eglQueryContext");
+    eglQueryString_PROC = (PFN_eglQueryString_PROC) dlsym(handle, "eglQueryString");
+    eglQuerySurface_PROC = (PFN_eglQuerySurface_PROC) dlsym(handle, "eglQuerySurface");
+    eglReleaseTexImage_PROC = (PFN_eglReleaseTexImage_PROC) dlsym(handle, "eglReleaseTexImage");
+    eglReleaseThread_PROC = (PFN_eglReleaseThread_PROC) dlsym(handle, "eglReleaseThread");
+    eglSurfaceAttrib_PROC = (PFN_eglSurfaceAttrib_PROC) dlsym(handle, "eglSurfaceAttrib");
+    eglSwapBuffers_PROC = (PFN_eglSwapBuffers_PROC) dlsym(handle, "eglSwapBuffers");
+    eglSwapInterval_PROC = (PFN_eglSwapInterval_PROC) dlsym(handle, "eglSwapInterval");
+    eglTerminate_PROC = (PFN_eglTerminate_PROC) dlsym(handle, "eglTerminate");
+    eglWaitClient_PROC = (PFN_eglWaitClient_PROC) dlsym(handle, "eglWaitClient");
+    eglWaitGL_PROC = (PFN_eglWaitGL_PROC) dlsym(handle, "eglWaitGL");
+    eglWaitNative_PROC = (PFN_eglWaitNative_PROC) dlsym(handle, "eglWaitNative");
+    eglWaitSync_PROC = (PFN_eglWaitSync_PROC) dlsym(handle, "eglWaitSync");
+    /* }}} */
+
+    /* set 'egl->libEGL' member */ 
+    egl->libEGL = handle;
+    
+    /* get '__window_h.egl' members */
+    EGLDisplay dpy = eglGetDisplay(x11->xlib.dpy);
+    if (dpy == EGL_NO_DISPLAY) { return (0); }
+
+    /* set '__window_h.egl' members */
+    egl->dpy = dpy;
+
+    /* set '__window_h.egl->attr' defaults */
+    int attr_surface[16] = { EGL_RENDER_BUFFER, EGL_SINGLE_BUFFER,
+                             EGL_NONE };
+    
+    int attr_context[32] = { EGL_CONTEXT_MAJOR_VERSION, 1,
+                             EGL_CONTEXT_MINOR_VERSION, 0,
+                             EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+                             EGL_CONTEXT_OPENGL_DEBUG, EGL_FALSE,
+                             EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_FALSE,
+                             EGL_CONTEXT_OPENGL_ROBUST_ACCESS, EGL_FALSE,
+                             EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY, EGL_NO_RESET_NOTIFICATION,
+                             EGL_NONE };
+    
+    int attr_config[64] = { EGL_ALPHA_MASK_SIZE, 0,
+                            EGL_ALPHA_SIZE, 0,
+                            EGL_BIND_TO_TEXTURE_RGB, EGL_DONT_CARE,
+                            EGL_BIND_TO_TEXTURE_RGBA, EGL_DONT_CARE,
+                            EGL_BLUE_SIZE, 0,
+                            EGL_BUFFER_SIZE, 0,
+                            EGL_COLOR_BUFFER_TYPE, EGL_RGB_BUFFER,
+                            EGL_CONFIG_CAVEAT, EGL_DONT_CARE,
+                            EGL_CONFIG_ID, EGL_DONT_CARE,
+                            EGL_CONFORMANT, 0,
+                            EGL_DEPTH_SIZE, 0,
+                            EGL_GREEN_SIZE, 0,
+                            EGL_LEVEL, 0,
+                            EGL_LUMINANCE_SIZE, 0,
+                            EGL_MATCH_NATIVE_PIXMAP, EGL_NONE,
+                            EGL_NATIVE_RENDERABLE, EGL_DONT_CARE,
+                            EGL_MAX_SWAP_INTERVAL, EGL_DONT_CARE,
+                            EGL_MIN_SWAP_INTERVAL, EGL_DONT_CARE,
+                            EGL_RED_SIZE, 0,
+                            EGL_SAMPLE_BUFFERS, 0,
+                            EGL_SAMPLES, 0,
+                            EGL_STENCIL_SIZE, 0,
+                            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
+                            EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+                            EGL_TRANSPARENT_TYPE, EGL_NONE,
+                            EGL_TRANSPARENT_RED_VALUE, EGL_DONT_CARE,
+                            EGL_TRANSPARENT_GREEN_VALUE, EGL_DONT_CARE,
+                            EGL_TRANSPARENT_BLUE_VALUE, EGL_DONT_CARE,
+                            EGL_NONE };
+
+    (void) attr_surface;
+    (void) attr_context;
+    (void) attr_config;
+
+    /* return 'egl' result */
+    __window_h.egl = egl;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winUnloadEGL(void) {
+    /* references */
+    struct __window_h_egl *egl = __window_h.egl; 
+    if (!egl) { return (0); }
+
+    /* release egl resources */
+    eglTerminate(egl->dpy);
+
+    /* release '__window_h.egl->libEGL' field */
+    dlclose(egl->libEGL), egl->libEGL = 0;
+
+    /* release '__window_h.egl' */
+    free(egl);
+
+    /* success */
+    return (1);
+}
+
+#  endif /* WINDOW_BACKEND_EGL */
+#
+#  /* WINDOW_BACKEND_WGL - WGL implementation layer */
+#  if defined (WINDOW_BACKEND_WGL)
+#   include <WGL/wgl.h>
+
+/* internal functions (declarations) */
+
+WININT int __winLoadWGL(void);
+
+WININT int __winLoadWGLModules(void);
+
+WININT int __winUnloadWGL(void);
+
+/* internal functions (definitions) */
+
+WININT int __winLoadWGL(void) {
+    /* alloc '__window_h.wgl' field */
+    if (!__window_h.wgl) {
+        __window_h.wgl = calloc(1, sizeof(struct __window_h_wgl));
+        if (!__window_h.wgl) {
+            return (0);
+        }
+    }
+
+    /* try to load opengl32 symbols */
+    if (!__winLoadWGLModules()) { return (0); }
+   
+    /* ... */
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winLoadWGLModules(void) {
+    /* null-check */
+    if (!__window_h.wgl) { return (0); }
+
+    /* try to load handle */
+    static void *handle  = 0;
+
+    /* ... */
+
+    /* set '__window_h.wgl->handle' member */ 
+    __window_h.wgl->handle = handle;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winUnloadWGL(void) {
+    /* null-check */
+    if (!__window_h.wgl) { return (0); }
+
+    /* release '__window_h.wgl->handle' field */
+    /* ... */
+
+    /* release '__window_h.wgl' */
+    free(__window_h.wgl);
+
+    /* success */
+    return (1);
+}
+
+#  endif /* WINDOW_BACKEND_WGL */
+#
+#  /* WINDOW_BACKEND_X11 - X11 implementation */
+#  if defined (WINDOW_BACKEND_X11)
+
 /* keymap layouts base */
 struct __window_h_keymap {
     uint32_t src;
@@ -4805,74 +5793,6 @@ static const struct __window_h_keymap __window_h_keymap_en_us_qwerty[] = {
 
 };
 
-
-struct __window_h_window_x11 {
-    struct {
-        /* display reference */
-        Display *dpy;
-
-        /* default root window */
-        Window root;
-
-        /* parent window */
-        Window parent;
-
-        /* child / client / main window */
-        Window client;
-
-        /* X11 visual object */
-        Visual *visual;
-    } xlib;
-
-    /* depth value of visual */
-    int32_t depth;
-};
-
-
-struct __window_h_context_x11 {
-    struct {
-        /* framebuffer image */
-        XImage *image;
-
-        /* graphics context */
-        GC gc;
-        XGCValues gcv; /* gc-values */
-        uint64_t  gcm; /* gc-mask   */
-    } xlib;
-
-    /* structure data */
-    size_t siz_w,
-           siz_h;
-};
-
-
-struct __window_h_cursor_x11 {
-    struct {
-        Cursor handle;
-    } xlib;
-};
-
-
-struct __window_h_x11 {
-    struct {
-        Display *dpy;
-        Window   root;  /* root window */
-        Window   ipc;   /* IPC window */
-    } xlib;
-
-    struct {
-        /* Atoms: WM */
-        Atom WM_PROTOCOLS;
-        Atom WM_DELETE_WINDOW;
-    } xatom;
-
-    /* handles */
-    void *libX11;
-    void *libXi;
-};
-
-
-
 /* internal functions (declarations) */
 
 WININT int __winConnectX11(struct __window_h_platform *);
@@ -4893,7 +5813,7 @@ WININT int __winCreateNestedWindowX11(window_t *, window_t, const size_t, const 
 
 WININT int __winDestroyWindowX11(window_t);
 
-WININT int __winUpdateWindowFlagsX11(window_t, const uint32_t);
+WININT int __winUpdateWindowFlagsX11(window_t);
 
 WININT void *__winGetWindowPropertyX11(window_t, const uint32_t);
 
@@ -4917,15 +5837,11 @@ WININT int __winGetWindowTitleX11(window_t, char **);
 
 WININT int __winSetWindowTitleX11(window_t, const char *);
 
-/*
-
 WININT int __winCreateContextX11(context_t *, window_t);
 
 WININT int __winDestroyContextX11(context_t);
 
-WININT int __winGetContextOwnerX11(context_t, window_t *);
-
-WININT int __winSetContextOwnerX11(context_t, window_t);
+/*
 
 WININT int __winGLSetAttributeX11(const int, const int);
 
@@ -4994,11 +5910,9 @@ WININT int __winConnectX11(struct __window_h_platform *platform) {
     x11.setWindowPosition = __winSetWindowPositionX11;
     x11.getWindowTitle = __winGetWindowTitleX11;
     x11.setWindowTitle = __winSetWindowTitleX11;
-    /*
     x11.createContext = __winCreateContextX11;
     x11.destroyContext = __winDestroyContextX11;
-    x11.getContextOwner = __winGetContextOwnerX11;
-    x11.setContextOwner = __winSetContextOwnerX11;
+    /*
     x11.GLSetAttribute = __winGLSetAttributeX11;
     x11.GLMakeCurrent = __winGLMakeCurrentX11;
     x11.GLSwapBuffers = __winGLSwapBuffersX11;
@@ -5895,7 +6809,7 @@ WININT int __winCreateWindowX11(window_t *window, const size_t width, const size
     int depth = 0;
     Visual *visual = 0;
     /* 'depth' and 'visual' for no-API */
-    if (flags & WINDOW_FLAG_API_NONE) {
+    if (flags & WINDOW_API_NONE) {
         /* get default visual from display and screen */
         visual = DefaultVisual(dpy, screen);
         
@@ -5975,7 +6889,7 @@ WININT int __winCreateNestedWindowX11(window_t *window, window_t parent, const s
     int depth = 0;
     Visual *visual = 0;
     /* 'depth' and 'visual' for no-API */
-    if (flags & WINDOW_FLAG_API_NONE) {
+    if (flags & WINDOW_API_NONE) {
         /* get default visual from display and screen */
         visual = DefaultVisual(dpy, screen);
         
@@ -6045,7 +6959,7 @@ WININT int __winDestroyWindowX11(window_t window) {
 }
 
 
-WININT int __winUpdateWindowFlagsX11(window_t window, const uint32_t flags) {
+WININT int __winUpdateWindowFlagsX11(window_t window) {
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
     if (!win) { return (0); }
@@ -6058,7 +6972,7 @@ WININT int __winUpdateWindowFlagsX11(window_t window, const uint32_t flags) {
     /* properties that doesn't require the window to be mapped */
 
     /* WINDOW_FLAG_RESIZABLE */
-    if (flags & WINDOW_FLAG_RESIZABLE) {
+    if (win->resize) {
         XSizeHints hints; int64_t supp;
         XGetWMNormalHints(dpy, client, &hints, &supp);
 
@@ -6114,10 +7028,9 @@ WININT int __winMapWindowX11(window_t window) {
     do {
         XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
     } while (xevent.type != MapNotify);
-    win->mapped = 1;
 
     /* lastly, update all the configs that required mapping */
-    if (!__winUpdateWindowFlagsX11(win, win->flags)) {
+    if (!__winUpdateWindowFlagsX11(win)) {
         return (0);
     }
 
@@ -6143,7 +7056,6 @@ WININT int __winUnmapWindowX11(window_t window) {
     do {
         XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
     } while (xevent.type != MapNotify);
-    win->mapped = 0;
 
     /* success */
     return (1);
@@ -6312,6 +7224,78 @@ WININT int __winSetWindowTitleX11(window_t window, const char *t) {
 }
 
 
+WININT int __winCreateContextX11(context_t *context, window_t window) {
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) *context;
+    if (!ctx) { return (0); }
+    
+    struct __window_h_window *win = (struct __window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* get the context's API */
+    uint32_t api = win->api;
+    switch (api) {
+        case (WINDOW_API_NONE): {
+            /* alloc new 'x11' context object */
+            struct __window_h_context_x11 *x11 = calloc(1, sizeof(struct __window_h_context_x11));
+            if (!x11) { return (0); }
+
+            /* create graphics context */
+            x11->xlib.dpy = win->x11->xlib.dpy;
+            x11->xlib.gc  = XCreateGC(win->x11->xlib.dpy,
+                                      win->x11->xlib.client,
+                                      x11->xlib.gcm, &x11->xlib.gcv);
+            if (!x11->xlib.gc) { return (0); }
+
+            /* return the 'x11' result */
+            ctx->x11 = x11;
+        } break;
+
+        case (WINDOW_API_OPENGL): {
+            /* alloc new 'x11' context object */
+            struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
+            if (!egl) { return (0); }
+
+        } break;
+
+        /* unhandled API */
+        default: { } return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winDestroyContextX11(context_t context) {
+    /* references */
+    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    if (!ctx) { return (0); }
+            
+    /* check and release 'x11' */
+    struct __window_h_context_x11 *x11 = ctx->x11;
+    if (x11) {
+        /* release 'gc' */
+        if (!XFreeGC(x11->xlib.dpy,
+                     x11->xlib.gc)
+        ) {
+            return (0);
+        }
+
+        /* release 'x11' */
+        free(x11);
+    }
+            
+    /* check and release 'egl' */
+    struct __window_h_context_egl *egl = ctx->egl;
+    if (egl) {
+    }
+
+    /* success */
+    return (1);
+}
+
+
 
 
 
@@ -6364,60 +7348,6 @@ WININT int __winPollEventsX11(void) {
 #
 #  /* WINDOW_BACKEND_WAYLAND - Wayland implementation */
 #  if defined (WINDOW_BACKEND_WAYLAND)
-#   include <wayland-util.h>
-#   include <wayland-version.h>
-#   include <wayland-client.h>
-#   include <wayland-client-core.h>
-#   include <wayland-client-protocol.h>
-
-/* libwayland-client... */
-
-struct __window_h_window_wl {
-    struct {
-    
-        /* ... */
-
-    } wl;
-
-    /* ... */
-
-};
-
-
-struct __window_h_context_wl {
-    struct {
-    
-        /* ... */
-
-    } wl;
-
-    /* ... */
-
-};
-
-
-struct __window_h_cursor_wl {
-    struct {
-    
-        /* ... */
-
-    } wl;
-};
-
-typedef struct __window_h_wl *__window_h_wl;
-
-struct __window_h_wl {
-    struct {
-    
-        /* ... */
-
-    } wl;
-
-    /* ... */
-
-    /* libwayland-client */
-    void *libwayland_client;
-};
 
 /* internal functions (declarations) */
 
@@ -6445,56 +7375,6 @@ WININT int __winLoadWayland(struct __window_h_wl *wl) {
 #
 #  /* WINDOW_PLATFORM_WIN32 - Win32 implementation */
 #  if defined (WINDOW_PLATFORM_WIN32)
-#   include <windows.h>
-
-/* user32: windows.h */
-
-struct __window_h_window_win32 {
-    struct {
-    
-        /* ... */
-
-    } win32;
-
-    /* ... */
-
-};
-
-
-struct __window_h_context_win32 {
-    struct {
-    
-        /* ... */
-
-    } win32;
-
-    /* ... */
-
-};
-
-
-struct __window_h_cursor_win32 {
-    struct {
-    
-        /* ... */
-
-    } win32;
-};
-
-typedef struct __window_h_win32 *__window_h_win32;
-
-struct __window_h_win32 {
-    struct {
-    
-        /* ... */
-
-    } win32;
-
-    /* ... */
-
-    /* windows libraries */
-    void *user32;
-};
 
 /* internal functions (declarations) */
 
@@ -6517,713 +7397,8 @@ WININT int __winLoadWin32(struct __window_h_win32 *win32) {
     /* success */
     return (1);
 }
+
 #  endif /* WINDOW_PLATFORM_WIN32 */
-#
-#  /* WINDOW_BACKEND_EGL - EGL implementation layer */
-#  if defined (WINDOW_BACKEND_EGL)
-
-/* libEGL: egl.h */
-
-/* {{{ */
-
-typedef Display *EGLNativeDisplayType;
-typedef Pixmap   EGLNativePixmapType;
-typedef Window   EGLNativeWindowType;
-
-typedef EGLNativeDisplayType NativeDisplayType;
-typedef EGLNativePixmapType  NativePixmapType;
-typedef EGLNativeWindowType  NativeWindowType;
-
-typedef void *EGLDisplay;
-typedef void *EGLConfig;
-typedef void *EGLSurface;
-typedef void *EGLContext;
-typedef void *EGLClientBuffer;
-typedef void *EGLSync;
-typedef void *EGLImage;
-
-typedef int32_t EGLint;
-typedef unsigned int EGLBoolean;
-typedef unsigned int EGLenum;
-typedef intptr_t EGLAttrib;
-
-typedef void (*__eglMustCastToProperFunctionPointerType)(void);
-
-typedef uint64_t EGLTime;
-
-/* }}} */
-/* {{{ */
-
-#   define EGL_ALPHA_SIZE 0x3021
-#   define EGL_BAD_ACCESS 0x3002
-#   define EGL_BAD_ALLOC 0x3003
-#   define EGL_BAD_ATTRIBUTE 0x3004
-#   define EGL_BAD_CONFIG 0x3005
-#   define EGL_BAD_CONTEXT 0x3006
-#   define EGL_BAD_CURRENT_SURFACE 0x3007
-#   define EGL_BAD_DISPLAY 0x3008
-#   define EGL_BAD_MATCH 0x3009
-#   define EGL_BAD_NATIVE_PIXMAP 0x300A
-#   define EGL_BAD_NATIVE_WINDOW 0x300B
-#   define EGL_BAD_PARAMETER 0x300C
-#   define EGL_BAD_SURFACE 0x300D
-#   define EGL_BLUE_SIZE 0x3022
-#   define EGL_BUFFER_SIZE 0x3020
-#   define EGL_CONFIG_CAVEAT 0x3027
-#   define EGL_CONFIG_ID 0x3028
-#   define EGL_CORE_NATIVE_ENGINE 0x305B
-#   define EGL_DEPTH_SIZE 0x3025
-#   define EGL_DONT_CARE ((EGLint) -1)
-#   define EGL_DRAW 0x3059
-#   define EGL_EXTENSIONS 0x3055
-#   define EGL_FALSE 0
-#   define EGL_GREEN_SIZE 0x3023
-#   define EGL_HEIGHT 0x3056
-#   define EGL_LARGEST_PBUFFER 0x3058
-#   define EGL_LEVEL 0x3029
-#   define EGL_MAX_PBUFFER_HEIGHT 0x302A
-#   define EGL_MAX_PBUFFER_PIXELS 0x302B
-#   define EGL_MAX_PBUFFER_WIDTH 0x302C
-#   define EGL_NATIVE_RENDERABLE 0x302D
-#   define EGL_NATIVE_VISUAL_ID 0x302E
-#   define EGL_NATIVE_VISUAL_TYPE 0x302F
-#   define EGL_NONE 0x3038
-#   define EGL_NON_CONFORMANT_CONFIG 0x3051
-#   define EGL_NOT_INITIALIZED 0x3001
-#   define EGL_NO_CONTEXT ((EGLContext) 0)
-#   define EGL_NO_DISPLAY ((EGLDisplay) 0)
-#   define EGL_NO_SURFACE ((EGLSurface) 0)
-#   define EGL_PBUFFER_BIT 0x0001
-#   define EGL_PIXMAP_BIT 0x0002
-#   define EGL_READ 0x305A
-#   define EGL_RED_SIZE 0x3024
-#   define EGL_SAMPLES 0x3031
-#   define EGL_SAMPLE_BUFFERS 0x3032
-#   define EGL_SLOW_CONFIG 0x3050
-#   define EGL_STENCIL_SIZE 0x3026
-#   define EGL_SUCCESS 0x3000
-#   define EGL_SURFACE_TYPE 0x3033
-#   define EGL_TRANSPARENT_BLUE_VALUE 0x3035
-#   define EGL_TRANSPARENT_GREEN_VALUE 0x3036
-#   define EGL_TRANSPARENT_RED_VALUE 0x3037
-#   define EGL_TRANSPARENT_RGB 0x3052
-#   define EGL_TRANSPARENT_TYPE 0x3034
-#   define EGL_TRUE 1
-#   define EGL_VENDOR 0x3053
-#   define EGL_VERSION 0x3054
-#   define EGL_WIDTH 0x3057
-#   define EGL_WINDOW_BIT 0x0004
-#   define EGL_BACK_BUFFER 0x3084
-#   define EGL_BIND_TO_TEXTURE_RGB 0x3039
-#   define EGL_BIND_TO_TEXTURE_RGBA 0x303A
-#   define EGL_CONTEXT_LOST 0x300E
-#   define EGL_MIN_SWAP_INTERVAL 0x303B
-#   define EGL_MAX_SWAP_INTERVAL 0x303C
-#   define EGL_MIPMAP_TEXTURE 0x3082
-#   define EGL_MIPMAP_LEVEL 0x3083
-#   define EGL_NO_TEXTURE 0x305C
-#   define EGL_TEXTURE_2D 0x305F
-#   define EGL_TEXTURE_FORMAT 0x3080
-#   define EGL_TEXTURE_RGB 0x305D
-#   define EGL_TEXTURE_RGBA 0x305E
-#   define EGL_TEXTURE_TARGET 0x3081
-#   define EGL_ALPHA_FORMAT 0x3088
-#   define EGL_ALPHA_FORMAT_NONPRE 0x308B
-#   define EGL_ALPHA_FORMAT_PRE 0x308C
-#   define EGL_ALPHA_MASK_SIZE 0x303E
-#   define EGL_BUFFER_PRESERVED 0x3094
-#   define EGL_BUFFER_DESTROYED 0x3095
-#   define EGL_CLIENT_APIS 0x308D
-#   define EGL_COLORSPACE 0x3087
-#   define EGL_COLORSPACE_sRGB 0x3089
-#   define EGL_COLORSPACE_LINEAR 0x308A
-#   define EGL_COLOR_BUFFER_TYPE 0x303F
-#   define EGL_CONTEXT_CLIENT_TYPE 0x3097
-#   define EGL_DISPLAY_SCALING 10000
-#   define EGL_HORIZONTAL_RESOLUTION 0x3090
-#   define EGL_LUMINANCE_BUFFER 0x308F
-#   define EGL_LUMINANCE_SIZE 0x303D
-#   define EGL_OPENGL_ES_BIT 0x0001
-#   define EGL_OPENVG_BIT 0x0002
-#   define EGL_OPENGL_ES_API 0x30A0
-#   define EGL_OPENVG_API 0x30A1
-#   define EGL_OPENVG_IMAGE 0x3096
-#   define EGL_PIXEL_ASPECT_RATIO 0x3092
-#   define EGL_RENDERABLE_TYPE 0x3040
-#   define EGL_RENDER_BUFFER 0x3086
-#   define EGL_RGB_BUFFER 0x308E
-#   define EGL_SINGLE_BUFFER 0x3085
-#   define EGL_SWAP_BEHAVIOR 0x3093
-#   define EGL_UNKNOWN ((EGLint) -1)
-#   define EGL_VERTICAL_RESOLUTION 0x3091
-#   define EGL_CONFORMANT 0x3042
-#   define EGL_CONTEXT_CLIENT_VERSION 0x3098
-#   define EGL_MATCH_NATIVE_PIXMAP 0x3041
-#   define EGL_OPENGL_ES2_BIT 0x0004
-#   define EGL_VG_ALPHA_FORMAT 0x3088
-#   define EGL_VG_ALPHA_FORMAT_NONPRE 0x308B
-#   define EGL_VG_ALPHA_FORMAT_PRE 0x308C
-#   define EGL_VG_ALPHA_FORMAT_PRE_BIT 0x0040
-#   define EGL_VG_COLORSPACE 0x3087
-#   define EGL_VG_COLORSPACE_sRGB 0x3089
-#   define EGL_VG_COLORSPACE_LINEAR 0x308A
-#   define EGL_VG_COLORSPACE_LINEAR_BIT 0x0020
-#   define EGL_DEFAULT_DISPLAY ((EGLNativeDisplayType) 0)
-#   define EGL_MULTISAMPLE_RESOLVE_BOX_BIT 0x0200
-#   define EGL_MULTISAMPLE_RESOLVE 0x3099
-#   define EGL_MULTISAMPLE_RESOLVE_DEFAULT 0x309A
-#   define EGL_MULTISAMPLE_RESOLVE_BOX 0x309B
-#   define EGL_OPENGL_API 0x30A2
-#   define EGL_OPENGL_BIT 0x0008
-#   define EGL_SWAP_BEHAVIOR_PRESERVED_BIT 0x0400
-#   define EGL_CONTEXT_MAJOR_VERSION 0x3098
-#   define EGL_CONTEXT_MINOR_VERSION 0x30FB
-#   define EGL_CONTEXT_OPENGL_PROFILE_MASK 0x30FD
-#   define EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY 0x31BD
-#   define EGL_NO_RESET_NOTIFICATION 0x31BE
-#   define EGL_LOSE_CONTEXT_ON_RESET 0x31BF
-#   define EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT 0x00000001
-#   define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT 0x00000002
-#   define EGL_CONTEXT_OPENGL_DEBUG 0x31B0
-#   define EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE 0x31B1
-#   define EGL_CONTEXT_OPENGL_ROBUST_ACCESS 0x31B2
-#   define EGL_OPENGL_ES3_BIT 0x00000040
-#   define EGL_CL_EVENT_HANDLE 0x309C
-#   define EGL_SYNC_CL_EVENT 0x30FE
-#   define EGL_SYNC_CL_EVENT_COMPLETE 0x30FF
-#   define EGL_SYNC_PRIOR_COMMANDS_COMPLETE 0x30F0
-#   define EGL_SYNC_TYPE 0x30F7
-#   define EGL_SYNC_STATUS 0x30F1
-#   define EGL_SYNC_CONDITION 0x30F8
-#   define EGL_SIGNALED 0x30F2
-#   define EGL_UNSIGNALED 0x30F3
-#   define EGL_SYNC_FLUSH_COMMANDS_BIT 0x0001
-#   define EGL_FOREVER 0xFFFFFFFFFFFFFFFFull
-#   define EGL_TIMEOUT_EXPIRED 0x30F5
-#   define EGL_CONDITION_SATISFIED 0x30F6
-#   define EGL_NO_SYNC ((EGLSync) 0)
-#   define EGL_SYNC_FENCE 0x30F9
-#   define EGL_GL_COLORSPACE 0x309D
-#   define EGL_GL_COLORSPACE_SRGB 0x3089
-#   define EGL_GL_COLORSPACE_LINEAR 0x308A
-#   define EGL_GL_RENDERBUFFER 0x30B9
-#   define EGL_GL_TEXTURE_2D 0x30B1
-#   define EGL_GL_TEXTURE_LEVEL 0x30BC
-#   define EGL_GL_TEXTURE_3D 0x30B2
-#   define EGL_GL_TEXTURE_ZOFFSET 0x30BD
-#   define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_X 0x30B3
-#   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_X 0x30B4
-#   define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Y 0x30B5
-#   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Y 0x30B6
-#   define EGL_GL_TEXTURE_CUBE_MAP_POSITIVE_Z 0x30B7
-#   define EGL_GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 0x30B8
-#   define EGL_IMAGE_PRESERVED 0x30D2
-#   define EGL_NO_IMAGE ((EGLImage) 0)
-
-/* }}} */
-/* {{{ */
-
-typedef EGLBoolean (* PFN_eglBindAPI_PROC) (EGLenum);
-PFN_eglBindAPI_PROC eglBindAPI_PROC = 0;
-#   define eglBindAPI (assert(eglBindAPI_PROC != 0), eglBindAPI_PROC)
-
-typedef EGLBoolean (* PFN_eglBindTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
-PFN_eglBindTexImage_PROC eglBindTexImage_PROC = 0;
-#   define eglBindTexImage (assert(eglBindTexImage_PROC != 0), eglBindTexImage_PROC)
-
-typedef EGLBoolean (* PFN_eglChooseConfig_PROC) (EGLDisplay, const EGLint *, EGLConfig *, EGLint, EGLint *);
-PFN_eglChooseConfig_PROC eglChooseConfig_PROC = 0;
-#   define eglChooseConfig (assert(eglChooseConfig_PROC != 0), eglChooseConfig_PROC)
-
-typedef EGLint (* PFN_eglClientWaitSync_PROC) (EGLDisplay, EGLSync, EGLint, EGLTime);
-PFN_eglClientWaitSync_PROC eglClientWaitSync_PROC = 0;
-#   define eglClientWaitSync (assert(eglClientWaitSync_PROC != 0), eglClientWaitSync_PROC)
-
-typedef EGLBoolean (* PFN_eglCopyBuffers_PROC) (EGLDisplay, EGLSurface, EGLNativePixmapType);
-PFN_eglCopyBuffers_PROC eglCopyBuffers_PROC = 0;
-#   define eglCopyBuffers (assert(eglCopyBuffers_PROC != 0), eglCopyBuffers_PROC)
-
-typedef EGLContext (* PFN_eglCreateContext_PROC) (EGLDisplay, EGLConfig, EGLContext, const EGLint *);
-PFN_eglCreateContext_PROC eglCreateContext_PROC = 0;
-#   define eglCreateContext (assert(eglCreateContext_PROC != 0), eglCreateContext_PROC)
-
-typedef EGLImage (* PFN_eglCreateImage_PROC) (EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLAttrib *);
-PFN_eglCreateImage_PROC eglCreateImage_PROC = 0;
-#   define eglCreateImage (assert(eglCreateImage_PROC != 0), eglCreateImage_PROC)
-
-typedef EGLSurface (* PFN_eglCreatePbufferFromClientBuffer_PROC) (EGLDisplay, EGLenum, EGLClientBuffer, EGLConfig, const EGLint *);
-PFN_eglCreatePbufferFromClientBuffer_PROC eglCreatePbufferFromClientBuffer_PROC = 0;
-#   define eglCreatePbufferFromClientBuffer (assert(eglCreatePbufferFromClientBuffer_PROC != 0), eglCreatePbufferFromClientBuffer_PROC)
-
-typedef EGLSurface (* PFN_eglCreatePbufferSurface_PROC) (EGLDisplay, EGLConfig, const EGLint *);
-PFN_eglCreatePbufferSurface_PROC eglCreatePbufferSurface_PROC = 0;
-#   define eglCreatePbufferSurface (assert(eglCreatePbufferSurface_PROC != 0), eglCreatePbufferSurface_PROC)
-
-typedef EGLSurface (* PFN_eglCreatePixmapSurface_PROC) (EGLDisplay, EGLConfig, EGLNativePixmapType, const EGLint *);
-PFN_eglCreatePixmapSurface_PROC eglCreatePixmapSurface_PROC = 0;
-#   define eglCreatePixmapSurface (assert(eglCreatePixmapSurface_PROC != 0), eglCreatePixmapSurface_PROC)
-
-typedef EGLSurface (* PFN_eglCreatePlatformPixmapSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
-PFN_eglCreatePlatformPixmapSurface_PROC eglCreatePlatformPixmapSurface_PROC = 0;
-#   define eglCreatePlatformPixmapSurface (assert(eglCreatePlatformPixmapSurface_PROC != 0), eglCreatePlatformPixmapSurface_PROC)
-
-typedef EGLSurface (* PFN_eglCreatePlatformWindowSurface_PROC) (EGLDisplay, EGLConfig, void *, const EGLAttrib *);
-PFN_eglCreatePlatformWindowSurface_PROC eglCreatePlatformWindowSurface_PROC = 0;
-#   define eglCreatePlatformWindowSurface (assert(eglCreatePlatformWindowSurface_PROC != 0), eglCreatePlatformWindowSurface_PROC)
-
-typedef EGLSync (* PFN_eglCreateSync_PROC) (EGLDisplay, EGLenum, const EGLAttrib *);
-PFN_eglCreateSync_PROC eglCreateSync_PROC = 0;
-#   define eglCreateSync (assert(eglCreateSync_PROC != 0), eglCreateSync_PROC)
-
-typedef EGLSurface (* PFN_eglCreateWindowSurface_PROC) (EGLDisplay, EGLConfig, EGLNativeWindowType, const EGLint *);
-PFN_eglCreateWindowSurface_PROC eglCreateWindowSurface_PROC = 0;
-#   define eglCreateWindowSurface (assert(eglCreateWindowSurface_PROC != 0), eglCreateWindowSurface_PROC)
-
-typedef EGLBoolean (* PFN_eglDestroyContext_PROC) (EGLDisplay, EGLContext);
-PFN_eglDestroyContext_PROC eglDestroyContext_PROC = 0;
-#   define eglDestroyContext (assert(eglDestroyContext_PROC != 0), eglDestroyContext_PROC)
-
-typedef EGLBoolean (* PFN_eglDestroyImage_PROC) (EGLDisplay, EGLImage);
-PFN_eglDestroyImage_PROC eglDestroyImage_PROC = 0;
-#   define eglDestroyImage (assert(eglDestroyImage_PROC != 0), eglDestroyImage_PROC)
-
-typedef EGLBoolean (* PFN_eglDestroySurface_PROC) (EGLDisplay, EGLSurface);
-PFN_eglDestroySurface_PROC eglDestroySurface_PROC = 0;
-#   define eglDestroySurface (assert(eglDestroySurface_PROC != 0), eglDestroySurface_PROC)
-
-typedef EGLBoolean (* PFN_eglDestroySync_PROC) (EGLDisplay, EGLSync);
-PFN_eglDestroySync_PROC eglDestroySync_PROC = 0;
-#   define eglDestroySync (assert(eglDestroySync_PROC != 0), eglDestroySync_PROC)
-
-typedef EGLBoolean (* PFN_eglGetConfigAttrib_PROC) (EGLDisplay, EGLConfig, EGLint, EGLint *);
-PFN_eglGetConfigAttrib_PROC eglGetConfigAttrib_PROC = 0;
-#   define eglGetConfigAttrib (assert(eglGetConfigAttrib_PROC != 0), eglGetConfigAttrib_PROC)
-
-typedef EGLBoolean (* PFN_eglGetConfigs_PROC) (EGLDisplay, EGLConfig *, EGLint, EGLint *);
-PFN_eglGetConfigs_PROC eglGetConfigs_PROC = 0;
-#   define eglGetConfigs (assert(eglGetConfigs_PROC != 0), eglGetConfigs_PROC)
-
-typedef EGLContext (* PFN_eglGetCurrentContext_PROC) (void);
-PFN_eglGetCurrentContext_PROC eglGetCurrentContext_PROC = 0;
-#   define eglGetCurrentContext (assert(eglGetCurrentContext_PROC != 0), eglGetCurrentContext_PROC)
-
-typedef EGLDisplay (* PFN_eglGetCurrentDisplay_PROC) (void);
-PFN_eglGetCurrentDisplay_PROC eglGetCurrentDisplay_PROC = 0;
-#   define eglGetCurrentDisplay (assert(eglGetCurrentDisplay_PROC != 0), eglGetCurrentDisplay_PROC)
-
-typedef EGLSurface (* PFN_eglGetCurrentSurface_PROC) (EGLint);
-PFN_eglGetCurrentSurface_PROC eglGetCurrentSurface_PROC = 0;
-#   define eglGetCurrentSurface (assert(eglGetCurrentSurface_PROC != 0), eglGetCurrentSurface_PROC)
-
-typedef EGLDisplay (* PFN_eglGetDisplay_PROC) (EGLNativeDisplayType);
-PFN_eglGetDisplay_PROC eglGetDisplay_PROC = 0;
-#   define eglGetDisplay (assert(eglGetDisplay_PROC != 0), eglGetDisplay_PROC)
-
-typedef EGLint (* PFN_eglGetError_PROC) (void);
-PFN_eglGetError_PROC eglGetError_PROC = 0;
-#   define eglGetError (assert(eglGetError_PROC != 0), eglGetError_PROC)
-
-typedef EGLDisplay (* PFN_eglGetPlatformDisplay_PROC) (EGLenum, void *, const EGLAttrib *);
-PFN_eglGetPlatformDisplay_PROC eglGetPlatformDisplay_PROC = 0;
-#   define eglGetPlatformDisplay (assert(eglGetPlatformDisplay_PROC != 0), eglGetPlatformDisplay_PROC)
-
-typedef __eglMustCastToProperFunctionPointerType (* PFN_eglGetProcAddress_PROC) (const char *);
-PFN_eglGetProcAddress_PROC eglGetProcAddress_PROC = 0;
-#   define eglGetProcAddress (assert(eglGetProcAddress_PROC != 0), eglGetProcAddress_PROC)
-
-typedef EGLBoolean (* PFN_eglGetSyncAttrib_PROC) (EGLDisplay, EGLSync, EGLint, EGLAttrib *);
-PFN_eglGetSyncAttrib_PROC eglGetSyncAttrib_PROC = 0;
-#   define eglGetSyncAttrib (assert(eglGetSyncAttrib_PROC != 0), eglGetSyncAttrib_PROC)
-
-typedef EGLBoolean (* PFN_eglInitialize_PROC) (EGLDisplay, EGLint *, EGLint *);
-PFN_eglInitialize_PROC eglInitialize_PROC = 0;
-#   define eglInitialize (assert(eglInitialize_PROC != 0), eglInitialize_PROC)
-
-typedef EGLBoolean (* PFN_eglMakeCurrent_PROC) (EGLDisplay, EGLSurface, EGLSurface, EGLContext);
-PFN_eglMakeCurrent_PROC eglMakeCurrent_PROC = 0;
-#   define eglMakeCurrent (assert(eglMakeCurrent_PROC != 0), eglMakeCurrent_PROC)
-
-typedef EGLenum (* PFN_eglQueryAPI_PROC) (void);
-PFN_eglQueryAPI_PROC eglQueryAPI_PROC = 0;
-#   define eglQueryAPI (assert(eglQueryAPI_PROC != 0), eglQueryAPI_PROC)
-
-typedef EGLBoolean (* PFN_eglQueryContext_PROC) (EGLDisplay, EGLContext, EGLint, EGLint *);
-PFN_eglQueryContext_PROC eglQueryContext_PROC = 0;
-#   define eglQueryContext (assert(eglQueryContext_PROC != 0), eglQueryContext_PROC)
-
-typedef const char *(* PFN_eglQueryString_PROC) (EGLDisplay, EGLint);
-PFN_eglQueryString_PROC eglQueryString_PROC = 0;
-#   define eglQueryString (assert(eglQueryString_PROC != 0), eglQueryString_PROC)
-
-typedef EGLBoolean (* PFN_eglQuerySurface_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint *);
-PFN_eglQuerySurface_PROC eglQuerySurface_PROC = 0;
-#   define eglQuerySurface (assert(eglQuerySurface_PROC != 0), eglQuerySurface_PROC)
-
-typedef EGLBoolean (* PFN_eglReleaseTexImage_PROC) (EGLDisplay, EGLSurface, EGLint);
-PFN_eglReleaseTexImage_PROC eglReleaseTexImage_PROC = 0;
-#   define eglReleaseTexImage (assert(eglReleaseTexImage_PROC != 0), eglReleaseTexImage_PROC)
-
-typedef EGLBoolean (* PFN_eglReleaseThread_PROC) (void);
-PFN_eglReleaseThread_PROC eglReleaseThread_PROC = 0;
-#   define eglReleaseThread (assert(eglReleaseThread_PROC != 0), eglReleaseThread_PROC)
-
-typedef EGLBoolean (* PFN_eglSurfaceAttrib_PROC) (EGLDisplay, EGLSurface, EGLint, EGLint);
-PFN_eglSurfaceAttrib_PROC eglSurfaceAttrib_PROC = 0;
-#   define eglSurfaceAttrib (assert(eglSurfaceAttrib_PROC != 0), eglSurfaceAttrib_PROC)
-
-typedef EGLBoolean (* PFN_eglSwapBuffers_PROC) (EGLDisplay, EGLSurface);
-PFN_eglSwapBuffers_PROC eglSwapBuffers_PROC = 0;
-#   define eglSwapBuffers (assert(eglSwapBuffers_PROC != 0), eglSwapBuffers_PROC)
-
-typedef EGLBoolean (* PFN_eglSwapInterval_PROC) (EGLDisplay, EGLint);
-PFN_eglSwapInterval_PROC eglSwapInterval_PROC = 0;
-#   define eglSwapInterval (assert(eglSwapInterval_PROC != 0), eglSwapInterval_PROC)
-
-typedef EGLBoolean (* PFN_eglTerminate_PROC) (EGLDisplay);
-PFN_eglTerminate_PROC eglTerminate_PROC = 0;
-#   define eglTerminate (assert(eglTerminate_PROC != 0), eglTerminate_PROC)
-
-typedef EGLBoolean (* PFN_eglWaitClient_PROC) (void);
-PFN_eglWaitClient_PROC eglWaitClient_PROC = 0;
-#   define eglWaitClient (assert(eglWaitClient_PROC != 0), eglWaitClient_PROC)
-
-typedef EGLBoolean (* PFN_eglWaitGL_PROC) (void);
-PFN_eglWaitGL_PROC eglWaitGL_PROC = 0;
-#   define eglWaitGL (assert(eglWaitGL_PROC != 0), eglWaitGL_PROC)
-
-typedef EGLBoolean (* PFN_eglWaitNative_PROC) (EGLint);
-PFN_eglWaitNative_PROC eglWaitNative_PROC = 0;
-#   define eglWaitNative (assert(eglWaitNative_PROC != 0), eglWaitNative_PROC)
-
-typedef EGLBoolean (* PFN_eglWaitSync_PROC) (EGLDisplay, EGLSync, EGLint);
-PFN_eglWaitSync_PROC eglWaitSync_PROC = 0;
-#   define eglWaitSync (assert(eglWaitSync_PROC != 0), eglWaitSync_PROC)
-
-/* }}} */
-
-static const struct __window_h_egl_attrmap {
-    uint32_t src;
-    uint32_t dst;
-} __window_h_egl_attrmap[] = {
-    
-/* {{{ */
-
-    { EGL_RENDER_BUFFER, WINDOW_GL_DOUBLEBUFFER },
-    
-    { EGL_RED_SIZE, WINDOW_GL_RED_SIZE },
-    
-    { EGL_GREEN_SIZE, WINDOW_GL_GREEN_SIZE },
-    
-    { EGL_BLUE_SIZE, WINDOW_GL_BLUE_SIZE },
-    
-    { EGL_ALPHA_SIZE, WINDOW_GL_ALPHA_SIZE },
-    
-    { EGL_DEPTH_SIZE, WINDOW_GL_DEPTH_SIZE },
-    
-    { EGL_STENCIL_SIZE, WINDOW_GL_STENCIL_SIZE },
-    
-    { EGL_CONTEXT_MAJOR_VERSION, WINDOW_GL_CONTEXT_MAJOR_VERSION },
-    
-    { EGL_CONTEXT_MINOR_VERSION, WINDOW_GL_CONTEXT_MINOR_VERSION },
-    
-    { EGL_CONTEXT_OPENGL_PROFILE_MASK, WINDOW_GL_CONTEXT_PROFILE_MASK },
-    
-    { EGL_CONTEXT_OPENGL_DEBUG, WINDOW_GL_CONTEXT_DEBUG },
-
-    /* ... */
-
-    { EGL_NONE, WINDOW_GL_NONE }
-
-/* }}} */
-
-};
-
-
-typedef struct __window_h_context_egl *context_t_egl;
-
-struct __window_h_context_egl {
-    EGLConfig  config;
-    EGLSurface surface;
-    EGLContext context;
-};
-
-
-typedef struct __window_h_egl *__window_h_egl;
-
-struct __window_h_egl {
-    EGLDisplay dpy;
-
-    struct {
-        int surface[16];
-        int context[32];
-        int  config[64];
-    } attr;
-
-    /* libEGL */
-    void *handle;
-};
-
-/* internal functions (declarations) */
-
-WININT int __winLoadEGL(void);
-
-WININT int __winLoadEGLModules(void);
-
-WININT int __winUnloadEGL(void);
-
-/* internal functions (definitions) */
-
-WININT int __winLoadEGL(void) {
-    /* alloc '__window_h.egl' field */
-    if (!__window_h.egl) {
-        __window_h.egl = calloc(1, sizeof(struct __window_h_egl));
-        if (!__window_h.egl) {
-            return (0);
-        }
-    }
-
-    /* try to load libEGL symbols */
-    if (!__winLoadEGLModules()) { return (0); }
-    
-    /* get '__window_h.egl' members */
-    EGLDisplay dpy = eglGetDisplay(__window_h.x11->xlib.dpy);
-    if (dpy == EGL_NO_DISPLAY) { return (0); }
-
-    /* set '__window_h.egl' members */
-    __window_h.egl->dpy = dpy;
-
-    /* set '__window_h.egl->attr' defaults */
-    int attr_surface[16] = { EGL_RENDER_BUFFER, EGL_SINGLE_BUFFER,
-                             EGL_NONE };
-
-    memcpy(__window_h.egl->attr.surface, attr_surface, sizeof(attr_surface));
-    
-    int attr_context[32] = { EGL_CONTEXT_MAJOR_VERSION, 1,
-                             EGL_CONTEXT_MINOR_VERSION, 0,
-                             EGL_CONTEXT_OPENGL_PROFILE_MASK, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-                             EGL_CONTEXT_OPENGL_DEBUG, EGL_FALSE,
-                             EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE, EGL_FALSE,
-                             EGL_CONTEXT_OPENGL_ROBUST_ACCESS, EGL_FALSE,
-                             EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY, EGL_NO_RESET_NOTIFICATION,
-                             EGL_NONE };
-
-    memcpy(__window_h.egl->attr.context, attr_context, sizeof(attr_context));
-    
-    int attr_config[64] = { EGL_ALPHA_MASK_SIZE, 0,
-                            EGL_ALPHA_SIZE, 0,
-                            EGL_BIND_TO_TEXTURE_RGB, EGL_DONT_CARE,
-                            EGL_BIND_TO_TEXTURE_RGBA, EGL_DONT_CARE,
-                            EGL_BLUE_SIZE, 0,
-                            EGL_BUFFER_SIZE, 0,
-                            EGL_COLOR_BUFFER_TYPE, EGL_RGB_BUFFER,
-                            EGL_CONFIG_CAVEAT, EGL_DONT_CARE,
-                            EGL_CONFIG_ID, EGL_DONT_CARE,
-                            EGL_CONFORMANT, 0,
-                            EGL_DEPTH_SIZE, 0,
-                            EGL_GREEN_SIZE, 0,
-                            EGL_LEVEL, 0,
-                            EGL_LUMINANCE_SIZE, 0,
-                            EGL_MATCH_NATIVE_PIXMAP, EGL_NONE,
-                            EGL_NATIVE_RENDERABLE, EGL_DONT_CARE,
-                            EGL_MAX_SWAP_INTERVAL, EGL_DONT_CARE,
-                            EGL_MIN_SWAP_INTERVAL, EGL_DONT_CARE,
-                            EGL_RED_SIZE, 0,
-                            EGL_SAMPLE_BUFFERS, 0,
-                            EGL_SAMPLES, 0,
-                            EGL_STENCIL_SIZE, 0,
-                            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
-                            EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-                            EGL_TRANSPARENT_TYPE, EGL_NONE,
-                            EGL_TRANSPARENT_RED_VALUE, EGL_DONT_CARE,
-                            EGL_TRANSPARENT_GREEN_VALUE, EGL_DONT_CARE,
-                            EGL_TRANSPARENT_BLUE_VALUE, EGL_DONT_CARE,
-                            EGL_NONE };
-
-    memcpy(__window_h.egl->attr.config, attr_config, sizeof(attr_config));
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winLoadEGLModules(void) {
-    /* null-check */
-    if (!__window_h.egl) { return (0); }
-
-    /* try to load handle */
-    const char  *names[] = { "libEGL.so", "libEGL.so.1, libEGL.so.1.1.0", 0 };
-    static void *handle  = 0;
-    if (!handle) {
-        for (const char **name = names; *name; name++) {
-            handle = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
-            if (handle) { break; }
-        }
-
-        /* check if handle loaded */
-        if (!handle) { return (0); }
-    }
-
-    /* libEGL: egl.h */
-    /* {{{ */
-    eglBindAPI_PROC = (PFN_eglBindAPI_PROC) dlsym(handle, "eglBindAPI");
-    eglBindTexImage_PROC = (PFN_eglBindTexImage_PROC) dlsym(handle, "eglBindTexImage");
-    eglChooseConfig_PROC = (PFN_eglChooseConfig_PROC) dlsym(handle, "eglChooseConfig");
-    eglClientWaitSync_PROC = (PFN_eglClientWaitSync_PROC) dlsym(handle, "eglClientWaitSync");
-    eglCopyBuffers_PROC = (PFN_eglCopyBuffers_PROC) dlsym(handle, "eglCopyBuffers");
-    eglCreateContext_PROC = (PFN_eglCreateContext_PROC) dlsym(handle, "eglCreateContext");
-    eglCreateImage_PROC = (PFN_eglCreateImage_PROC) dlsym(handle, "eglCreateImage");
-    eglCreatePbufferFromClientBuffer_PROC = (PFN_eglCreatePbufferFromClientBuffer_PROC) dlsym(handle, "eglCreatePbufferFromClientBuffer");
-    eglCreatePbufferSurface_PROC = (PFN_eglCreatePbufferSurface_PROC) dlsym(handle, "eglCreatePbufferSurface");
-    eglCreatePixmapSurface_PROC = (PFN_eglCreatePixmapSurface_PROC) dlsym(handle, "eglCreatePixmapSurface");
-    eglCreatePlatformPixmapSurface_PROC = (PFN_eglCreatePlatformPixmapSurface_PROC) dlsym(handle, "eglCreatePlatformPixmapSurface");
-    eglCreatePlatformWindowSurface_PROC = (PFN_eglCreatePlatformWindowSurface_PROC) dlsym(handle, "eglCreatePlatformWindowSurface");
-    eglCreateSync_PROC = (PFN_eglCreateSync_PROC) dlsym(handle, "eglCreateSync");
-    eglCreateWindowSurface_PROC = (PFN_eglCreateWindowSurface_PROC) dlsym(handle, "eglCreateWindowSurface");
-    eglDestroyContext_PROC = (PFN_eglDestroyContext_PROC) dlsym(handle, "eglDestroyContext");
-    eglDestroyImage_PROC = (PFN_eglDestroyImage_PROC) dlsym(handle, "eglDestroyImage");
-    eglDestroySurface_PROC = (PFN_eglDestroySurface_PROC) dlsym(handle, "eglDestroySurface");
-    eglDestroySync_PROC = (PFN_eglDestroySync_PROC) dlsym(handle, "eglDestroySync");
-    eglGetConfigAttrib_PROC = (PFN_eglGetConfigAttrib_PROC) dlsym(handle, "eglGetConfigAttrib");
-    eglGetConfigs_PROC = (PFN_eglGetConfigs_PROC) dlsym(handle, "eglGetConfigs");
-    eglGetCurrentContext_PROC = (PFN_eglGetCurrentContext_PROC) dlsym(handle, "eglGetCurrentContext");
-    eglGetCurrentDisplay_PROC = (PFN_eglGetCurrentDisplay_PROC) dlsym(handle, "eglGetCurrentDisplay");
-    eglGetCurrentSurface_PROC = (PFN_eglGetCurrentSurface_PROC) dlsym(handle, "eglGetCurrentSurface");
-    eglGetDisplay_PROC = (PFN_eglGetDisplay_PROC) dlsym(handle, "eglGetDisplay");
-    eglGetError_PROC = (PFN_eglGetError_PROC) dlsym(handle, "eglGetError");
-    eglGetPlatformDisplay_PROC = (PFN_eglGetPlatformDisplay_PROC) dlsym(handle, "eglGetPlatformDisplay");
-    eglGetProcAddress_PROC = (PFN_eglGetProcAddress_PROC) dlsym(handle, "eglGetProcAddress");
-    eglGetSyncAttrib_PROC = (PFN_eglGetSyncAttrib_PROC) dlsym(handle, "eglGetSyncAttrib");
-    eglInitialize_PROC = (PFN_eglInitialize_PROC) dlsym(handle, "eglInitialize");
-    eglMakeCurrent_PROC = (PFN_eglMakeCurrent_PROC) dlsym(handle, "eglMakeCurrent");
-    eglQueryAPI_PROC = (PFN_eglQueryAPI_PROC) dlsym(handle, "eglQueryAPI");
-    eglQueryContext_PROC = (PFN_eglQueryContext_PROC) dlsym(handle, "eglQueryContext");
-    eglQueryString_PROC = (PFN_eglQueryString_PROC) dlsym(handle, "eglQueryString");
-    eglQuerySurface_PROC = (PFN_eglQuerySurface_PROC) dlsym(handle, "eglQuerySurface");
-    eglReleaseTexImage_PROC = (PFN_eglReleaseTexImage_PROC) dlsym(handle, "eglReleaseTexImage");
-    eglReleaseThread_PROC = (PFN_eglReleaseThread_PROC) dlsym(handle, "eglReleaseThread");
-    eglSurfaceAttrib_PROC = (PFN_eglSurfaceAttrib_PROC) dlsym(handle, "eglSurfaceAttrib");
-    eglSwapBuffers_PROC = (PFN_eglSwapBuffers_PROC) dlsym(handle, "eglSwapBuffers");
-    eglSwapInterval_PROC = (PFN_eglSwapInterval_PROC) dlsym(handle, "eglSwapInterval");
-    eglTerminate_PROC = (PFN_eglTerminate_PROC) dlsym(handle, "eglTerminate");
-    eglWaitClient_PROC = (PFN_eglWaitClient_PROC) dlsym(handle, "eglWaitClient");
-    eglWaitGL_PROC = (PFN_eglWaitGL_PROC) dlsym(handle, "eglWaitGL");
-    eglWaitNative_PROC = (PFN_eglWaitNative_PROC) dlsym(handle, "eglWaitNative");
-    eglWaitSync_PROC = (PFN_eglWaitSync_PROC) dlsym(handle, "eglWaitSync");
-    /* }}} */
-
-    /* set '__window_h.egl->handle' member */ 
-    __window_h.egl->handle = handle;
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winUnloadEGL(void) {
-    /* null-check */
-    if (!__window_h.egl) { return (0); }
-
-    /* release egl resources */
-    eglTerminate(__window_h.egl->dpy);
-
-    /* release '__window_h.egl->handle' field */
-    dlclose(__window_h.egl->handle), __window_h.egl->handle = 0;
-
-    /* release '__window_h.egl' */
-    free(__window_h.egl);
-
-    /* success */
-    return (1);
-}
-
-#  endif /* WINDOW_BACKEND_EGL */
-#
-#  /* WINDOW_BACKEND_WGL - WGL implementation layer */
-#  if defined (WINDOW_BACKEND_WGL)
-#   include <WGL/wgl.h>
-
-/* opengl32: wgl.h */
-
-typedef struct __window_h_wgl *__window_h_wgl;
-
-struct __window_h_wgl {
-
-    /* ... */
-
-    /* opengl32 */
-    void *handle;
-};
-
-
-typedef struct __window_h_context_wgl *context_t_wgl;
-
-struct __window_h_context_wgl {
-
-    /* ... */
-
-};
-
-/* internal functions (declarations) */
-
-WININT int __winLoadWGL(void);
-
-WININT int __winLoadWGLModules(void);
-
-WININT int __winUnloadWGL(void);
-
-/* internal functions (definitions) */
-
-WININT int __winLoadWGL(void) {
-    /* alloc '__window_h.wgl' field */
-    if (!__window_h.wgl) {
-        __window_h.wgl = calloc(1, sizeof(struct __window_h_wgl));
-        if (!__window_h.wgl) {
-            return (0);
-        }
-    }
-
-    /* try to load opengl32 symbols */
-    if (!__winLoadWGLModules()) { return (0); }
-   
-    /* ... */
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winLoadWGLModules(void) {
-    /* null-check */
-    if (!__window_h.wgl) { return (0); }
-
-    /* try to load handle */
-    static void *handle  = 0;
-
-    /* ... */
-
-    /* set '__window_h.wgl->handle' member */ 
-    __window_h.wgl->handle = handle;
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winUnloadWGL(void) {
-    /* null-check */
-    if (!__window_h.wgl) { return (0); }
-
-    /* release '__window_h.wgl->handle' field */
-    /* ... */
-
-    /* release '__window_h.wgl' */
-    free(__window_h.wgl);
-
-    /* success */
-    return (1);
-}
-
-#  endif /* WINDOW_BACKEND_WGL */
 
 /* platform internal functions */
 

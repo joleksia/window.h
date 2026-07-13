@@ -8,8 +8,11 @@ int main(void) {
     winInit();
 
     window_t window = 0;
-    winCreateWindow(&window, 800, 600, "window.h - Sample no.1: \"Basic\"", 0);
+    winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
     winMapWindow(window);
+
+    context_t context = 0;
+    winCreateContext(&context, window);
 
     int exit = 0;
     while (!exit) {
