@@ -11,9 +11,7 @@ int main(void) {
         return (1);
     }
 
-    winGLSetAttribute(WINDOW_GL_CONTEXT_MAJOR_VERSION, 4);
-    winGLSetAttribute(WINDOW_GL_CONTEXT_MINOR_VERSION, 6);
-    winGLSetAttribute(WINDOW_GL_CONTEXT_PROFILE_MASK, 2);
+    winWindowHints(WINDOW_HINT_API, WINDOW_API_OPENGL);
 
     window_t win;
     winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL");
