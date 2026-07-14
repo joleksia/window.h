@@ -5,10 +5,13 @@
 
 int main(void) {
     /* init window.h */
-    winInit();
+    if (!winInit()) {
+        fprintf(stderr, "winInit() failed\n");
+        return (1);
+    }
 
     window_t window = 0;
-    winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic", 0);
+    winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic");
     winMapWindow(window);
 
     context_t context = 0;
