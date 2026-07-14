@@ -609,9 +609,8 @@ enum {
 
 
 enum {
-    WINDOW_HINT_NONE = 0x00000000,
-
-    WINDOW_HINT_API = 0x00000010,
+    
+    WINDOW_CLIENT_API = 0x00000010,
     WINDOW_API_NONE,
     WINDOW_API_OPENGL,
     WINDOW_API_VULKAN,
@@ -788,7 +787,7 @@ WINDEF int winInit(void);
 
 WINDEF int winQuit(void);
 
-WINDEF int winWindowHints(const uint32_t, const int32_t);
+WINDEF int winSetHints(const uint32_t, const int32_t);
 
 /* windowing functions */
 
@@ -1078,9 +1077,22 @@ struct __window_h_window {
 
     struct __window_h_window_win32 *win32;
 
+    /* struct of window attributes */
+    struct {
+        uint32_t api;
 
-    /* window's api */
-    uint32_t api;
+        uint8_t mapped;
+
+        uint8_t resizable;
+
+        uint8_t focused;
+
+        uint8_t maximized;
+
+        uint8_t minimized;
+
+        uint8_t fullscreen;
+    } attributes;
 
 };
 
@@ -1173,6 +1185,18 @@ static struct __window_h {
 
     struct {
         uint32_t api;
+
+        struct {
+            uint8_t resizable;
+            uint8_t decorations;
+            uint8_t maximized;
+        } window;
+
+        struct {
+            uint8_t profile;
+            uint8_t major;
+            uint8_t minor;
+        } context;
     } hints;
 
     /* selections */
@@ -4415,12 +4439,6 @@ PFN_XIFreeDeviceInfo_PROC XIFreeDeviceInfo_PROC = 0;
 
 struct __window_h_window_x11 {
     struct {
-        /* display reference */
-        Display *dpy;
-
-        /* default root window */
-        Window root;
-
         /* child / client / main window */
         Window client;
 
@@ -4432,9 +4450,6 @@ struct __window_h_window_x11 {
 
 struct __window_h_context_x11 {
     struct {
-        /* display reference */
-        Display *dpy;
-
         /* graphics context */
         GC gc;
         XGCValues gcv; /* gc-values */
@@ -4445,9 +4460,6 @@ struct __window_h_context_x11 {
 
 struct __window_h_cursor_x11 {
     struct {
-        /* display reference */
-        Display *dpy;
-
         /* cursor handle */
         Cursor handle;
     } xlib;
@@ -4457,9 +4469,11 @@ struct __window_h_cursor_x11 {
 struct __window_h_x11 {
     /* handle do shared object */
     void *handle;
+
+    /* main connection handle */
+    Display *dpy;
     
     struct {
-        Display *dpy;
         Window   root;  /* root window */
         Window   ipc;   /* IPC window */
     } xlib;
@@ -4637,9 +4651,9 @@ WINDEF int winQuit(void) {
 }
 
 
-WINDEF int winWindowHints(const uint32_t hint, const int32_t value) {
-    /* 'hint': WINDOW_HINT_API */
-    if (hint == WINDOW_HINT_API) {
+WINDEF int winSetHints(const uint32_t hint, const int32_t value) {
+    /* WINDOW_CLIENT_API */
+    if (hint == WINDOW_CLIENT_API) {
         if (value != WINDOW_API_NONE    &&
             value != WINDOW_API_OPENGL  &&
             value != WINDOW_API_VULKAN  &&
@@ -5206,7 +5220,7 @@ WININT int __winLoadEGL(struct __window_h_egl *egl) {
     egl->handle = libegl;
     
     /* get EGL display */ 
-    EGLDisplay dpy = eglGetDisplay(x11->xlib.dpy);
+    EGLDisplay dpy = eglGetDisplay(x11->dpy);
     if (dpy == EGL_NO_DISPLAY) {
         dlclose(libegl);
         return (0);
@@ -5667,9 +5681,9 @@ WININT int __winSetWindowTitleX11(window_t, const char *);
 
 WININT int __winCreateContextX11(context_t, window_t);
 
-WININT int __winCreateX11ContextX11(context_t, window_t);
+WININT int __winCreateX11ContextX11(struct __window_h_context_x11 *, context_t, window_t);
 
-WININT int __winCreateEGLContextX11(context_t, window_t);
+WININT int __winCreateEGLContextX11(struct __window_h_context_egl *, context_t, window_t);
 
 WININT int __winDestroyContextX11(context_t);
 
@@ -6471,7 +6485,7 @@ WININT int __winLoadX11(struct __window_h_x11 *x11) {
         dlclose(libxi);
         return (0);
     }
-    x11->xlib.dpy = dpy;
+    x11->dpy = dpy;
 
     /* success */
     return (1);
@@ -6481,7 +6495,7 @@ WININT int __winUnloadX11(struct __window_h_x11 *x11) {
     /* null-check */
     if (!x11) { return (0); }
 
-    XCloseDisplay(x11->xlib.dpy);
+    XCloseDisplay(x11->dpy);
 
     /* release X11 modules*/
     dlclose(x11->handle), x11->handle = 0;
@@ -6502,7 +6516,7 @@ WININT int __winInitX11(void) {
     if (!x11) { return (0); }
 
     /* xlib references */
-    Display *dpy = x11->xlib.dpy;
+    Display *dpy = x11->dpy;
     
     /* get 'x11->xlib' members */
     Window root = DefaultRootWindow(dpy);
@@ -6546,7 +6560,7 @@ WININT int __winQuitX11(void) {
     if (!x11) { return (0); }
 
     /* close IPC window */
-    XDestroyWindow(x11->xlib.dpy,
+    XDestroyWindow(x11->dpy,
                    x11->xlib.ipc);
 
     /* success */
@@ -6562,14 +6576,13 @@ WININT int __winCreateWindowX11(window_t client, const size_t width, const size_
     /* alloc new 'x11' window object */
     struct __window_h_window_x11 *x11 = calloc(1, sizeof(struct __window_h_window_x11));
     if (!x11) { return (0); }
-    x11->xlib.dpy  = __window_h.x11->xlib.dpy;
-    x11->xlib.root = __window_h.x11->xlib.root;
-
-    /* API-based window creation */
+    
+    /* Window MUST inherit the api from currently selected global hint.
+     * */ 
     uint32_t api = __window_h.hints.api;
     switch (__window_h.hints.api) {
         case (WINDOW_API_NONE): {
-            win->api = api;
+            win->attributes.api = api;
             if (!__winCreateX11WindowX11(x11, width, height, title)) {
                 free(x11);
                 return (0);
@@ -6577,7 +6590,7 @@ WININT int __winCreateWindowX11(window_t client, const size_t width, const size_
         } break;
 
         case (WINDOW_API_OPENGL): {
-            win->api = api;
+            win->attributes.api = api;
             if (!__winCreateEGLWindowX11(x11, width, height, title)) {
                 free(x11);
                 return (0);
@@ -6597,12 +6610,12 @@ WININT int __winCreateWindowX11(window_t client, const size_t width, const size_
 
 WININT int __winCreateX11WindowX11(struct __window_h_window_x11 *x11, const size_t width, const size_t height, const char *title) {
     /* null-check */
-    if (!x11) { return (0); }
     if (!__window_h.x11) { return (0); }
+    if (!x11) { return (0); }
 
     /* xlib references */
-    Display *dpy = x11->xlib.dpy;
-    Window  root = x11->xlib.root;
+    Display *dpy = __window_h.x11->dpy;
+    Window  root = __window_h.x11->xlib.root;
 
     /* get X11 components */
     int screen = DefaultScreen(dpy);
@@ -6666,8 +6679,8 @@ WININT int __winCreateEGLWindowX11(struct __window_h_window_x11 *x11, const size
     __window_h.egl = egl;
 
     /* xlib references */
-    Display *dpy = x11->xlib.dpy;
-    Window  root = x11->xlib.root;
+    Display *dpy = __window_h.x11->dpy; 
+    Window  root = __window_h.x11->xlib.root;
 
     /* get X11 components */
     int screen = DefaultScreen(dpy);
@@ -6749,8 +6762,7 @@ WININT int __winDestroyWindowX11(window_t window) {
     struct __window_h_window_x11 *x11 = win->x11;
 
     /* destroy client */
-    XDestroyWindow(x11->xlib.dpy,
-                   x11->xlib.client);
+    XDestroyWindow(__window_h.x11->dpy, x11->xlib.client);
 
     /* deallocate window object */
     free(x11);
@@ -6766,17 +6778,11 @@ WININT int __winMapWindowX11(window_t window) {
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
     /* map window */
     XMapWindow(dpy, client);
-
-    /* wait for 'MapNotify' to arrive */
-    XEvent xevent = { 0 };
-    do {
-        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
-    } while (xevent.type != MapNotify);
 
     /* success */
     return (1);
@@ -6789,17 +6795,11 @@ WININT int __winUnmapWindowX11(window_t window) {
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
-    /* map window */
-    XMapWindow(dpy, client);
-
-    /* wait for 'MapNotify' to arrive */
-    XEvent xevent = { 0 };
-    do {
-        XWindowEvent(dpy, client, StructureNotifyMask, &xevent);
-    } while (xevent.type != MapNotify);
+    /* unmap window */
+    XUnmapWindow(dpy, client);
 
     /* success */
     return (1);
@@ -6812,7 +6812,7 @@ WININT int __winGetWindowSizeX11(window_t window, size_t *w_ptr, size_t *h_ptr) 
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
     /* get window attributes */
@@ -6834,7 +6834,7 @@ WININT int __winSetWindowSizeX11(window_t window, const size_t w, const size_t h
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
     /* resize window */
@@ -6851,7 +6851,7 @@ WININT int __winSetWindowMinSizeX11(window_t window, const size_t w, const size_
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
     /* get WM normal hints */
@@ -6876,7 +6876,7 @@ WININT int __winSetWindowMaxSizeX11(window_t window, const size_t w, const size_
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
     /* get WM normal hints */
@@ -6901,7 +6901,7 @@ WININT int __winGetWindowPositionX11(window_t window, size_t *x_ptr, size_t *y_p
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
     /* get window attributes */
@@ -6923,7 +6923,7 @@ WININT int __winSetWindowPositionX11(window_t window, const size_t x, const size
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
     /* resize window */
@@ -6940,7 +6940,7 @@ WININT int __winGetWindowTitleX11(window_t window, char **t_ptr) {
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
     /* fetch window title */
@@ -6957,7 +6957,7 @@ WININT int __winSetWindowTitleX11(window_t window, const char *t) {
     if (!win) { return (0); }
 
     /* xlib references */
-	Display   *dpy = win->x11->xlib.dpy;
+	Display   *dpy = __window_h.x11->dpy;
     Window  client = win->x11->xlib.client;
 
     /* fetch window title */
@@ -6976,9 +6976,38 @@ WININT int __winCreateContextX11(context_t context, window_t window) {
     struct __window_h_window *win = (struct __window_h_window *) window;
     if (!win) { return (0); }
 
-    uint32_t api = win->api;
+    /* Context MUST inherit the context from the 'window'!
+     * Like, imagine: you create 'NONE' window and 'OpenGL' context?
+     * Window and Context must have the same API and in-between their creation
+     * 'WINDOW_CLIENT_API' hint can change.
+     * */
+    uint32_t api = win->attributes.api;
     switch (api) {
-        case (WINDOW_API_NONE): { return (__winCreateX11ContextX11(context, window)); }
+        case (WINDOW_API_NONE): {
+            /* alloc new 'x11' object */
+            struct __window_h_context_x11 *x11 = calloc(1, sizeof(struct __window_h_context_x11));
+
+            /* process 'x11' context */
+            if (!__winCreateX11ContextX11(x11, context, window)) {
+                free(x11);
+                return (0);
+            }
+
+            ctx->x11 = x11;
+        } break;
+
+        case (WINDOW_API_OPENGL): {
+            /* alloc new 'egl' object */
+            struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
+            
+            /* process 'egl' context */
+            if (!__winCreateEGLContextX11(egl, context, window)) {
+                free(egl);
+                return (0);
+            }
+
+            ctx->egl = egl;
+        } break;
 
         default: { return (0); }
     }
@@ -6988,7 +7017,10 @@ WININT int __winCreateContextX11(context_t context, window_t window) {
 }
 
 
-WININT int __winCreateX11ContextX11(context_t context, window_t window) {
+WININT int __winCreateX11ContextX11(struct __window_h_context_x11 *x11, context_t context, window_t window) {
+    /* null-check */
+    if (!x11) { return (0); }
+
     /* references */
     struct __window_h_context *ctx = (struct __window_h_context *) context;
     if (!ctx) { return (0); }
@@ -6996,17 +7028,10 @@ WININT int __winCreateX11ContextX11(context_t context, window_t window) {
     struct __window_h_window *win = (struct __window_h_window *) window;
     if (!win) { return (0); }
 
-    /* alloc new 'x11' object */
-    struct __window_h_context_x11 *x11 = calloc(1, sizeof(struct __window_h_context_x11));
-    if (!x11) { return (0); }
-
-    x11->xlib.dpy = __window_h.x11->xlib.dpy;
-
     /* create new 'GC' */
-    x11->xlib.gc = XCreateGC(win->x11->xlib.dpy,
+    x11->xlib.gc = XCreateGC(__window_h.x11->dpy,
                              win->x11->xlib.client,
-                              x11->xlib.gcm,
-                             &x11->xlib.gcv);
+                             x11->xlib.gcm, &x11->xlib.gcv);
     if (!x11->xlib.gc) {
         free(x11);
         return (0);
@@ -7020,17 +7045,16 @@ WININT int __winCreateX11ContextX11(context_t context, window_t window) {
 }
 
 
-WININT int __winCreateEGLContextX11(context_t context, window_t window) {
+WININT int __winCreateEGLContextX11(struct __window_h_context_egl *egl, context_t context, window_t window) {
+    /* null-check */
+    if (!egl) { return (0); }
+
     /* references */
     struct __window_h_context *ctx = (struct __window_h_context *) context;
     if (!ctx) { return (0); }
     
     struct __window_h_window *win = (struct __window_h_window *) window;
     if (!win) { return (0); }
-
-    /* alloc new 'egl' object */
-    struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
-    if (!egl) { return (0); }
 
     /* ... */
 
@@ -7051,9 +7075,7 @@ WININT int __winDestroyContextX11(context_t context) {
     struct __window_h_context_x11 *x11 = ctx->x11;
     if (x11) {
         /* release 'gc' */
-        if (!XFreeGC(x11->xlib.dpy,
-                     x11->xlib.gc)
-        ) {
+        if (!XFreeGC(__window_h.x11->dpy, x11->xlib.gc)) {
             return (0);
         }
 
@@ -7199,7 +7221,7 @@ WININT int __winPollEventsX11(void) {
     if (!x11) { return (0); }
 
     /* xlib references */
-	Display *dpy = x11->xlib.dpy;
+	Display *dpy = x11->dpy;
 
     XEvent xevent = { 0 };
     while (XPending(dpy)) {

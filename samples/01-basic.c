@@ -10,6 +10,8 @@ int main(void) {
         return (1);
     }
 
+    winSetHints(WINDOW_CLIENT_API, WINDOW_API_NONE);
+
     window_t window = 0;
     winCreateWindow(&window, 800, 600, "Hello, window.h - Sample 01. Basic");
     winMapWindow(window);

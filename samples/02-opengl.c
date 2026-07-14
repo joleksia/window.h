@@ -11,7 +11,7 @@ int main(void) {
         return (1);
     }
 
-    winWindowHints(WINDOW_HINT_API, WINDOW_API_OPENGL);
+    winSetHints(WINDOW_CLIENT_API, WINDOW_API_OPENGL);
 
     window_t win;
     winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL");
