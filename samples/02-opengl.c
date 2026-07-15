@@ -43,12 +43,10 @@ int main(void) {
         while (winPollEvents(&event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
-                    printf("WINDOW_EVENT_QUIT\n");
                     exit = 1;
                 } break;
 
                 case (WINDOW_EVENT_WINDOW_RESIZE): {
-                    printf("WINDOW_EVENT_WINDOW_RESIZE\n");
                     glViewport(0, 0, event.window.data1, event.window.data2);
                 } break;
             }

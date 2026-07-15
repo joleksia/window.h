@@ -1604,8 +1604,6 @@ PFN_eglWaitSync_PROC eglWaitSync_PROC = 0;
 typedef struct __window_h_context_egl *context_t_egl;
 
 struct __window_h_context_egl {
-    EGLDisplay display;
-    EGLConfig  config;
     EGLSurface surface;
     EGLContext context;
 };
@@ -5230,6 +5228,7 @@ WININT int __winLoadEGL(struct __window_h_egl *egl) {
     
     /* initialize EGL */
     eglInitialize(dpy, 0, 0);
+    eglBindAPI(EGL_OPENGL_API);
 
     /* success */
     return (1);
@@ -6686,9 +6685,15 @@ WININT int __winCreateEGLWindowX11(struct __window_h_window_x11 *x11, const size
     int screen = DefaultScreen(dpy);
 
     /* get EGLConfig object */
-    int num_config   = 0;
+    int num_configs  = 0;
     EGLConfig config = 0;
-    if (!eglChooseConfig(__window_h.egl->dpy, __window_h.egl->attr.config, &config, 1, &num_config)) { return (0); }
+    if (!eglChooseConfig(__window_h.egl->dpy,
+                         __window_h.egl->attr.config,
+                         &config,
+                         1, &num_configs)
+    ) {
+        return (0);
+    }
 
     /* get visual ID based on EGLConfig */
     int visualid = 0;
@@ -7056,7 +7061,31 @@ WININT int __winCreateEGLContextX11(struct __window_h_context_egl *egl, context_
     struct __window_h_window *win = (struct __window_h_window *) window;
     if (!win) { return (0); }
 
-    /* ... */
+    /* get EGLConfig object */
+    int num_configs  = 0;
+    EGLConfig config = 0;
+    if (!eglChooseConfig(__window_h.egl->dpy,
+                         __window_h.egl->attr.config,
+                         &config,
+                         1, &num_configs)
+    ) {
+        return (0);
+    }
+
+    /* get EGLSurface object */
+    egl->surface = eglCreateWindowSurface(__window_h.egl->dpy, config,
+                                          win->x11->xlib.client,
+                                          __window_h.egl->attr.surface);
+    if (egl->surface == EGL_NO_SURFACE) { return (0); }
+
+    /* get EGLContext object */
+    egl->context = eglCreateContext(__window_h.egl->dpy, config,
+                                    EGL_NO_CONTEXT,
+                                    __window_h.egl->attr.context);
+    if (egl->context == EGL_NO_CONTEXT) {
+        return (0);
+    }
+                                    
 
     /* return 'egl' object */
     ctx->egl = egl;
@@ -7075,9 +7104,7 @@ WININT int __winDestroyContextX11(context_t context) {
     struct __window_h_context_x11 *x11 = ctx->x11;
     if (x11) {
         /* release 'gc' */
-        if (!XFreeGC(__window_h.x11->dpy, x11->xlib.gc)) {
-            return (0);
-        }
+        XFreeGC(__window_h.x11->dpy, x11->xlib.gc);
 
         /* release 'x11' */
         free(x11);
@@ -7086,7 +7113,11 @@ WININT int __winDestroyContextX11(context_t context) {
     /* check and release 'egl' */
     struct __window_h_context_egl *egl = ctx->egl;
     if (egl) {
-        /* ... */
+        /* release 'context' */
+        eglDestroyContext(__window_h.egl->dpy, egl->context);
+
+        /* release 'surface' */
+        eglDestroySurface(__window_h.egl->dpy, egl->surface);
 
         /* release 'egl' */
         free(egl);
@@ -7152,7 +7183,7 @@ WININT int __winGLMakeCurrentX11(context_t context) {
     if (!egl) { return (0); }
 
     /* set context current */
-    if (!eglMakeCurrent(egl->display,
+    if (!eglMakeCurrent(__window_h.egl->dpy,
                         egl->surface,
                         egl->surface,
                         egl->context)
@@ -7174,7 +7205,7 @@ WININT int __winGLSwapBuffersX11(context_t context) {
     if (!egl) { return (0); }
 
     /* set context current */
-    if (!eglSwapBuffers(egl->display, egl->surface)) {
+    if (!eglSwapBuffers(__window_h.egl->dpy, egl->surface)) {
         return (0);
     }
 
@@ -7192,7 +7223,7 @@ WININT int __winGLSwapIntervalX11(context_t context, const int interval) {
     if (!egl) { return (0); }
 
     /* set context current */
-    if (!eglSwapInterval(egl->display, interval)) {
+    if (!eglSwapInterval(__window_h.egl->dpy, interval)) {
         return (0);
     }
 
