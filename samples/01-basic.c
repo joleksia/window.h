@@ -24,6 +24,27 @@ int main(void) {
         event_t event = { 0 };
         while (winPollEvents(&event)) {
             if (event.type == WINDOW_EVENT_QUIT) { exit = 1; }
+
+            if (event.type == WINDOW_EVENT_KEYBOARD_KEY) {
+                if (event.keyboard.keymod == WINDOW_KEYMOD_CTRL) {
+                    /* write / copy */
+                    if (event.keyboard.keycode == WINDOW_KEYCODE_C) {
+                        char   *str = "Hello, window.h!";
+                        size_t size = strlen(str);
+                        winCopy(WINDOW_SELECTION_CLIPBOARD, (void *) str, size);
+                    }
+                    /* read / paste */
+                    if (event.keyboard.keycode == WINDOW_KEYCODE_V) {
+                        char  *str;
+                        size_t size;
+                        winPaste(WINDOW_SELECTION_CLIPBOARD, (void **) &str, &size);
+                        printf("%.*s\n", (int) size, str);
+                        free(str);
+                    }
+                }
+            }
+
+            printf("%x\n", event.type);
         }
     }
 

@@ -595,12 +595,12 @@ enum {
     WINDOW_EVENT_WINDOW_MAXIMIZE,
     WINDOW_EVENT_WINDOW_MINIMIZE,
     WINDOW_EVENT_WINDOW_FULLSCREEN,
-    WINDOW_EVENT_CLIPBOARD = 0x5000,
-    WINDOW_EVENT_CLIPBOARD_COPY,
-    WINDOW_EVENT_CLIPBOARD_WRITE = WINDOW_EVENT_CLIPBOARD_COPY,
-    WINDOW_EVENT_CLIPBOARD_PASTE,
-    WINDOW_EVENT_CLIPBOARD_READ = WINDOW_EVENT_CLIPBOARD_PASTE,
-    WINDOW_EVENT_CLIPBOARD_CLEAR,
+    WINDOW_EVENT_SELECTION = 0x5000,
+    WINDOW_EVENT_SELECTION_COPY,
+    WINDOW_EVENT_SELECTION_WRITE = WINDOW_EVENT_SELECTION_COPY,
+    WINDOW_EVENT_SELECTION_PASTE,
+    WINDOW_EVENT_SELECTION_READ = WINDOW_EVENT_SELECTION_PASTE,
+    WINDOW_EVENT_SELECTION_CLEAR,
     
     /* ... */
 
@@ -637,6 +637,13 @@ enum {
     WINDOW_GL_CONTEXT_DEBUG,
     
     /* ... */
+};
+
+
+enum {
+    WINDOW_SELECTION_PRIMARY = 1,
+    WINDOW_SELECTION_SECONDARY,
+    WINDOW_SELECTION_CLIPBOARD
 };
 
 
@@ -737,14 +744,15 @@ struct eventWindow_s {
 };
 
 
-typedef struct eventClipboard_s eventClipboard_t;
+typedef struct eventSelection_s eventSelection_t;
 
-struct eventClipboard_s {
-    uint32_t type;      /* WINDOW_EVENT_CLIPBOARD */
+struct eventSelection_s {
+    uint32_t type;      /* WINDOW_EVENT_SELECTION */
     uint64_t time;      /* event timestampt */
 
     void  *data;
     size_t size;
+    uint32_t selection;
 };
 
 
@@ -775,8 +783,8 @@ union event_u {
     /* WINDOW_EVENT_WINDOW */
     eventWindow_t window;
 
-    /* WINDOW_EVENT_CLIPBOARD */
-    eventClipboard_t clipboard;
+    /* WINDOW_EVENT_SELECTION */
+    eventSelection_t clipboard;
 
 };
 
@@ -881,9 +889,9 @@ WINDEF int winPeekEvent(event_t *);
 
 /* clipboard functions */
 
-WINDEF int winCopy(const uint32_t, const char *);
+WINDEF int winCopy(const uint32_t, const void *, const size_t);
 
-WINDEF int winPaste(const uint32_t, char **);
+WINDEF int winPaste(const uint32_t, void **, size_t *);
 
 /* timing functions */
 
@@ -969,19 +977,19 @@ struct __window_h_event {
 };
 
 
-struct __window_h_selection{
+struct __window_h_selection {
     struct {
-        char  *data;
+        void  *data;
         size_t size;
     } primary;
     
     struct {
-        char  *data;
+        void  *data;
         size_t size;
     } secondary;
     
     struct {
-        char  *data;
+        void  *data;
         size_t size;
     } clipboard;
 };
@@ -1044,8 +1052,8 @@ struct __window_h_platform {
 
     /* clipboard functions */
     
-    int (*copy) (const uint32_t, const char *);
-    int (*paste) (const uint32_t, char **);
+    int (*copy) (const uint32_t, const void *, const size_t);
+    int (*paste) (const uint32_t, void **, size_t *);
 };
 
 
@@ -4480,6 +4488,11 @@ struct __window_h_x11 {
         /* Atoms: WM */
         Atom WM_PROTOCOLS;
         Atom WM_DELETE_WINDOW;
+
+        /* Atoms: clipboard */
+        Atom TARGETS;
+        Atom CLIPBOARD;
+        Atom UTF8_STRING;
     } xatom;
 
     struct {
@@ -4634,6 +4647,17 @@ WINDEF int winQuit(void) {
         winDestroyWindow(window);
         window = next;
     }
+
+    /* release selections */
+    free(__window_h.selection.primary.data);
+    __window_h.selection.primary.data = 0;
+    __window_h.selection.primary.size = 0;
+    free(__window_h.selection.secondary.data);
+    __window_h.selection.secondary.data = 0;
+    __window_h.selection.secondary.size = 0;
+    free(__window_h.selection.clipboard.data);
+    __window_h.selection.clipboard.data = 0;
+    __window_h.selection.clipboard.size = 0;
     
     /* call platform - specific quit function */
     if (!__window_h.platform.quit()) { return (0); }
@@ -5031,8 +5055,8 @@ WINDEF int winSendEvent(uint32_t type, ...) {
             event.window.data2  = va_arg(list, uint32_t);
         } break;
 
-        case (WINDOW_EVENT_CLIPBOARD_COPY):
-        case (WINDOW_EVENT_CLIPBOARD_PASTE): {
+        case (WINDOW_EVENT_SELECTION_COPY):
+        case (WINDOW_EVENT_SELECTION_PASTE): {
             event.clipboard.data = va_arg(list, void *);
             event.clipboard.size = va_arg(list, size_t);
         } break;
@@ -5065,8 +5089,8 @@ WINDEF int winPeekEvent(event_t *event) {
 
 /* clipboard functions */
 
-WINDEF int winCopy(const uint32_t selection, const char *data) { return (__window_h.platform.copy(selection, data)); }
-WINDEF int winPaste(const uint32_t selection, char **data) { return (__window_h.platform.paste(selection, data)); }
+WINDEF int winCopy(const uint32_t selection, const void *data, const size_t size) { return (__window_h.platform.copy(selection, data, size)); }
+WINDEF int winPaste(const uint32_t selection, void **d_ptr, size_t *s_ptr) { return (__window_h.platform.paste(selection, d_ptr, s_ptr)); }
 
 /* timing functions */
 
@@ -5644,6 +5668,12 @@ WININT int __winLoadX11(struct __window_h_x11 *);
 
 WININT int __winUnloadX11(struct __window_h_x11 *);
 
+WININT int __winGetSelectionX11(const Atom, void **, size_t *);
+
+WININT int __winSetSelectionX11(const Atom, const void *, const size_t);
+
+WININT int __winHandleSelectionX11(XEvent *);
+
 /* window.h API (declarations) */
 
 WININT int __winInitX11(void);
@@ -5720,13 +5750,9 @@ WININT int __winSetCursorRawMotionX11(window_t, const uint8_t);
 
 WININT int __winPollEventsX11(void);
 
-/*
+WININT int __winCopyX11(const uint32_t, const void *, const size_t);
 
-WININT int __winCopyX11(const uint32_t, const char *);
-
-WININT int __winPasteX11(const uint32_t, char **);
-
-*/
+WININT int __winPasteX11(const uint32_t, void **, size_t *);
 
 /* internal functions (definitions) */
 
@@ -6490,6 +6516,7 @@ WININT int __winLoadX11(struct __window_h_x11 *x11) {
     return (1);
 }
 
+
 WININT int __winUnloadX11(struct __window_h_x11 *x11) {
     /* null-check */
     if (!x11) { return (0); }
@@ -6507,46 +6534,300 @@ WININT int __winUnloadX11(struct __window_h_x11 *x11) {
     return (1);
 }
 
-/* window.h API (declarations) */
 
-WININT int __winInitX11(void) {
+WININT int __winGetSelectionX11(const Atom selection, void **d_ptr, size_t *s_ptr) {
     /* references */
     struct __window_h_x11 *x11 = __window_h.x11; 
     if (!x11) { return (0); }
 
     /* xlib references */
     Display *dpy = x11->dpy;
+    Window   ipc = x11->xlib.ipc;
+
+    /* xatom references */
+    Atom CLIPBOARD   = x11->xatom.CLIPBOARD;
+    Atom UTF8_STRING = x11->xatom.UTF8_STRING;
+
+    /* get globally-stored selection data */
+    void  **data = 0;
+    size_t *size = 0;
+    if (selection == XA_PRIMARY) {
+        data = &__window_h.selection.primary.data;
+        size = &__window_h.selection.primary.size;
+    }
+    else if (selection == XA_SECONDARY) {
+        data = &__window_h.selection.secondary.data;
+        size = &__window_h.selection.secondary.size;
+    }
+    else if (selection == CLIPBOARD) {
+        data = &__window_h.selection.clipboard.data;
+        size = &__window_h.selection.clipboard.size;
+    }
+    else { return (0); }
+
+    /* check if we're the 'selection' owner */
+    if (XGetSelectionOwner(dpy, selection) == ipc) {
+        /* if so, save some time and straight-up return the string */
+        *d_ptr = calloc(*size + 1, sizeof(char));
+        *d_ptr = memcpy(*d_ptr, *data, *size);
+        *s_ptr = *size;
+        return (1);
+    }
+    
+    /* check if the 'selection' owner (clipboard source) even exists */
+    if (XGetSelectionOwner(dpy, selection) == None) {
+        *d_ptr = 0;
+        *s_ptr = 0;
+        return (0);
+    }
+
+    free(*data);
+    *data = 0;
+    *size = 0;
+
+    XConvertSelection(dpy, selection, UTF8_STRING, selection, ipc, CurrentTime);
+
+    /* get the 'Selection...' event  */
+    XEvent xevent = { 0 };
+    do {
+        XNextEvent(dpy, &xevent);
+    } while (xevent.type != SelectionNotify &&
+             xevent.type != SelectionRequest);
+
+    /* perform round-trip */
+    if (!__winHandleSelectionX11(&xevent)) { return (0); }
+
+    /* copy the selection data to 'str' */
+    if (!*data) { return (0); }
+    *d_ptr = calloc(*size + 1, sizeof(char));
+    *d_ptr = memcpy(*d_ptr, *data, *size);
+    *s_ptr = *size;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetSelectionX11(const Atom selection, const void *data, const size_t size) {
+    /* references */
+    struct __window_h_x11 *x11 = __window_h.x11; 
+    if (!x11) { return (0); }
+    
+    /* xlib references */
+    Display *dpy = x11->dpy;
+    Window   ipc = x11->xlib.ipc;
+
+    /* xatom references */
+    Atom CLIPBOARD = x11->xatom.CLIPBOARD;
+
+    /* set globally-stored selection data */
+    if (selection == XA_PRIMARY) {
+        free(__window_h.selection.primary.data);
+        __window_h.selection.primary.data = malloc(size);
+        __window_h.selection.primary.data = memcpy(__window_h.selection.primary.data, data, size);
+        __window_h.selection.primary.size = size;
+    }
+    else if (selection == XA_SECONDARY) {
+        free(__window_h.selection.secondary.data);
+        __window_h.selection.secondary.data = malloc(size);
+        __window_h.selection.secondary.data = memcpy(__window_h.selection.secondary.data, data, size);
+        __window_h.selection.secondary.size = size;
+    }
+    else if (selection == CLIPBOARD) {
+        free(__window_h.selection.clipboard.data);
+        __window_h.selection.clipboard.data = malloc(size);
+        __window_h.selection.clipboard.data = memcpy(__window_h.selection.clipboard.data, data, size);
+        __window_h.selection.clipboard.size = size;
+    }
+    else { return (0); }
+    
+    /* set the process as the owner of 'selection' selection */
+    XSetSelectionOwner(dpy, selection, ipc, CurrentTime);
+
+    /* check if process owns the 'selection' selection */
+    if (XGetSelectionOwner(dpy, selection) != ipc) {
+        return (0);
+    }
+    
+    /* success */
+    return (1);
+}
+
+
+WININT int __winHandleSelectionX11(XEvent *xevent) {
+    /* references */
+    struct __window_h_x11 *x11 = __window_h.x11; 
+    if (!x11) { return (0); }
+
+    /* xatom references */
+    Atom TARGETS = x11->xatom.TARGETS;
+    Atom CLIPBOARD = x11->xatom.CLIPBOARD;
+    Atom UTF8_STRING = x11->xatom.UTF8_STRING;
+
+    /* request / notify result */
+    int result = 0;
+
+    switch (xevent->type) {
+        case (SelectionRequest): {
+            /* get the event object */
+            XSelectionRequestEvent request = xevent->xselectionrequest;
+
+            /* check if property is 'None' */
+            if (request.property == None) { return (0); }
+            
+            /* get the proper selection string */
+            void  *data = 0;
+            size_t size = 0;
+            if (request.selection== XA_PRIMARY) {
+                data = __window_h.selection.primary.data;
+                size = __window_h.selection.primary.size;
+            } else if (request.selection == XA_SECONDARY) {
+                data = __window_h.selection.secondary.data;
+                size = __window_h.selection.secondary.size;
+            } else if (request.selection == CLIPBOARD) {
+                data = __window_h.selection.clipboard.data;
+                size = __window_h.selection.clipboard.size;
+            }
+
+            /* request target list */
+            const Atom targets[] = { UTF8_STRING, XA_STRING };
+            const size_t target_count = sizeof(targets) / sizeof(*targets);
+
+            if (request.target == TARGETS) {
+                const Atom targets[] = { TARGETS, UTF8_STRING, XA_STRING };
+                const size_t target_count = sizeof(targets) / sizeof(*targets);
+
+                XChangeProperty(request.display,
+                                request.requestor,
+                                request.property,
+                                XA_ATOM,
+                                32, PropModeReplace,
+                                (uint8_t *) targets,
+                                (size_t) target_count);
+            }
+            else {
+                for (size_t i = 0; i < target_count; i++) {
+                    /* check if request matches our target */
+                    if (request.target != targets[i]) { continue; }
+                    XChangeProperty(request.display,
+                                    request.requestor,
+                                    request.property,
+                                    request.target,
+                                    8, PropModeReplace,
+                                    (uint8_t *) data,
+                                    (size_t)    size);
+
+                    result = 1;
+                }
+            }
+            
+            /* reply event */
+            XSelectionEvent reply = {
+                .type       = SelectionNotify,
+                .serial     = request.serial,
+                .send_event = request.send_event,
+                .display    = request.display,
+                .requestor  = request.requestor,
+                .selection  = request.selection,
+                .target     = request.target,
+                .property   = request.property,
+                .time       = request.time
+            };
+
+            XSendEvent(reply.display,
+                       reply.requestor,
+                       0, 0,
+                       (XEvent *) &reply);
+
+        } return (result);
+
+        case (SelectionNotify): {
+            /* get the event object */
+            XSelectionEvent notify = xevent->xselection;
+
+            /* check if property is 'None' */
+            if (notify.property == None) { return (0); }
+            
+            /* get the proper selection string */
+            void  **data = 0;
+            size_t *size = 0;
+            if (notify.selection== XA_PRIMARY) {
+                data = &__window_h.selection.primary.data;
+                size = &__window_h.selection.primary.size;
+            } else if (notify.selection == XA_SECONDARY) {
+                data = &__window_h.selection.secondary.data;
+                size = &__window_h.selection.secondary.size;
+            } else if (notify.selection == CLIPBOARD) {
+                data = &__window_h.selection.clipboard.data;
+                size = &__window_h.selection.clipboard.size;
+            }
+                        
+            /* get window properties */
+            Atom actual_type_return      = 0;
+            int32_t actual_format_return = 0;
+            uint64_t nitems_return       = 0;
+            uint64_t bytes_after_return  = 0;
+            uint8_t *prop_return         = 0;
+            XGetWindowProperty(notify.display,
+                               notify.requestor,
+                               notify.property,
+                               0, ~0L, False,
+                               AnyPropertyType,
+                               &actual_type_return,
+                               &actual_format_return,
+                               &nitems_return,
+                               &bytes_after_return,
+                               &prop_return);
+
+            /* check the return target */
+            if (actual_type_return == UTF8_STRING ||
+                actual_type_return == XA_STRING
+            ) {
+                if (*data) { free(*data); }
+                *data = (char *) prop_return;
+                *size = (size_t) nitems_return;
+                result = 1;
+            }
+
+            XDeleteProperty(notify.display,
+                            notify.requestor,
+                            notify.property);
+
+        } return (result);
+    }
+
+    /* failure */
+    return (0);
+}
+
+/* window.h API (declarations) */
+
+WININT int __winInitX11(void) {
+    /* references */
+    struct __window_h_x11 *x11 = __window_h.x11; 
+    if (!x11) { return (0); }
     
     /* get 'x11->xlib' members */
-    Window root = DefaultRootWindow(dpy);
-    if (!root) { return (0); }
+    x11->xlib.root = DefaultRootWindow(x11->dpy);
+    if (!x11->xlib.root) { return (0); }
     
     XSetWindowAttributes attr = { .event_mask = PropertyChangeMask };
-    Window ipc = XCreateWindow(dpy, root,
-                               0, 0, 1, 1, 0, 0,
-                               InputOnly,
-                               CopyFromParent,
-                               CWEventMask,
-                               &attr);
-    if (!ipc) { return (0); }
-
-
-    /* set 'x11->xlib' members */ 
-    x11->xlib.root = root;
-    x11->xlib.ipc  = ipc;
+    x11->xlib.ipc = XCreateWindow(x11->dpy,
+                                  x11->xlib.root,
+                                  0, 0, 1, 1, 0, 0,
+                                  InputOnly,
+                                  CopyFromParent,
+                                  CWEventMask,
+                                  &attr);
+    if (!x11->xlib.ipc) { return (0); }
    
 
     /* get 'x11->xatom' members  */ 
-    Atom WM_PROTOCOLS = XInternAtom(dpy, "WM_PROTOCOLS", False);
-    if (!WM_PROTOCOLS) { return (0); }
-    
-    Atom WM_DELETE_WINDOW = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-    if (!WM_DELETE_WINDOW) { return (0); }
-
-
-    /* set 'x11->xatom' members */ 
-    x11->xatom.WM_PROTOCOLS = WM_PROTOCOLS;
-    x11->xatom.WM_DELETE_WINDOW = WM_DELETE_WINDOW;
+    x11->xatom.WM_PROTOCOLS = XInternAtom(x11->dpy, "WM_PROTOCOLS", False);
+    x11->xatom.WM_DELETE_WINDOW = XInternAtom(x11->dpy, "WM_DELETE_WINDOW", False);
+    x11->xatom.TARGETS = XInternAtom(x11->dpy, "TARGETS", False);
+    x11->xatom.CLIPBOARD = XInternAtom(x11->dpy, "CLIPBOARD", False);
+    x11->xatom.UTF8_STRING = XInternAtom(x11->dpy, "UTF8_STRING", False);
 
     /* success */
     return (1);
@@ -7260,7 +7541,6 @@ WININT int __winPollEventsX11(void) {
 
         switch (xevent.type) {
             case (ClientMessage): {
-                /* get the specific event */
                 XClientMessageEvent xclient = xevent.xclient;
 
                 /* xatom references */
@@ -7279,6 +7559,213 @@ WININT int __winPollEventsX11(void) {
                     }
                 }
             } break;
+
+            case (CreateNotify): {
+                XCreateWindowEvent xcreatewindow = xevent.xcreatewindow;
+
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = __window_h.window.list;
+                while (window) {
+                    if (window->x11->xlib.client == xcreatewindow.window) { break; }
+                }
+                if (!window) { break; }
+
+                winSendEvent(WINDOW_EVENT_WINDOW_CREATE, window, 0, 0); 
+            } break;
+
+            case (DestroyNotify): {
+                XDestroyWindowEvent xdestroywindow = xevent.xdestroywindow;
+
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = __window_h.window.list;
+                while (window) {
+                    if (window->x11->xlib.client == xdestroywindow.window) { break; }
+                }
+                if (!window) { break; }
+
+                winSendEvent(WINDOW_EVENT_WINDOW_DESTROY, window, 0, 0); 
+            } break;
+
+            case (MapNotify): {
+                XMapEvent xmap = xevent.xmap;
+                                
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = __window_h.window.list;
+                while (window) {
+                    if (window->x11->xlib.client == xmap.window) { break; }
+                }
+                if (!window) { break; }
+
+                /* update attribute */
+                window->attributes.mapped = 1;
+
+                winSendEvent(WINDOW_EVENT_WINDOW_MAP, window, 0, 0); 
+            } break;
+
+            case (UnmapNotify): {
+                XUnmapEvent xunmap = xevent.xunmap;
+
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = __window_h.window.list;
+                while (window) {
+                    if (window->x11->xlib.client == xunmap.window) { break; }
+                }
+                if (!window) { break; }
+
+                /* update attribute */
+                window->attributes.mapped = 0;
+
+                winSendEvent(WINDOW_EVENT_WINDOW_UNMAP, window, 0, 0); 
+            } break;
+
+            case (EnterNotify): {
+                XCrossingEvent xcrossing = xevent.xcrossing;
+                                
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = __window_h.window.list;
+                while (window) {
+                    if (window->x11->xlib.client == xcrossing.window) { break; }
+                }
+                if (!window) { break; }
+
+                /* update attribute */
+                window->attributes.focused = 1;
+
+                winSendEvent(WINDOW_EVENT_WINDOW_ENTER, window, 0, 0); 
+            } break;
+
+            case (LeaveNotify): {
+                XCrossingEvent xcrossing = xevent.xcrossing;
+
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = __window_h.window.list;
+                while (window) {
+                    if (window->x11->xlib.client == xcrossing.window) { break; }
+                }
+                if (!window) { break; }
+
+                /* update attribute */
+                window->attributes.focused = 0;
+
+                winSendEvent(WINDOW_EVENT_WINDOW_LEAVE, window, 0, 0);
+            } break;
+
+            case (MotionNotify): {
+                XMotionEvent xmotion = xevent.xmotion;
+
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = __window_h.window.list;
+                while (window) {
+                    if (window->x11->xlib.client == xmotion.window) { break; }
+                }
+                if (!window) { break; }
+                
+                uint32_t x = xmotion.x,
+                         y = xmotion.y;
+                uint32_t xrel = xmotion.x_root,
+                         yrel = xmotion.y_root;
+                winSendEvent(WINDOW_EVENT_MOUSE_MOTION, window, 0, x, xrel, y, yrel);
+            } break;
+
+            case (ButtonPress):
+            case (ButtonRelease): {
+                XButtonEvent xbutton = xevent.xbutton;
+
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = __window_h.window.list;
+                while (window) {
+                    if (window->x11->xlib.client == xbutton.window) { break; }
+                }
+                if (!window) { break; }
+                
+                if (xbutton.button >= 1 && xbutton.button <= 3) {
+                    uint8_t btn = 0;
+                    switch (xbutton.button) {
+                        case (1): { btn = WINDOW_BUTTON_LEFT;   } break; /* left */
+                        case (2): { btn = WINDOW_BUTTON_MIDDLE; } break; /* middle */
+                        case (3): { btn = WINDOW_BUTTON_RIGHT;  } break; /* right */
+                    }
+                    uint8_t state = xbutton.type == ButtonPress ? 1 : 0;
+                    winSendEvent(WINDOW_EVENT_MOUSE_BUTTON, window, 0, btn, state);
+                }
+                else if (xbutton.button >= 4 && xbutton.button <= 7) {
+                    int32_t scroll_x = 0,
+                            scroll_y = 0;
+                    if (xbutton.button == 4)      { scroll_y =  1; }
+                    else if (xbutton.button == 5) { scroll_y = -1; }
+                    else if (xbutton.button == 6) { scroll_x =  1; }
+                    else if (xbutton.button == 7) { scroll_x = -1; }
+                    winSendEvent(WINDOW_EVENT_MOUSE_SCROLL, window, 0, scroll_x, scroll_y);
+                }
+                else {
+                    uint8_t btn   = xbutton.button - Button1 - 4,
+                            state = xbutton.type == ButtonPress ? 1 : 0;
+                    winSendEvent(WINDOW_EVENT_MOUSE_BUTTON, window, 0, btn, state);
+                }
+            } break;
+
+            case (KeyPress):
+            case (KeyRelease): {
+                XKeyEvent xkey = xevent.xkey;
+                    
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = __window_h.window.list;
+                while (window) {
+                    if (window->x11->xlib.client == xkey.window) { break; }
+                }
+                if (!window) { break; }
+
+                /* get the X11's keysym */
+                uint32_t keyraw = XkbKeycodeToKeysym(dpy, xkey.keycode, 0, xkey.state & ShiftMask ? 1 : 0);
+
+                /* Iterate over the keymap to find the matching mapping.
+                 * As of now we're only processing en-US QWERTY keymap with latin symbols.
+                 * Other keyboard layout's might not work. However, there're some foudnations
+                 * to implement layout switching which *might* make it available to layout-switch!
+                 * */
+                uint32_t keycode = 0,
+                         keysym  = 0;
+                for (size_t i = 0; __window_h_keymap_en_us_qwerty[i].src; i++) {
+                    if (keyraw == __window_h_keymap_en_us_qwerty[i].src) {
+                        keycode = __window_h_keymap_en_us_qwerty[i].kc;
+                        keysym  = __window_h_keymap_en_us_qwerty[i].ks;
+                        break;
+                    }
+                }
+
+                /* if either 'keycode' or 'keysym' are '0', it's an obvious fail */
+                if (!keycode || !keysym) { break; }
+
+                /* get the keyboard modes mask */
+                uint32_t keymod = 0;
+                if (xkey.state & ShiftMask)   { keymod |= WINDOW_KEYMOD_SHIFT; }
+                if (xkey.state & ControlMask) { keymod |= WINDOW_KEYMOD_CTRL; }
+                if (xkey.state & Mod1Mask)    { keymod |= WINDOW_KEYMOD_ALT; }
+                if (xkey.state & Mod2Mask)    { keymod |= WINDOW_KEYMOD_NUMLOCK; }
+                if (xkey.state & Mod4Mask)    { keymod |= WINDOW_KEYMOD_GUI; }
+                if (xkey.state & LockMask)    { keymod |= WINDOW_KEYMOD_CAPSLOCK; }
+
+                /* get keyboard press/release state */
+                uint8_t state = xkey.type == KeyPress ? 1 : 0;
+
+                winSendEvent(WINDOW_EVENT_KEYBOARD_KEY, window, 0, keysym, keycode, keymod, keyraw, state, 0);
+            } break;
+
+                case (SelectionRequest): {
+                if (__winHandleSelectionX11(&xevent)) {
+                    winSendEvent(WINDOW_EVENT_SELECTION_WRITE, __window_h.selection.clipboard.data,
+                                                               __window_h.selection.clipboard.size);
+                }
+            } break;
+
+            case (SelectionNotify): {
+                if (__winHandleSelectionX11(&xevent)) {
+                    winSendEvent(WINDOW_EVENT_SELECTION_READ, __window_h.selection.clipboard.data,
+                                                              __window_h.selection.clipboard.size);
+                }
+            } break;
+
+            case (SelectionClear): { } break;
         }
     }
 
@@ -7287,9 +7774,44 @@ WININT int __winPollEventsX11(void) {
 }
 
 
+WININT int __winCopyX11(const uint32_t selection, const void *data, const size_t size) {
+    /* references */
+    struct __window_h_x11 *x11 = __window_h.x11; 
+    if (!x11) { return (0); }
+
+    /* get selection atom */
+    Atom atom = 0;
+    switch (selection) {
+        case (WINDOW_SELECTION_PRIMARY):   { atom = XA_PRIMARY;   } break;
+        case (WINDOW_SELECTION_SECONDARY): { atom = XA_SECONDARY; } break;
+        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->xatom.CLIPBOARD; } break;
+
+        /* ... */
+        default: { return (0); }
+    }
+
+    return (__winSetSelectionX11(atom, data, size));
+}
 
 
+WININT int __winPasteX11(const uint32_t selection, void **d_ptr, size_t *s_ptr) {
+    /* references */
+    struct __window_h_x11 *x11 = __window_h.x11; 
+    if (!x11) { return (0); }
 
+    /* get selection atom */
+    Atom atom = 0;
+    switch (selection) {
+        case (WINDOW_SELECTION_PRIMARY):   { atom = XA_PRIMARY;   } break;
+        case (WINDOW_SELECTION_SECONDARY): { atom = XA_SECONDARY; } break;
+        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->xatom.CLIPBOARD; } break;
+
+        /* ... */
+        default: { return (0); }
+    }
+
+    return (__winGetSelectionX11(atom, d_ptr, s_ptr));
+}
 
 #  endif /* WINDOW_BACKEND_X11 */
 #
@@ -7401,10 +7923,8 @@ WININT int __winLoadPlatform(struct __window_h_platform *platform) {
     platform->setCursorRawMotion = __winSetCursorRawMotionX11;
 */
     platform->pollEvents = __winPollEventsX11;
-/*
     platform->copy = __winCopyX11;
     platform->paste = __winPasteX11;
-*/
     
     /* load X11 */
     struct __window_h_x11 *x11 = calloc(1, sizeof(struct __window_h_x11));
