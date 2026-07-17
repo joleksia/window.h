@@ -6200,10 +6200,6 @@ static const struct __window_h_keymap __window_h_keymap_en_us_qwerty[] = {
 
 /* internal functions (declarations) */
 
-WININT int __winLoadX11(struct __window_h *);
-
-WININT int __winUnloadX11(struct __window_h *);
-
 WININT int __winGetSelectionX11(struct __window_h *, const Atom, void **, size_t *);
 
 WININT int __winSetSelectionX11(struct __window_h *, const Atom, const void *, const size_t);
@@ -6214,7 +6210,11 @@ WININT int __winHandleSelectionX11(struct __window_h *, XEvent *);
 
 WININT int __winInitX11(struct __window_h *);
 
+WININT int __winLoadX11(struct __window_h *);
+
 WININT int __winQuitX11(struct __window_h *);
+
+WININT int __winUnloadX11(struct __window_h *);
 
 WININT int __winCreateWindowX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
 
@@ -6281,6 +6281,308 @@ WININT int __winCopyX11(struct __window_h *, const uint32_t, const void *, const
 WININT int __winPasteX11(struct __window_h *, const uint32_t, void **, size_t *);
 
 /* internal functions (definitions) */
+
+WININT int __winGetSelectionX11(struct __window_h *lib, const Atom selection, void **d_ptr, size_t *s_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* xlib references */
+    Display *dpy = lib->x11->dpy;
+    Window   ipc = lib->x11->ipc;
+
+    /* xatom references */
+    Atom CLIPBOARD = lib->x11->CLIPBOARD;
+    Atom UTF8_STRING = lib->x11->UTF8_STRING;
+
+    /* get globally-stored selection data */
+    void  **data = 0;
+    size_t *size = 0;
+    if (selection == XA_PRIMARY) {
+        data = &lib->selection.primary.data;
+        size = &lib->selection.primary.size;
+    }
+    else if (selection == XA_SECONDARY) {
+        data = &lib->selection.secondary.data;
+        size = &lib->selection.secondary.size;
+    }
+    else if (selection == CLIPBOARD) {
+        data = &lib->selection.clipboard.data;
+        size = &lib->selection.clipboard.size;
+    }
+    else { return (0); }
+
+    /* check if we're the 'selection' owner */
+    if (XGetSelectionOwner(dpy, selection) == ipc) {
+        /* if so, save some time and straight-up return the string */
+        *d_ptr = calloc(*size + 1, sizeof(char));
+        *d_ptr = memcpy(*d_ptr, *data, *size);
+        *s_ptr = *size;
+        return (1);
+    }
+    
+    /* check if the 'selection' owner (clipboard source) even exists */
+    if (XGetSelectionOwner(dpy, selection) == None) {
+        *d_ptr = 0;
+        *s_ptr = 0;
+        return (0);
+    }
+
+    free(*data);
+    *data = 0;
+    *size = 0;
+
+    XConvertSelection(dpy, selection, UTF8_STRING, selection, ipc, CurrentTime);
+
+    /* get the 'Selection...' event  */
+    XEvent xevent = { 0 };
+    do {
+        XNextEvent(dpy, &xevent);
+    } while (xevent.type != SelectionNotify &&
+             xevent.type != SelectionRequest);
+
+    /* perform round-trip */
+    if (!__winHandleSelectionX11(lib, &xevent)) { return (0); }
+
+    /* copy the selection data to 'str' */
+    if (!*data) { return (0); }
+    *d_ptr = calloc(*size + 1, sizeof(char));
+    *d_ptr = memcpy(*d_ptr, *data, *size);
+    *s_ptr = *size;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetSelectionX11(struct __window_h *lib, const Atom selection, const void *data, const size_t size) {
+    /* null-check */
+    if (!lib) { return (0); }
+    
+    /* xlib references */
+    Display *dpy = lib->x11->dpy;
+    Window   ipc = lib->x11->ipc;
+
+    /* xatom references */
+    Atom CLIPBOARD = lib->x11->CLIPBOARD;
+
+    /* set globally-stored selection data */
+    if (selection == XA_PRIMARY) {
+        free(lib->selection.primary.data);
+        lib->selection.primary.data = malloc(size);
+        lib->selection.primary.data = memcpy(lib->selection.primary.data, data, size);
+        lib->selection.primary.size = size;
+    }
+    else if (selection == XA_SECONDARY) {
+        free(lib->selection.secondary.data);
+        lib->selection.secondary.data = malloc(size);
+        lib->selection.secondary.data = memcpy(lib->selection.secondary.data, data, size);
+        lib->selection.secondary.size = size;
+    }
+    else if (selection == CLIPBOARD) {
+        free(lib->selection.clipboard.data);
+        lib->selection.clipboard.data = malloc(size);
+        lib->selection.clipboard.data = memcpy(lib->selection.clipboard.data, data, size);
+        lib->selection.clipboard.size = size;
+    }
+    else { return (0); }
+    
+    /* set the process as the owner of 'selection' selection */
+    XSetSelectionOwner(dpy, selection, ipc, CurrentTime);
+
+    /* check if process owns the 'selection' selection */
+    if (XGetSelectionOwner(dpy, selection) != ipc) {
+        return (0);
+    }
+    
+    /* success */
+    return (1);
+}
+
+
+WININT int __winHandleSelectionX11(struct __window_h *lib, XEvent *xevent) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* xatom references */
+    Atom TARGETS = lib->x11->TARGETS;
+    Atom CLIPBOARD = lib->x11->CLIPBOARD;
+    Atom UTF8_STRING = lib->x11->UTF8_STRING;
+
+    /* request / notify result */
+    int result = 0;
+
+    switch (xevent->type) {
+        case (SelectionRequest): {
+            /* get the event object */
+            XSelectionRequestEvent request = xevent->xselectionrequest;
+
+            /* check if property is 'None' */
+            if (request.property == None) { return (0); }
+            
+            /* get the proper selection string */
+            void  *data = 0;
+            size_t size = 0;
+            if (request.selection== XA_PRIMARY) {
+                data = lib->selection.primary.data;
+                size = lib->selection.primary.size;
+            } else if (request.selection == XA_SECONDARY) {
+                data = lib->selection.secondary.data;
+                size = lib->selection.secondary.size;
+            } else if (request.selection == CLIPBOARD) {
+                data = lib->selection.clipboard.data;
+                size = lib->selection.clipboard.size;
+            }
+
+            /* request target list */
+            const Atom targets[] = { UTF8_STRING, XA_STRING };
+            const size_t target_count = sizeof(targets) / sizeof(*targets);
+
+            if (request.target == TARGETS) {
+                const Atom targets[] = { TARGETS, UTF8_STRING, XA_STRING };
+                const size_t target_count = sizeof(targets) / sizeof(*targets);
+
+                XChangeProperty(request.display,
+                                request.requestor,
+                                request.property,
+                                XA_ATOM,
+                                32, PropModeReplace,
+                                (uint8_t *) targets,
+                                (size_t) target_count);
+            }
+            else {
+                for (size_t i = 0; i < target_count; i++) {
+                    /* check if request matches our target */
+                    if (request.target != targets[i]) { continue; }
+                    XChangeProperty(request.display,
+                                    request.requestor,
+                                    request.property,
+                                    request.target,
+                                    8, PropModeReplace,
+                                    (uint8_t *) data,
+                                    (size_t)    size);
+
+                    result = 1;
+                }
+            }
+            
+            /* reply event */
+            XSelectionEvent reply = {
+                .type       = SelectionNotify,
+                .serial     = request.serial,
+                .send_event = request.send_event,
+                .display    = request.display,
+                .requestor  = request.requestor,
+                .selection  = request.selection,
+                .target     = request.target,
+                .property   = request.property,
+                .time       = request.time
+            };
+
+            XSendEvent(reply.display,
+                       reply.requestor,
+                       0, 0,
+                       (XEvent *) &reply);
+
+        } return (result);
+
+        case (SelectionNotify): {
+            /* get the event object */
+            XSelectionEvent notify = xevent->xselection;
+
+            /* check if property is 'None' */
+            if (notify.property == None) { return (0); }
+            
+            /* get the proper selection string */
+            void  **data = 0;
+            size_t *size = 0;
+            if (notify.selection== XA_PRIMARY) {
+                data = &lib->selection.primary.data;
+                size = &lib->selection.primary.size;
+            } else if (notify.selection == XA_SECONDARY) {
+                data = &lib->selection.secondary.data;
+                size = &lib->selection.secondary.size;
+            } else if (notify.selection == CLIPBOARD) {
+                data = &lib->selection.clipboard.data;
+                size = &lib->selection.clipboard.size;
+            }
+                        
+            /* get window properties */
+            Atom actual_type_return      = 0;
+            int32_t actual_format_return = 0;
+            uint64_t nitems_return       = 0;
+            uint64_t bytes_after_return  = 0;
+            uint8_t *prop_return         = 0;
+            XGetWindowProperty(notify.display,
+                               notify.requestor,
+                               notify.property,
+                               0, ~0L, False,
+                               AnyPropertyType,
+                               &actual_type_return,
+                               &actual_format_return,
+                               &nitems_return,
+                               &bytes_after_return,
+                               &prop_return);
+
+            /* check the return target */
+            if (actual_type_return == UTF8_STRING ||
+                actual_type_return == XA_STRING
+            ) {
+                if (*data) { free(*data); }
+                *data = (char *) prop_return;
+                *size = (size_t) nitems_return;
+                result = 1;
+            }
+
+            XDeleteProperty(notify.display,
+                            notify.requestor,
+                            notify.property);
+
+        } return (result);
+    }
+
+    /* failure */
+    return (0);
+}
+
+/* window.h API (declarations) */
+
+WININT int __winInitX11(struct __window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* references */
+    struct __window_h_x11 *x11 = lib->x11; 
+    if (!x11) { return (0); }
+    
+    /* get 'x11->xlib' members */
+    x11->dpy = XOpenDisplay(0);
+    if (!x11->dpy) { return (0); }
+
+    x11->root = DefaultRootWindow(x11->dpy);
+    if (!x11->root) { return (0); }
+    
+    XSetWindowAttributes attr = { .event_mask = PropertyChangeMask };
+    x11->ipc = XCreateWindow(x11->dpy,
+                                  x11->root,
+                                  0, 0, 1, 1, 0, 0,
+                                  InputOnly,
+                                  CopyFromParent,
+                                  CWEventMask,
+                                  &attr);
+    if (!x11->ipc) { return (0); }
+   
+
+    /* get 'x11->xatom' members  */ 
+    x11->WM_PROTOCOLS = XInternAtom(x11->dpy, "WM_PROTOCOLS", False);
+    x11->WM_DELETE_WINDOW = XInternAtom(x11->dpy, "WM_DELETE_WINDOW", False);
+    x11->TARGETS = XInternAtom(x11->dpy, "TARGETS", False);
+    x11->CLIPBOARD = XInternAtom(x11->dpy, "CLIPBOARD", False);
+    x11->UTF8_STRING = XInternAtom(x11->dpy, "UTF8_STRING", False);
+
+    /* success */
+    return (1);
+}
+
 
 WININT int __winLoadX11(struct __window_h *lib) {
     /* null-check */
@@ -7121,6 +7423,23 @@ WININT int __winLoadX11(struct __window_h *lib) {
 }
 
 
+WININT int __winQuitX11(struct __window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* references */
+    struct __window_h_x11 *x11 = lib->x11; 
+    if (!x11) { return (0); }
+
+    /* close IPC window */
+    XDestroyWindow(x11->dpy,
+                   x11->ipc);
+
+    /* success */
+    return (1);
+}
+
+
 WININT int __winUnloadX11(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
@@ -7138,325 +7457,6 @@ WININT int __winUnloadX11(struct __window_h *lib) {
 
     /* release 'x11' */
     free(x11);
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winGetSelectionX11(struct __window_h *lib, const Atom selection, void **d_ptr, size_t *s_ptr) {
-    /* null-check */
-    if (!lib) { return (0); }
-
-    /* xlib references */
-    Display *dpy = lib->x11->dpy;
-    Window   ipc = lib->x11->ipc;
-
-    /* xatom references */
-    Atom CLIPBOARD = lib->x11->CLIPBOARD;
-    Atom UTF8_STRING = lib->x11->UTF8_STRING;
-
-    /* get globally-stored selection data */
-    void  **data = 0;
-    size_t *size = 0;
-    if (selection == XA_PRIMARY) {
-        data = &lib->selection.primary.data;
-        size = &lib->selection.primary.size;
-    }
-    else if (selection == XA_SECONDARY) {
-        data = &lib->selection.secondary.data;
-        size = &lib->selection.secondary.size;
-    }
-    else if (selection == CLIPBOARD) {
-        data = &lib->selection.clipboard.data;
-        size = &lib->selection.clipboard.size;
-    }
-    else { return (0); }
-
-    /* check if we're the 'selection' owner */
-    if (XGetSelectionOwner(dpy, selection) == ipc) {
-        /* if so, save some time and straight-up return the string */
-        *d_ptr = calloc(*size + 1, sizeof(char));
-        *d_ptr = memcpy(*d_ptr, *data, *size);
-        *s_ptr = *size;
-        return (1);
-    }
-    
-    /* check if the 'selection' owner (clipboard source) even exists */
-    if (XGetSelectionOwner(dpy, selection) == None) {
-        *d_ptr = 0;
-        *s_ptr = 0;
-        return (0);
-    }
-
-    free(*data);
-    *data = 0;
-    *size = 0;
-
-    XConvertSelection(dpy, selection, UTF8_STRING, selection, ipc, CurrentTime);
-
-    /* get the 'Selection...' event  */
-    XEvent xevent = { 0 };
-    do {
-        XNextEvent(dpy, &xevent);
-    } while (xevent.type != SelectionNotify &&
-             xevent.type != SelectionRequest);
-
-    /* perform round-trip */
-    if (!__winHandleSelectionX11(lib, &xevent)) { return (0); }
-
-    /* copy the selection data to 'str' */
-    if (!*data) { return (0); }
-    *d_ptr = calloc(*size + 1, sizeof(char));
-    *d_ptr = memcpy(*d_ptr, *data, *size);
-    *s_ptr = *size;
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winSetSelectionX11(struct __window_h *lib, const Atom selection, const void *data, const size_t size) {
-    /* null-check */
-    if (!lib) { return (0); }
-    
-    /* xlib references */
-    Display *dpy = lib->x11->dpy;
-    Window   ipc = lib->x11->ipc;
-
-    /* xatom references */
-    Atom CLIPBOARD = lib->x11->CLIPBOARD;
-
-    /* set globally-stored selection data */
-    if (selection == XA_PRIMARY) {
-        free(lib->selection.primary.data);
-        lib->selection.primary.data = malloc(size);
-        lib->selection.primary.data = memcpy(lib->selection.primary.data, data, size);
-        lib->selection.primary.size = size;
-    }
-    else if (selection == XA_SECONDARY) {
-        free(lib->selection.secondary.data);
-        lib->selection.secondary.data = malloc(size);
-        lib->selection.secondary.data = memcpy(lib->selection.secondary.data, data, size);
-        lib->selection.secondary.size = size;
-    }
-    else if (selection == CLIPBOARD) {
-        free(lib->selection.clipboard.data);
-        lib->selection.clipboard.data = malloc(size);
-        lib->selection.clipboard.data = memcpy(lib->selection.clipboard.data, data, size);
-        lib->selection.clipboard.size = size;
-    }
-    else { return (0); }
-    
-    /* set the process as the owner of 'selection' selection */
-    XSetSelectionOwner(dpy, selection, ipc, CurrentTime);
-
-    /* check if process owns the 'selection' selection */
-    if (XGetSelectionOwner(dpy, selection) != ipc) {
-        return (0);
-    }
-    
-    /* success */
-    return (1);
-}
-
-
-WININT int __winHandleSelectionX11(struct __window_h *lib, XEvent *xevent) {
-    /* null-check */
-    if (!lib) { return (0); }
-
-    /* xatom references */
-    Atom TARGETS = lib->x11->TARGETS;
-    Atom CLIPBOARD = lib->x11->CLIPBOARD;
-    Atom UTF8_STRING = lib->x11->UTF8_STRING;
-
-    /* request / notify result */
-    int result = 0;
-
-    switch (xevent->type) {
-        case (SelectionRequest): {
-            /* get the event object */
-            XSelectionRequestEvent request = xevent->xselectionrequest;
-
-            /* check if property is 'None' */
-            if (request.property == None) { return (0); }
-            
-            /* get the proper selection string */
-            void  *data = 0;
-            size_t size = 0;
-            if (request.selection== XA_PRIMARY) {
-                data = lib->selection.primary.data;
-                size = lib->selection.primary.size;
-            } else if (request.selection == XA_SECONDARY) {
-                data = lib->selection.secondary.data;
-                size = lib->selection.secondary.size;
-            } else if (request.selection == CLIPBOARD) {
-                data = lib->selection.clipboard.data;
-                size = lib->selection.clipboard.size;
-            }
-
-            /* request target list */
-            const Atom targets[] = { UTF8_STRING, XA_STRING };
-            const size_t target_count = sizeof(targets) / sizeof(*targets);
-
-            if (request.target == TARGETS) {
-                const Atom targets[] = { TARGETS, UTF8_STRING, XA_STRING };
-                const size_t target_count = sizeof(targets) / sizeof(*targets);
-
-                XChangeProperty(request.display,
-                                request.requestor,
-                                request.property,
-                                XA_ATOM,
-                                32, PropModeReplace,
-                                (uint8_t *) targets,
-                                (size_t) target_count);
-            }
-            else {
-                for (size_t i = 0; i < target_count; i++) {
-                    /* check if request matches our target */
-                    if (request.target != targets[i]) { continue; }
-                    XChangeProperty(request.display,
-                                    request.requestor,
-                                    request.property,
-                                    request.target,
-                                    8, PropModeReplace,
-                                    (uint8_t *) data,
-                                    (size_t)    size);
-
-                    result = 1;
-                }
-            }
-            
-            /* reply event */
-            XSelectionEvent reply = {
-                .type       = SelectionNotify,
-                .serial     = request.serial,
-                .send_event = request.send_event,
-                .display    = request.display,
-                .requestor  = request.requestor,
-                .selection  = request.selection,
-                .target     = request.target,
-                .property   = request.property,
-                .time       = request.time
-            };
-
-            XSendEvent(reply.display,
-                       reply.requestor,
-                       0, 0,
-                       (XEvent *) &reply);
-
-        } return (result);
-
-        case (SelectionNotify): {
-            /* get the event object */
-            XSelectionEvent notify = xevent->xselection;
-
-            /* check if property is 'None' */
-            if (notify.property == None) { return (0); }
-            
-            /* get the proper selection string */
-            void  **data = 0;
-            size_t *size = 0;
-            if (notify.selection== XA_PRIMARY) {
-                data = &lib->selection.primary.data;
-                size = &lib->selection.primary.size;
-            } else if (notify.selection == XA_SECONDARY) {
-                data = &lib->selection.secondary.data;
-                size = &lib->selection.secondary.size;
-            } else if (notify.selection == CLIPBOARD) {
-                data = &lib->selection.clipboard.data;
-                size = &lib->selection.clipboard.size;
-            }
-                        
-            /* get window properties */
-            Atom actual_type_return      = 0;
-            int32_t actual_format_return = 0;
-            uint64_t nitems_return       = 0;
-            uint64_t bytes_after_return  = 0;
-            uint8_t *prop_return         = 0;
-            XGetWindowProperty(notify.display,
-                               notify.requestor,
-                               notify.property,
-                               0, ~0L, False,
-                               AnyPropertyType,
-                               &actual_type_return,
-                               &actual_format_return,
-                               &nitems_return,
-                               &bytes_after_return,
-                               &prop_return);
-
-            /* check the return target */
-            if (actual_type_return == UTF8_STRING ||
-                actual_type_return == XA_STRING
-            ) {
-                if (*data) { free(*data); }
-                *data = (char *) prop_return;
-                *size = (size_t) nitems_return;
-                result = 1;
-            }
-
-            XDeleteProperty(notify.display,
-                            notify.requestor,
-                            notify.property);
-
-        } return (result);
-    }
-
-    /* failure */
-    return (0);
-}
-
-/* window.h API (declarations) */
-
-WININT int __winInitX11(struct __window_h *lib) {
-    /* null-check */
-    if (!lib) { return (0); }
-
-    /* references */
-    struct __window_h_x11 *x11 = lib->x11; 
-    if (!x11) { return (0); }
-    
-    /* get 'x11->xlib' members */
-    x11->dpy = XOpenDisplay(0);
-    if (!x11->dpy) { return (0); }
-
-    x11->root = DefaultRootWindow(x11->dpy);
-    if (!x11->root) { return (0); }
-    
-    XSetWindowAttributes attr = { .event_mask = PropertyChangeMask };
-    x11->ipc = XCreateWindow(x11->dpy,
-                                  x11->root,
-                                  0, 0, 1, 1, 0, 0,
-                                  InputOnly,
-                                  CopyFromParent,
-                                  CWEventMask,
-                                  &attr);
-    if (!x11->ipc) { return (0); }
-   
-
-    /* get 'x11->xatom' members  */ 
-    x11->WM_PROTOCOLS = XInternAtom(x11->dpy, "WM_PROTOCOLS", False);
-    x11->WM_DELETE_WINDOW = XInternAtom(x11->dpy, "WM_DELETE_WINDOW", False);
-    x11->TARGETS = XInternAtom(x11->dpy, "TARGETS", False);
-    x11->CLIPBOARD = XInternAtom(x11->dpy, "CLIPBOARD", False);
-    x11->UTF8_STRING = XInternAtom(x11->dpy, "UTF8_STRING", False);
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winQuitX11(struct __window_h *lib) {
-    /* null-check */
-    if (!lib) { return (0); }
-
-    /* references */
-    struct __window_h_x11 *x11 = lib->x11; 
-    if (!x11) { return (0); }
-
-    /* close IPC window */
-    XDestroyWindow(x11->dpy,
-                   x11->ipc);
 
     /* success */
     return (1);
