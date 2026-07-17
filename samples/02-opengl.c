@@ -6,22 +6,20 @@
 
 int main(void) {
     /* initialize window.h */
-    if (!winInit()) {
-        fprintf(stderr, "winInit() failed\n");
-        return (1);
-    }
+    library_t library = 0;
+    winInit(&library);
 
-    winSetHints(WINDOW_CLIENT_API, WINDOW_API_OPENGL);
+    winSetHints(library, WINDOW_CLIENT_API, WINDOW_API_OPENGL);
 
-    window_t win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h - Sample 02. OpenGL");
+    window_t window;
+    winCreateWindow(library, &window, 800, 600, "Hello, window.h - Sample 02. OpenGL");
 
-    context_t ctx;
-    winCreateContext(&ctx, win);
+    context_t context;
+    winCreateContext(library, &context, window);
 
-    winMapWindow(win);
-    winGLMakeCurrent(ctx);
-    winGLSwapInterval(ctx, 1);
+    winMapWindow(library, window);
+    winGLMakeCurrent(library, context);
+    winGLSwapInterval(library, context, 1);
 
     printf("%s\n", glGetString(GL_VERSION));
 
@@ -38,9 +36,9 @@ int main(void) {
         glEnd();
 
         /* poll events */
-        winGLSwapBuffers(ctx);
+        winGLSwapBuffers(library, context);
         event_t event = { 0 };
-        while (winPollEvents(&event)) {
+        while (winPollEvents(library, &event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
                     exit = 1;
@@ -54,6 +52,6 @@ int main(void) {
     }
 
     /* quit */
-    winQuit();
+    winQuit(library);
     return (0);
 }
