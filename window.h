@@ -855,7 +855,7 @@ WINDEF void *winGLGetProcAddress(const char *);
 
 /* cursor functions */
 
-WINDEF int winCreateCursor(cursor_t *, window_t);
+WINDEF int winCreateCursor(cursor_t *, const uint8_t *, const size_t, const size_t, const int, const int);
 
 WINDEF int winDestroyCursor(cursor_t);
 
@@ -924,6 +924,7 @@ WINDEF int winWaitTime(uint64_t);
 #   include <X11/XKBlib.h>
 #   include <X11/keysym.h>
 #   include <X11/keysymdef.h>
+#   include <X11/Xcursor/Xcursor.h>
 #   include <X11/extensions/XInput.h>
 #   include <X11/extensions/XInput2.h>
 #  endif
@@ -1036,7 +1037,7 @@ struct __window_h_platform {
 
     /* cursor functions */
 
-    int (*createCursor) (cursor_t *, window_t);
+    int (*createCursor) (cursor_t, const uint8_t *, const size_t, const size_t, const int, const int);
     int (*destroyCursor) (cursor_t);
     int (*getCursorPosition) (window_t, size_t *, size_t *);
     int (*setCursorPosition) (window_t, const size_t, const size_t);
@@ -1182,8 +1183,8 @@ static struct __window_h {
         /* linked-list of all the created cursors */
         struct __window_h_cursor *list;
 
-        /* handle to "blank" cursor (no image, basically) */
-        struct __window_h_cursor *hidden;
+        /* handle to 'blank' cursor handle */
+        struct __window_h_cursor *blank;
     } cursor;
 
     struct {
@@ -1667,8 +1668,8 @@ struct __window_h_wgl {
 #  /* WINDOW_BACKEND_X11 - X11 implementation */
 #  if defined (WINDOW_BACKEND_X11)
 
+/* libX11.so */
 /* {{{ */
-
 typedef int (* PFN_XActivateScreenSaver_PROC) (Display *);
 PFN_XActivateScreenSaver_PROC XActivateScreenSaver_PROC = 0;
 #   define XActivateScreenSaver (assert(XActivateScreenSaver_PROC != 0), XActivateScreenSaver_PROC)
@@ -4084,9 +4085,257 @@ PFN_XkbVirtualModsToReal_PROC XkbVirtualModsToReal_PROC = 0;
 typedef unsigned int (* PFN_XkbXlibControlsImplemented_PROC) (void);
 PFN_XkbXlibControlsImplemented_PROC XkbXlibControlsImplemented_PROC = 0;
 #   define XkbXlibControlsImplemented (assert(XkbXlibControlsImplemented_PROC != 0), XkbXlibControlsImplemented_PROC)
+/* }}} */
 
+/* libXcursor.so*/
+/* {{{ */
+typedef XcursorImage *(* PFN_XcursorImageCreate_PROC) (int, int);
+PFN_XcursorImageCreate_PROC XcursorImageCreate_PROC = 0;
+#   define XcursorImageCreate (assert(XcursorImageCreate_PROC != 0), XcursorImageCreate_PROC)
 
-/* libXi: XInput.h */
+typedef void (* PFN_XcursorImageDestroy_PROC) (XcursorImage *);
+PFN_XcursorImageDestroy_PROC XcursorImageDestroy_PROC = 0;
+#   define XcursorImageDestroy (assert(XcursorImageDestroy_PROC != 0), XcursorImageDestroy_PROC)
+
+typedef XcursorImages *(* PFN_XcursorImagesCreate_PROC) (int);
+PFN_XcursorImagesCreate_PROC XcursorImagesCreate_PROC = 0;
+#   define XcursorImagesCreate (assert(XcursorImagesCreate_PROC != 0), XcursorImagesCreate_PROC)
+
+typedef void (* PFN_XcursorImagesDestroy_PROC) (XcursorImages *);
+PFN_XcursorImagesDestroy_PROC XcursorImagesDestroy_PROC = 0;
+#   define XcursorImagesDestroy (assert(XcursorImagesDestroy_PROC != 0), XcursorImagesDestroy_PROC)
+
+typedef void (* PFN_XcursorImagesSetName_PROC) (XcursorImages *, const char *);
+PFN_XcursorImagesSetName_PROC XcursorImagesSetName_PROC = 0;
+#   define XcursorImagesSetName (assert(XcursorImagesSetName_PROC != 0), XcursorImagesSetName_PROC)
+
+typedef XcursorCursors *(* PFN_XcursorCursorsCreate_PROC) (Display *, int);
+PFN_XcursorCursorsCreate_PROC XcursorCursorsCreate_PROC = 0;
+#   define XcursorCursorsCreate (assert(XcursorCursorsCreate_PROC != 0), XcursorCursorsCreate_PROC)
+
+typedef void (* PFN_XcursorCursorsDestroy_PROC) (XcursorCursors *);
+PFN_XcursorCursorsDestroy_PROC XcursorCursorsDestroy_PROC = 0;
+#   define XcursorCursorsDestroy (assert(XcursorCursorsDestroy_PROC != 0), XcursorCursorsDestroy_PROC)
+
+typedef XcursorAnimate *(* PFN_XcursorAnimateCreate_PROC) (XcursorCursors *);
+PFN_XcursorAnimateCreate_PROC XcursorAnimateCreate_PROC = 0;
+#   define XcursorAnimateCreate (assert(XcursorAnimateCreate_PROC != 0), XcursorAnimateCreate_PROC)
+
+typedef void (* PFN_XcursorAnimateDestroy_PROC) (XcursorAnimate *);
+PFN_XcursorAnimateDestroy_PROC XcursorAnimateDestroy_PROC = 0;
+#   define XcursorAnimateDestroy (assert(XcursorAnimateDestroy_PROC != 0), XcursorAnimateDestroy_PROC)
+
+typedef Cursor (* PFN_XcursorAnimateNext_PROC) (XcursorAnimate *);
+PFN_XcursorAnimateNext_PROC XcursorAnimateNext_PROC = 0;
+#   define XcursorAnimateNext (assert(XcursorAnimateNext_PROC != 0), XcursorAnimateNext_PROC)
+
+typedef XcursorComment *(* PFN_XcursorCommentCreate_PROC) (XcursorUInt, int);
+PFN_XcursorCommentCreate_PROC XcursorCommentCreate_PROC = 0;
+#   define XcursorCommentCreate (assert(XcursorCommentCreate_PROC != 0), XcursorCommentCreate_PROC)
+
+typedef void (* PFN_XcursorCommentDestroy_PROC) (XcursorComment *);
+PFN_XcursorCommentDestroy_PROC XcursorCommentDestroy_PROC = 0;
+#   define XcursorCommentDestroy (assert(XcursorCommentDestroy_PROC != 0), XcursorCommentDestroy_PROC)
+
+typedef XcursorComments *(* PFN_XcursorCommentsCreate_PROC) (int);
+PFN_XcursorCommentsCreate_PROC XcursorCommentsCreate_PROC = 0;
+#   define XcursorCommentsCreate (assert(XcursorCommentsCreate_PROC != 0), XcursorCommentsCreate_PROC)
+
+typedef void (* PFN_XcursorCommentsDestroy_PROC) (XcursorComments *);
+PFN_XcursorCommentsDestroy_PROC XcursorCommentsDestroy_PROC = 0;
+#   define XcursorCommentsDestroy (assert(XcursorCommentsDestroy_PROC != 0), XcursorCommentsDestroy_PROC)
+
+typedef XcursorImage *(* PFN_XcursorXcFileLoadImage_PROC) (XcursorFile *, int);
+PFN_XcursorXcFileLoadImage_PROC XcursorXcFileLoadImage_PROC = 0;
+#   define XcursorXcFileLoadImage (assert(XcursorXcFileLoadImage_PROC != 0), XcursorXcFileLoadImage_PROC)
+
+typedef XcursorImages *(* PFN_XcursorXcFileLoadImages_PROC) (XcursorFile *, int);
+PFN_XcursorXcFileLoadImages_PROC XcursorXcFileLoadImages_PROC = 0;
+#   define XcursorXcFileLoadImages (assert(XcursorXcFileLoadImages_PROC != 0), XcursorXcFileLoadImages_PROC)
+
+typedef XcursorImages *(* PFN_XcursorXcFileLoadAllImages_PROC) (XcursorFile *);
+PFN_XcursorXcFileLoadAllImages_PROC XcursorXcFileLoadAllImages_PROC = 0;
+#   define XcursorXcFileLoadAllImages (assert(XcursorXcFileLoadAllImages_PROC != 0), XcursorXcFileLoadAllImages_PROC)
+
+typedef XcursorBool (* PFN_XcursorXcFileLoad_PROC) (XcursorFile *, XcursorComments **, XcursorImages **);
+PFN_XcursorXcFileLoad_PROC XcursorXcFileLoad_PROC = 0;
+#   define XcursorXcFileLoad (assert(XcursorXcFileLoad_PROC != 0), XcursorXcFileLoad_PROC)
+
+typedef XcursorBool (* PFN_XcursorXcFileSave_PROC) (XcursorFile *, const XcursorComments *, const XcursorImages *);
+PFN_XcursorXcFileSave_PROC XcursorXcFileSave_PROC = 0;
+#   define XcursorXcFileSave (assert(XcursorXcFileSave_PROC != 0), XcursorXcFileSave_PROC)
+
+typedef XcursorImage *(* PFN_XcursorFileLoadImage_PROC) (FILE *, int);
+PFN_XcursorFileLoadImage_PROC XcursorFileLoadImage_PROC = 0;
+#   define XcursorFileLoadImage (assert(XcursorFileLoadImage_PROC != 0), XcursorFileLoadImage_PROC)
+
+typedef XcursorImages *(* PFN_XcursorFileLoadImages_PROC) (FILE *, int);
+PFN_XcursorFileLoadImages_PROC XcursorFileLoadImages_PROC = 0;
+#   define XcursorFileLoadImages (assert(XcursorFileLoadImages_PROC != 0), XcursorFileLoadImages_PROC)
+
+typedef XcursorImages *(* PFN_XcursorFileLoadAllImages_PROC) (FILE *);
+PFN_XcursorFileLoadAllImages_PROC XcursorFileLoadAllImages_PROC = 0;
+#   define XcursorFileLoadAllImages (assert(XcursorFileLoadAllImages_PROC != 0), XcursorFileLoadAllImages_PROC)
+
+typedef XcursorBool (* PFN_XcursorFileLoad_PROC) (FILE *, XcursorComments **, XcursorImages **);
+PFN_XcursorFileLoad_PROC XcursorFileLoad_PROC = 0;
+#   define XcursorFileLoad (assert(XcursorFileLoad_PROC != 0), XcursorFileLoad_PROC)
+
+typedef XcursorBool (* PFN_XcursorFileSaveImages_PROC) (FILE *, const XcursorImages *);
+PFN_XcursorFileSaveImages_PROC XcursorFileSaveImages_PROC = 0;
+#   define XcursorFileSaveImages (assert(XcursorFileSaveImages_PROC != 0), XcursorFileSaveImages_PROC)
+
+typedef XcursorBool (* PFN_XcursorFileSave_PROC) (FILE *, const XcursorComments *, const XcursorImages *);
+PFN_XcursorFileSave_PROC XcursorFileSave_PROC = 0;
+#   define XcursorFileSave (assert(XcursorFileSave_PROC != 0), XcursorFileSave_PROC)
+
+typedef XcursorImage *(* PFN_XcursorFilenameLoadImage_PROC) (const char *, int);
+PFN_XcursorFilenameLoadImage_PROC XcursorFilenameLoadImage_PROC = 0;
+#   define XcursorFilenameLoadImage (assert(XcursorFilenameLoadImage_PROC != 0), XcursorFilenameLoadImage_PROC)
+
+typedef XcursorImages *(* PFN_XcursorFilenameLoadImages_PROC) (const char *, int);
+PFN_XcursorFilenameLoadImages_PROC XcursorFilenameLoadImages_PROC = 0;
+#   define XcursorFilenameLoadImages (assert(XcursorFilenameLoadImages_PROC != 0), XcursorFilenameLoadImages_PROC)
+
+typedef XcursorImages *(* PFN_XcursorFilenameLoadAllImages_PROC) (const char *);
+PFN_XcursorFilenameLoadAllImages_PROC XcursorFilenameLoadAllImages_PROC = 0;
+#   define XcursorFilenameLoadAllImages (assert(XcursorFilenameLoadAllImages_PROC != 0), XcursorFilenameLoadAllImages_PROC)
+
+typedef XcursorBool (* PFN_XcursorFilenameLoad_PROC) (const char *, XcursorComments **, XcursorImages **);
+PFN_XcursorFilenameLoad_PROC XcursorFilenameLoad_PROC = 0;
+#   define XcursorFilenameLoad (assert(XcursorFilenameLoad_PROC != 0), XcursorFilenameLoad_PROC)
+
+typedef XcursorBool (* PFN_XcursorFilenameSaveImages_PROC) (const char *, const XcursorImages *);
+PFN_XcursorFilenameSaveImages_PROC XcursorFilenameSaveImages_PROC = 0;
+#   define XcursorFilenameSaveImages (assert(XcursorFilenameSaveImages_PROC != 0), XcursorFilenameSaveImages_PROC)
+
+typedef XcursorBool (* PFN_XcursorFilenameSave_PROC) (const char *, const XcursorComments *, const XcursorImages *);
+PFN_XcursorFilenameSave_PROC XcursorFilenameSave_PROC = 0;
+#   define XcursorFilenameSave (assert(XcursorFilenameSave_PROC != 0), XcursorFilenameSave_PROC)
+
+typedef XcursorImage *(* PFN_XcursorLibraryLoadImage_PROC) (const char *, const char *, int);
+PFN_XcursorLibraryLoadImage_PROC XcursorLibraryLoadImage_PROC = 0;
+#   define XcursorLibraryLoadImage (assert(XcursorLibraryLoadImage_PROC != 0), XcursorLibraryLoadImage_PROC)
+
+typedef XcursorImages *(* PFN_XcursorLibraryLoadImages_PROC) (const char *, const char *, int);
+PFN_XcursorLibraryLoadImages_PROC XcursorLibraryLoadImages_PROC = 0;
+#   define XcursorLibraryLoadImages (assert(XcursorLibraryLoadImages_PROC != 0), XcursorLibraryLoadImages_PROC)
+
+typedef const char *(* PFN_XcursorLibraryPath_PROC) (void);
+PFN_XcursorLibraryPath_PROC XcursorLibraryPath_PROC = 0;
+#   define XcursorLibraryPath (assert(XcursorLibraryPath_PROC != 0), XcursorLibraryPath_PROC)
+
+typedef int (* PFN_XcursorLibraryShape_PROC) (const char *);
+PFN_XcursorLibraryShape_PROC XcursorLibraryShape_PROC = 0;
+#   define XcursorLibraryShape (assert(XcursorLibraryShape_PROC != 0), XcursorLibraryShape_PROC)
+
+typedef Cursor (* PFN_XcursorImageLoadCursor_PROC) (Display *, const XcursorImage *);
+PFN_XcursorImageLoadCursor_PROC XcursorImageLoadCursor_PROC = 0;
+#   define XcursorImageLoadCursor (assert(XcursorImageLoadCursor_PROC != 0), XcursorImageLoadCursor_PROC)
+
+typedef XcursorCursors *(* PFN_XcursorImagesLoadCursors_PROC) (Display *, const XcursorImages *);
+PFN_XcursorImagesLoadCursors_PROC XcursorImagesLoadCursors_PROC = 0;
+#   define XcursorImagesLoadCursors (assert(XcursorImagesLoadCursors_PROC != 0), XcursorImagesLoadCursors_PROC)
+
+typedef Cursor (* PFN_XcursorImagesLoadCursor_PROC) (Display *, const XcursorImages *);
+PFN_XcursorImagesLoadCursor_PROC XcursorImagesLoadCursor_PROC = 0;
+#   define XcursorImagesLoadCursor (assert(XcursorImagesLoadCursor_PROC != 0), XcursorImagesLoadCursor_PROC)
+
+typedef Cursor (* PFN_XcursorFilenameLoadCursor_PROC) (Display *, const char *);
+PFN_XcursorFilenameLoadCursor_PROC XcursorFilenameLoadCursor_PROC = 0;
+#   define XcursorFilenameLoadCursor (assert(XcursorFilenameLoadCursor_PROC != 0), XcursorFilenameLoadCursor_PROC)
+
+typedef XcursorCursors *(* PFN_XcursorFilenameLoadCursors_PROC) (Display *, const char *);
+PFN_XcursorFilenameLoadCursors_PROC XcursorFilenameLoadCursors_PROC = 0;
+#   define XcursorFilenameLoadCursors (assert(XcursorFilenameLoadCursors_PROC != 0), XcursorFilenameLoadCursors_PROC)
+
+typedef Cursor (* PFN_XcursorLibraryLoadCursor_PROC) (Display *, const char *);
+PFN_XcursorLibraryLoadCursor_PROC XcursorLibraryLoadCursor_PROC = 0;
+#   define XcursorLibraryLoadCursor (assert(XcursorLibraryLoadCursor_PROC != 0), XcursorLibraryLoadCursor_PROC)
+
+typedef XcursorCursors *(* PFN_XcursorLibraryLoadCursors_PROC) (Display *, const char *);
+PFN_XcursorLibraryLoadCursors_PROC XcursorLibraryLoadCursors_PROC = 0;
+#   define XcursorLibraryLoadCursors (assert(XcursorLibraryLoadCursors_PROC != 0), XcursorLibraryLoadCursors_PROC)
+
+typedef XcursorImage *(* PFN_XcursorShapeLoadImage_PROC) (unsigned int, const char *, int);
+PFN_XcursorShapeLoadImage_PROC XcursorShapeLoadImage_PROC = 0;
+#   define XcursorShapeLoadImage (assert(XcursorShapeLoadImage_PROC != 0), XcursorShapeLoadImage_PROC)
+
+typedef XcursorImages *(* PFN_XcursorShapeLoadImages_PROC) (unsigned int, const char *, int);
+PFN_XcursorShapeLoadImages_PROC XcursorShapeLoadImages_PROC = 0;
+#   define XcursorShapeLoadImages (assert(XcursorShapeLoadImages_PROC != 0), XcursorShapeLoadImages_PROC)
+
+typedef Cursor (* PFN_XcursorShapeLoadCursor_PROC) (Display *, unsigned int);
+PFN_XcursorShapeLoadCursor_PROC XcursorShapeLoadCursor_PROC = 0;
+#   define XcursorShapeLoadCursor (assert(XcursorShapeLoadCursor_PROC != 0), XcursorShapeLoadCursor_PROC)
+
+typedef XcursorCursors *(* PFN_XcursorShapeLoadCursors_PROC) (Display *, unsigned int);
+PFN_XcursorShapeLoadCursors_PROC XcursorShapeLoadCursors_PROC = 0;
+#   define XcursorShapeLoadCursors (assert(XcursorShapeLoadCursors_PROC != 0), XcursorShapeLoadCursors_PROC)
+
+typedef Cursor (* PFN_XcursorTryShapeCursor_PROC) (Display *, Font, Font, unsigned int, unsigned int, const XColor *, const XColor *);
+PFN_XcursorTryShapeCursor_PROC XcursorTryShapeCursor_PROC = 0;
+#   define XcursorTryShapeCursor (assert(XcursorTryShapeCursor_PROC != 0), XcursorTryShapeCursor_PROC)
+
+typedef void (* PFN_XcursorNoticeCreateBitmap_PROC) (Display *, Pixmap, unsigned int, unsigned int);
+PFN_XcursorNoticeCreateBitmap_PROC XcursorNoticeCreateBitmap_PROC = 0;
+#   define XcursorNoticeCreateBitmap (assert(XcursorNoticeCreateBitmap_PROC != 0), XcursorNoticeCreateBitmap_PROC)
+
+typedef void (* PFN_XcursorNoticePutBitmap_PROC) (Display *, Drawable, XImage *);
+PFN_XcursorNoticePutBitmap_PROC XcursorNoticePutBitmap_PROC = 0;
+#   define XcursorNoticePutBitmap (assert(XcursorNoticePutBitmap_PROC != 0), XcursorNoticePutBitmap_PROC)
+
+typedef Cursor (* PFN_XcursorTryShapeBitmapCursor_PROC) (Display *, Pixmap, Pixmap, XColor *, XColor *, unsigned int, unsigned int);
+PFN_XcursorTryShapeBitmapCursor_PROC XcursorTryShapeBitmapCursor_PROC = 0;
+#   define XcursorTryShapeBitmapCursor (assert(XcursorTryShapeBitmapCursor_PROC != 0), XcursorTryShapeBitmapCursor_PROC)
+
+typedef void (* PFN_XcursorImageHash_PROC) (XImage *, unsigned char[16]);
+PFN_XcursorImageHash_PROC XcursorImageHash_PROC = 0;
+#   define XcursorImageHash (assert(XcursorImageHash_PROC != 0), XcursorImageHash_PROC)
+
+typedef XcursorBool (* PFN_XcursorSupportsARGB_PROC) (Display *);
+PFN_XcursorSupportsARGB_PROC XcursorSupportsARGB_PROC = 0;
+#   define XcursorSupportsARGB (assert(XcursorSupportsARGB_PROC != 0), XcursorSupportsARGB_PROC)
+
+typedef XcursorBool (* PFN_XcursorSupportsAnim_PROC) (Display *);
+PFN_XcursorSupportsAnim_PROC XcursorSupportsAnim_PROC = 0;
+#   define XcursorSupportsAnim (assert(XcursorSupportsAnim_PROC != 0), XcursorSupportsAnim_PROC)
+
+typedef XcursorBool (* PFN_XcursorSetDefaultSize_PROC) (Display *, int);
+PFN_XcursorSetDefaultSize_PROC XcursorSetDefaultSize_PROC = 0;
+#   define XcursorSetDefaultSize (assert(XcursorSetDefaultSize_PROC != 0), XcursorSetDefaultSize_PROC)
+
+typedef int (* PFN_XcursorGetDefaultSize_PROC) (Display *);
+PFN_XcursorGetDefaultSize_PROC XcursorGetDefaultSize_PROC = 0;
+#   define XcursorGetDefaultSize (assert(XcursorGetDefaultSize_PROC != 0), XcursorGetDefaultSize_PROC)
+
+typedef XcursorBool (* PFN_XcursorSetResizable_PROC) (Display *, XcursorBool);
+PFN_XcursorSetResizable_PROC XcursorSetResizable_PROC = 0;
+#   define XcursorSetResizable (assert(XcursorSetResizable_PROC != 0), XcursorSetResizable_PROC)
+
+typedef XcursorBool (* PFN_XcursorGetResizable_PROC) (Display *);
+PFN_XcursorGetResizable_PROC XcursorGetResizable_PROC = 0;
+#   define XcursorGetResizable (assert(XcursorGetResizable_PROC != 0), XcursorGetResizable_PROC)
+
+typedef XcursorBool (* PFN_XcursorSetTheme_PROC) (Display *, const char *);
+PFN_XcursorSetTheme_PROC XcursorSetTheme_PROC = 0;
+#   define XcursorSetTheme (assert(XcursorSetTheme_PROC != 0), XcursorSetTheme_PROC)
+
+typedef char *(* PFN_XcursorGetTheme_PROC) (Display *);
+PFN_XcursorGetTheme_PROC XcursorGetTheme_PROC = 0;
+#   define XcursorGetTheme (assert(XcursorGetTheme_PROC != 0), XcursorGetTheme_PROC)
+
+typedef XcursorBool (* PFN_XcursorGetThemeCore_PROC) (Display *);
+PFN_XcursorGetThemeCore_PROC XcursorGetThemeCore_PROC = 0;
+#   define XcursorGetThemeCore (assert(XcursorGetThemeCore_PROC != 0), XcursorGetThemeCore_PROC)
+
+typedef XcursorBool (* PFN_XcursorSetThemeCore_PROC) (Display *, XcursorBool);
+PFN_XcursorSetThemeCore_PROC XcursorSetThemeCore_PROC = 0;
+#   define XcursorSetThemeCore (assert(XcursorSetThemeCore_PROC != 0), XcursorSetThemeCore_PROC)
+/* }}} */
+
+/* libXi.so: XInput.h */
+/* {{{ */
 typedef int (* PFN__XiGetDevicePresenceNotifyEvent_PROC) (Display *);
 PFN__XiGetDevicePresenceNotifyEvent_PROC _XiGetDevicePresenceNotifyEvent_PROC = 0;
 #   define _XiGetDevicePresenceNotifyEvent (assert(_XiGetDevicePresenceNotifyEvent_PROC != 0), _XiGetDevicePresenceNotifyEvent_PROC)
@@ -4286,9 +4535,10 @@ PFN_XDeleteDeviceProperty_PROC XDeleteDeviceProperty_PROC = 0;
 typedef int (* PFN_XGetDeviceProperty_PROC) (Display *, XDevice *, Atom, long, long, int, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
 PFN_XGetDeviceProperty_PROC XGetDeviceProperty_PROC = 0;
 #   define XGetDeviceProperty (assert(XGetDeviceProperty_PROC != 0), XGetDeviceProperty_PROC)
-
+/* }}} */
 
 /* libXi: XInput2.h */
+/* {{{ */
 typedef int (* PFN_XIQueryPointer_PROC) (Display *, int, Window, Window *, Window *, double *, double *, double *, double *, XIButtonState *, XIModifierState *, XIGroupState *);
 PFN_XIQueryPointer_PROC XIQueryPointer_PROC = 0;
 #   define XIQueryPointer (assert(XIQueryPointer_PROC != 0), XIQueryPointer_PROC)
@@ -4444,31 +4694,23 @@ PFN_XIFreeDeviceInfo_PROC XIFreeDeviceInfo_PROC = 0;
 /* }}} */
 
 struct __window_h_window_x11 {
-    struct {
-        /* child / client / main window */
-        Window client;
+    /* child / client window handle */
+    Window handle;
 
-        /* X11 visual object */
-        Visual *visual;
-    } xlib;
+    /* X11 visual object */
+    Visual *visual;
 };
 
 
 struct __window_h_context_x11 {
-    struct {
-        /* graphics context */
-        GC gc;
-        XGCValues gcv; /* gc-values */
-        uint64_t  gcm; /* gc-mask   */
-    } xlib;
+    /* graphics context handle */
+    GC handle;
 };
 
 
 struct __window_h_cursor_x11 {
-    struct {
-        /* cursor handle */
-        Cursor handle;
-    } xlib;
+    /* cursor handle */
+    Cursor handle;
 };
 
 
@@ -4479,21 +4721,25 @@ struct __window_h_x11 {
     /* main connection handle */
     Display *dpy;
     
-    struct {
-        Window   root;  /* root window */
-        Window   ipc;   /* IPC window */
-    } xlib;
+    /* main root window handle*/
+    Window root;
+
+    /* inter-process communication window handle */
+    Window ipc;
+
+    /* Atoms: WM */
+    Atom WM_PROTOCOLS;
+    Atom WM_DELETE_WINDOW;
+
+    /* Atoms: clipboard */
+    Atom TARGETS;
+    Atom CLIPBOARD;
+    Atom UTF8_STRING;
 
     struct {
-        /* Atoms: WM */
-        Atom WM_PROTOCOLS;
-        Atom WM_DELETE_WINDOW;
-
-        /* Atoms: clipboard */
-        Atom TARGETS;
-        Atom CLIPBOARD;
-        Atom UTF8_STRING;
-    } xatom;
+        /* handle do shared object */
+        void *handle;
+    } xcursor;
 
     struct {
         /* handle do shared object */
@@ -4627,11 +4873,23 @@ WINDEF int winInit(void) {
 
     /* call platform - specific init function */
     if (!__window_h.platform.init()) { return (0); }
+
+    /* create blank cursor handle */
+    const uint8_t data[16 * 16 * 4] = { 0 };
+    winCreateCursor((cursor_t *) &__window_h.cursor.blank, data, 16, 16, 0, 0);
     return (1);
 }
 
 
 WINDEF int winQuit(void) {
+    /* destroy all the existing cursors */
+    struct __window_h_cursor *cursor = __window_h.cursor.list;
+    while (cursor) {
+        void *next = cursor->next;
+        winDestroyCursor(cursor);
+        cursor = next;
+    }
+    
     /* destroy all the existing contexts */
     struct __window_h_context *context = __window_h.context.list;
     while (context) {
@@ -4658,6 +4916,12 @@ WINDEF int winQuit(void) {
     free(__window_h.selection.clipboard.data);
     __window_h.selection.clipboard.data = 0;
     __window_h.selection.clipboard.size = 0;
+
+    /* flush event queue */
+    event_t event = { 0 };
+    do {
+        winPopEvent(&event);
+    } while (event.type);
     
     /* call platform - specific quit function */
     if (!__window_h.platform.quit()) { return (0); }
@@ -4793,7 +5057,7 @@ WINDEF int winCreateContext(context_t *context, window_t window) {
     struct __window_h_window *win = (struct __window_h_window *) window;
     if (!win) { return (0); }
     
-    /* alloc new window object */
+    /* alloc new cursor object */
     struct __window_h_context *result = calloc(1, sizeof(struct __window_h_context));
     if (!result) { return (0); }
     
@@ -4806,7 +5070,7 @@ WINDEF int winCreateContext(context_t *context, window_t window) {
     /* set the context ownership */
     winSetContextWindow(result, window);
 
-    /* add the result to the '__window_h.window.list' linked list */
+    /* add the result to the '__window_h.context.list' linked list */
     result->next = __window_h.context.list;
     __window_h.context.list = result;
     
@@ -4883,8 +5147,59 @@ WINDEF void *winGLGetProcAddress(const char *proc) { return (__window_h.platform
 
 /* cursor functions */
 
-WINDEF int winCreateCursor(cursor_t *cursor, window_t window) { return (__window_h.platform.createCursor(cursor, window)); }
-WINDEF int winDestroyCursor(cursor_t cursor) { return (__window_h.platform.destroyCursor(cursor)); }
+WINDEF int winCreateCursor(cursor_t *cursor, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
+    /* alloc new window object */
+    struct __window_h_cursor *result = calloc(1, sizeof(struct __window_h_cursor));
+    if (!result) { return (0); }
+    
+    /* call platform - specific create function */
+    if (!__window_h.platform.createCursor(result, data, width, height, xhot, yhot)) {
+        free(result);
+        return (0);
+    }
+    
+    /* add the result to the '__window_h.cursor.list' linked list */
+    result->next = __window_h.cursor.list;
+    __window_h.cursor.list = result;
+    
+    /* and return the result */
+    *cursor = result;
+
+    /* success */
+    return (1);
+}
+
+WINDEF int winDestroyCursor(cursor_t cursor) {
+    /* call platform - specific destroy function */
+    if (!__window_h.platform.destroyCursor(cursor)) { return (0); }
+    
+    /* references */
+    struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
+
+    /* unlink 'cur' from '__window_h.cursor.list' */
+    struct __window_h_cursor **curr = &__window_h.cursor.list;
+    /* case when 'cur' is the first node of '__window_h.cursor.list' */
+    if (cur == (*curr)) {
+        __window_h.cursor.list = (*curr)->next;
+    }
+    /* case when 'cur' is not the first node of '__window_h.cursor.list' */
+    else {
+        /* search for prepending window for 'cur' */
+        while ((*curr) && (*curr)->next != cur) {
+            (*curr) = (*curr)->next;
+        }
+
+        if (!(*curr)) { return (0); }
+        (*curr) = cur->next;
+    }
+
+    /* deallocate cursor object */
+    free(cur);
+
+    /* success */
+    return (1);
+}
+
 WINDEF int winGetCursorPosition(window_t window, size_t *x_ptr, size_t *y_ptr) { return (__window_h.platform.getCursorPosition(window, x_ptr, y_ptr)); }
 WINDEF int winSetCursorPosition(window_t window, const size_t x, const size_t y) { return (__window_h.platform.setCursorPosition(window, x, y)); }
 WINDEF int winSetCursorPositionCenter(window_t window) { return (__window_h.platform.setCursorPositionCenter(window)); }
@@ -5185,7 +5500,7 @@ WININT int __winLoadEGL(struct __window_h_egl *egl) {
     {
         const char  *names[] = { "libEGL.so", "libEGL.so.1, libEGL.so.1.1.0", 0 };
         for (const char **name = names; *name; name++) {
-            libegl = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
+            libegl = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
             if (libegl) { break; }
         }
 
@@ -5726,11 +6041,11 @@ WININT int __winGLSwapIntervalX11(context_t, const int);
 
 WININT void *__winGLGetProcAddressX11(const char *);
 
-/*
-
-WININT int __winCreateCursorX11(cursor_t *, window_t);
+WININT int __winCreateCursorX11(cursor_t, const uint8_t *, const size_t, const size_t, const int, const int);
 
 WININT int __winDestroyCursorX11(cursor_t);
+
+/*
 
 WININT int __winGetCursorPositionX11(window_t, size_t *, size_t *);
 
@@ -5765,9 +6080,9 @@ WININT int __winLoadX11(struct __window_h_x11 *x11) {
 
     void *libx11  = 0;
     {
-        const char  *names[] = { "libX11.so", "libX11.so.6", 0 };
+        const char  *names[] = { "libX11.so", "libX11.so.6", "libX11.so.6.4.0", 0 };
         for (const char **name = names; *name; name++) {
-            libx11 = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
+            libx11 = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
             if (libx11) { break; }
         }
 
@@ -6391,11 +6706,94 @@ WININT int __winLoadX11(struct __window_h_x11 *x11) {
 
     x11->handle = libx11;
 
+
+    void *libxcursor  = 0;
+    {
+        const char  *names[] = { "libXcursor.so", "libXcursor.so.1", "libXcursor.so.1.0.2", 0 };
+        for (const char **name = names; *name; name++) {
+            libxcursor = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
+            if (libxcursor) { break; }
+        }
+
+        /* check if libxcursor is loaded */
+        if (!libxcursor) {
+            return (0);
+        }
+    }
+    
+    /* {{{ */
+
+    XcursorImageCreate_PROC = (PFN_XcursorImageCreate_PROC) dlsym(libxcursor, "XcursorImageCreate");
+    XcursorImageDestroy_PROC = (PFN_XcursorImageDestroy_PROC) dlsym(libxcursor, "XcursorImageDestroy");
+    XcursorImagesCreate_PROC = (PFN_XcursorImagesCreate_PROC) dlsym(libxcursor, "XcursorImagesCreate");
+    XcursorImagesDestroy_PROC = (PFN_XcursorImagesDestroy_PROC) dlsym(libxcursor, "XcursorImagesDestroy");
+    XcursorImagesSetName_PROC = (PFN_XcursorImagesSetName_PROC) dlsym(libxcursor, "XcursorImagesSetName");
+    XcursorCursorsCreate_PROC = (PFN_XcursorCursorsCreate_PROC) dlsym(libxcursor, "XcursorCursorsCreate");
+    XcursorCursorsDestroy_PROC = (PFN_XcursorCursorsDestroy_PROC) dlsym(libxcursor, "XcursorCursorsDestroy");
+    XcursorAnimateCreate_PROC = (PFN_XcursorAnimateCreate_PROC) dlsym(libxcursor, "XcursorAnimateCreate");
+    XcursorAnimateDestroy_PROC = (PFN_XcursorAnimateDestroy_PROC) dlsym(libxcursor, "XcursorAnimateDestroy");
+    XcursorAnimateNext_PROC = (PFN_XcursorAnimateNext_PROC) dlsym(libxcursor, "XcursorAnimateNext");
+    XcursorCommentCreate_PROC = (PFN_XcursorCommentCreate_PROC) dlsym(libxcursor, "XcursorCommentCreate");
+    XcursorCommentDestroy_PROC = (PFN_XcursorCommentDestroy_PROC) dlsym(libxcursor, "XcursorCommentDestroy");
+    XcursorCommentsCreate_PROC = (PFN_XcursorCommentsCreate_PROC) dlsym(libxcursor, "XcursorCommentsCreate");
+    XcursorCommentsDestroy_PROC = (PFN_XcursorCommentsDestroy_PROC) dlsym(libxcursor, "XcursorCommentsDestroy");
+    XcursorXcFileLoadImage_PROC = (PFN_XcursorXcFileLoadImage_PROC) dlsym(libxcursor, "XcursorXcFileLoadImage");
+    XcursorXcFileLoadImages_PROC = (PFN_XcursorXcFileLoadImages_PROC) dlsym(libxcursor, "XcursorXcFileLoadImages");
+    XcursorXcFileLoadAllImages_PROC = (PFN_XcursorXcFileLoadAllImages_PROC) dlsym(libxcursor, "XcursorXcFileLoadAllImages");
+    XcursorXcFileLoad_PROC = (PFN_XcursorXcFileLoad_PROC) dlsym(libxcursor, "XcursorXcFileLoad");
+    XcursorXcFileSave_PROC = (PFN_XcursorXcFileSave_PROC) dlsym(libxcursor, "XcursorXcFileSave");
+    XcursorFileLoadImage_PROC = (PFN_XcursorFileLoadImage_PROC) dlsym(libxcursor, "XcursorFileLoadImage");
+    XcursorFileLoadImages_PROC = (PFN_XcursorFileLoadImages_PROC) dlsym(libxcursor, "XcursorFileLoadImages");
+    XcursorFileLoadAllImages_PROC = (PFN_XcursorFileLoadAllImages_PROC) dlsym(libxcursor, "XcursorFileLoadAllImages");
+    XcursorFileLoad_PROC = (PFN_XcursorFileLoad_PROC) dlsym(libxcursor, "XcursorFileLoad");
+    XcursorFileSaveImages_PROC = (PFN_XcursorFileSaveImages_PROC) dlsym(libxcursor, "XcursorFileSaveImages");
+    XcursorFileSave_PROC = (PFN_XcursorFileSave_PROC) dlsym(libxcursor, "XcursorFileSave");
+    XcursorFilenameLoadImage_PROC = (PFN_XcursorFilenameLoadImage_PROC) dlsym(libxcursor, "XcursorFilenameLoadImage");
+    XcursorFilenameLoadImages_PROC = (PFN_XcursorFilenameLoadImages_PROC) dlsym(libxcursor, "XcursorFilenameLoadImages");
+    XcursorFilenameLoadAllImages_PROC = (PFN_XcursorFilenameLoadAllImages_PROC) dlsym(libxcursor, "XcursorFilenameLoadAllImages");
+    XcursorFilenameLoad_PROC = (PFN_XcursorFilenameLoad_PROC) dlsym(libxcursor, "XcursorFilenameLoad");
+    XcursorFilenameSaveImages_PROC = (PFN_XcursorFilenameSaveImages_PROC) dlsym(libxcursor, "XcursorFilenameSaveImages");
+    XcursorFilenameSave_PROC = (PFN_XcursorFilenameSave_PROC) dlsym(libxcursor, "XcursorFilenameSave");
+    XcursorLibraryLoadImage_PROC = (PFN_XcursorLibraryLoadImage_PROC) dlsym(libxcursor, "XcursorLibraryLoadImage");
+    XcursorLibraryLoadImages_PROC = (PFN_XcursorLibraryLoadImages_PROC) dlsym(libxcursor, "XcursorLibraryLoadImages");
+    XcursorLibraryPath_PROC = (PFN_XcursorLibraryPath_PROC) dlsym(libxcursor, "XcursorLibraryPath");
+    XcursorLibraryShape_PROC = (PFN_XcursorLibraryShape_PROC) dlsym(libxcursor, "XcursorLibraryShape");
+    XcursorImageLoadCursor_PROC = (PFN_XcursorImageLoadCursor_PROC) dlsym(libxcursor, "XcursorImageLoadCursor");
+    XcursorImagesLoadCursors_PROC = (PFN_XcursorImagesLoadCursors_PROC) dlsym(libxcursor, "XcursorImagesLoadCursors");
+    XcursorImagesLoadCursor_PROC = (PFN_XcursorImagesLoadCursor_PROC) dlsym(libxcursor, "XcursorImagesLoadCursor");
+    XcursorFilenameLoadCursor_PROC = (PFN_XcursorFilenameLoadCursor_PROC) dlsym(libxcursor, "XcursorFilenameLoadCursor");
+    XcursorFilenameLoadCursors_PROC = (PFN_XcursorFilenameLoadCursors_PROC) dlsym(libxcursor, "XcursorFilenameLoadCursors");
+    XcursorLibraryLoadCursor_PROC = (PFN_XcursorLibraryLoadCursor_PROC) dlsym(libxcursor, "XcursorLibraryLoadCursor");
+    XcursorLibraryLoadCursors_PROC = (PFN_XcursorLibraryLoadCursors_PROC) dlsym(libxcursor, "XcursorLibraryLoadCursors");
+    XcursorShapeLoadImage_PROC = (PFN_XcursorShapeLoadImage_PROC) dlsym(libxcursor, "XcursorShapeLoadImage");
+    XcursorShapeLoadImages_PROC = (PFN_XcursorShapeLoadImages_PROC) dlsym(libxcursor, "XcursorShapeLoadImages");
+    XcursorShapeLoadCursor_PROC = (PFN_XcursorShapeLoadCursor_PROC) dlsym(libxcursor, "XcursorShapeLoadCursor");
+    XcursorShapeLoadCursors_PROC = (PFN_XcursorShapeLoadCursors_PROC) dlsym(libxcursor, "XcursorShapeLoadCursors");
+    XcursorTryShapeCursor_PROC = (PFN_XcursorTryShapeCursor_PROC) dlsym(libxcursor, "XcursorTryShapeCursor");
+    XcursorNoticeCreateBitmap_PROC = (PFN_XcursorNoticeCreateBitmap_PROC) dlsym(libxcursor, "XcursorNoticeCreateBitmap");
+    XcursorNoticePutBitmap_PROC = (PFN_XcursorNoticePutBitmap_PROC) dlsym(libxcursor, "XcursorNoticePutBitmap");
+    XcursorTryShapeBitmapCursor_PROC = (PFN_XcursorTryShapeBitmapCursor_PROC) dlsym(libxcursor, "XcursorTryShapeBitmapCursor");
+    XcursorImageHash_PROC = (PFN_XcursorImageHash_PROC) dlsym(libxcursor, "XcursorImageHash");
+    XcursorSupportsARGB_PROC = (PFN_XcursorSupportsARGB_PROC) dlsym(libxcursor, "XcursorSupportsARGB");
+    XcursorSupportsAnim_PROC = (PFN_XcursorSupportsAnim_PROC) dlsym(libxcursor, "XcursorSupportsAnim");
+    XcursorSetDefaultSize_PROC = (PFN_XcursorSetDefaultSize_PROC) dlsym(libxcursor, "XcursorSetDefaultSize");
+    XcursorGetDefaultSize_PROC = (PFN_XcursorGetDefaultSize_PROC) dlsym(libxcursor, "XcursorGetDefaultSize");
+    XcursorSetResizable_PROC = (PFN_XcursorSetResizable_PROC) dlsym(libxcursor, "XcursorSetResizable");
+    XcursorGetResizable_PROC = (PFN_XcursorGetResizable_PROC) dlsym(libxcursor, "XcursorGetResizable");
+    XcursorSetTheme_PROC = (PFN_XcursorSetTheme_PROC) dlsym(libxcursor, "XcursorSetTheme");
+    XcursorGetTheme_PROC = (PFN_XcursorGetTheme_PROC) dlsym(libxcursor, "XcursorGetTheme");
+    XcursorGetThemeCore_PROC = (PFN_XcursorGetThemeCore_PROC) dlsym(libxcursor, "XcursorGetThemeCore");
+    XcursorSetThemeCore_PROC = (PFN_XcursorSetThemeCore_PROC) dlsym(libxcursor, "XcursorSetThemeCore");
+
+    /* }}} */
+
+    x11->xcursor.handle = libxcursor;
+
     void *libxi = 0;
     {
         const char  *names[] = { "libXi.so", "libXi.so.6", 0 };
         for (const char **name = names; *name; name++) {
-            libxi = dlopen(*name, RTLD_NOW | RTLD_GLOBAL);
+            libxi = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
             if (libxi) { break; }
         }
 
@@ -6525,6 +6923,7 @@ WININT int __winUnloadX11(struct __window_h_x11 *x11) {
 
     /* release X11 modules*/
     dlclose(x11->handle), x11->handle = 0;
+    dlclose(x11->xcursor.handle), x11->xcursor.handle = 0;
     dlclose(x11->xi.handle), x11->xi.handle = 0;
 
     /* release 'x11' */
@@ -6542,11 +6941,11 @@ WININT int __winGetSelectionX11(const Atom selection, void **d_ptr, size_t *s_pt
 
     /* xlib references */
     Display *dpy = x11->dpy;
-    Window   ipc = x11->xlib.ipc;
+    Window   ipc = x11->ipc;
 
     /* xatom references */
-    Atom CLIPBOARD   = x11->xatom.CLIPBOARD;
-    Atom UTF8_STRING = x11->xatom.UTF8_STRING;
+    Atom CLIPBOARD   = x11->CLIPBOARD;
+    Atom UTF8_STRING = x11->UTF8_STRING;
 
     /* get globally-stored selection data */
     void  **data = 0;
@@ -6615,10 +7014,10 @@ WININT int __winSetSelectionX11(const Atom selection, const void *data, const si
     
     /* xlib references */
     Display *dpy = x11->dpy;
-    Window   ipc = x11->xlib.ipc;
+    Window   ipc = x11->ipc;
 
     /* xatom references */
-    Atom CLIPBOARD = x11->xatom.CLIPBOARD;
+    Atom CLIPBOARD = x11->CLIPBOARD;
 
     /* set globally-stored selection data */
     if (selection == XA_PRIMARY) {
@@ -6660,9 +7059,9 @@ WININT int __winHandleSelectionX11(XEvent *xevent) {
     if (!x11) { return (0); }
 
     /* xatom references */
-    Atom TARGETS = x11->xatom.TARGETS;
-    Atom CLIPBOARD = x11->xatom.CLIPBOARD;
-    Atom UTF8_STRING = x11->xatom.UTF8_STRING;
+    Atom TARGETS = x11->TARGETS;
+    Atom CLIPBOARD = x11->CLIPBOARD;
+    Atom UTF8_STRING = x11->UTF8_STRING;
 
     /* request / notify result */
     int result = 0;
@@ -6808,26 +7207,26 @@ WININT int __winInitX11(void) {
     if (!x11) { return (0); }
     
     /* get 'x11->xlib' members */
-    x11->xlib.root = DefaultRootWindow(x11->dpy);
-    if (!x11->xlib.root) { return (0); }
+    x11->root = DefaultRootWindow(x11->dpy);
+    if (!x11->root) { return (0); }
     
     XSetWindowAttributes attr = { .event_mask = PropertyChangeMask };
-    x11->xlib.ipc = XCreateWindow(x11->dpy,
-                                  x11->xlib.root,
+    x11->ipc = XCreateWindow(x11->dpy,
+                                  x11->root,
                                   0, 0, 1, 1, 0, 0,
                                   InputOnly,
                                   CopyFromParent,
                                   CWEventMask,
                                   &attr);
-    if (!x11->xlib.ipc) { return (0); }
+    if (!x11->ipc) { return (0); }
    
 
     /* get 'x11->xatom' members  */ 
-    x11->xatom.WM_PROTOCOLS = XInternAtom(x11->dpy, "WM_PROTOCOLS", False);
-    x11->xatom.WM_DELETE_WINDOW = XInternAtom(x11->dpy, "WM_DELETE_WINDOW", False);
-    x11->xatom.TARGETS = XInternAtom(x11->dpy, "TARGETS", False);
-    x11->xatom.CLIPBOARD = XInternAtom(x11->dpy, "CLIPBOARD", False);
-    x11->xatom.UTF8_STRING = XInternAtom(x11->dpy, "UTF8_STRING", False);
+    x11->WM_PROTOCOLS = XInternAtom(x11->dpy, "WM_PROTOCOLS", False);
+    x11->WM_DELETE_WINDOW = XInternAtom(x11->dpy, "WM_DELETE_WINDOW", False);
+    x11->TARGETS = XInternAtom(x11->dpy, "TARGETS", False);
+    x11->CLIPBOARD = XInternAtom(x11->dpy, "CLIPBOARD", False);
+    x11->UTF8_STRING = XInternAtom(x11->dpy, "UTF8_STRING", False);
 
     /* success */
     return (1);
@@ -6841,16 +7240,16 @@ WININT int __winQuitX11(void) {
 
     /* close IPC window */
     XDestroyWindow(x11->dpy,
-                   x11->xlib.ipc);
+                   x11->ipc);
 
     /* success */
     return (1);
 }
 
 
-WININT int __winCreateWindowX11(window_t client, const size_t width, const size_t height, const char *title) {
+WININT int __winCreateWindowX11(window_t window, const size_t width, const size_t height, const char *title) {
     /* references */
-    struct __window_h_window *win = (struct __window_h_window *) client;
+    struct __window_h_window *win = (struct __window_h_window *) window;
     if (!win) { return (0); }
 
     /* alloc new 'x11' window object */
@@ -6895,7 +7294,7 @@ WININT int __winCreateX11WindowX11(struct __window_h_window_x11 *x11, const size
 
     /* xlib references */
     Display *dpy = __window_h.x11->dpy;
-    Window  root = __window_h.x11->xlib.root;
+    Window  root = __window_h.x11->root;
 
     /* get X11 components */
     int screen = DefaultScreen(dpy);
@@ -6912,7 +7311,7 @@ WININT int __winCreateX11WindowX11(struct __window_h_window_x11 *x11, const size
                       EnterWindowMask | LeaveWindowMask | PropertyChangeMask;
 
     /* create client window */
-    Window client = XCreateWindow(dpy, root,
+    Window handle = XCreateWindow(dpy, root,
                                   0, 0,
                                   width, height,
                                   0,
@@ -6921,21 +7320,21 @@ WININT int __winCreateX11WindowX11(struct __window_h_window_x11 *x11, const size
                                   visual,
                                   CWBorderPixel | CWColormap | CWEventMask | CWBackPixel,
                                   &attr);
-    if (!client) { return (0); }
+    if (!handle) { return (0); }
 
     /* set the title */
-    XStoreName(dpy, client, title);
+    XStoreName(dpy, handle, title);
 
     /* set WM protocols atoms */
-    Atom WM_PROTOCOLS = __window_h.x11->xatom.WM_PROTOCOLS;
-    XSetWMProtocols(dpy, client, &WM_PROTOCOLS, 1);
+    Atom WM_PROTOCOLS = __window_h.x11->WM_PROTOCOLS;
+    XSetWMProtocols(dpy, handle, &WM_PROTOCOLS, 1);
     
-    Atom WM_DELETE_WINDOW = __window_h.x11->xatom.WM_DELETE_WINDOW;
-    XSetWMProtocols(dpy, client, &WM_DELETE_WINDOW, 1);
+    Atom WM_DELETE_WINDOW = __window_h.x11->WM_DELETE_WINDOW;
+    XSetWMProtocols(dpy, handle, &WM_DELETE_WINDOW, 1);
 
     /* set 'x11->xlib' members */
-    x11->xlib.client = client;
-    x11->xlib.visual = visual;
+    x11->handle = handle;
+    x11->visual = visual;
 
     /* success */
     return (1);
@@ -6960,7 +7359,7 @@ WININT int __winCreateEGLWindowX11(struct __window_h_window_x11 *x11, const size
 
     /* xlib references */
     Display *dpy = __window_h.x11->dpy; 
-    Window  root = __window_h.x11->xlib.root;
+    Window  root = __window_h.x11->root;
 
     /* get X11 components */
     int screen = DefaultScreen(dpy);
@@ -7010,7 +7409,7 @@ WININT int __winCreateEGLWindowX11(struct __window_h_window_x11 *x11, const size
                       EnterWindowMask | LeaveWindowMask | PropertyChangeMask;
 
     /* create client window */
-    Window client = XCreateWindow(dpy, root,
+    Window handle = XCreateWindow(dpy, root,
                                   0, 0,
                                   width, height,
                                   0,
@@ -7019,21 +7418,21 @@ WININT int __winCreateEGLWindowX11(struct __window_h_window_x11 *x11, const size
                                   visual,
                                   CWBorderPixel | CWColormap | CWEventMask | CWBackPixel,
                                   &attr);
-    if (!client) { return (0); }
+    if (!handle) { return (0); }
 
     /* set the title */
-    XStoreName(dpy, client, title);
+    XStoreName(dpy, handle, title);
 
     /* set WM protocols atoms */
-    Atom WM_PROTOCOLS = __window_h.x11->xatom.WM_PROTOCOLS;
-    XSetWMProtocols(dpy, client, &WM_PROTOCOLS, 1);
+    Atom WM_PROTOCOLS = __window_h.x11->WM_PROTOCOLS;
+    XSetWMProtocols(dpy, handle, &WM_PROTOCOLS, 1);
     
-    Atom WM_DELETE_WINDOW = __window_h.x11->xatom.WM_DELETE_WINDOW;
-    XSetWMProtocols(dpy, client, &WM_DELETE_WINDOW, 1);
+    Atom WM_DELETE_WINDOW = __window_h.x11->WM_DELETE_WINDOW;
+    XSetWMProtocols(dpy, handle, &WM_DELETE_WINDOW, 1);
 
     /* set 'x11->xlib' members */
-    x11->xlib.client = client;
-    x11->xlib.visual = visual;
+    x11->handle = handle;
+    x11->visual = visual;
 
     /* success */
     return (1);
@@ -7048,7 +7447,7 @@ WININT int __winDestroyWindowX11(window_t window) {
     struct __window_h_window_x11 *x11 = win->x11;
 
     /* destroy client */
-    XDestroyWindow(__window_h.x11->dpy, x11->xlib.client);
+    XDestroyWindow(__window_h.x11->dpy, x11->handle);
 
     /* deallocate window object */
     free(x11);
@@ -7065,10 +7464,10 @@ WININT int __winMapWindowX11(window_t window) {
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* map window */
-    XMapWindow(dpy, client);
+    XMapWindow(dpy, handle);
 
     /* success */
     return (1);
@@ -7082,10 +7481,10 @@ WININT int __winUnmapWindowX11(window_t window) {
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* unmap window */
-    XUnmapWindow(dpy, client);
+    XUnmapWindow(dpy, handle);
 
     /* success */
     return (1);
@@ -7099,11 +7498,11 @@ WININT int __winGetWindowSizeX11(window_t window, size_t *w_ptr, size_t *h_ptr) 
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* get window attributes */
     XWindowAttributes attr = { 0 };
-    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
+    if (!XGetWindowAttributes(dpy, handle, &attr)) { return (0); }
 
     /* return values */
     if (w_ptr) { *w_ptr = attr.width; }
@@ -7121,10 +7520,10 @@ WININT int __winSetWindowSizeX11(window_t window, const size_t w, const size_t h
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* resize window */
-    if (!XResizeWindow(dpy, client, w, h)) { return (0); }
+    if (!XResizeWindow(dpy, handle, w, h)) { return (0); }
 
     /* success */
     return (1);
@@ -7138,18 +7537,18 @@ WININT int __winSetWindowMinSizeX11(window_t window, const size_t w, const size_
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* get WM normal hints */
     XSizeHints hints;
     int64_t supp;
-    XGetWMNormalHints(dpy, client, &hints, &supp);
+    XGetWMNormalHints(dpy, handle, &hints, &supp);
 
     /* set new WM normal hints with position changed */
     hints.flags |= PMinSize;
     hints.min_width  = w;
     hints.min_height = h;
-    XSetWMNormalHints(dpy, client, &hints);
+    XSetWMNormalHints(dpy, handle, &hints);
 
     /* success */
     return (1);
@@ -7163,18 +7562,18 @@ WININT int __winSetWindowMaxSizeX11(window_t window, const size_t w, const size_
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* get WM normal hints */
     XSizeHints hints;
     int64_t supp;
-    XGetWMNormalHints(dpy, client, &hints, &supp);
+    XGetWMNormalHints(dpy, handle, &hints, &supp);
 
     /* set new WM normal hints with position changed */
     hints.flags |= PMaxSize;
     hints.max_width  = w;
     hints.max_height = h;
-    XSetWMNormalHints(dpy, client, &hints);
+    XSetWMNormalHints(dpy, handle, &hints);
 
     /* success */
     return (1);
@@ -7188,11 +7587,11 @@ WININT int __winGetWindowPositionX11(window_t window, size_t *x_ptr, size_t *y_p
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* get window attributes */
     XWindowAttributes attr = { 0 };
-    if (!XGetWindowAttributes(dpy, client, &attr)) { return (0); }
+    if (!XGetWindowAttributes(dpy, handle, &attr)) { return (0); }
 
     /* return values */
     if (x_ptr) { *x_ptr = attr.x; }
@@ -7210,10 +7609,10 @@ WININT int __winSetWindowPositionX11(window_t window, const size_t x, const size
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* resize window */
-    if (!XMoveWindow(dpy, client, x, y)) { return (0); }
+    if (!XMoveWindow(dpy, handle, x, y)) { return (0); }
 
     /* success */
     return (1);
@@ -7227,10 +7626,10 @@ WININT int __winGetWindowTitleX11(window_t window, char **t_ptr) {
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* fetch window title */
-    if (!XFetchName(dpy, client, t_ptr)) { return (0); }
+    if (!XFetchName(dpy, handle, t_ptr)) { return (0); }
 
     /* success */
     return (1);
@@ -7244,10 +7643,10 @@ WININT int __winSetWindowTitleX11(window_t window, const char *t) {
 
     /* xlib references */
 	Display   *dpy = __window_h.x11->dpy;
-    Window  client = win->x11->xlib.client;
+    Window  handle = win->x11->handle;
 
     /* fetch window title */
-    if (!XStoreName(dpy, client, t)) { return (0); }
+    if (!XStoreName(dpy, handle, t)) { return (0); }
 
     /* success */
     return (1);
@@ -7315,10 +7714,10 @@ WININT int __winCreateX11ContextX11(struct __window_h_context_x11 *x11, context_
     if (!win) { return (0); }
 
     /* create new 'GC' */
-    x11->xlib.gc = XCreateGC(__window_h.x11->dpy,
-                             win->x11->xlib.client,
-                             x11->xlib.gcm, &x11->xlib.gcv);
-    if (!x11->xlib.gc) {
+    x11->handle = XCreateGC(__window_h.x11->dpy,
+                             win->x11->handle,
+                             0, 0);
+    if (!x11->handle) {
         free(x11);
         return (0);
     }
@@ -7355,7 +7754,7 @@ WININT int __winCreateEGLContextX11(struct __window_h_context_egl *egl, context_
 
     /* get EGLSurface object */
     egl->surface = eglCreateWindowSurface(__window_h.egl->dpy, config,
-                                          win->x11->xlib.client,
+                                          win->x11->handle,
                                           __window_h.egl->attr.surface);
     if (egl->surface == EGL_NO_SURFACE) { return (0); }
 
@@ -7384,8 +7783,8 @@ WININT int __winDestroyContextX11(context_t context) {
     /* check and release 'x11' */
     struct __window_h_context_x11 *x11 = ctx->x11;
     if (x11) {
-        /* release 'gc' */
-        XFreeGC(__window_h.x11->dpy, x11->xlib.gc);
+        /* release GC 'handle' */
+        XFreeGC(__window_h.x11->dpy, x11->handle);
 
         /* release 'x11' */
         free(x11);
@@ -7524,7 +7923,70 @@ WININT void *__winGLGetProcAddressX11(const char *proc) {
 }
 
 
+WININT int __winCreateCursorX11(cursor_t cursor, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
+    /* alloc new 'x11' object */
+    struct __window_h_cursor_x11 *x11 = calloc(1, sizeof(struct __window_h_cursor_x11));
+    if (!x11) { return (0); }
 
+    /* references */
+    struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
+    if (!cur) { return (0); }
+
+    /* xlib references */
+	Display *dpy = __window_h.x11->dpy;
+
+    /* create Xcursor image */
+    XcursorImage *image = XcursorImageCreate(width, height);
+    if (!image) {
+        free(x11);
+        return (0);
+    }
+
+    image->xhot = xhot;
+    image->yhot = yhot;
+
+    /* fill the 'image' data */
+    uint8_t  *src = (uint8_t *)  data;
+    uint32_t *dst = (uint32_t *) image->pixels;
+    for (size_t i = 0; i < width * height; i++, dst++, src += 4) {
+        *dst = ((uint8_t)  (src[3]) << 24) |
+               ((uint8_t) ((src[0] * src[3]) / 255) << 16) |
+               ((uint8_t) ((src[1] * src[3]) / 255) <<  8) |
+               ((uint8_t) ((src[2] * src[3]) / 255) <<  0);
+    }
+
+    Cursor handle = XcursorImageLoadCursor(dpy, image);
+    XcursorImageDestroy(image);
+
+    /* failure */
+    if (!handle) { return (0); }
+
+    /* return the result */
+    x11->handle = handle; 
+    cur->x11 = x11;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winDestroyCursorX11(cursor_t cursor) {
+    /* references */
+    struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
+    if (!cur) { return (0); }
+    
+    struct __window_h_cursor_x11 *x11 = cur->x11;
+    if (!x11) { return (0); }
+
+    /* release 'cursor' */
+    XFreeCursor(__window_h.x11->dpy, x11->handle);
+
+    /* release 'x11' */
+    free(x11);
+
+    /* success */
+    return (1);
+}
 
 
 WININT int __winPollEventsX11(void) {
@@ -7544,8 +8006,8 @@ WININT int __winPollEventsX11(void) {
                 XClientMessageEvent xclient = xevent.xclient;
 
                 /* xatom references */
-                Atom WM_PROTOCOLS     = x11->xatom.WM_PROTOCOLS;
-                Atom WM_DELETE_WINDOW = x11->xatom.WM_DELETE_WINDOW;
+                Atom WM_PROTOCOLS     = x11->WM_PROTOCOLS;
+                Atom WM_DELETE_WINDOW = x11->WM_DELETE_WINDOW;
 
                 /* process different kind of client events */
                 const Atom message_type = xclient.message_type;
@@ -7566,7 +8028,7 @@ WININT int __winPollEventsX11(void) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = __window_h.window.list;
                 while (window) {
-                    if (window->x11->xlib.client == xcreatewindow.window) { break; }
+                    if (window->x11->handle == xcreatewindow.window) { break; }
                 }
                 if (!window) { break; }
 
@@ -7579,7 +8041,7 @@ WININT int __winPollEventsX11(void) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = __window_h.window.list;
                 while (window) {
-                    if (window->x11->xlib.client == xdestroywindow.window) { break; }
+                    if (window->x11->handle == xdestroywindow.window) { break; }
                 }
                 if (!window) { break; }
 
@@ -7592,7 +8054,7 @@ WININT int __winPollEventsX11(void) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = __window_h.window.list;
                 while (window) {
-                    if (window->x11->xlib.client == xmap.window) { break; }
+                    if (window->x11->handle == xmap.window) { break; }
                 }
                 if (!window) { break; }
 
@@ -7608,7 +8070,7 @@ WININT int __winPollEventsX11(void) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = __window_h.window.list;
                 while (window) {
-                    if (window->x11->xlib.client == xunmap.window) { break; }
+                    if (window->x11->handle == xunmap.window) { break; }
                 }
                 if (!window) { break; }
 
@@ -7624,7 +8086,7 @@ WININT int __winPollEventsX11(void) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = __window_h.window.list;
                 while (window) {
-                    if (window->x11->xlib.client == xcrossing.window) { break; }
+                    if (window->x11->handle == xcrossing.window) { break; }
                 }
                 if (!window) { break; }
 
@@ -7640,7 +8102,7 @@ WININT int __winPollEventsX11(void) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = __window_h.window.list;
                 while (window) {
-                    if (window->x11->xlib.client == xcrossing.window) { break; }
+                    if (window->x11->handle == xcrossing.window) { break; }
                 }
                 if (!window) { break; }
 
@@ -7656,7 +8118,7 @@ WININT int __winPollEventsX11(void) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = __window_h.window.list;
                 while (window) {
-                    if (window->x11->xlib.client == xmotion.window) { break; }
+                    if (window->x11->handle == xmotion.window) { break; }
                 }
                 if (!window) { break; }
                 
@@ -7674,7 +8136,7 @@ WININT int __winPollEventsX11(void) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = __window_h.window.list;
                 while (window) {
-                    if (window->x11->xlib.client == xbutton.window) { break; }
+                    if (window->x11->handle == xbutton.window) { break; }
                 }
                 if (!window) { break; }
                 
@@ -7711,7 +8173,7 @@ WININT int __winPollEventsX11(void) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = __window_h.window.list;
                 while (window) {
-                    if (window->x11->xlib.client == xkey.window) { break; }
+                    if (window->x11->handle == xkey.window) { break; }
                 }
                 if (!window) { break; }
 
@@ -7784,7 +8246,7 @@ WININT int __winCopyX11(const uint32_t selection, const void *data, const size_t
     switch (selection) {
         case (WINDOW_SELECTION_PRIMARY):   { atom = XA_PRIMARY;   } break;
         case (WINDOW_SELECTION_SECONDARY): { atom = XA_SECONDARY; } break;
-        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->xatom.CLIPBOARD; } break;
+        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->CLIPBOARD; } break;
 
         /* ... */
         default: { return (0); }
@@ -7804,7 +8266,7 @@ WININT int __winPasteX11(const uint32_t selection, void **d_ptr, size_t *s_ptr) 
     switch (selection) {
         case (WINDOW_SELECTION_PRIMARY):   { atom = XA_PRIMARY;   } break;
         case (WINDOW_SELECTION_SECONDARY): { atom = XA_SECONDARY; } break;
-        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->xatom.CLIPBOARD; } break;
+        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->CLIPBOARD; } break;
 
         /* ... */
         default: { return (0); }
@@ -7839,7 +8301,7 @@ WININT int __winLoadWayland(struct __window_h_wl *wl) {
     /* ... */
 
     /* set 'wl->libwayland_client' member */ 
-    wl->libwayland_client= handle;
+    wl->libwayland_client = handle;
 
     /* success */
     return (1);
@@ -7911,9 +8373,9 @@ WININT int __winLoadPlatform(struct __window_h_platform *platform) {
     platform->GLSwapBuffers = __winGLSwapBuffersX11;
     platform->GLSwapInterval = __winGLSwapIntervalX11;
     platform->GLGetProcAddress = __winGLGetProcAddressX11;
-    /*
     platform->createCursor = __winCreateCursorX11;
     platform->destroyCursor = __winDestroyCursorX11;
+    /*
     platform->getCursorPosition = __winGetCursorPositionX11;
     platform->setCursorPosition = __winSetCursorPositionX11;
     platform->setCursorPositionCenter = __winSetCursorPositionCenterX11;
@@ -7921,7 +8383,7 @@ WININT int __winLoadPlatform(struct __window_h_platform *platform) {
     platform->setCursorMode = __winSetCursorModeX11;
     platform->getCursorRawMotion = __winGetCursorRawMotionX11;
     platform->setCursorRawMotion = __winSetCursorRawMotionX11;
-*/
+    */
     platform->pollEvents = __winPollEventsX11;
     platform->copy = __winCopyX11;
     platform->paste = __winPasteX11;
