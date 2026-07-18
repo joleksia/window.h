@@ -10,22 +10,22 @@
 #include <stdio.h>
 #
 #define WINDOW_IMPLEMENTATION
-#include "./../window.h"
+#include <window.h>
 
 int main(void) {
-    /* initialize window.h */
-    winInit();
+    /* init window.h */
+    library_t library = 0;
+    winInit(&library);
 
-    /* create window */
-    window_t win;
-    winCreateWindow(&win, 800, 600, "Hello, window.h", 0);
-    winMapWindow(win);
+    window_t window = 0;
+    winCreateWindow(library, &window, 800, 600, "Hello, window.h!");
+    winMapWindow(library, window);
 
     int exit = 0;
     while (!exit) {
         /* poll events */
-        t_event event = { 0 };
-        while (winPollEvents(&event)) {
+        event_t event = { 0 };
+        while (winPollEvents(library, &event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
                     printf("WINDOW_EVENT_QUIT\n");
@@ -35,8 +35,8 @@ int main(void) {
         }
     }
 
-    /* quit */
-    winQuit();
+    /* quit window.h */
+    winQuit(library);
     return (0);
 }
 ```
