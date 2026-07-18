@@ -5704,18 +5704,43 @@ static const struct __window_h_egl_attrmap {
 
 /* internal functions (declarations) */
 
-WININT int __winLoadEGL(struct __window_h_egl *, void *);
+WININT int __winInitEGL(struct __window_h *, void *);
 
-WININT int __winUnloadEGL(struct __window_h_egl *);
+WININT int __winLoadEGL(struct __window_h *);
+
+WININT int __winUnloadEGL(struct __window_h *);
 
 /* internal functions (definitions) */
 
-WININT int __winLoadEGL(struct __window_h_egl *egl, void *display) {
+WININT int __winInitEGL(struct __window_h *lib, void *display) {
     /* null-check */
+    if (!lib) { return (0); }
+
+    /* references */
+    struct __window_h_egl *egl = lib->egl; 
     if (!egl) { return (0); }
 
+    egl->dpy = eglGetDisplay(display);
+    if (egl->dpy == EGL_NO_DISPLAY) {
+        return (0);
+    }
+    
+    /* initialize EGL */
+    eglInitialize(egl->dpy, 0, 0);
+    eglBindAPI(EGL_OPENGL_API);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winLoadEGL(struct __window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
     /* init-check */
-    if (egl->handle) { return (1); }
+    struct __window_h_egl *egl = calloc(1, sizeof(struct __window_h_egl));;
+    if (!egl) { return (0); }
 
     void *libegl= 0;
     {
@@ -5776,27 +5801,21 @@ WININT int __winLoadEGL(struct __window_h_egl *egl, void *display) {
     eglWaitSync_PROC = (PFN_eglWaitSync_PROC) dlsym(libegl, "eglWaitSync");
     /* }}} */
     egl->handle = libegl;
-    
-    /* get EGL display */ 
-    EGLDisplay dpy = eglGetDisplay(display);
-    if (dpy == EGL_NO_DISPLAY) {
-        dlclose(libegl);
-        return (0);
-    }
 
-    egl->dpy = dpy;
-    
-    /* initialize EGL */
-    eglInitialize(dpy, 0, 0);
-    eglBindAPI(EGL_OPENGL_API);
+    /* return the result */
+    lib->egl = egl;
 
     /* success */
     return (1);
 }
 
 
-WININT int __winUnloadEGL(struct __window_h_egl *egl) {
+WININT int __winUnloadEGL(struct __window_h *lib) {
     /* null-check */
+    if (!lib) { return (0); }
+
+    /* init-check */
+    struct __window_h_egl *egl = lib->egl;
     if (!egl) { return (0); }
 
     eglTerminate(egl->dpy);
@@ -7491,12 +7510,19 @@ WININT int __winCreateWindowX11(struct __window_h *lib, struct __window_h_window
             }
         }
         
-        /* ...and load EGL if needed */
-        if (!__winLoadEGL(egl, lib->x11->dpy)) {
+        /* ...and load EGL if needed... */
+        if (!__winLoadEGL(lib)) {
             free(x11);
             return (0);
         }
         lib->egl = egl;
+
+        /* ...thus we should probably also initialize EGL */
+        if (!__winInitEGL(lib, lib->x11->dpy)) {
+            free(x11);
+            return (0);
+        }
+
     }
 
     /* get X11 components */
