@@ -613,6 +613,7 @@ enum {
     WINDOW_CLIENT_API = 0x00000010,
     WINDOW_API_NATIVE,
     WINDOW_API_OPENGL,
+    WINDOW_API_OPENGLES,
     WINDOW_API_VULKAN,
     WINDOW_API_DIRECTX,
     WINDOW_API_METAL,
@@ -1037,6 +1038,9 @@ struct __window_h_platform {
     int (*GLinit) (struct __window_h *, void *);
     int (*GLload) (struct __window_h *);
     int (*GLunload) (struct __window_h *);
+    int (*GLCreateWindow) (struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
+    int (*GLCreateContext) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+    int (*GLDestroyContext) (struct __window_h *, struct __window_h_context *);
     int (*GLSetAttribute) (struct __window_h *, const int, const int);
     int (*GLMakeCurrent) (struct __window_h *, struct __window_h_context *);
     int (*GLSwapBuffers) (struct __window_h *, struct __window_h_context *);
@@ -5008,14 +5012,29 @@ WINDEF int winCreateWindow(library_t library, window_t *result, const size_t wid
     if (!lib) { return (0); }
     
     /* alloc new window object */
-    struct __window_h_window *win= calloc(1, sizeof(struct __window_h_window));
+    struct __window_h_window *win = calloc(1, sizeof(struct __window_h_window));
     if (!win) { return (0); }
-   
-    /* call platform - specific create function */
-    if (!lib->platform.createWindow(lib, win, width, height, title)) {
-        free(win);
-        return (0);
-    }
+    
+    /* API-specific implementation */
+    win->hints.api = lib->hints.api;
+    switch (win->hints.api) {
+        case (WINDOW_API_NATIVE): {
+            if (!lib->platform.createWindow(lib, win, width, height, title)) {
+                free(win);
+                return (0);
+            }
+        } break;
+
+        case (WINDOW_API_OPENGL):
+        case (WINDOW_API_OPENGLES): {
+            if (!lib->platform.GLCreateWindow(lib, win, width, height, title)) {
+                free(win);
+                return (0);
+            }
+        } break;
+
+        default: { free(win); return (0); }
+    } 
 
     /* add the result to the 'lib->window.list' linked list */
     win->next = lib->window.list;
@@ -5189,11 +5208,32 @@ WINDEF int winCreateContext(library_t library, context_t *result, window_t windo
     struct __window_h_context *ctx= calloc(1, sizeof(struct __window_h_context));
     if (!ctx) { return (0); }
     
-    /* call platform - specific create function */
-    if (!lib->platform.createContext(library, ctx, win)) {
-        free(ctx);
-        return (0);
-    }
+    /* Context MUST inherit the context from the 'window'!
+     * Like, imagine: you create 'Native' window and 'OpenGL' context?
+     * Window and Context must have the same API and in-between their creation
+     * 'WINDOW_CLIENT_API' hint can change.
+     * */
+    ctx->hints.api = win->hints.api;
+    
+    /* API-specific implementation */
+    switch (ctx->hints.api) {
+        case (WINDOW_API_NATIVE): {
+            if (!lib->platform.createContext(library, ctx, win)) {
+                free(ctx);
+                return (0);
+            }
+        } break;
+
+        case (WINDOW_API_OPENGL):
+        case (WINDOW_API_OPENGLES): {
+            if (!lib->platform.GLCreateContext(library, ctx, win)) {
+                free(ctx);
+                return (0);
+            }
+        } break;
+
+        default: { free(ctx); return (0); }
+    } 
 
     /* set the context ownership */
     winSetContextWindow(lib, ctx, win);
@@ -5217,8 +5257,21 @@ WINDEF int winDestroyContext(library_t library, context_t context) {
     struct __window_h_context *ctx = (struct __window_h_context *) context;
     if (!ctx) { return (0); }
     
-    /* call platform - specific destroy function */
-    if (!lib->platform.destroyContext(library, context)) { return (0); }
+    /* API-specific implementation */
+    switch (ctx->hints.api) {
+        case (WINDOW_API_NATIVE): {
+            /* call platform - specific destroy function */
+            if (!lib->platform.destroyContext(library, context)) { return (0); }
+        } break;
+
+        case (WINDOW_API_OPENGL):
+        case (WINDOW_API_OPENGLES): {
+            /* call platform - specific destroy function */
+            if (!lib->platform.GLDestroyContext(library, context)) { return (0); }
+        } break;
+
+        default: { return (0); }
+    } 
 
     /* unlink 'ctx' from 'lib->context.list' */
     struct __window_h_context **curr = &lib->context.list;
@@ -6267,7 +6320,15 @@ WININT int __winGetWindowTitleX11(struct __window_h *, struct __window_h_window 
 
 WININT int __winSetWindowTitleX11(struct __window_h *, struct __window_h_window *, const char *);
 
+WININT int __winCreateContextX11(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+
 WININT int __winDestroyContextX11(struct __window_h *, struct __window_h_context *);
+
+WININT int __winGLCreateWindowX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
+
+WININT int __winGLCreateContextX11(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+
+WININT int __winGLDestroyContextX11(struct __window_h *, struct __window_h_context *);
 
 WININT int __winGLSetAttributeX11(struct __window_h *, const int, const int);
 
@@ -7504,62 +7565,8 @@ WININT int __winCreateWindowX11(struct __window_h *lib, struct __window_h_window
     if (!x11) { return (0); }
 
     /* get 'depth' and 'visual' */
-    Visual *visual;
-    int depth;
-
-    /* API-specific implementation */
-    win->hints.api = lib->hints.api;
-    switch (win->hints.api) {
-        case (WINDOW_API_NATIVE): {
-            visual = DefaultVisual(dpy, screen);
-            depth  = DefaultDepth(dpy, screen);
-        } break;
-
-        case (WINDOW_API_OPENGL): {
-            /* load EGL */
-            if (!lib->platform.GLload(lib)) {
-                free(x11);
-                return (0);
-            }
-
-            /* init EGL */
-            if (!lib->platform.GLinit(lib, lib->x11->dpy)) {
-                free(x11);
-                return (0);
-            }
-            
-            /* get EGLConfig object */
-            int num_config   = 0;
-            EGLConfig config = 0;
-            if (!eglChooseConfig(lib->egl->dpy, lib->egl->attr.config, &config, 1, &num_config)) { free(x11); return (0); }
-
-            /* get visual ID based on EGLConfig */
-            int visualid = 0;
-            eglGetConfigAttrib(lib->egl->dpy, config, EGL_NATIVE_VISUAL_ID, &visualid);
-
-            /* create desired XVisualInfo */
-            XVisualInfo desired = {
-                .visualid = visualid,
-                .screen = screen
-            };
-
-            /* get XVisualInfo based on 'desired' */
-            int count = 0;
-            XVisualInfo *vi = XGetVisualInfo(dpy, VisualScreenMask | VisualIDMask, &desired, &count);
-            if (!vi) { free(x11); return (0); }
-
-            /* get 'visual' from 'vi' */
-            visual = vi->visual;
-
-            /* get 'depth' value from 'vi' */
-            depth = vi->depth;
-
-            /* release 'vi' */
-            XFree(vi), vi = 0;
-        } break;
-
-        default: { free(x11); return (0); }
-    } 
+    Visual *visual = DefaultVisual(dpy, screen);
+    int depth = DefaultDepth(dpy, screen);
 
     /* create XSetWindowAttributes */
     XSetWindowAttributes attr = { 0 };
@@ -7815,67 +7822,22 @@ WININT int __winCreateContextX11(struct __window_h *lib, struct __window_h_conte
      * 'WINDOW_CLIENT_API' hint can change.
      * */
     ctx->hints.api = win->hints.api;
-    switch (ctx->hints.api) {
-        case (WINDOW_API_NATIVE): {
-            /* alloc new 'x11' object */
-            struct __window_h_context_x11 *x11 = calloc(1, sizeof(struct __window_h_context_x11));
-            if (!x11) { return (0); }
-
-            /* create new 'GC' */
-            x11->handle = XCreateGC(lib->x11->dpy,
-                                     win->x11->handle,
-                                     0, 0);
-            if (!x11->handle) {
-                free(x11);
-                return (0);
-            }
-
-            /* return 'x11' object */
-            ctx->x11 = x11;
-        } break;
-
-        case (WINDOW_API_OPENGL): {
-            /* alloc new 'egl' object */
-            struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
-            if (!egl) { return (0); }
             
-            /* get EGLConfig object */
-            int num_configs  = 0;
-            EGLConfig config = 0;
-            if (!eglChooseConfig(lib->egl->dpy,
-                                 lib->egl->attr.config,
-                                 &config,
-                                 1, &num_configs)
-            ) {
-                free(egl);
-                return (0);
-            }
+    /* alloc new 'x11' object */
+    struct __window_h_context_x11 *x11 = calloc(1, sizeof(struct __window_h_context_x11));
+    if (!x11) { return (0); }
 
-            /* get EGLSurface object */
-            egl->surface = eglCreateWindowSurface(lib->egl->dpy, config,
-                                                  win->x11->handle,
-                                                  lib->egl->attr.surface);
-            if (egl->surface == EGL_NO_SURFACE) {
-                free(egl);
-                return (0);
-            }
-
-            /* get EGLContext object */
-            egl->context = eglCreateContext(lib->egl->dpy, config,
-                                            EGL_NO_CONTEXT,
-                                            lib->egl->attr.context);
-            if (egl->context == EGL_NO_CONTEXT) {
-                eglDestroySurface(egl->surface);
-                free(egl);
-                return (0);
-            }
-
-            /* return 'egl' object */
-            ctx->egl = egl;
-        } break;
-
-        default: { return (0); }
+    /* create new 'GC' */
+    x11->handle = XCreateGC(lib->x11->dpy,
+                             win->x11->handle,
+                             0, 0);
+    if (!x11->handle) {
+        free(x11);
+        return (0);
     }
+
+    /* return 'x11' object */
+    ctx->x11 = x11;
 
     /* success */
     return (1);
@@ -7887,28 +7849,187 @@ WININT int __winDestroyContextX11(struct __window_h *lib, struct __window_h_cont
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
             
-    /* check and release 'x11' */
-    struct __window_h_context_x11 *x11 = ctx->x11;
-    if (x11) {
-        /* release GC 'handle' */
-        XFreeGC(lib->x11->dpy, x11->handle);
+    /* release GC 'handle' */
+    XFreeGC(lib->x11->dpy, ctx->x11->handle);
 
-        /* release 'x11' */
-        free(x11);
-    }
+    /* release 'x11' */
+    free(ctx->x11);
             
-    /* check and release 'egl' */
-    struct __window_h_context_egl *egl = ctx->egl;
-    if (egl) {
-        /* release 'context' */
-        eglDestroyContext(lib->egl->dpy, egl->context);
+    /* success */
+    return (1);
+}
 
-        /* release 'surface' */
-        eglDestroySurface(lib->egl->dpy, egl->surface);
 
-        /* release 'egl' */
-        free(egl);
+WININT int __winGLCreateWindowX11(struct __window_h *lib, struct __window_h_window *win, const size_t width, const size_t height, const char *title) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+    
+    /* xlib references */
+    Display *dpy = lib->x11->dpy;
+    Window  root = lib->x11->root;
+    
+    int screen = DefaultScreen(dpy);
+
+    /* alloc new 'x11' window object */
+    struct __window_h_window_x11 *x11 = calloc(1, sizeof(struct __window_h_window_x11));
+    if (!x11) { return (0); }
+
+    /* load EGL */
+    if (!lib->platform.GLload(lib)) {
+        free(x11);
+        return (0);
     }
+
+    /* init EGL */
+    if (!lib->platform.GLinit(lib, lib->x11->dpy)) {
+        free(x11);
+        return (0);
+    }
+    
+    /* get EGLConfig object */
+    int num_config   = 0;
+    EGLConfig config = 0;
+    if (!eglChooseConfig(lib->egl->dpy, lib->egl->attr.config, &config, 1, &num_config)) { free(x11); return (0); }
+
+    /* get visual ID based on EGLConfig */
+    int visualid = 0;
+    eglGetConfigAttrib(lib->egl->dpy, config, EGL_NATIVE_VISUAL_ID, &visualid);
+
+    /* create desired XVisualInfo */
+    XVisualInfo desired = {
+        .visualid = visualid,
+        .screen = screen
+    };
+
+    /* get XVisualInfo based on 'desired' */
+    int count = 0;
+    XVisualInfo *vi = XGetVisualInfo(dpy, VisualScreenMask | VisualIDMask, &desired, &count);
+    if (!vi) { free(x11); return (0); }
+
+    /* get 'visual' from 'vi' */
+    Visual *visual = vi->visual;
+
+    /* get 'depth' value from 'vi' */
+    int depth = vi->depth;
+
+    /* release 'vi' */
+    XFree(vi), vi = 0;
+
+    /* create XSetWindowAttributes */
+    XSetWindowAttributes attr = { 0 };
+    attr.colormap = XCreateColormap(dpy, root, visual, AllocNone);
+    attr.event_mask = StructureNotifyMask | SubstructureNotifyMask |
+                      KeyPressMask | KeyReleaseMask |
+                      PointerMotionMask | ButtonPressMask | ButtonReleaseMask |
+                      ExposureMask | FocusChangeMask | VisibilityChangeMask |
+                      EnterWindowMask | LeaveWindowMask | PropertyChangeMask;
+
+    /* create client window */
+    Window handle = XCreateWindow(dpy, root,
+                                  0, 0,
+                                  width, height,
+                                  0,
+                                  depth,
+                                  InputOutput,
+                                  visual,
+                                  CWBorderPixel | CWColormap | CWEventMask | CWBackPixel,
+                                  &attr);
+    if (!handle) { return (0); }
+
+    /* set the title */
+    XStoreName(dpy, handle, title);
+
+    /* set WM protocols atoms */
+    Atom WM_PROTOCOLS = lib->x11->WM_PROTOCOLS;
+    XSetWMProtocols(dpy, handle, &WM_PROTOCOLS, 1);
+    
+    Atom WM_DELETE_WINDOW = lib->x11->WM_DELETE_WINDOW;
+    XSetWMProtocols(dpy, handle, &WM_DELETE_WINDOW, 1);
+
+    /* set 'x11' members */
+    x11->handle = handle;
+    x11->visual = visual;
+
+    /* return the result */
+    win->x11 = x11;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGLCreateContextX11(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    if (!win) { return (0); }
+
+    /* Context MUST inherit the context from the 'window'!
+     * Like, imagine: you create 'Native' window and 'OpenGL' context?
+     * Window and Context must have the same API and in-between their creation
+     * 'WINDOW_CLIENT_API' hint can change.
+     * */
+    ctx->hints.api = win->hints.api;
+    
+    /* alloc new 'egl' object */
+    struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
+    if (!egl) { return (0); }
+    
+    /* get EGLConfig object */
+    int num_configs  = 0;
+    EGLConfig config = 0;
+    if (!eglChooseConfig(lib->egl->dpy,
+                         lib->egl->attr.config,
+                         &config,
+                         1, &num_configs)
+    ) {
+        free(egl);
+        return (0);
+    }
+
+    /* get EGLSurface object */
+    egl->surface = eglCreateWindowSurface(lib->egl->dpy, config,
+                                          win->x11->handle,
+                                          lib->egl->attr.surface);
+    if (egl->surface == EGL_NO_SURFACE) {
+        free(egl);
+        return (0);
+    }
+
+    /* get EGLContext object */
+    egl->context = eglCreateContext(lib->egl->dpy, config,
+                                    EGL_NO_CONTEXT,
+                                    lib->egl->attr.context);
+    if (egl->context == EGL_NO_CONTEXT) {
+        eglDestroySurface(lib->egl->dpy, ctx->egl->surface);
+        free(egl);
+        return (0);
+    }
+
+    /* return 'egl' object */
+    ctx->egl = egl;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGLDestroyContextX11(struct __window_h *lib, struct __window_h_context *ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+            
+    /* release 'context' */
+    eglDestroyContext(lib->egl->dpy,
+                      ctx->egl->context);
+
+    /* release 'surface' */
+    eglDestroySurface(lib->egl->dpy,
+                      ctx->egl->surface);
+
+    /* release 'egl' */
+    free(ctx->egl);
 
     /* success */
     return (1);
@@ -8491,6 +8612,9 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     plat->GLinit = __winInitEGL;
     plat->GLload = __winLoadEGL;
     plat->GLunload = __winUnloadEGL;
+    plat->GLCreateWindow = __winGLCreateWindowX11;
+    plat->GLCreateContext = __winGLCreateContextX11;
+    plat->GLDestroyContext = __winGLDestroyContextX11;
     plat->GLSetAttribute = __winGLSetAttributeX11;
     plat->GLMakeCurrent = __winGLMakeCurrentX11;
     plat->GLSwapBuffers = __winGLSwapBuffersX11;
