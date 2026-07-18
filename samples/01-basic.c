@@ -8,7 +8,7 @@ int main(void) {
     library_t library = 0;
     winInit(&library);
 
-    winSetHints(library, WINDOW_CLIENT_API, WINDOW_API_NONE);
+    winSetHints(library, WINDOW_CLIENT_API, WINDOW_API_NATIVE);
 
     window_t window = 0;
     winCreateWindow(library, &window, 800, 600, "Hello, window.h - Sample 01. Basic");

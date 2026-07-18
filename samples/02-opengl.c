@@ -11,10 +11,10 @@ int main(void) {
 
     winSetHints(library, WINDOW_CLIENT_API, WINDOW_API_OPENGL);
 
-    window_t window;
+    window_t window = 0;
     winCreateWindow(library, &window, 800, 600, "Hello, window.h - Sample 02. OpenGL");
 
-    context_t context;
+    context_t context = 0;
     winCreateContext(library, &context, window);
 
     winMapWindow(library, window);
