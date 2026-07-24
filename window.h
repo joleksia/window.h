@@ -1002,19 +1002,19 @@ struct __window_h_selection {
 
 struct __window_h_platform {
     uint32_t id; /* ID of the platform */
-    
+   
+    /* library functions */
+
     int (*init) (struct __window_h *);
     int (*load) (struct __window_h *);
     int (*quit) (struct __window_h *);
     int (*unload) (struct __window_h *);
-    void *(*getProperty) (struct __window_h *, const uint32_t);
 
     /* window functions */
 
     int (*createWindow) (struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
     int (*destroyWindow) (struct __window_h *, struct __window_h_window *);
     int (*updateWindowFlags) (struct __window_h *, struct __window_h_window *);
-    void *(*getWindowProperty) (struct __window_h *, struct __window_h_window *, const uint32_t);
     int (*mapWindow) (struct __window_h *, struct __window_h_window *);
     int (*unmapWindow) (struct __window_h *, struct __window_h_window *);
     int (*getWindowSize) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
@@ -1030,22 +1030,6 @@ struct __window_h_platform {
 
     int (*createContext) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
     int (*destroyContext) (struct __window_h *, struct __window_h_context *);
-    int (*getContextWindow) (struct __window_h *, struct __window_h_context *, struct __window_h_window * *);
-    int (*setContextWindow) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
-
-    /* opengl context functions */
-
-    int (*GLinit) (struct __window_h *, void *);
-    int (*GLload) (struct __window_h *);
-    int (*GLunload) (struct __window_h *);
-    int (*GLCreateWindow) (struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
-    int (*GLCreateContext) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
-    int (*GLDestroyContext) (struct __window_h *, struct __window_h_context *);
-    int (*GLSetAttribute) (struct __window_h *, const int, const int);
-    int (*GLMakeCurrent) (struct __window_h *, struct __window_h_context *);
-    int (*GLSwapBuffers) (struct __window_h *, struct __window_h_context *);
-    int (*GLSwapInterval) (struct __window_h *, struct __window_h_context *, const int);
-    void *(*GLGetProcAddress) (struct __window_h *, const char *);
 
     /* cursor functions */
 
@@ -1062,9 +1046,23 @@ struct __window_h_platform {
     int (*pollEvents) (struct __window_h *);
 
     /* clipboard functions */
-    
+
     int (*copy) (struct __window_h *, const uint32_t, const void *, const size_t);
     int (*paste) (struct __window_h *, const uint32_t, void **, size_t *);
+
+    /* opengl context functions */
+
+    int (*GLinit) (struct __window_h *, void *);
+    int (*GLload) (struct __window_h *);
+    int (*GLunload) (struct __window_h *);
+    int (*GLCreateWindow) (struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
+    int (*GLCreateContext) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+    int (*GLDestroyContext) (struct __window_h *, struct __window_h_context *);
+    int (*GLSetAttribute) (struct __window_h *, const int, const int);
+    int (*GLMakeCurrent) (struct __window_h *, struct __window_h_context *);
+    int (*GLSwapBuffers) (struct __window_h *, struct __window_h_context *);
+    int (*GLSwapInterval) (struct __window_h *, struct __window_h_context *, const int);
+    void *(*GLGetProcAddress) (struct __window_h *, const char *);
 };
 
 
@@ -1098,6 +1096,10 @@ struct __window_h_window {
 
     /* struct of window hints */
     struct {
+        size_t siz_x, siz_y;
+
+        size_t pos_x, pos_y;
+
         uint32_t api;
 
         uint8_t mapped;
@@ -1111,7 +1113,7 @@ struct __window_h_window {
         uint8_t minimized;
 
         uint8_t fullscreen;
-    } hints;
+    } attrib;
 
 };
 
@@ -1135,7 +1137,7 @@ struct __window_h_context {
 
     struct {
         uint32_t api;
-    } hints;
+    } attrib;
 
 
     /* WINDOW_API_NATIVE */
@@ -4737,13 +4739,48 @@ struct __window_h_x11 {
     /* inter-process communication window handle */
     Window ipc;
 
-    /* Atoms: WM */
+    /* SOURCE: https://xorg.freedesktop.org/releases/X11R7.6/doc/xorg-docs/specs/ICCCM/icccm.html#wm_protocols_property
+     * */
     Atom WM_PROTOCOLS;
+
+    /* SOURCE: https://xorg.freedesktop.org/releases/X11R7.6/doc/xorg-docs/specs/ICCCM/icccm.html#window_deletion
+     * */
     Atom WM_DELETE_WINDOW;
 
-    /* Atoms: clipboard */
+    /* SOURCE: https://specifications.freedesktop.org/wm/latest/ar01s05.html#id-1.6.8
+     * */
+    Atom _NET_WM_STATE;
+
+    Atom _NET_WM_STATE_MODAL;
+    
+    Atom _NET_WM_STATE_STICKY;
+    
+    Atom _NET_WM_STATE_MAXIMIZED_VERT;
+    
+    Atom _NET_WM_STATE_MAXIMIZED_HORZ;
+    
+    Atom _NET_WM_STATE_SHADED;
+    
+    Atom _NET_WM_STATE_SKIP_TASKBAR;
+    
+    Atom _NET_WM_STATE_SKIP_PAGER;
+    
+    Atom _NET_WM_STATE_HIDDEN;
+    
+    Atom _NET_WM_STATE_FULLSCREEN;
+    
+    Atom _NET_WM_STATE_ABOVE;
+    
+    Atom _NET_WM_STATE_BELOW;
+    
+    Atom _NET_WM_STATE_DEMANDS_ATTENTION;
+    
+    Atom _NET_WM_STATE_FOCUSED;
+
     Atom TARGETS;
+    
     Atom CLIPBOARD;
+    
     Atom UTF8_STRING;
 
     struct {
@@ -5016,8 +5053,8 @@ WINDEF int winCreateWindow(library_t library, window_t *result, const size_t wid
     if (!win) { return (0); }
     
     /* API-specific implementation */
-    win->hints.api = lib->hints.api;
-    switch (win->hints.api) {
+    win->attrib.api = lib->hints.api;
+    switch (win->attrib.api) {
         case (WINDOW_API_NATIVE): {
             if (!lib->platform.createWindow(lib, win, width, height, title)) {
                 free(win);
@@ -5213,10 +5250,10 @@ WINDEF int winCreateContext(library_t library, context_t *result, window_t windo
      * Window and Context must have the same API and in-between their creation
      * 'WINDOW_CLIENT_API' hint can change.
      * */
-    ctx->hints.api = win->hints.api;
+    ctx->attrib.api = win->attrib.api;
     
     /* API-specific implementation */
-    switch (ctx->hints.api) {
+    switch (ctx->attrib.api) {
         case (WINDOW_API_NATIVE): {
             if (!lib->platform.createContext(library, ctx, win)) {
                 free(ctx);
@@ -5258,7 +5295,7 @@ WINDEF int winDestroyContext(library_t library, context_t context) {
     if (!ctx) { return (0); }
     
     /* API-specific implementation */
-    switch (ctx->hints.api) {
+    switch (ctx->attrib.api) {
         case (WINDOW_API_NATIVE): {
             /* call platform - specific destroy function */
             if (!lib->platform.destroyContext(library, context)) { return (0); }
@@ -6659,9 +6696,41 @@ WININT int __winInitX11(struct __window_h *lib) {
     if (!x11->ipc) { return (0); }
 
     x11->WM_PROTOCOLS = XInternAtom(x11->dpy, "WM_PROTOCOLS", False);
+
     x11->WM_DELETE_WINDOW = XInternAtom(x11->dpy, "WM_DELETE_WINDOW", False);
+
+    x11->_NET_WM_STATE = XInternAtom(x11->dpy, "_NET_WM_STATE", False);
+    
+    x11->_NET_WM_STATE_MODAL = XInternAtom(x11->dpy, "_NET_WM_STATE_MODAL", False);
+
+    x11->_NET_WM_STATE_STICKY = XInternAtom(x11->dpy, "_NET_WM_STATE_STICKY", False);
+
+    x11->_NET_WM_STATE_MAXIMIZED_VERT = XInternAtom(x11->dpy, "_NET_WM_STATE_MAXIMIZED_VERT", False);
+
+    x11->_NET_WM_STATE_MAXIMIZED_HORZ = XInternAtom(x11->dpy, "_NET_WM_STATE_MAXIMIZED_HORZ", False);
+
+    x11->_NET_WM_STATE_SHADED = XInternAtom(x11->dpy, "_NET_WM_STATE_SHADED", False);
+
+    x11->_NET_WM_STATE_SKIP_TASKBAR = XInternAtom(x11->dpy, "_NET_WM_STATE_SKIP_TASKBAR", False);
+
+    x11->_NET_WM_STATE_SKIP_PAGER = XInternAtom(x11->dpy, "_NET_WM_STATE_SKIP_PAGER", False);
+
+    x11->_NET_WM_STATE_HIDDEN = XInternAtom(x11->dpy, "_NET_WM_STATE_HIDDEN", False);
+
+    x11->_NET_WM_STATE_FULLSCREEN = XInternAtom(x11->dpy, "_NET_WM_STATE_FULLSCREEN", False);
+
+    x11->_NET_WM_STATE_ABOVE = XInternAtom(x11->dpy, "_NET_WM_STATE_ABOVE", False);
+
+    x11->_NET_WM_STATE_BELOW = XInternAtom(x11->dpy, "_NET_WM_STATE_BELOW", False);
+
+    x11->_NET_WM_STATE_DEMANDS_ATTENTION = XInternAtom(x11->dpy, "_NET_WM_STATE_DEMANDS_ATTENTION", False);
+
+    x11->_NET_WM_STATE_FOCUSED = XInternAtom(x11->dpy, "_NET_WM_STATE_FOCUSED", False);
+
     x11->TARGETS = XInternAtom(x11->dpy, "TARGETS", False);
+
     x11->CLIPBOARD = XInternAtom(x11->dpy, "CLIPBOARD", False);
+
     x11->UTF8_STRING = XInternAtom(x11->dpy, "UTF8_STRING", False);
 
     /* success */
@@ -7570,6 +7639,7 @@ WININT int __winCreateWindowX11(struct __window_h *lib, struct __window_h_window
 
     /* create XSetWindowAttributes */
     XSetWindowAttributes attr = { 0 };
+    attr.bit_gravity = StaticGravity;
     attr.colormap = XCreateColormap(dpy, root, visual, AllocNone);
     attr.event_mask = StructureNotifyMask | SubstructureNotifyMask |
                       KeyPressMask | KeyReleaseMask |
@@ -7821,7 +7891,7 @@ WININT int __winCreateContextX11(struct __window_h *lib, struct __window_h_conte
      * Window and Context must have the same API and in-between their creation
      * 'WINDOW_CLIENT_API' hint can change.
      * */
-    ctx->hints.api = win->hints.api;
+    ctx->attrib.api = win->attrib.api;
             
     /* alloc new 'x11' object */
     struct __window_h_context_x11 *x11 = calloc(1, sizeof(struct __window_h_context_x11));
@@ -7970,7 +8040,7 @@ WININT int __winGLCreateContextX11(struct __window_h *lib, struct __window_h_con
      * Window and Context must have the same API and in-between their creation
      * 'WINDOW_CLIENT_API' hint can change.
      * */
-    ctx->hints.api = win->hints.api;
+    ctx->attrib.api = win->attrib.api;
     
     /* alloc new 'egl' object */
     struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
@@ -8291,7 +8361,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 if (!window) { break; }
 
                 /* update attribute */
-                window->hints.mapped = 1;
+                window->attrib.mapped = 1;
 
                 winSendEvent(lib, WINDOW_EVENT_WINDOW_MAP, window, 0, 0); 
             } break;
@@ -8307,7 +8377,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 if (!window) { break; }
 
                 /* update attribute */
-                window->hints.mapped = 0;
+                window->attrib.mapped = 0;
 
                 winSendEvent(lib, WINDOW_EVENT_WINDOW_UNMAP, window, 0, 0); 
             } break;
@@ -8323,7 +8393,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 if (!window) { break; }
 
                 /* update attribute */
-                window->hints.focused = 1;
+                window->attrib.focused = 1;
 
                 winSendEvent(lib, WINDOW_EVENT_WINDOW_ENTER, window, 0, 0); 
             } break;
@@ -8339,9 +8409,102 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 if (!window) { break; }
 
                 /* update attribute */
-                window->hints.focused = 0;
+                window->attrib.focused = 0;
 
                 winSendEvent(lib, WINDOW_EVENT_WINDOW_LEAVE, window, 0, 0);
+            } break;
+
+            case (ConfigureNotify): {
+                XConfigureEvent xconfigure = xevent.xconfigure;
+
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = lib->window.list;
+                while (window) {
+                    if (window->x11->handle == xconfigure.window) { break; }
+                }
+                if (!window) { break; }
+                
+                /* WINDOW_EVENT_WINDOW_RESIZE */
+                if (xconfigure.width  != (int) window->attrib.siz_x ||
+                    xconfigure.height != (int) window->attrib.siz_y
+                ) {
+                    window->attrib.siz_x = xconfigure.width;
+                    window->attrib.siz_y = xconfigure.height;
+                    winSendEvent(lib, WINDOW_EVENT_WINDOW_RESIZE, window, window->attrib.siz_x,
+                                                                          window->attrib.siz_y);
+                }
+                
+                /* WINDOW_EVENT_WINDOW_MOTION */
+                if (xconfigure.x != (int) window->attrib.pos_x ||
+                    xconfigure.y != (int) window->attrib.pos_y
+                ) {
+                    window->attrib.pos_x = xconfigure.x;
+                    window->attrib.pos_y = xconfigure.y;
+                    winSendEvent(lib, WINDOW_EVENT_WINDOW_MOTION, window, window->attrib.pos_x,
+                                                                          window->attrib.pos_y);
+                }
+            } break;
+
+            case (PropertyNotify): {
+                XPropertyEvent xproperty = xevent.xproperty;
+
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = lib->window.list;
+                while (window) {
+                    if (window->x11->handle == xproperty.window) { break; }
+                }
+                if (!window) { break; }
+
+                /* property 'atom' */
+                Atom atom = xproperty.atom;
+
+                /* _NET_WM_STATE */
+                Atom _NET_WM_STATE = lib->x11->_NET_WM_STATE;
+                if (atom == _NET_WM_STATE) {
+                    /* get _NET_WM_STATE properties */
+                    Atom actual_type_return      = 0;
+                    int32_t actual_format_return = 0;
+                    uint64_t nitems_return       = 0;
+                    uint64_t bytes_after_return  = 0;
+                    uint8_t *prop_return         = 0;
+                    if (XGetWindowProperty(lib->x11->dpy,
+                                           window->x11->handle,
+                                           _NET_WM_STATE,
+                                           0, ~0L, False, XA_ATOM,
+                                           &actual_type_return,
+                                           &actual_format_return,
+                                           &nitems_return,
+                                           &bytes_after_return,
+                                           &prop_return)
+                    ) { return (0); }
+
+                    /* get window states */
+                    Atom *states = (Atom *) prop_return;
+
+                    /* iterate over window states */
+                    for (size_t i = 0; i < (size_t) nitems_return; i++) {
+                        /* _NET_WM_STAET_FULLSCREEN */
+                        if (states[i] == lib->x11->_NET_WM_STATE_FULLSCREEN) {
+                            /* ... */
+                        }
+                        
+                        /* _NET_WM_STATE_HIDDEN */
+                        else if (states[i] == lib->x11->_NET_WM_STATE_HIDDEN) {
+                            /* ... */
+                        }
+                        
+                        /* _NET_WM_STATE_MAXIMIZED */
+                        else if (states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_VERT ||
+                                 states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_HORZ
+                        ) {
+                            /* ... */
+                        }
+                    }
+
+                    /* release window states  */
+                    XFree(states);
+                }
+
             } break;
 
             case (MotionNotify): {
@@ -8445,7 +8608,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 winSendEvent(lib, WINDOW_EVENT_KEYBOARD_KEY, window, 0, keysym, keycode, keymod, keyraw, state, 0);
             } break;
 
-                case (SelectionRequest): {
+            case (SelectionRequest): {
                 if (__winHandleSelectionX11(lib, &xevent)) {
                     winSendEvent(lib, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
                                                                     lib->selection.clipboard.size);
@@ -8591,6 +8754,9 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     /* select API function callbacks */
     
     plat->id = WINDOW_BACKEND_X11;
+    
+    /* library functions */
+
     plat->init = __winInitX11;
     plat->load = __winLoadX11;
     plat->quit = __winQuitX11;
@@ -8607,19 +8773,14 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     plat->setWindowPosition = __winSetWindowPositionX11;
     plat->getWindowTitle = __winGetWindowTitleX11;
     plat->setWindowTitle = __winSetWindowTitleX11;
+
+    /* context functions */
+
     plat->createContext = __winCreateContextX11;
     plat->destroyContext = __winDestroyContextX11;
-    plat->GLinit = __winInitEGL;
-    plat->GLload = __winLoadEGL;
-    plat->GLunload = __winUnloadEGL;
-    plat->GLCreateWindow = __winGLCreateWindowX11;
-    plat->GLCreateContext = __winGLCreateContextX11;
-    plat->GLDestroyContext = __winGLDestroyContextX11;
-    plat->GLSetAttribute = __winGLSetAttributeX11;
-    plat->GLMakeCurrent = __winGLMakeCurrentX11;
-    plat->GLSwapBuffers = __winGLSwapBuffersX11;
-    plat->GLSwapInterval = __winGLSwapIntervalX11;
-    plat->GLGetProcAddress = __winGLGetProcAddressX11;
+
+    /* cursor functions */
+
     plat->createCursor = __winCreateCursorX11;
     plat->destroyCursor = __winDestroyCursorX11;
     /*
@@ -8631,9 +8792,29 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     plat->getCursorRawMotion = __winGetCursorRawMotionX11;
     plat->setCursorRawMotion = __winSetCursorRawMotionX11;
     */
+
+    /* event functions */
+
     plat->pollEvents = __winPollEventsX11;
+
+    /* clipboard functions */
+    
     plat->copy = __winCopyX11;
     plat->paste = __winPasteX11;
+
+    /* opengl context functions */
+
+    plat->GLinit = __winInitEGL;
+    plat->GLload = __winLoadEGL;
+    plat->GLunload = __winUnloadEGL;
+    plat->GLCreateWindow = __winGLCreateWindowX11;
+    plat->GLCreateContext = __winGLCreateContextX11;
+    plat->GLDestroyContext = __winGLDestroyContextX11;
+    plat->GLSetAttribute = __winGLSetAttributeX11;
+    plat->GLMakeCurrent = __winGLMakeCurrentX11;
+    plat->GLSwapBuffers = __winGLSwapBuffersX11;
+    plat->GLSwapInterval = __winGLSwapIntervalX11;
+    plat->GLGetProcAddress = __winGLGetProcAddressX11;
 
 #  else
 #  endif

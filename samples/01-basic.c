@@ -21,28 +21,39 @@ int main(void) {
     while (!exit) {
         event_t event = { 0 };
         while (winPollEvents(library, &event)) {
+            /* wait for 'quit' event */
             if (event.type == WINDOW_EVENT_QUIT) { exit = 1; }
 
-            if (event.type == WINDOW_EVENT_KEYBOARD_KEY) {
-                if (event.keyboard.keymod == WINDOW_KEYMOD_CTRL) {
-                    /* write / copy */
-                    if (event.keyboard.keycode == WINDOW_KEYCODE_C) {
-                        char   *str = "Hello, window.h!";
-                        size_t size = strlen(str);
-                        winCopy(library, WINDOW_SELECTION_CLIPBOARD, (void *) str, size);
-                    }
-                    /* read / paste */
-                    if (event.keyboard.keycode == WINDOW_KEYCODE_V) {
-                        char  *str;
-                        size_t size;
-                        winPaste(library, WINDOW_SELECTION_CLIPBOARD, (void **) &str, &size);
-                        printf("%.*s\n", (int) size, str);
-                        free(str);
-                    }
-                }
-            }
+            /* output the event name to stdout */
+            if (event.type == WINDOW_EVENT_NONE) { printf("WINDOW_EVENT_NONE\n"); }
+            
+            else if (event.type == WINDOW_EVENT_QUIT) { printf("WINDOW_EVENT_QUIT\n"); }
+            
+            else if (event.type == WINDOW_EVENT_MOUSE_MOTION) { printf("WINDOW_EVENT_MOUSE_MOTION\n"); }
+            else if (event.type == WINDOW_EVENT_MOUSE_BUTTON) { printf("WINDOW_EVENT_MOUSE_BUTTON\n"); }
+            else if (event.type == WINDOW_EVENT_MOUSE_SCROLL) { printf("WINDOW_EVENT_MOUSE_SCROLL\n"); }
+            else if (event.type == WINDOW_EVENT_MOUSE_ADDED) { printf("WINDOW_EVENT_MOUSE_ADDED\n"); }
+            else if (event.type == WINDOW_EVENT_MOUSE_REMOVED) { printf("WINDOW_EVENT_MOUSE_REMOVED\n"); }
+            
+            else if (event.type == WINDOW_EVENT_KEYBOARD_KEY) { printf("WINDOW_EVENT_KEYBOARD_KEY\n"); }
+            else if (event.type == WINDOW_EVENT_KEYBOARD_ADDED) { printf("WINDOW_EVENT_KEYBOARD_ADDED\n"); }
+            else if (event.type == WINDOW_EVENT_KEYBOARD_REMOVED) { printf("WINDOW_EVENT_KEYBOARD_REMOVED\n"); }
+            
+            else if (event.type == WINDOW_EVENT_WINDOW_CREATE) { printf("WINDOW_EVENT_WINDOW_CREATE\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_DESTROY) { printf("WINDOW_EVENT_WINDOW_DESTROY\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_MAP) { printf("WINDOW_EVENT_WINDOW_MAP\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_UNMAP) { printf("WINDOW_EVENT_WINDOW_UNMAP\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_RESIZE) { printf("WINDOW_EVENT_WINDOW_RESIZE\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_MOTION) { printf("WINDOW_EVENT_WINDOW_MOTION\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_ENTER) { printf("WINDOW_EVENT_WINDOW_ENTER\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_LEAVE) { printf("WINDOW_EVENT_WINDOW_LEAVE\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_MAXIMIZE) { printf("WINDOW_EVENT_WINDOW_MAXIMIZE\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_MINIMIZE) { printf("WINDOW_EVENT_WINDOW_MINIMIZE\n"); }
+            else if (event.type == WINDOW_EVENT_WINDOW_FULLSCREEN) { printf("WINDOW_EVENT_WINDOW_FULLSCREEN\n"); }
 
-            printf("%x\n", event.type);
+            else if (event.type == WINDOW_EVENT_SELECTION_COPY) { printf("WINDOW_EVENT_SELECTION_COPY\n"); }
+            else if (event.type == WINDOW_EVENT_SELECTION_PASTE) { printf("WINDOW_EVENT_SELECTION_PASTE\n"); }
+            else if (event.type == WINDOW_EVENT_SELECTION_CLEAR) { printf("WINDOW_EVENT_SELECTION_CLEAR\n"); }
         }
     }
 
