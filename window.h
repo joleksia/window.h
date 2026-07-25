@@ -47,13 +47,14 @@
 #  define WINDOW_PLATFORM "linux"
 #  define WINDOW_PLATFORM_LINUX 1
 #
-#  define WINDOW_BACKEND_EGL 1
 #  if !defined (WINDOW_BACKEND_WAYLAND)
 #   define WINDOW_BACKEND_X11 1
+#   define WINDOW_BACKEND_GLX 1
 #  else
 #   /* ensure 'WINDOW_BACKEND_WAYLAND' equals to '2' */
 #   undef  WINDOW_BACKEND_WAYLAND
 #   define WINDOW_BACKEND_WAYLAND 2
+#   define WINDOW_BACKEND_EGL 2
 #  endif
 #
 # elif defined (__APPLE__) || defined (__MACH__)
@@ -68,21 +69,22 @@
 #  define WINDOW_PLATFORM "win32"
 #  define WINDOW_PLATFORM_WIN32 1
 #
-#  define WINDOW_BACKEND_WGL 2
 #  define WINDOW_BACKEND_WIN32 3
+#  define WINDOW_BACKEND_WGL 3
 #  error /* platform not supported right now */
 #
-# elif defined (__FreeBSD__) || defined (__NetBSD__) || defined (__bsdi__) || defined (__DragonFly__) || defined (__MidnightBSD__)
+# elif defined (__FreeBSD__) || defined (__NetBSD__) || defined (__bsd__) || defined (__DragonFly__) || defined (__MidnightBSD__)
 #  define WINDOW_PLATFORM "bsd"
 #  define WINDOW_PLATFORM_BSD 1
 #
-#  define WINDOW_BACKEND_EGL 1
 #  if !defined (WINDOW_BACKEND_WAYLAND)
 #   define WINDOW_BACKEND_X11 1
+#   define WINDOW_BACKEND_GLX 1
 #  else
 #   /* ensure 'WINDOW_BACKEND_WAYLAND' equals to '2' */
 #   undef  WINDOW_BACKEND_WAYLAND
 #   define WINDOW_BACKEND_WAYLAND 2
+#   define WINDOW_BACKEND_EGL 2
 #  endif
 #
 # else
@@ -1175,6 +1177,8 @@ struct __window_h_x11;
 
 struct __window_h_win32;
 
+struct __window_h_glx;
+
 struct __window_h_egl;
 
 struct __window_h_wgl;
@@ -1232,6 +1236,9 @@ struct __window_h {
     /* win32-implementation of window.h */
     struct __window_h_win32 *win32;
 
+    /* glx-implementation of window.h */
+    struct __window_h_glx *glx;
+
     /* egl-implementation of window.h */
     struct __window_h_egl *egl;
 
@@ -1242,6 +1249,305 @@ struct __window_h {
 
 };
 
+#  /* WINDOW_BACKEND_GLX - GLX implementation layer */
+#  if defined (WINDOW_BACKEND_GLX)
+
+/* TODO:
+ *  Finish GLX backend
+ * */
+
+/* {{{ */
+
+typedef struct __GLXcontextRec *GLXContext;
+typedef XID GLXPixmap;
+typedef XID GLXDrawable;
+typedef struct __GLXFBConfigRec *GLXFBConfig;
+typedef XID GLXFBConfigID;
+typedef XID GLXContextID;
+typedef XID GLXWindow;
+typedef XID GLXPbuffer;
+
+/* }}} */
+/* {{{ */
+
+#   define GLX_VERSION_1_1 1
+#   define GLX_VERSION_1_2 1
+#   define GLX_VERSION_1_3 1
+#   define GLX_VERSION_1_4 1
+#   define GLX_EXTENSION_NAME "GLX"
+#   define GLX_USE_GL 1
+#   define GLX_BUFFER_SIZE 2
+#   define GLX_LEVEL 3
+#   define GLX_RGBA 4
+#   define GLX_DOUBLEBUFFER 5
+#   define GLX_STEREO 6
+#   define GLX_AUX_BUFFERS 7
+#   define GLX_RED_SIZE 8
+#   define GLX_GREEN_SIZE 9
+#   define GLX_BLUE_SIZE 10
+#   define GLX_ALPHA_SIZE 11
+#   define GLX_DEPTH_SIZE 12
+#   define GLX_STENCIL_SIZE 13
+#   define GLX_ACCUM_RED_SIZE 14
+#   define GLX_ACCUM_GREEN_SIZE 15
+#   define GLX_ACCUM_BLUE_SIZE 16
+#   define GLX_ACCUM_ALPHA_SIZE 17
+#   define GLX_BAD_SCREEN 1
+#   define GLX_BAD_ATTRIBUTE 2
+#   define GLX_NO_EXTENSION 3
+#   define GLX_BAD_VISUAL 4
+#   define GLX_BAD_CONTEXT 5
+#   define GLX_BAD_VALUE 6
+#   define GLX_BAD_ENUM 7
+#   define GLX_VENDOR 1
+#   define GLX_VERSION 2
+#   define GLX_EXTENSIONS 3
+#   define GLX_CONFIG_CAVEAT 0x20
+#   define GLX_DONT_CARE 0xffffffff
+#   define GLX_X_VISUAL_TYPE 0x22
+#   define GLX_TRANSPARENT_TYPE 0x23
+#   define GLX_TRANSPARENT_INDEX_VALUE 0x24
+#   define GLX_TRANSPARENT_RED_VALUE 0x25
+#   define GLX_TRANSPARENT_GREEN_VALUE 0x26
+#   define GLX_TRANSPARENT_BLUE_VALUE 0x27
+#   define GLX_TRANSPARENT_ALPHA_VALUE 0x28
+#   define GLX_WINDOW_BIT 0x00000001
+#   define GLX_PIXMAP_BIT 0x00000002
+#   define GLX_PBUFFER_BIT 0x00000004
+#   define GLX_AUX_BUFFERS_BIT 0x00000010
+#   define GLX_FRONT_LEFT_BUFFER_BIT 0x00000001
+#   define GLX_FRONT_RIGHT_BUFFER_BIT 0x00000002
+#   define GLX_BACK_LEFT_BUFFER_BIT 0x00000004
+#   define GLX_BACK_RIGHT_BUFFER_BIT 0x00000008
+#   define GLX_DEPTH_BUFFER_BIT 0x00000020
+#   define GLX_STENCIL_BUFFER_BIT 0x00000040
+#   define GLX_ACCUM_BUFFER_BIT 0x00000080
+#   define GLX_NONE 0x8000
+#   define GLX_SLOW_CONFIG 0x8001
+#   define GLX_TRUE_COLOR 0x8002
+#   define GLX_DIRECT_COLOR 0x8003
+#   define GLX_PSEUDO_COLOR 0x8004
+#   define GLX_STATIC_COLOR 0x8005
+#   define GLX_GRAY_SCALE 0x8006
+#   define GLX_STATIC_GRAY 0x8007
+#   define GLX_TRANSPARENT_RGB 0x8008
+#   define GLX_TRANSPARENT_INDEX 0x8009
+#   define GLX_VISUAL_ID 0x800b
+#   define GLX_SCREEN 0x800c
+#   define GLX_NON_CONFORMANT_CONFIG 0x800d
+#   define GLX_DRAWABLE_TYPE 0x8010
+#   define GLX_RENDER_TYPE 0x8011
+#   define GLX_X_RENDERABLE 0x8012
+#   define GLX_FBCONFIG_ID 0x8013
+#   define GLX_RGBA_TYPE 0x8014
+#   define GLX_COLOR_INDEX_TYPE 0x8015
+#   define GLX_MAX_PBUFFER_WIDTH 0x8016
+#   define GLX_MAX_PBUFFER_HEIGHT 0x8017
+#   define GLX_MAX_PBUFFER_PIXELS 0x8018
+#   define GLX_PRESERVED_CONTENTS 0x801b
+#   define GLX_LARGEST_PBUFFER 0x801c
+#   define GLX_WIDTH 0x801d
+#   define GLX_HEIGHT 0x801e
+#   define GLX_EVENT_MASK 0x801f
+#   define GLX_DAMAGED 0x8020
+#   define GLX_SAVED 0x8021
+#   define GLX_WINDOW 0x8022
+#   define GLX_PBUFFER 0x8023
+#   define GLX_PBUFFER_HEIGHT 0x8040
+#   define GLX_PBUFFER_WIDTH 0x8041
+#   define GLX_RGBA_BIT 0x00000001
+#   define GLX_COLOR_INDEX_BIT 0x00000002
+#   define GLX_PBUFFER_CLOBBER_MASK 0x08000000
+
+/* }}} */
+/* {{{ */
+
+typedef XVisualInfo *(* PFN_glXChooseVisual_PROC) (Display *, int, int *);
+PFN_glXChooseVisual_PROC glXChooseVisual_PROC = 0;
+#   define glXChooseVisual glXChooseVisual_PROC
+
+typedef GLXContext (* PFN_glXCreateContext_PROC) (Display *, XVisualInfo *, GLXContext, int);
+PFN_glXCreateContext_PROC glXCreateContext_PROC = 0;
+#   define glXCreateContext glXCreateContext_PROC
+
+typedef void (* PFN_glXDestroyContext_PROC) (Display *, GLXContext);
+PFN_glXDestroyContext_PROC glXDestroyContext_PROC = 0;
+#   define glXDestroyContext glXDestroyContext_PROC
+
+typedef int (* PFN_glXMakeCurrent_PROC) (Display *, GLXDrawable, GLXContext);
+PFN_glXMakeCurrent_PROC glXMakeCurrent_PROC = 0;
+#   define glXMakeCurrent glXMakeCurrent_PROC
+
+typedef void (* PFN_glXCopyContext_PROC) (Display *, GLXContext, GLXContext, unsigned long);
+PFN_glXCopyContext_PROC glXCopyContext_PROC = 0;
+#   define glXCopyContext glXCopyContext_PROC
+
+typedef void (* PFN_glXSwapBuffers_PROC) (Display *, GLXDrawable);
+PFN_glXSwapBuffers_PROC glXSwapBuffers_PROC = 0;
+#   define glXSwapBuffers glXSwapBuffers_PROC
+
+typedef GLXPixmap (* PFN_glXCreateGLXPixmap_PROC) (Display *, XVisualInfo *, Pixmap);
+PFN_glXCreateGLXPixmap_PROC glXCreateGLXPixmap_PROC = 0;
+#   define glXCreateGLXPixmap glXCreateGLXPixmap_PROC
+
+typedef void (* PFN_glXDestroyGLXPixmap_PROC) (Display *, GLXPixmap);
+PFN_glXDestroyGLXPixmap_PROC glXDestroyGLXPixmap_PROC = 0;
+#   define glXDestroyGLXPixmap glXDestroyGLXPixmap_PROC
+
+typedef int (* PFN_glXQueryExtension_PROC) (Display *, int *, int *);
+PFN_glXQueryExtension_PROC glXQueryExtension_PROC = 0;
+#   define glXQueryExtension glXQueryExtension_PROC
+
+typedef int (* PFN_glXQueryVersion_PROC) (Display *, int *, int *);
+PFN_glXQueryVersion_PROC glXQueryVersion_PROC = 0;
+#   define glXQueryVersion glXQueryVersion_PROC
+
+typedef int (* PFN_glXIsDirect_PROC) (Display *, GLXContext);
+PFN_glXIsDirect_PROC glXIsDirect_PROC = 0;
+#   define glXIsDirect glXIsDirect_PROC
+
+typedef int (* PFN_glXGetConfig_PROC) (Display *, XVisualInfo *, int, int *);
+PFN_glXGetConfig_PROC glXGetConfig_PROC = 0;
+#   define glXGetConfig glXGetConfig_PROC
+
+typedef GLXContext (* PFN_glXGetCurrentContext_PROC) (void);
+PFN_glXGetCurrentContext_PROC glXGetCurrentContext_PROC = 0;
+#   define glXGetCurrentContext glXGetCurrentContext_PROC
+
+typedef GLXDrawable (* PFN_glXGetCurrentDrawable_PROC) (void);
+PFN_glXGetCurrentDrawable_PROC glXGetCurrentDrawable_PROC = 0;
+#   define glXGetCurrentDrawable glXGetCurrentDrawable_PROC
+
+typedef void (* PFN_glXWaitGL_PROC) (void);
+PFN_glXWaitGL_PROC glXWaitGL_PROC = 0;
+#   define glXWaitGL glXWaitGL_PROC
+
+typedef void (* PFN_glXWaitX_PROC) (void);
+PFN_glXWaitX_PROC glXWaitX_PROC = 0;
+#   define glXWaitX glXWaitX_PROC
+
+typedef void (* PFN_glXUseXFont_PROC) (Font, int, int, int);
+PFN_glXUseXFont_PROC glXUseXFont_PROC = 0;
+#   define glXUseXFont glXUseXFont_PROC
+
+typedef const char *(* PFN_glXQueryExtensionsString_PROC) (Display *, int);
+PFN_glXQueryExtensionsString_PROC glXQueryExtensionsString_PROC = 0;
+#   define glXQueryExtensionsString glXQueryExtensionsString_PROC
+
+typedef const char *(* PFN_glXQueryServerString_PROC) (Display *, int, int);
+PFN_glXQueryServerString_PROC glXQueryServerString_PROC = 0;
+#   define glXQueryServerString glXQueryServerString_PROC
+
+typedef const char *(* PFN_glXGetClientString_PROC) (Display *, int);
+PFN_glXGetClientString_PROC glXGetClientString_PROC = 0;
+#   define glXGetClientString glXGetClientString_PROC
+
+typedef Display *(* PFN_glXGetCurrentDisplay_PROC) (void);
+PFN_glXGetCurrentDisplay_PROC glXGetCurrentDisplay_PROC = 0;
+#   define glXGetCurrentDisplay glXGetCurrentDisplay_PROC
+
+typedef GLXFBConfig *(* PFN_glXChooseFBConfig_PROC) (Display *, int, const int *, int *);
+PFN_glXChooseFBConfig_PROC glXChooseFBConfig_PROC = 0;
+#   define glXChooseFBConfig glXChooseFBConfig_PROC
+
+typedef int (* PFN_glXGetFBConfigAttrib_PROC) (Display *, GLXFBConfig, int, int *);
+PFN_glXGetFBConfigAttrib_PROC glXGetFBConfigAttrib_PROC = 0;
+#   define glXGetFBConfigAttrib glXGetFBConfigAttrib_PROC
+
+typedef GLXFBConfig *(* PFN_glXGetFBConfigs_PROC) (Display *, int, int *);
+PFN_glXGetFBConfigs_PROC glXGetFBConfigs_PROC = 0;
+#   define glXGetFBConfigs glXGetFBConfigs_PROC
+
+typedef XVisualInfo *(* PFN_glXGetVisualFromFBConfig_PROC) (Display *, GLXFBConfig);
+PFN_glXGetVisualFromFBConfig_PROC glXGetVisualFromFBConfig_PROC = 0;
+#   define glXGetVisualFromFBConfig glXGetVisualFromFBConfig_PROC
+
+typedef GLXWindow (* PFN_glXCreateWindow_PROC) (Display *, GLXFBConfig, Window, const int *);
+PFN_glXCreateWindow_PROC glXCreateWindow_PROC = 0;
+#   define glXCreateWindow glXCreateWindow_PROC
+
+typedef void (* PFN_glXDestroyWindow_PROC) (Display *, GLXWindow);
+PFN_glXDestroyWindow_PROC glXDestroyWindow_PROC = 0;
+#   define glXDestroyWindow glXDestroyWindow_PROC
+
+typedef GLXPixmap (* PFN_glXCreatePixmap_PROC) (Display *, GLXFBConfig, Pixmap, const int *);
+PFN_glXCreatePixmap_PROC glXCreatePixmap_PROC = 0;
+#   define glXCreatePixmap glXCreatePixmap_PROC
+
+typedef void (* PFN_glXDestroyPixmap_PROC) (Display *, GLXPixmap);
+PFN_glXDestroyPixmap_PROC glXDestroyPixmap_PROC = 0;
+#   define glXDestroyPixmap glXDestroyPixmap_PROC
+
+typedef GLXPbuffer (* PFN_glXCreatePbuffer_PROC) (Display *, GLXFBConfig, const int *);
+PFN_glXCreatePbuffer_PROC glXCreatePbuffer_PROC = 0;
+#   define glXCreatePbuffer glXCreatePbuffer_PROC
+
+typedef void (* PFN_glXDestroyPbuffer_PROC) (Display *, GLXPbuffer);
+PFN_glXDestroyPbuffer_PROC glXDestroyPbuffer_PROC = 0;
+#   define glXDestroyPbuffer glXDestroyPbuffer_PROC
+
+typedef void (* PFN_glXQueryDrawable_PROC) (Display *, GLXDrawable, int, unsigned int *);
+PFN_glXQueryDrawable_PROC glXQueryDrawable_PROC = 0;
+#   define glXQueryDrawable glXQueryDrawable_PROC
+
+typedef GLXContext (* PFN_glXCreateNewContext_PROC) (Display *, GLXFBConfig, int, GLXContext, int);
+PFN_glXCreateNewContext_PROC glXCreateNewContext_PROC = 0;
+#   define glXCreateNewContext glXCreateNewContext_PROC
+
+typedef int (* PFN_glXMakeContextCurrent_PROC) (Display *, GLXDrawable, GLXDrawable, GLXContext);
+PFN_glXMakeContextCurrent_PROC glXMakeContextCurrent_PROC = 0;
+#   define glXMakeContextCurrent glXMakeContextCurrent_PROC
+
+typedef GLXDrawable (* PFN_glXGetCurrentReadDrawable_PROC) (void);
+PFN_glXGetCurrentReadDrawable_PROC glXGetCurrentReadDrawable_PROC = 0;
+#   define glXGetCurrentReadDrawable glXGetCurrentReadDrawable_PROC
+
+typedef int (* PFN_glXQueryContext_PROC) (Display *, GLXContext, int, int *);
+PFN_glXQueryContext_PROC glXQueryContext_PROC = 0;
+#   define glXQueryContext glXQueryContext_PROC
+
+typedef void (* PFN_glXSelectEvent_PROC) (Display *, GLXDrawable, unsigned long);
+PFN_glXSelectEvent_PROC glXSelectEvent_PROC = 0;
+#   define glXSelectEvent glXSelectEvent_PROC
+
+typedef void (* PFN_glXGetSelectedEvent_PROC) (Display *, GLXDrawable, unsigned long *);
+PFN_glXGetSelectedEvent_PROC glXGetSelectedEvent_PROC = 0;
+#   define glXGetSelectedEvent glXGetSelectedEvent_PROC
+
+typedef __GLXextFuncPtr (* PFN_glXGetProcAddressARB_PROC) (const GLubyte *);
+PFN_glXGetProcAddressARB_PROC glXGetProcAddressARB_PROC = 0;
+#   define glXGetProcAddressARB glXGetProcAddressARB_PROC
+
+typedef void (*)(void) (* PFN_glXGetProcAddress_PROC) (const GLubyte *);
+PFN_glXGetProcAddress_PROC glXGetProcAddress_PROC = 0;
+#   define glXGetProcAddress glXGetProcAddress_PROC
+
+/* }}} */
+
+typedef struct __window_h_context_glx *context_t_glx;
+
+struct __window_h_context_glx {
+    GLXContext context;
+};
+
+
+typedef struct __window_h_glx *__window_h_glx;
+
+struct __window_h_glx {
+    /* handle do shared object */
+    void *handle;
+
+    Display *dpy;
+    
+    struct {
+        /* context hints */
+        int *context;
+    } attr;
+};
+
+
+#  endif /* WINDOW_BACKEND_GLX */
+#
 #  /* WINDOW_BACKEND_EGL - EGL implementation layer */
 #  if defined (WINDOW_BACKEND_EGL)
 
@@ -1654,7 +1960,6 @@ struct __window_h_egl {
 #
 #  /* WINDOW_BACKEND_WGL - WGL implementation layer */
 #  if defined (WINDOW_BACKEND_WGL)
-#   include <WGL/wgl.h>
 
 typedef struct __window_h_context_wgl *context_t_wgl;
 
@@ -5756,10 +6061,323 @@ WINDEF int winWaitTime(uint64_t ms) {
     return (1);
 }
 
+#  /* WINDOW_BACKEND_GLX - GLX implementation layer */
+#  if defined (WINDOW_BACKEND_GLX)
+
+static const struct __window_h_glx_attrmap {
+    uint32_t src;
+    uint32_t dst;
+} __window_h_glx_attrmap[] = {
+    
+/* {{{ */
+
+    /* ... */
+
+    { GLX_NONE, WINDOW_GL_NONE }
+
+/* }}} */
+
+};
+
+/* internal functions (declarations) */
+
+WININT int __winInitGLX(struct __window_h *, void *);
+
+WININT int __winLoadGLX(struct __window_h *);
+
+WININT int __winUnloadGLX(struct __window_h *);
+
+WININT int __winCreateContextGLX(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+
+WININT int __winDestroyContextGLX(struct __window_h *, struct __window_h_context *);
+
+WININT int __winSetAttributeGLX(library_t, const int, const int);
+
+WININT int __winMakeCurrentGLX(library_t, context_t);
+
+WININT int __winSwapBuffersGLX(library_t, context_t);
+
+WININT int __winSwapIntervalGLX(library_t, context_t, const int);
+
+WININT void *__winGetProcAddressGLX(library_t, const char *);
+
+/* internal functions (definitions) */
+
+WININT int __winInitGLX(struct __window_h *lib, void *display) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* references */
+    struct __window_h_glx *glx = lib->glx; 
+    if (!glx) { return (0); }
+
+    /* ... */
+    (void) glx;
+    (void) display;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winLoadGLX(struct __window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (lib->glx) { return (1); }
+
+    /* init-check */
+    struct __window_h_glx *glx = calloc(1, sizeof(struct __window_h_glx));
+    if (!glx) { return (0); }
+
+    void *libglx = 0;
+    {
+        const char  *names[] = { "libGLX.so", "libGLX.so.0, libGLX.so.0.0.0", 0 };
+        for (const char **name = names; *name; name++) {
+            libglx = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
+            if (libglx) { break; }
+        }
+
+        /* check if libglx loaded */
+        if (!libglx) { return (0); }
+    }
+    
+    /* {{{ */
+    glXChooseVisual_PROC = (PFN_glXChooseVisual_PROC) dlsym(handle, "glXChooseVisual");
+    glXCreateContext_PROC = (PFN_glXCreateContext_PROC) dlsym(handle, "glXCreateContext");
+    glXDestroyContext_PROC = (PFN_glXDestroyContext_PROC) dlsym(handle, "glXDestroyContext");
+    glXMakeCurrent_PROC = (PFN_glXMakeCurrent_PROC) dlsym(handle, "glXMakeCurrent");
+    glXCopyContext_PROC = (PFN_glXCopyContext_PROC) dlsym(handle, "glXCopyContext");
+    glXSwapBuffers_PROC = (PFN_glXSwapBuffers_PROC) dlsym(handle, "glXSwapBuffers");
+    glXCreateGLXPixmap_PROC = (PFN_glXCreateGLXPixmap_PROC) dlsym(handle, "glXCreateGLXPixmap");
+    glXDestroyGLXPixmap_PROC = (PFN_glXDestroyGLXPixmap_PROC) dlsym(handle, "glXDestroyGLXPixmap");
+    glXQueryExtension_PROC = (PFN_glXQueryExtension_PROC) dlsym(handle, "glXQueryExtension");
+    glXQueryVersion_PROC = (PFN_glXQueryVersion_PROC) dlsym(handle, "glXQueryVersion");
+    glXIsDirect_PROC = (PFN_glXIsDirect_PROC) dlsym(handle, "glXIsDirect");
+    glXGetConfig_PROC = (PFN_glXGetConfig_PROC) dlsym(handle, "glXGetConfig");
+    glXGetCurrentContext_PROC = (PFN_glXGetCurrentContext_PROC) dlsym(handle, "glXGetCurrentContext");
+    glXGetCurrentDrawable_PROC = (PFN_glXGetCurrentDrawable_PROC) dlsym(handle, "glXGetCurrentDrawable");
+    glXWaitGL_PROC = (PFN_glXWaitGL_PROC) dlsym(handle, "glXWaitGL");
+    glXWaitX_PROC = (PFN_glXWaitX_PROC) dlsym(handle, "glXWaitX");
+    glXUseXFont_PROC = (PFN_glXUseXFont_PROC) dlsym(handle, "glXUseXFont");
+    glXQueryExtensionsString_PROC = (PFN_glXQueryExtensionsString_PROC) dlsym(handle, "glXQueryExtensionsString");
+    glXQueryServerString_PROC = (PFN_glXQueryServerString_PROC) dlsym(handle, "glXQueryServerString");
+    glXGetClientString_PROC = (PFN_glXGetClientString_PROC) dlsym(handle, "glXGetClientString");
+    glXGetCurrentDisplay_PROC = (PFN_glXGetCurrentDisplay_PROC) dlsym(handle, "glXGetCurrentDisplay");
+    glXChooseFBConfig_PROC = (PFN_glXChooseFBConfig_PROC) dlsym(handle, "glXChooseFBConfig");
+    glXGetFBConfigAttrib_PROC = (PFN_glXGetFBConfigAttrib_PROC) dlsym(handle, "glXGetFBConfigAttrib");
+    glXGetFBConfigs_PROC = (PFN_glXGetFBConfigs_PROC) dlsym(handle, "glXGetFBConfigs");
+    glXGetVisualFromFBConfig_PROC = (PFN_glXGetVisualFromFBConfig_PROC) dlsym(handle, "glXGetVisualFromFBConfig");
+    glXCreateWindow_PROC = (PFN_glXCreateWindow_PROC) dlsym(handle, "glXCreateWindow");
+    glXDestroyWindow_PROC = (PFN_glXDestroyWindow_PROC) dlsym(handle, "glXDestroyWindow");
+    glXCreatePixmap_PROC = (PFN_glXCreatePixmap_PROC) dlsym(handle, "glXCreatePixmap");
+    glXDestroyPixmap_PROC = (PFN_glXDestroyPixmap_PROC) dlsym(handle, "glXDestroyPixmap");
+    glXCreatePbuffer_PROC = (PFN_glXCreatePbuffer_PROC) dlsym(handle, "glXCreatePbuffer");
+    glXDestroyPbuffer_PROC = (PFN_glXDestroyPbuffer_PROC) dlsym(handle, "glXDestroyPbuffer");
+    glXQueryDrawable_PROC = (PFN_glXQueryDrawable_PROC) dlsym(handle, "glXQueryDrawable");
+    glXCreateNewContext_PROC = (PFN_glXCreateNewContext_PROC) dlsym(handle, "glXCreateNewContext");
+    glXMakeContextCurrent_PROC = (PFN_glXMakeContextCurrent_PROC) dlsym(handle, "glXMakeContextCurrent");
+    glXGetCurrentReadDrawable_PROC = (PFN_glXGetCurrentReadDrawable_PROC) dlsym(handle, "glXGetCurrentReadDrawable");
+    glXQueryContext_PROC = (PFN_glXQueryContext_PROC) dlsym(handle, "glXQueryContext");
+    glXSelectEvent_PROC = (PFN_glXSelectEvent_PROC) dlsym(handle, "glXSelectEvent");
+    glXGetSelectedEvent_PROC = (PFN_glXGetSelectedEvent_PROC) dlsym(handle, "glXGetSelectedEvent");
+    glXGetProcAddressARB_PROC = (PFN_glXGetProcAddressARB_PROC) dlsym(handle, "glXGetProcAddressARB");
+    glXGetProcAddress_PROC = (PFN_glXGetProcAddress_PROC) dlsym(handle, "glXGetProcAddress");
+    /* }}} */
+    glx->handle = libglx;
+
+    /* return the result */
+    lib->glx = glx;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winUnloadGLX(struct __window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* init-check */
+    struct __window_h_glx *glx = lib->glx;
+    if (!glx) { return (0); }
+
+    /* release GLX modules */
+    dlclose(glx->handle), glx->handle = 0;
+
+    /* release 'glx' */
+    free(glx);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winCreateContextGLX(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    if (!win) { return (0); }
+
+    /* Context MUST inherit the context from the 'window'!
+     * Like, imagine: you create 'Native' window and 'OpenGL' context?
+     * Window and Context must have the same API and in-between their creation
+     * 'WINDOW_CLIENT_API' hint can change.
+     * */
+    ctx->attrib.api = win->attrib.api;
+    
+    /* alloc new 'glx' object */
+    struct __window_h_context_glx *glx = calloc(1, sizeof(struct __window_h_context_glx));
+    if (!glx) { return (0); }
+
+    /* return 'glx' object */
+    ctx->glx = glx;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winDestroyContextGLX(struct __window_h *lib, struct __window_h_context *ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+            
+    /* release 'context' */
+    glXDestroyContext(lib->glx->dpy,
+                      ctx->glx->context);
+
+    /* release 'glx' */
+    free(ctx->glx);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetAttributeGLX(library_t lib, const int attr, const int value) {
+    /* null-check */
+    if (!lib) { return (0); }
+    
+    /* references */
+    struct __window_h_glx *glx = lib->glx;
+    if (!glx) { return (0); }
+
+    /* get GLX attribute */
+    GLXuint glx_attr = 0;
+    for (size_t i = 0; __window_h_glx_attrmap[i].dst; i++) {
+        if (__window_h_glx_attrmap[i].dst == (const uint32_t) attr) {
+            glx_attr = __window_h_glx_attrmap[i].src;
+            break;
+        }
+    }
+
+    /* unhandled attribute */
+    if (!glx_attr) { return (0); }
+
+    /* iterate over available hints and set their values */
+    GLXuint *list = glx->attr.surface;
+    for (size_t i = 0; list[i] != GLX_NONE; i += 2) {
+        if (list[i] == glx_attr) {
+            list[i + 1] = value;
+            return (1);
+        }
+    }
+    
+    list = glx->attr.context;
+    for (size_t i = 0; list[i] != GLX_NONE; i += 2) {
+        if (list[i] == glx_attr) {
+            list[i + 1] = value;
+            return (1);
+        }
+    }
+    
+    list = glx->attr.config;
+    for (size_t i = 0; list[i] != GLX_NONE; i += 2) {
+        if (list[i] == glx_attr) {
+            list[i + 1] = value;
+            return (1);
+        }
+    }
+
+    /* failure */
+    return (0);
+}
+
+
+WININT int __winMakeCurrentGLX(library_t lib, context_t ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    
+    /* references */
+    struct __window_h_context_glx *glx = (struct __window_h_context_glx *) ctx->glx;
+    if (!glx) { return (0); }
+
+    /* set context current */
+    if (!glXMakeCurrent(lib->glx->dpy,
+                        glx->surface,
+                        glx->surface,
+                        glx->context)
+    ) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSwapBuffersGLX(library_t lib, context_t ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+   
+    /* references */
+    struct __window_h_context_glx *glx = (struct __window_h_context_glx *) ctx->glx;
+    if (!glx) { return (0); }
+
+    /* set context current */
+    if (!glXSwapBuffers(lib->glx->dpy, glx->surface)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSwapIntervalGLX(library_t lib, context_t ctx, const int interval) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    
+    /* references */
+    struct __window_h_context_glx *glx = (struct __window_h_context_glx *) ctx->glx;
+    if (!glx) { return (0); }
+
+    /* set context current */
+    if (!glXSwapInterval(lib->glx->dpy, interval)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT void *__winGetProcAddressGLX(library_t lib, const char *proc) {
+    /* null-check */
+    if (!lib)  { return (0); }
+    if (!proc) { return (0); }
+    
+    /* success */
+    return (glXGetProcAddress(proc));
+}
+
+#  endif /* WINDOW_BACKEND_GLX */
+#
 #  /* WINDOW_BACKEND_EGL - EGL implementation layer */
 #  if defined (WINDOW_BACKEND_EGL)
-
-/* libEGL: egl.h */
 
 static const struct __window_h_egl_attrmap {
     uint32_t src;
@@ -5805,6 +6423,20 @@ WININT int __winInitEGL(struct __window_h *, void *);
 WININT int __winLoadEGL(struct __window_h *);
 
 WININT int __winUnloadEGL(struct __window_h *);
+
+WININT int __winCreateContextEGL(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+
+WININT int __winDestroyContextEGL(struct __window_h *, struct __window_h_context *);
+
+WININT int __winSetAttributeEGL(library_t, const int, const int);
+
+WININT int __winMakeCurrentEGL(library_t, context_t);
+
+WININT int __winSwapBuffersEGL(library_t, context_t);
+
+WININT int __winSwapIntervalEGL(library_t, context_t, const int);
+
+WININT void *__winGetProcAddressEGL(library_t, const char *);
 
 /* internal functions (definitions) */
 
@@ -5928,6 +6560,204 @@ WININT int __winUnloadEGL(struct __window_h *lib) {
     return (1);
 }
 
+
+WININT int __winCreateContextEGL(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    if (!win) { return (0); }
+
+    /* Context MUST inherit the context from the 'window'!
+     * Like, imagine: you create 'Native' window and 'OpenGL' context?
+     * Window and Context must have the same API and in-between their creation
+     * 'WINDOW_CLIENT_API' hint can change.
+     * */
+    ctx->attrib.api = win->attrib.api;
+    
+    /* alloc new 'egl' object */
+    struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
+    if (!egl) { return (0); }
+    
+    /* get EGLConfig object */
+    int num_configs  = 0;
+    EGLConfig config = 0;
+    if (!eglChooseConfig(lib->egl->dpy,
+                         lib->egl->attr.config,
+                         &config,
+                         1, &num_configs)
+    ) {
+        free(egl);
+        return (0);
+    }
+
+    /* get EGLSurface object */
+    egl->surface = eglCreateWindowSurface(lib->egl->dpy, config,
+                                          win->x11->handle,
+                                          lib->egl->attr.surface);
+    if (egl->surface == EGL_NO_SURFACE) {
+        free(egl);
+        return (0);
+    }
+
+    /* get EGLContext object */
+    egl->context = eglCreateContext(lib->egl->dpy, config,
+                                    EGL_NO_CONTEXT,
+                                    lib->egl->attr.context);
+    if (egl->context == EGL_NO_CONTEXT) {
+        eglDestroySurface(lib->egl->dpy, ctx->egl->surface);
+        free(egl);
+        return (0);
+    }
+
+    /* return 'egl' object */
+    ctx->egl = egl;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winDestroyContextEGL(struct __window_h *lib, struct __window_h_context *ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+            
+    /* release 'context' */
+    eglDestroyContext(lib->egl->dpy,
+                      ctx->egl->context);
+
+    /* release 'surface' */
+    eglDestroySurface(lib->egl->dpy,
+                      ctx->egl->surface);
+
+    /* release 'egl' */
+    free(ctx->egl);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetAttributeEGL(library_t lib, const int attr, const int value) {
+    /* null-check */
+    if (!lib) { return (0); }
+    
+    /* references */
+    struct __window_h_egl *egl = lib->egl;
+    if (!egl) { return (0); }
+
+    /* get EGL attribute */
+    EGLint egl_attr = 0;
+    for (size_t i = 0; __window_h_egl_attrmap[i].dst; i++) {
+        if (__window_h_egl_attrmap[i].dst == (const uint32_t) attr) {
+            egl_attr = __window_h_egl_attrmap[i].src;
+            break;
+        }
+    }
+
+    /* unhandled attribute */
+    if (!egl_attr) { return (0); }
+
+    /* iterate over available hints and set their values */
+    EGLint *list = egl->attr.surface;
+    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
+        if (list[i] == egl_attr) {
+            list[i + 1] = value;
+            return (1);
+        }
+    }
+    
+    list = egl->attr.context;
+    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
+        if (list[i] == egl_attr) {
+            list[i + 1] = value;
+            return (1);
+        }
+    }
+    
+    list = egl->attr.config;
+    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
+        if (list[i] == egl_attr) {
+            list[i + 1] = value;
+            return (1);
+        }
+    }
+
+    /* failure */
+    return (0);
+}
+
+
+WININT int __winMakeCurrentEGL(library_t lib, context_t ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    
+    /* references */
+    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
+    if (!egl) { return (0); }
+
+    /* set context current */
+    if (!eglMakeCurrent(lib->egl->dpy,
+                        egl->surface,
+                        egl->surface,
+                        egl->context)
+    ) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSwapBuffersEGL(library_t lib, context_t ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+   
+    /* references */
+    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
+    if (!egl) { return (0); }
+
+    /* set context current */
+    if (!eglSwapBuffers(lib->egl->dpy, egl->surface)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSwapIntervalEGL(library_t lib, context_t ctx, const int interval) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    
+    /* references */
+    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
+    if (!egl) { return (0); }
+
+    /* set context current */
+    if (!eglSwapInterval(lib->egl->dpy, interval)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT void *__winGetProcAddressEGL(library_t lib, const char *proc) {
+    /* null-check */
+    if (!lib)  { return (0); }
+    if (!proc) { return (0); }
+    
+    /* success */
+    return (eglGetProcAddress(proc));
+}
+
 #  endif /* WINDOW_BACKEND_EGL */
 #
 #  /* WINDOW_BACKEND_WGL - WGL implementation layer */
@@ -5951,7 +6781,7 @@ WININT int __winLoadWGL(struct __window_h_wgl *wgl) {
     if (!win32) { return (0); }
 
     /* try to load handle */
-    void *handle  = 0;
+    void *handle = 0;
     {
         /* ... */
     }
@@ -6362,20 +7192,6 @@ WININT int __winCreateContextX11(struct __window_h *, struct __window_h_context 
 WININT int __winDestroyContextX11(struct __window_h *, struct __window_h_context *);
 
 WININT int __winGLCreateWindowX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
-
-WININT int __winGLCreateContextX11(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
-
-WININT int __winGLDestroyContextX11(struct __window_h *, struct __window_h_context *);
-
-WININT int __winGLSetAttributeX11(struct __window_h *, const int, const int);
-
-WININT int __winGLMakeCurrentX11(struct __window_h *, struct __window_h_context *);
-
-WININT int __winGLSwapBuffersX11(struct __window_h *, struct __window_h_context *);
-
-WININT int __winGLSwapIntervalX11(struct __window_h *, struct __window_h_context *, const int);
-
-WININT void *__winGLGetProcAddressX11(struct __window_h *, const char *);
 
 WININT int __winCreateCursorX11(struct __window_h *, struct __window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
 
@@ -8029,204 +8845,6 @@ WININT int __winGLCreateWindowX11(struct __window_h *lib, struct __window_h_wind
 }
 
 
-WININT int __winGLCreateContextX11(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
-    /* null-check */
-    if (!lib) { return (0); }
-    if (!ctx) { return (0); }
-    if (!win) { return (0); }
-
-    /* Context MUST inherit the context from the 'window'!
-     * Like, imagine: you create 'Native' window and 'OpenGL' context?
-     * Window and Context must have the same API and in-between their creation
-     * 'WINDOW_CLIENT_API' hint can change.
-     * */
-    ctx->attrib.api = win->attrib.api;
-    
-    /* alloc new 'egl' object */
-    struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
-    if (!egl) { return (0); }
-    
-    /* get EGLConfig object */
-    int num_configs  = 0;
-    EGLConfig config = 0;
-    if (!eglChooseConfig(lib->egl->dpy,
-                         lib->egl->attr.config,
-                         &config,
-                         1, &num_configs)
-    ) {
-        free(egl);
-        return (0);
-    }
-
-    /* get EGLSurface object */
-    egl->surface = eglCreateWindowSurface(lib->egl->dpy, config,
-                                          win->x11->handle,
-                                          lib->egl->attr.surface);
-    if (egl->surface == EGL_NO_SURFACE) {
-        free(egl);
-        return (0);
-    }
-
-    /* get EGLContext object */
-    egl->context = eglCreateContext(lib->egl->dpy, config,
-                                    EGL_NO_CONTEXT,
-                                    lib->egl->attr.context);
-    if (egl->context == EGL_NO_CONTEXT) {
-        eglDestroySurface(lib->egl->dpy, ctx->egl->surface);
-        free(egl);
-        return (0);
-    }
-
-    /* return 'egl' object */
-    ctx->egl = egl;
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winGLDestroyContextX11(struct __window_h *lib, struct __window_h_context *ctx) {
-    /* null-check */
-    if (!lib) { return (0); }
-    if (!ctx) { return (0); }
-            
-    /* release 'context' */
-    eglDestroyContext(lib->egl->dpy,
-                      ctx->egl->context);
-
-    /* release 'surface' */
-    eglDestroySurface(lib->egl->dpy,
-                      ctx->egl->surface);
-
-    /* release 'egl' */
-    free(ctx->egl);
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winGLSetAttributeX11(struct __window_h *lib, const int attr, const int value) {
-    /* null-check */
-    if (!lib) { return (0); }
-    
-    /* references */
-    struct __window_h_egl *egl = lib->egl;
-    if (!egl) { return (0); }
-
-    /* get EGL attribute */
-    EGLint egl_attr = 0;
-    for (size_t i = 0; __window_h_egl_attrmap[i].dst; i++) {
-        if (__window_h_egl_attrmap[i].dst == (const uint32_t) attr) {
-            egl_attr = __window_h_egl_attrmap[i].src;
-            break;
-        }
-    }
-
-    /* unhandled attribute */
-    if (!egl_attr) { return (0); }
-
-    /* iterate over available hints and set their values */
-    EGLint *list = egl->attr.surface;
-    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
-        if (list[i] == egl_attr) {
-            list[i + 1] = value;
-            return (1);
-        }
-    }
-    
-    list = egl->attr.context;
-    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
-        if (list[i] == egl_attr) {
-            list[i + 1] = value;
-            return (1);
-        }
-    }
-    
-    list = egl->attr.config;
-    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
-        if (list[i] == egl_attr) {
-            list[i + 1] = value;
-            return (1);
-        }
-    }
-
-    /* failure */
-    return (0);
-}
-
-
-WININT int __winGLMakeCurrentX11(struct __window_h *lib, struct __window_h_context *ctx) {
-    /* null-check */
-    if (!lib) { return (0); }
-    if (!ctx) { return (0); }
-    
-    /* references */
-    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
-    if (!egl) { return (0); }
-
-    /* set context current */
-    if (!eglMakeCurrent(lib->egl->dpy,
-                        egl->surface,
-                        egl->surface,
-                        egl->context)
-    ) {
-        return (0);
-    }
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winGLSwapBuffersX11(struct __window_h *lib, struct __window_h_context *ctx) {
-    /* null-check */
-    if (!lib) { return (0); }
-    if (!ctx) { return (0); }
-   
-    /* references */
-    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
-    if (!egl) { return (0); }
-
-    /* set context current */
-    if (!eglSwapBuffers(lib->egl->dpy, egl->surface)) {
-        return (0);
-    }
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winGLSwapIntervalX11(struct __window_h *lib, struct __window_h_context *ctx, const int interval) {
-    /* null-check */
-    if (!lib) { return (0); }
-    if (!ctx) { return (0); }
-    
-    /* references */
-    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
-    if (!egl) { return (0); }
-
-    /* set context current */
-    if (!eglSwapInterval(lib->egl->dpy, interval)) {
-        return (0);
-    }
-
-    /* success */
-    return (1);
-}
-
-
-WININT void *__winGLGetProcAddressX11(struct __window_h *lib, const char *proc) {
-    /* null-check */
-    if (!lib)  { return (0); }
-    if (!proc) { return (0); }
-    
-    /* success */
-    return (eglGetProcAddress(proc));
-}
-
-
 WININT int __winCreateCursorX11(struct __window_h *lib, struct __window_h_cursor *cur, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
     /* null-check */
     if (!lib) { return (0); }
@@ -8802,21 +9420,57 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     plat->copy = __winCopyX11;
     plat->paste = __winPasteX11;
 
+#  else
+#  endif
+
+#  if defined (WINDOW_BACKEND_GLX)
+    
     /* opengl context functions */
 
     plat->GLinit = __winInitEGL;
     plat->GLload = __winLoadEGL;
     plat->GLunload = __winUnloadEGL;
-    plat->GLCreateWindow = __winGLCreateWindowX11;
-    plat->GLCreateContext = __winGLCreateContextX11;
-    plat->GLDestroyContext = __winGLDestroyContextX11;
-    plat->GLSetAttribute = __winGLSetAttributeX11;
-    plat->GLMakeCurrent = __winGLMakeCurrentX11;
-    plat->GLSwapBuffers = __winGLSwapBuffersX11;
-    plat->GLSwapInterval = __winGLSwapIntervalX11;
-    plat->GLGetProcAddress = __winGLGetProcAddressX11;
+    plat->GLCreateWindow = __winCreateWindowGLX;
+    plat->GLCreateContext = __winCreateContextGLX;
+    plat->GLDestroyContext = __winDestroyContextGLX;
+    plat->GLSetAttribute = __winSetAttributeGLX;
+    plat->GLMakeCurrent = __winMakeCurrentGLX;
+    plat->GLSwapBuffers = __winSwapBuffersGLX;
+    plat->GLSwapInterval = __winSwapIntervalGLX;
+    plat->GLGetProcAddress = __winGetProcAddressGLX;
 
-#  else
+#  elif defined (WINDOW_BACKEND_EGL)
+
+    /* opengl context functions */
+
+    plat->GLinit = __winInitEGL;
+    plat->GLload = __winLoadEGL;
+    plat->GLunload = __winUnloadEGL;
+    plat->GLCreateWindow = __winCreateWindowEGL;
+    plat->GLCreateContext = __winCreateContextEGL;
+    plat->GLDestroyContext = __winDestroyContextEGL;
+    plat->GLSetAttribute = __winSetAttributeEGL;
+    plat->GLMakeCurrent = __winMakeCurrentEGL;
+    plat->GLSwapBuffers = __winSwapBuffersEGL;
+    plat->GLSwapInterval = __winSwapIntervalEGL;
+    plat->GLGetProcAddress = __winGetProcAddressEGL;
+
+#  elif defined (WINDOW_BACKEND_WGL)
+    
+    /* opengl context functions */
+
+    plat->GLinit = __winInitWGL;
+    plat->GLload = __winLoadWGL;
+    plat->GLunload = __winUnloadWGL;
+    plat->GLCreateWindow = __winCreateWindowWGL;
+    plat->GLCreateContext = __winCreateContextWGL;
+    plat->GLDestroyContext = __winDestroyContextWGL;
+    plat->GLSetAttribute = __winSetAttributeWGL;
+    plat->GLMakeCurrent = __winMakeCurrentWGL;
+    plat->GLSwapBuffers = __winSwapBuffersWGL;
+    plat->GLSwapInterval = __winSwapIntervalWGL;
+    plat->GLGetProcAddress = __winGetProcAddressWGL;
+
 #  endif
     
     /* success */
