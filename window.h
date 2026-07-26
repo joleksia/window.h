@@ -1419,6 +1419,12 @@ typedef XID GLXFBConfigID;
 typedef XID GLXContextID;
 typedef XID GLXWindow;
 typedef XID GLXPbuffer;
+
+typedef XID GLXContextID;
+typedef struct __GLXFBConfigRec *GLXFBConfig;
+typedef XID GLXWindow;
+typedef XID GLXPbuffer;
+
 typedef void ( *__GLXextFuncPtr)(void);
 
 /* }}} */
@@ -1570,443 +1576,173 @@ typedef void ( *__GLXextFuncPtr)(void);
 #  define GLX_PBUFFER_WIDTH 0x8041
 #  define GLX_SAMPLE_BUFFERS 100000
 #  define GLX_SAMPLES 100001
-#  define GLX_ARB_context_flush_control 1
-#  define GLX_CONTEXT_RELEASE_BEHAVIOR_ARB 0x2097
-#  define GLX_CONTEXT_RELEASE_BEHAVIOR_NONE_ARB 0
-#  define GLX_CONTEXT_RELEASE_BEHAVIOR_FLUSH_ARB 0x2098
-#  define GLX_ARB_create_context 1
-#  define GLX_CONTEXT_DEBUG_BIT_ARB 0x00000001
-#  define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
-#  define GLX_CONTEXT_MAJOR_VERSION_ARB 0x2091
-#  define GLX_CONTEXT_MINOR_VERSION_ARB 0x2092
-#  define GLX_CONTEXT_FLAGS_ARB 0x2094
-#  define GLX_ARB_create_context_no_error 1
-#  define GLX_CONTEXT_OPENGL_NO_ERROR_ARB 0x31b3
-#  define GLX_ARB_create_context_profile 1
-#  define GLX_CONTEXT_CORE_PROFILE_BIT_ARB 0x00000001
-#  define GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
-#  define GLX_CONTEXT_PROFILE_MASK_ARB 0x9126
-#  define GLX_ARB_create_context_robustness 1
-#  define GLX_CONTEXT_ROBUST_ACCESS_BIT_ARB 0x00000004
-#  define GLX_LOSE_CONTEXT_ON_RESET_ARB 0x8252
-#  define GLX_CONTEXT_RESET_NOTIFICATION_STRATEGY_ARB 0x8256
-#  define GLX_NO_RESET_NOTIFICATION_ARB 0x8261
-#  define GLX_ARB_fbconfig_float 1
-#  define GLX_RGBA_FLOAT_TYPE_ARB 0x20b9
-#  define GLX_RGBA_FLOAT_BIT_ARB 0x00000004
-#  define GLX_ARB_framebuffer_sRGB 1
-#  define GLX_FRAMEBUFFER_SRGB_CAPABLE_ARB 0x20b2
-#  define GLX_ARB_get_proc_address 1
-#  define GLX_ARB_multisample 1
-#  define GLX_SAMPLE_BUFFERS_ARB 100000
-#  define GLX_SAMPLES_ARB 100001
-#  define GLX_ARB_robustness_application_isolation 1
-#  define GLX_CONTEXT_RESET_ISOLATION_BIT_ARB 0x00000008
-#  define GLX_ARB_robustness_share_group_isolation 1
-#  define GLX_ARB_vertex_buffer_object 1
-#  define GLX_CONTEXT_ALLOW_BUFFER_BYTE_ORDER_MISMATCH_ARB 0x2095
-#  define GLX_3DFX_multisample 1
-#  define GLX_SAMPLE_BUFFERS_3DFX 0x8050
-#  define GLX_SAMPLES_3DFX 0x8051
-#  define GLX_AMD_gpu_association 1
-#  define GLX_GPU_VENDOR_AMD 0x1f00
-#  define GLX_GPU_RENDERER_STRING_AMD 0x1f01
-#  define GLX_GPU_OPENGL_VERSION_STRING_AMD 0x1f02
-#  define GLX_GPU_FASTEST_TARGET_GPUS_AMD 0x21a2
-#  define GLX_GPU_RAM_AMD 0x21a3
-#  define GLX_GPU_CLOCK_AMD 0x21a4
-#  define GLX_GPU_NUM_PIPES_AMD 0x21a5
-#  define GLX_GPU_NUM_SIMD_AMD 0x21a6
-#  define GLX_GPU_NUM_RB_AMD 0x21a7
-#  define GLX_GPU_NUM_SPI_AMD 0x21a8
-#  define GLX_EXT_buffer_age 1
-#  define GLX_BACK_BUFFER_AGE_EXT 0x20f4
-#  define GLX_EXT_context_priority 1
-#  define GLX_CONTEXT_PRIORITY_LEVEL_EXT 0x3100
-#  define GLX_CONTEXT_PRIORITY_HIGH_EXT 0x3101
-#  define GLX_CONTEXT_PRIORITY_MEDIUM_EXT 0x3102
-#  define GLX_CONTEXT_PRIORITY_LOW_EXT 0x3103
-#  define GLX_EXT_create_context_es2_profile 1
-#  define GLX_CONTEXT_ES2_PROFILE_BIT_EXT 0x00000004
-#  define GLX_EXT_create_context_es_profile 1
-#  define GLX_CONTEXT_ES_PROFILE_BIT_EXT 0x00000004
-#  define GLX_EXT_fbconfig_packed_float 1
-#  define GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT 0x20b1
-#  define GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT 0x00000008
-#  define GLX_EXT_framebuffer_sRGB 1
-#  define GLX_FRAMEBUFFER_SRGB_CAPABLE_EXT 0x20b2
-#  define GLX_EXT_get_drawable_type 1
-#  define GLX_EXT_import_context 1
-#  define GLX_SHARE_CONTEXT_EXT 0x800a
-#  define GLX_VISUAL_ID_EXT 0x800b
-#  define GLX_SCREEN_EXT 0x800c
-#  define GLX_EXT_libglvnd 1
-#  define GLX_VENDOR_NAMES_EXT 0x20f6
-#  define GLX_EXT_no_config_context 1
-#  define GLX_EXT_stereo_tree 1
-#  define GLX_STEREO_TREE_EXT 0x20f5
-#  define GLX_STEREO_NOTIFY_MASK_EXT 0x00000001
-#  define GLX_STEREO_NOTIFY_EXT 0x00000000
-#  define GLX_EXT_swap_control 1
-#  define GLX_SWAP_INTERVAL_EXT 0x20f1
-#  define GLX_MAX_SWAP_INTERVAL_EXT 0x20f2
-#  define GLX_EXT_swap_control_tear 1
-#  define GLX_LATE_SWAPS_TEAR_EXT 0x20f3
-#  define GLX_EXT_texture_from_pixmap 1
-#  define GLX_TEXTURE_1D_BIT_EXT 0x00000001
-#  define GLX_TEXTURE_2D_BIT_EXT 0x00000002
-#  define GLX_TEXTURE_RECTANGLE_BIT_EXT 0x00000004
-#  define GLX_BIND_TO_TEXTURE_RGB_EXT 0x20d0
-#  define GLX_BIND_TO_TEXTURE_RGBA_EXT 0x20d1
-#  define GLX_BIND_TO_MIPMAP_TEXTURE_EXT 0x20d2
-#  define GLX_BIND_TO_TEXTURE_TARGETS_EXT 0x20d3
-#  define GLX_Y_INVERTED_EXT 0x20d4
-#  define GLX_TEXTURE_FORMAT_EXT 0x20d5
-#  define GLX_TEXTURE_TARGET_EXT 0x20d6
-#  define GLX_MIPMAP_TEXTURE_EXT 0x20d7
-#  define GLX_TEXTURE_FORMAT_NONE_EXT 0x20d8
-#  define GLX_TEXTURE_FORMAT_RGB_EXT 0x20d9
-#  define GLX_TEXTURE_FORMAT_RGBA_EXT 0x20da
-#  define GLX_TEXTURE_1D_EXT 0x20db
-#  define GLX_TEXTURE_2D_EXT 0x20dc
-#  define GLX_TEXTURE_RECTANGLE_EXT 0x20dd
-#  define GLX_FRONT_LEFT_EXT 0x20de
-#  define GLX_FRONT_RIGHT_EXT 0x20df
-#  define GLX_BACK_LEFT_EXT 0x20e0
-#  define GLX_BACK_RIGHT_EXT 0x20e1
-#  define GLX_FRONT_EXT 0x20de
-#  define GLX_BACK_EXT 0x20e0
-#  define GLX_AUX0_EXT 0x20e2
-#  define GLX_AUX1_EXT 0x20e3
-#  define GLX_AUX2_EXT 0x20e4
-#  define GLX_AUX3_EXT 0x20e5
-#  define GLX_AUX4_EXT 0x20e6
-#  define GLX_AUX5_EXT 0x20e7
-#  define GLX_AUX6_EXT 0x20e8
-#  define GLX_AUX7_EXT 0x20e9
-#  define GLX_AUX8_EXT 0x20ea
-#  define GLX_AUX9_EXT 0x20eb
-#  define GLX_EXT_visual_info 1
-#  define GLX_X_VISUAL_TYPE_EXT 0x22
-#  define GLX_TRANSPARENT_TYPE_EXT 0x23
-#  define GLX_TRANSPARENT_INDEX_VALUE_EXT 0x24
-#  define GLX_TRANSPARENT_RED_VALUE_EXT 0x25
-#  define GLX_TRANSPARENT_GREEN_VALUE_EXT 0x26
-#  define GLX_TRANSPARENT_BLUE_VALUE_EXT 0x27
-#  define GLX_TRANSPARENT_ALPHA_VALUE_EXT 0x28
-#  define GLX_NONE_EXT 0x8000
-#  define GLX_TRUE_COLOR_EXT 0x8002
-#  define GLX_DIRECT_COLOR_EXT 0x8003
-#  define GLX_PSEUDO_COLOR_EXT 0x8004
-#  define GLX_STATIC_COLOR_EXT 0x8005
-#  define GLX_GRAY_SCALE_EXT 0x8006
-#  define GLX_STATIC_GRAY_EXT 0x8007
-#  define GLX_TRANSPARENT_RGB_EXT 0x8008
-#  define GLX_TRANSPARENT_INDEX_EXT 0x8009
-#  define GLX_EXT_visual_rating 1
-#  define GLX_VISUAL_CAVEAT_EXT 0x20
-#  define GLX_SLOW_VISUAL_EXT 0x8001
-#  define GLX_NON_CONFORMANT_VISUAL_EXT 0x800d
-#  define GLX_INTEL_swap_event 1
-#  define GLX_BUFFER_SWAP_COMPLETE_INTEL_MASK 0x04000000
-#  define GLX_EXCHANGE_COMPLETE_INTEL 0x8180
-#  define GLX_COPY_COMPLETE_INTEL 0x8181
-#  define GLX_FLIP_COMPLETE_INTEL 0x8182
-#  define GLX_MESA_agp_offset 1
-#  define GLX_MESA_copy_sub_buffer 1
-#  define GLX_MESA_pixmap_colormap 1
-#  define GLX_MESA_query_renderer 1
-#  define GLX_RENDERER_VENDOR_ID_MESA 0x8183
-#  define GLX_RENDERER_DEVICE_ID_MESA 0x8184
-#  define GLX_RENDERER_VERSION_MESA 0x8185
-#  define GLX_RENDERER_ACCELERATED_MESA 0x8186
-#  define GLX_RENDERER_VIDEO_MEMORY_MESA 0x8187
-#  define GLX_RENDERER_UNIFIED_MEMORY_ARCHITECTURE_MESA 0x8188
-#  define GLX_RENDERER_PREFERRED_PROFILE_MESA 0x8189
-#  define GLX_RENDERER_OPENGL_CORE_PROFILE_VERSION_MESA 0x818a
-#  define GLX_RENDERER_OPENGL_COMPATIBILITY_PROFILE_VERSION_MESA 0x818b
-#  define GLX_RENDERER_OPENGL_ES_PROFILE_VERSION_MESA 0x818c
-#  define GLX_RENDERER_OPENGL_ES2_PROFILE_VERSION_MESA 0x818d
-#  define GLX_MESA_release_buffers 1
-#  define GLX_MESA_set_3dfx_mode 1
-#  define GLX_3DFX_WINDOW_MODE_MESA 0x1
-#  define GLX_3DFX_FULLSCREEN_MODE_MESA 0x2
-#  define GLX_MESA_swap_control 1
-#  define GLX_NV_copy_buffer 1
-#  define GLX_NV_copy_image 1
-#  define GLX_NV_delay_before_swap 1
-#  define GLX_NV_float_buffer 1
-#  define GLX_FLOAT_COMPONENTS_NV 0x20b0
-#  define GLX_NV_multigpu_context 1
-#  define GLX_CONTEXT_MULTIGPU_ATTRIB_NV 0x20aa
-#  define GLX_CONTEXT_MULTIGPU_ATTRIB_SINGLE_NV 0x20ab
-#  define GLX_CONTEXT_MULTIGPU_ATTRIB_AFR_NV 0x20ac
-#  define GLX_CONTEXT_MULTIGPU_ATTRIB_MULTICAST_NV 0x20ad
-#  define GLX_CONTEXT_MULTIGPU_ATTRIB_MULTI_DISPLAY_MULTICAST_NV 0x20ae
-#  define GLX_NV_multisample_coverage 1
-#  define GLX_COVERAGE_SAMPLES_NV 100001
-#  define GLX_COLOR_SAMPLES_NV 0x20b3
-#  define GLX_NV_present_video 1
-#  define GLX_NUM_VIDEO_SLOTS_NV 0x20f0
-#  define GLX_NV_robustness_video_memory_purge 1
-#  define GLX_GENERATE_RESET_ON_VIDEO_MEMORY_PURGE_NV 0x20f7
-#  define GLX_NV_swap_group 1
-#  define GLX_NV_video_capture 1
-#  define GLX_DEVICE_ID_NV 0x20cd
-#  define GLX_UNIQUE_ID_NV 0x20ce
-#  define GLX_NUM_VIDEO_CAPTURE_SLOTS_NV 0x20cf
-#  define GLX_NV_video_out 1
-#  define GLX_VIDEO_OUT_COLOR_NV 0x20c3
-#  define GLX_VIDEO_OUT_ALPHA_NV 0x20c4
-#  define GLX_VIDEO_OUT_DEPTH_NV 0x20c5
-#  define GLX_VIDEO_OUT_COLOR_AND_ALPHA_NV 0x20c6
-#  define GLX_VIDEO_OUT_COLOR_AND_DEPTH_NV 0x20c7
-#  define GLX_VIDEO_OUT_FRAME_NV 0x20c8
-#  define GLX_VIDEO_OUT_FIELD_1_NV 0x20c9
-#  define GLX_VIDEO_OUT_FIELD_2_NV 0x20ca
-#  define GLX_VIDEO_OUT_STACKED_FIELDS_1_2_NV 0x20cb
-#  define GLX_VIDEO_OUT_STACKED_FIELDS_2_1_NV 0x20cc
-#  define GLX_OML_swap_method 1
-#  define GLX_SWAP_METHOD_OML 0x8060
-#  define GLX_SWAP_EXCHANGE_OML 0x8061
-#  define GLX_SWAP_COPY_OML 0x8062
-#  define GLX_SWAP_UNDEFINED_OML 0x8063
-#  define GLX_OML_sync_control 1
-#  define GLEXT_64_TYPES_DEFINED
-#  define GLX_SGIS_blended_overlay 1
-#  define GLX_BLENDED_RGBA_SGIS 0x8025
-#  define GLX_SGIS_multisample 1
-#  define GLX_SAMPLE_BUFFERS_SGIS 100000
-#  define GLX_SAMPLES_SGIS 100001
-#  define GLX_SGIS_shared_multisample 1
-#  define GLX_MULTISAMPLE_SUB_RECT_WIDTH_SGIS 0x8026
-#  define GLX_MULTISAMPLE_SUB_RECT_HEIGHT_SGIS 0x8027
-#  define GLX_SGIX_dmbuffer 1
-#  define GLX_DIGITAL_MEDIA_PBUFFER_SGIX 0x8024
-#  define GLX_SGIX_fbconfig 1
-#  define GLX_WINDOW_BIT_SGIX 0x00000001
-#  define GLX_PIXMAP_BIT_SGIX 0x00000002
-#  define GLX_RGBA_BIT_SGIX 0x00000001
-#  define GLX_COLOR_INDEX_BIT_SGIX 0x00000002
-#  define GLX_DRAWABLE_TYPE_SGIX 0x8010
-#  define GLX_RENDER_TYPE_SGIX 0x8011
-#  define GLX_X_RENDERABLE_SGIX 0x8012
-#  define GLX_FBCONFIG_ID_SGIX 0x8013
-#  define GLX_RGBA_TYPE_SGIX 0x8014
-#  define GLX_COLOR_INDEX_TYPE_SGIX 0x8015
-#  define GLX_SGIX_hyperpipe 1
-#  define GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX 80
-#  define GLX_BAD_HYPERPIPE_CONFIG_SGIX 91
-#  define GLX_BAD_HYPERPIPE_SGIX 92
-#  define GLX_HYPERPIPE_DISPLAY_PIPE_SGIX 0x00000001
-#  define GLX_HYPERPIPE_RENDER_PIPE_SGIX 0x00000002
-#  define GLX_PIPE_RECT_SGIX 0x00000001
-#  define GLX_PIPE_RECT_LIMITS_SGIX 0x00000002
-#  define GLX_HYPERPIPE_STEREO_SGIX 0x00000003
-#  define GLX_HYPERPIPE_PIXEL_AVERAGE_SGIX 0x00000004
-#  define GLX_HYPERPIPE_ID_SGIX 0x8030
-#  define GLX_SGIX_pbuffer 1
-#  define GLX_PBUFFER_BIT_SGIX 0x00000004
-#  define GLX_BUFFER_CLOBBER_MASK_SGIX 0x08000000
-#  define GLX_FRONT_LEFT_BUFFER_BIT_SGIX 0x00000001
-#  define GLX_FRONT_RIGHT_BUFFER_BIT_SGIX 0x00000002
-#  define GLX_BACK_LEFT_BUFFER_BIT_SGIX 0x00000004
-#  define GLX_BACK_RIGHT_BUFFER_BIT_SGIX 0x00000008
-#  define GLX_AUX_BUFFERS_BIT_SGIX 0x00000010
-#  define GLX_DEPTH_BUFFER_BIT_SGIX 0x00000020
-#  define GLX_STENCIL_BUFFER_BIT_SGIX 0x00000040
-#  define GLX_ACCUM_BUFFER_BIT_SGIX 0x00000080
-#  define GLX_SAMPLE_BUFFERS_BIT_SGIX 0x00000100
-#  define GLX_MAX_PBUFFER_WIDTH_SGIX 0x8016
-#  define GLX_MAX_PBUFFER_HEIGHT_SGIX 0x8017
-#  define GLX_MAX_PBUFFER_PIXELS_SGIX 0x8018
-#  define GLX_OPTIMAL_PBUFFER_WIDTH_SGIX 0x8019
-#  define GLX_OPTIMAL_PBUFFER_HEIGHT_SGIX 0x801a
-#  define GLX_PRESERVED_CONTENTS_SGIX 0x801b
-#  define GLX_LARGEST_PBUFFER_SGIX 0x801c
-#  define GLX_WIDTH_SGIX 0x801d
-#  define GLX_HEIGHT_SGIX 0x801e
-#  define GLX_EVENT_MASK_SGIX 0x801f
-#  define GLX_DAMAGED_SGIX 0x8020
-#  define GLX_SAVED_SGIX 0x8021
-#  define GLX_WINDOW_SGIX 0x8022
-#  define GLX_PBUFFER_SGIX 0x8023
-#  define GLX_SGIX_swap_barrier 1
-#  define GLX_SGIX_swap_group 1
-#  define GLX_SGIX_video_resize 1
-#  define GLX_SYNC_FRAME_SGIX 0x00000000
-#  define GLX_SYNC_SWAP_SGIX 0x00000001
-#  define GLX_SGIX_video_source 1
-#  define GLX_SGIX_visual_select_group 1
-#  define GLX_VISUAL_SELECT_GROUP_SGIX 0x8028
-#  define GLX_SGI_cushion 1
-#  define GLX_SGI_make_current_read 1
-#  define GLX_SGI_swap_control 1
-#  define GLX_SGI_video_sync 1
-#  define GLX_SUN_get_transparent_index 1
 
 /* }}} */
 /* {{{ */
 
 typedef XVisualInfo *(* PFN_glXChooseVisual_PROC) (Display *, int, int *);
 PFN_glXChooseVisual_PROC glXChooseVisual_PROC = 0;
-#  define glXChooseVisual glXChooseVisual_PROC
+#  define glXChooseVisual (assert(glXChooseVisual_PROC), glXChooseVisual_PROC)
 
 typedef GLXContext (* PFN_glXCreateContext_PROC) (Display *, XVisualInfo *, GLXContext, int);
 PFN_glXCreateContext_PROC glXCreateContext_PROC = 0;
-#  define glXCreateContext glXCreateContext_PROC
+#  define glXCreateContext (assert(glXCreateContext_PROC), glXCreateContext_PROC)
 
 typedef void (* PFN_glXDestroyContext_PROC) (Display *, GLXContext);
 PFN_glXDestroyContext_PROC glXDestroyContext_PROC = 0;
-#  define glXDestroyContext glXDestroyContext_PROC
+#  define glXDestroyContext (assert(glXDestroyContext_PROC), glXDestroyContext_PROC)
 
 typedef int (* PFN_glXMakeCurrent_PROC) (Display *, GLXDrawable, GLXContext);
 PFN_glXMakeCurrent_PROC glXMakeCurrent_PROC = 0;
-#  define glXMakeCurrent glXMakeCurrent_PROC
+#  define glXMakeCurrent (assert(glXMakeCurrent_PROC), glXMakeCurrent_PROC)
 
 typedef void (* PFN_glXCopyContext_PROC) (Display *, GLXContext, GLXContext, unsigned long);
 PFN_glXCopyContext_PROC glXCopyContext_PROC = 0;
-#  define glXCopyContext glXCopyContext_PROC
+#  define glXCopyContext (assert(glXCopyContext_PROC), glXCopyContext_PROC)
 
 typedef void (* PFN_glXSwapBuffers_PROC) (Display *, GLXDrawable);
 PFN_glXSwapBuffers_PROC glXSwapBuffers_PROC = 0;
-#  define glXSwapBuffers glXSwapBuffers_PROC
+#  define glXSwapBuffers (assert(glXSwapBuffers_PROC), glXSwapBuffers_PROC)
 
 typedef GLXPixmap (* PFN_glXCreateGLXPixmap_PROC) (Display *, XVisualInfo *, Pixmap);
 PFN_glXCreateGLXPixmap_PROC glXCreateGLXPixmap_PROC = 0;
-#  define glXCreateGLXPixmap glXCreateGLXPixmap_PROC
+#  define glXCreateGLXPixmap (assert(glXCreateGLXPixmap_PROC), glXCreateGLXPixmap_PROC)
 
 typedef void (* PFN_glXDestroyGLXPixmap_PROC) (Display *, GLXPixmap);
 PFN_glXDestroyGLXPixmap_PROC glXDestroyGLXPixmap_PROC = 0;
-#  define glXDestroyGLXPixmap glXDestroyGLXPixmap_PROC
+#  define glXDestroyGLXPixmap (assert(glXDestroyGLXPixmap_PROC), glXDestroyGLXPixmap_PROC)
 
 typedef int (* PFN_glXQueryExtension_PROC) (Display *, int *, int *);
 PFN_glXQueryExtension_PROC glXQueryExtension_PROC = 0;
-#  define glXQueryExtension glXQueryExtension_PROC
+#  define glXQueryExtension (assert(glXQueryExtension_PROC), glXQueryExtension_PROC)
 
 typedef int (* PFN_glXQueryVersion_PROC) (Display *, int *, int *);
 PFN_glXQueryVersion_PROC glXQueryVersion_PROC = 0;
-#  define glXQueryVersion glXQueryVersion_PROC
+#  define glXQueryVersion (assert(glXQueryVersion_PROC), glXQueryVersion_PROC)
 
 typedef int (* PFN_glXIsDirect_PROC) (Display *, GLXContext);
 PFN_glXIsDirect_PROC glXIsDirect_PROC = 0;
-#  define glXIsDirect glXIsDirect_PROC
+#  define glXIsDirect (assert(glXIsDirect_PROC), glXIsDirect_PROC)
 
 typedef int (* PFN_glXGetConfig_PROC) (Display *, XVisualInfo *, int, int *);
 PFN_glXGetConfig_PROC glXGetConfig_PROC = 0;
-#  define glXGetConfig glXGetConfig_PROC
+#  define glXGetConfig (assert(glXGetConfig_PROC), glXGetConfig_PROC)
 
 typedef GLXContext (* PFN_glXGetCurrentContext_PROC) (void);
 PFN_glXGetCurrentContext_PROC glXGetCurrentContext_PROC = 0;
-#  define glXGetCurrentContext glXGetCurrentContext_PROC
+#  define glXGetCurrentContext (assert(glXGetCurrentContext_PROC), glXGetCurrentContext_PROC)
 
 typedef GLXDrawable (* PFN_glXGetCurrentDrawable_PROC) (void);
 PFN_glXGetCurrentDrawable_PROC glXGetCurrentDrawable_PROC = 0;
-#  define glXGetCurrentDrawable glXGetCurrentDrawable_PROC
+#  define glXGetCurrentDrawable (assert(glXGetCurrentDrawable_PROC), glXGetCurrentDrawable_PROC)
 
 typedef void (* PFN_glXWaitGL_PROC) (void);
 PFN_glXWaitGL_PROC glXWaitGL_PROC = 0;
-#  define glXWaitGL glXWaitGL_PROC
+#  define glXWaitGL (assert(glXWaitGL_PROC), glXWaitGL_PROC)
 
 typedef void (* PFN_glXWaitX_PROC) (void);
 PFN_glXWaitX_PROC glXWaitX_PROC = 0;
-#  define glXWaitX glXWaitX_PROC
+#  define glXWaitX (assert(glXWaitX_PROC), glXWaitX_PROC)
 
 typedef void (* PFN_glXUseXFont_PROC) (Font, int, int, int);
 PFN_glXUseXFont_PROC glXUseXFont_PROC = 0;
-#  define glXUseXFont glXUseXFont_PROC
+#  define glXUseXFont (assert(glXUseXFont_PROC), glXUseXFont_PROC)
 
 typedef const char *(* PFN_glXQueryExtensionsString_PROC) (Display *, int);
 PFN_glXQueryExtensionsString_PROC glXQueryExtensionsString_PROC = 0;
-#  define glXQueryExtensionsString glXQueryExtensionsString_PROC
+#  define glXQueryExtensionsString (assert(glXQueryExtensionsString_PROC), glXQueryExtensionsString_PROC)
 
 typedef const char *(* PFN_glXQueryServerString_PROC) (Display *, int, int);
 PFN_glXQueryServerString_PROC glXQueryServerString_PROC = 0;
-#  define glXQueryServerString glXQueryServerString_PROC
+#  define glXQueryServerString (assert(glXQueryServerString_PROC), glXQueryServerString_PROC)
 
 typedef const char *(* PFN_glXGetClientString_PROC) (Display *, int);
 PFN_glXGetClientString_PROC glXGetClientString_PROC = 0;
-#  define glXGetClientString glXGetClientString_PROC
+#  define glXGetClientString (assert(glXGetClientString_PROC), glXGetClientString_PROC)
 
 typedef Display *(* PFN_glXGetCurrentDisplay_PROC) (void);
 PFN_glXGetCurrentDisplay_PROC glXGetCurrentDisplay_PROC = 0;
-#  define glXGetCurrentDisplay glXGetCurrentDisplay_PROC
+#  define glXGetCurrentDisplay (assert(glXGetCurrentDisplay_PROC), glXGetCurrentDisplay_PROC)
 
 typedef GLXFBConfig *(* PFN_glXChooseFBConfig_PROC) (Display *, int, const int *, int *);
 PFN_glXChooseFBConfig_PROC glXChooseFBConfig_PROC = 0;
-#  define glXChooseFBConfig glXChooseFBConfig_PROC
+#  define glXChooseFBConfig (assert(glXChooseFBConfig_PROC), glXChooseFBConfig_PROC)
 
 typedef int (* PFN_glXGetFBConfigAttrib_PROC) (Display *, GLXFBConfig, int, int *);
 PFN_glXGetFBConfigAttrib_PROC glXGetFBConfigAttrib_PROC = 0;
-#  define glXGetFBConfigAttrib glXGetFBConfigAttrib_PROC
+#  define glXGetFBConfigAttrib (assert(glXGetFBConfigAttrib_PROC), glXGetFBConfigAttrib_PROC)
 
 typedef GLXFBConfig *(* PFN_glXGetFBConfigs_PROC) (Display *, int, int *);
 PFN_glXGetFBConfigs_PROC glXGetFBConfigs_PROC = 0;
-#  define glXGetFBConfigs glXGetFBConfigs_PROC
+#  define glXGetFBConfigs (assert(glXGetFBConfigs_PROC), glXGetFBConfigs_PROC)
 
 typedef XVisualInfo *(* PFN_glXGetVisualFromFBConfig_PROC) (Display *, GLXFBConfig);
 PFN_glXGetVisualFromFBConfig_PROC glXGetVisualFromFBConfig_PROC = 0;
-#  define glXGetVisualFromFBConfig glXGetVisualFromFBConfig_PROC
+#  define glXGetVisualFromFBConfig (assert(glXGetVisualFromFBConfig_PROC), glXGetVisualFromFBConfig_PROC)
 
 typedef GLXWindow (* PFN_glXCreateWindow_PROC) (Display *, GLXFBConfig, Window, const int *);
 PFN_glXCreateWindow_PROC glXCreateWindow_PROC = 0;
-#  define glXCreateWindow glXCreateWindow_PROC
+#  define glXCreateWindow (assert(glXCreateWindow_PROC), glXCreateWindow_PROC)
 
 typedef void (* PFN_glXDestroyWindow_PROC) (Display *, GLXWindow);
 PFN_glXDestroyWindow_PROC glXDestroyWindow_PROC = 0;
-#  define glXDestroyWindow glXDestroyWindow_PROC
+#  define glXDestroyWindow (assert(glXDestroyWindow_PROC), glXDestroyWindow_PROC)
 
 typedef GLXPixmap (* PFN_glXCreatePixmap_PROC) (Display *, GLXFBConfig, Pixmap, const int *);
 PFN_glXCreatePixmap_PROC glXCreatePixmap_PROC = 0;
-#  define glXCreatePixmap glXCreatePixmap_PROC
+#  define glXCreatePixmap (assert(glXCreatePixmap_PROC), glXCreatePixmap_PROC)
 
 typedef void (* PFN_glXDestroyPixmap_PROC) (Display *, GLXPixmap);
 PFN_glXDestroyPixmap_PROC glXDestroyPixmap_PROC = 0;
-#  define glXDestroyPixmap glXDestroyPixmap_PROC
+#  define glXDestroyPixmap (assert(glXDestroyPixmap_PROC), glXDestroyPixmap_PROC)
 
 typedef GLXPbuffer (* PFN_glXCreatePbuffer_PROC) (Display *, GLXFBConfig, const int *);
 PFN_glXCreatePbuffer_PROC glXCreatePbuffer_PROC = 0;
-#  define glXCreatePbuffer glXCreatePbuffer_PROC
+#  define glXCreatePbuffer (assert(glXCreatePbuffer_PROC), glXCreatePbuffer_PROC)
 
 typedef void (* PFN_glXDestroyPbuffer_PROC) (Display *, GLXPbuffer);
 PFN_glXDestroyPbuffer_PROC glXDestroyPbuffer_PROC = 0;
-#  define glXDestroyPbuffer glXDestroyPbuffer_PROC
+#  define glXDestroyPbuffer (assert(glXDestroyPbuffer_PROC), glXDestroyPbuffer_PROC)
 
 typedef void (* PFN_glXQueryDrawable_PROC) (Display *, GLXDrawable, int, unsigned int *);
 PFN_glXQueryDrawable_PROC glXQueryDrawable_PROC = 0;
-#  define glXQueryDrawable glXQueryDrawable_PROC
+#  define glXQueryDrawable (assert(glXQueryDrawable_PROC), glXQueryDrawable_PROC)
 
 typedef GLXContext (* PFN_glXCreateNewContext_PROC) (Display *, GLXFBConfig, int, GLXContext, int);
 PFN_glXCreateNewContext_PROC glXCreateNewContext_PROC = 0;
-#  define glXCreateNewContext glXCreateNewContext_PROC
+#  define glXCreateNewContext (assert(glXCreateNewContext_PROC), glXCreateNewContext_PROC)
 
 typedef int (* PFN_glXMakeContextCurrent_PROC) (Display *, GLXDrawable, GLXDrawable, GLXContext);
 PFN_glXMakeContextCurrent_PROC glXMakeContextCurrent_PROC = 0;
-#  define glXMakeContextCurrent glXMakeContextCurrent_PROC
+#  define glXMakeContextCurrent (assert(glXMakeContextCurrent_PROC), glXMakeContextCurrent_PROC)
 
 typedef GLXDrawable (* PFN_glXGetCurrentReadDrawable_PROC) (void);
 PFN_glXGetCurrentReadDrawable_PROC glXGetCurrentReadDrawable_PROC = 0;
-#  define glXGetCurrentReadDrawable glXGetCurrentReadDrawable_PROC
+#  define glXGetCurrentReadDrawable (assert(glXGetCurrentReadDrawable_PROC), glXGetCurrentReadDrawable_PROC)
 
 typedef int (* PFN_glXQueryContext_PROC) (Display *, GLXContext, int, int *);
 PFN_glXQueryContext_PROC glXQueryContext_PROC = 0;
-#  define glXQueryContext glXQueryContext_PROC
+#  define glXQueryContext (assert(glXQueryContext_PROC), glXQueryContext_PROC)
 
 typedef void (* PFN_glXSelectEvent_PROC) (Display *, GLXDrawable, unsigned long);
 PFN_glXSelectEvent_PROC glXSelectEvent_PROC = 0;
-#  define glXSelectEvent glXSelectEvent_PROC
+#  define glXSelectEvent (assert(glXSelectEvent_PROC), glXSelectEvent_PROC)
 
 typedef void (* PFN_glXGetSelectedEvent_PROC) (Display *, GLXDrawable, unsigned long *);
 PFN_glXGetSelectedEvent_PROC glXGetSelectedEvent_PROC = 0;
-#  define glXGetSelectedEvent glXGetSelectedEvent_PROC
+#  define glXGetSelectedEvent (assert(glXGetSelectedEvent_PROC), glXGetSelectedEvent_PROC)
 
 typedef __GLXextFuncPtr (* PFN_glXGetProcAddressARB_PROC) (const unsigned char *);
 PFN_glXGetProcAddressARB_PROC glXGetProcAddressARB_PROC = 0;
-#  define glXGetProcAddressARB glXGetProcAddressARB_PROC
+#  define glXGetProcAddressARB (assert(glXGetProcAddressARB_PROC), glXGetProcAddressARB_PROC)
 
 typedef __GLXextFuncPtr (* PFN_glXGetProcAddress_PROC) (const unsigned char *);
 PFN_glXGetProcAddress_PROC glXGetProcAddress_PROC = 0;
-#  define glXGetProcAddress glXGetProcAddress_PROC
+#  define glXGetProcAddress (assert(glXGetProcAddress_PROC), glXGetProcAddress_PROC)
+
+typedef GLXContext (* PFN_glXCreateContextAttribsARB_PROC) (Display *, GLXFBConfig, GLXContext, Bool, const int *);
+PFN_glXCreateContextAttribsARB_PROC glXCreateContextAttribsARB_PROC = 0;
+#  define glXCreateContextAttribsARB (assert(glXCreateContextAttribsARB_PROC), glXCreateContextAttribsARB_PROC)
 
 /* }}} */
 
@@ -2048,9 +1784,9 @@ struct __window_h_glx {
 
 /* {{{ */
 
-typedef Display *EGLNativeDisplayType;
-typedef Pixmap   EGLNativePixmapType;
-typedef Window   EGLNativeWindowType;
+typedef void *EGLNativeDisplayType;
+typedef uint64_t EGLNativePixmapType;
+typedef uint64_t EGLNativeWindowType;
 
 typedef EGLNativeDisplayType NativeDisplayType;
 typedef EGLNativePixmapType  NativePixmapType;
@@ -5833,6 +5569,7 @@ WININT int __winLoadGLX(struct __window_h *lib) {
     glXGetSelectedEvent_PROC = (PFN_glXGetSelectedEvent_PROC) dlsym(handle, "glXGetSelectedEvent");
     glXGetProcAddressARB_PROC = (PFN_glXGetProcAddressARB_PROC) dlsym(handle, "glXGetProcAddressARB");
     glXGetProcAddress_PROC = (PFN_glXGetProcAddress_PROC) dlsym(handle, "glXGetProcAddress");
+    glXCreateContextAttribsARB_PROC = (PFN_glXCreateContextAttribsARB_PROC) dlsym(handle, "glXCreateContextAttribsARB");
     /* }}} */
     glx->handle = handle;
 

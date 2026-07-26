@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <GL/gl.h>
 #
-#define WINDOW_BACKEND_EGL
 #define WINDOW_IMPLEMENTATION
 #include "./../window.h"
 
