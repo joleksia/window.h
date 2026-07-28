@@ -5516,62 +5516,68 @@ WININT int __winLoadGLX(struct __window_h *lib) {
     struct __window_h_glx *glx = calloc(1, sizeof(struct __window_h_glx));
     if (!glx) { return (0); }
 
-    void *handle = 0;
+    void *libglx = 0;
     {
         const char  *names[] = { "libGLX.so", "libGLX.so.0, libGLX.so.0.0.0", 0 };
         for (const char **name = names; *name; name++) {
-            handle = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
-            if (handle) { break; }
+            libglx = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
+            if (libglx) { break; }
         }
 
-        /* check if handle loaded */
-        if (!handle) { return (0); }
+        /* check if libglx loaded */
+        if (!libglx) { return (0); }
     }
     
     /* {{{ */
-    glXChooseVisual_PROC = (PFN_glXChooseVisual_PROC) dlsym(handle, "glXChooseVisual");
-    glXCreateContext_PROC = (PFN_glXCreateContext_PROC) dlsym(handle, "glXCreateContext");
-    glXDestroyContext_PROC = (PFN_glXDestroyContext_PROC) dlsym(handle, "glXDestroyContext");
-    glXMakeCurrent_PROC = (PFN_glXMakeCurrent_PROC) dlsym(handle, "glXMakeCurrent");
-    glXCopyContext_PROC = (PFN_glXCopyContext_PROC) dlsym(handle, "glXCopyContext");
-    glXSwapBuffers_PROC = (PFN_glXSwapBuffers_PROC) dlsym(handle, "glXSwapBuffers");
-    glXCreateGLXPixmap_PROC = (PFN_glXCreateGLXPixmap_PROC) dlsym(handle, "glXCreateGLXPixmap");
-    glXDestroyGLXPixmap_PROC = (PFN_glXDestroyGLXPixmap_PROC) dlsym(handle, "glXDestroyGLXPixmap");
-    glXQueryExtension_PROC = (PFN_glXQueryExtension_PROC) dlsym(handle, "glXQueryExtension");
-    glXQueryVersion_PROC = (PFN_glXQueryVersion_PROC) dlsym(handle, "glXQueryVersion");
-    glXIsDirect_PROC = (PFN_glXIsDirect_PROC) dlsym(handle, "glXIsDirect");
-    glXGetConfig_PROC = (PFN_glXGetConfig_PROC) dlsym(handle, "glXGetConfig");
-    glXGetCurrentContext_PROC = (PFN_glXGetCurrentContext_PROC) dlsym(handle, "glXGetCurrentContext");
-    glXGetCurrentDrawable_PROC = (PFN_glXGetCurrentDrawable_PROC) dlsym(handle, "glXGetCurrentDrawable");
-    glXWaitGL_PROC = (PFN_glXWaitGL_PROC) dlsym(handle, "glXWaitGL");
-    glXWaitX_PROC = (PFN_glXWaitX_PROC) dlsym(handle, "glXWaitX");
-    glXUseXFont_PROC = (PFN_glXUseXFont_PROC) dlsym(handle, "glXUseXFont");
-    glXQueryExtensionsString_PROC = (PFN_glXQueryExtensionsString_PROC) dlsym(handle, "glXQueryExtensionsString");
-    glXQueryServerString_PROC = (PFN_glXQueryServerString_PROC) dlsym(handle, "glXQueryServerString");
-    glXGetClientString_PROC = (PFN_glXGetClientString_PROC) dlsym(handle, "glXGetClientString");
-    glXGetCurrentDisplay_PROC = (PFN_glXGetCurrentDisplay_PROC) dlsym(handle, "glXGetCurrentDisplay");
-    glXChooseFBConfig_PROC = (PFN_glXChooseFBConfig_PROC) dlsym(handle, "glXChooseFBConfig");
-    glXGetFBConfigAttrib_PROC = (PFN_glXGetFBConfigAttrib_PROC) dlsym(handle, "glXGetFBConfigAttrib");
-    glXGetFBConfigs_PROC = (PFN_glXGetFBConfigs_PROC) dlsym(handle, "glXGetFBConfigs");
-    glXGetVisualFromFBConfig_PROC = (PFN_glXGetVisualFromFBConfig_PROC) dlsym(handle, "glXGetVisualFromFBConfig");
-    glXCreateWindow_PROC = (PFN_glXCreateWindow_PROC) dlsym(handle, "glXCreateWindow");
-    glXDestroyWindow_PROC = (PFN_glXDestroyWindow_PROC) dlsym(handle, "glXDestroyWindow");
-    glXCreatePixmap_PROC = (PFN_glXCreatePixmap_PROC) dlsym(handle, "glXCreatePixmap");
-    glXDestroyPixmap_PROC = (PFN_glXDestroyPixmap_PROC) dlsym(handle, "glXDestroyPixmap");
-    glXCreatePbuffer_PROC = (PFN_glXCreatePbuffer_PROC) dlsym(handle, "glXCreatePbuffer");
-    glXDestroyPbuffer_PROC = (PFN_glXDestroyPbuffer_PROC) dlsym(handle, "glXDestroyPbuffer");
-    glXQueryDrawable_PROC = (PFN_glXQueryDrawable_PROC) dlsym(handle, "glXQueryDrawable");
-    glXCreateNewContext_PROC = (PFN_glXCreateNewContext_PROC) dlsym(handle, "glXCreateNewContext");
-    glXMakeContextCurrent_PROC = (PFN_glXMakeContextCurrent_PROC) dlsym(handle, "glXMakeContextCurrent");
-    glXGetCurrentReadDrawable_PROC = (PFN_glXGetCurrentReadDrawable_PROC) dlsym(handle, "glXGetCurrentReadDrawable");
-    glXQueryContext_PROC = (PFN_glXQueryContext_PROC) dlsym(handle, "glXQueryContext");
-    glXSelectEvent_PROC = (PFN_glXSelectEvent_PROC) dlsym(handle, "glXSelectEvent");
-    glXGetSelectedEvent_PROC = (PFN_glXGetSelectedEvent_PROC) dlsym(handle, "glXGetSelectedEvent");
-    glXGetProcAddressARB_PROC = (PFN_glXGetProcAddressARB_PROC) dlsym(handle, "glXGetProcAddressARB");
-    glXGetProcAddress_PROC = (PFN_glXGetProcAddress_PROC) dlsym(handle, "glXGetProcAddress");
-    glXCreateContextAttribsARB_PROC = (PFN_glXCreateContextAttribsARB_PROC) dlsym(handle, "glXCreateContextAttribsARB");
+    /* load 'glXGetProcAddress' and 'glXGetProcAddressARB'... */
+    glXGetProcAddressARB_PROC = (PFN_glXGetProcAddressARB_PROC) dlsym(libglx, "glXGetProcAddressARB");
+    glXGetProcAddress_PROC = (PFN_glXGetProcAddress_PROC) dlsym(libglx, "glXGetProcAddress");
+    
+    /* ...and load the rest of the GLX using them! */
+    /* TODO:
+     *  Add a fallback for all the function pointers to load the symbol using 'glXGetProcAddressARB' if 'glXGetProcAddress' fails...
+     * */
+    glXChooseVisual_PROC = (PFN_glXChooseVisual_PROC) glXGetProcAddress((const uint8_t *) "glXChooseVisual");
+    glXCreateContext_PROC = (PFN_glXCreateContext_PROC) glXGetProcAddress((const uint8_t *) "glXCreateContext");
+    glXDestroyContext_PROC = (PFN_glXDestroyContext_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyContext");
+    glXMakeCurrent_PROC = (PFN_glXMakeCurrent_PROC) glXGetProcAddress((const uint8_t *) "glXMakeCurrent");
+    glXCopyContext_PROC = (PFN_glXCopyContext_PROC) glXGetProcAddress((const uint8_t *) "glXCopyContext");
+    glXSwapBuffers_PROC = (PFN_glXSwapBuffers_PROC) glXGetProcAddress((const uint8_t *) "glXSwapBuffers");
+    glXCreateGLXPixmap_PROC = (PFN_glXCreateGLXPixmap_PROC) glXGetProcAddress((const uint8_t *) "glXCreateGLXPixmap");
+    glXDestroyGLXPixmap_PROC = (PFN_glXDestroyGLXPixmap_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyGLXPixmap");
+    glXQueryExtension_PROC = (PFN_glXQueryExtension_PROC) glXGetProcAddress((const uint8_t *) "glXQueryExtension");
+    glXQueryVersion_PROC = (PFN_glXQueryVersion_PROC) glXGetProcAddress((const uint8_t *) "glXQueryVersion");
+    glXIsDirect_PROC = (PFN_glXIsDirect_PROC) glXGetProcAddress((const uint8_t *) "glXIsDirect");
+    glXGetConfig_PROC = (PFN_glXGetConfig_PROC) glXGetProcAddress((const uint8_t *) "glXGetConfig");
+    glXGetCurrentContext_PROC = (PFN_glXGetCurrentContext_PROC) glXGetProcAddress((const uint8_t *) "glXGetCurrentContext");
+    glXGetCurrentDrawable_PROC = (PFN_glXGetCurrentDrawable_PROC) glXGetProcAddress((const uint8_t *) "glXGetCurrentDrawable");
+    glXWaitGL_PROC = (PFN_glXWaitGL_PROC) glXGetProcAddress((const uint8_t *) "glXWaitGL");
+    glXWaitX_PROC = (PFN_glXWaitX_PROC) glXGetProcAddress((const uint8_t *) "glXWaitX");
+    glXUseXFont_PROC = (PFN_glXUseXFont_PROC) glXGetProcAddress((const uint8_t *) "glXUseXFont");
+    glXQueryExtensionsString_PROC = (PFN_glXQueryExtensionsString_PROC) glXGetProcAddress((const uint8_t *) "glXQueryExtensionsString");
+    glXQueryServerString_PROC = (PFN_glXQueryServerString_PROC) glXGetProcAddress((const uint8_t *) "glXQueryServerString");
+    glXGetClientString_PROC = (PFN_glXGetClientString_PROC) glXGetProcAddress((const uint8_t *) "glXGetClientString");
+    glXGetCurrentDisplay_PROC = (PFN_glXGetCurrentDisplay_PROC) glXGetProcAddress((const uint8_t *) "glXGetCurrentDisplay");
+    glXChooseFBConfig_PROC = (PFN_glXChooseFBConfig_PROC) glXGetProcAddress((const uint8_t *) "glXChooseFBConfig");
+    glXGetFBConfigAttrib_PROC = (PFN_glXGetFBConfigAttrib_PROC) glXGetProcAddress((const uint8_t *) "glXGetFBConfigAttrib");
+    glXGetFBConfigs_PROC = (PFN_glXGetFBConfigs_PROC) glXGetProcAddress((const uint8_t *) "glXGetFBConfigs");
+    glXGetVisualFromFBConfig_PROC = (PFN_glXGetVisualFromFBConfig_PROC) glXGetProcAddress((const uint8_t *) "glXGetVisualFromFBConfig");
+    glXCreateWindow_PROC = (PFN_glXCreateWindow_PROC) glXGetProcAddress((const uint8_t *) "glXCreateWindow");
+    glXDestroyWindow_PROC = (PFN_glXDestroyWindow_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyWindow");
+    glXCreatePixmap_PROC = (PFN_glXCreatePixmap_PROC) glXGetProcAddress((const uint8_t *) "glXCreatePixmap");
+    glXDestroyPixmap_PROC = (PFN_glXDestroyPixmap_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyPixmap");
+    glXCreatePbuffer_PROC = (PFN_glXCreatePbuffer_PROC) glXGetProcAddress((const uint8_t *) "glXCreatePbuffer");
+    glXDestroyPbuffer_PROC = (PFN_glXDestroyPbuffer_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyPbuffer");
+    glXQueryDrawable_PROC = (PFN_glXQueryDrawable_PROC) glXGetProcAddress((const uint8_t *) "glXQueryDrawable");
+    glXCreateNewContext_PROC = (PFN_glXCreateNewContext_PROC) glXGetProcAddress((const uint8_t *) "glXCreateNewContext");
+    glXMakeContextCurrent_PROC = (PFN_glXMakeContextCurrent_PROC) glXGetProcAddress((const uint8_t *) "glXMakeContextCurrent");
+    glXGetCurrentReadDrawable_PROC = (PFN_glXGetCurrentReadDrawable_PROC) glXGetProcAddress((const uint8_t *) "glXGetCurrentReadDrawable");
+    glXQueryContext_PROC = (PFN_glXQueryContext_PROC) glXGetProcAddress((const uint8_t *) "glXQueryContext");
+    glXSelectEvent_PROC = (PFN_glXSelectEvent_PROC) glXGetProcAddress((const uint8_t *) "glXSelectEvent");
+    glXGetSelectedEvent_PROC = (PFN_glXGetSelectedEvent_PROC) glXGetProcAddress((const uint8_t *) "glXGetSelectedEvent");
+    glXCreateContextAttribsARB_PROC = (PFN_glXCreateContextAttribsARB_PROC) glXGetProcAddress((const uint8_t *) "glXCreateContextAttribsARB");
     /* }}} */
-    glx->handle = handle;
+    glx->handle = libglx;
 
     /* return the result */
     lib->glx = glx;
@@ -5620,11 +5626,28 @@ WININT int __winCreateContextGLX(struct __window_h *lib, struct __window_h_conte
     /* set 'glx' members */
     glx->drawable = (GLXDrawable) win->handle;
 
-    /* get GLXContext object */
-    glx->context = glXCreateContextAttribsARB(lib->glx->dpy,
-                                              lib->glx->fbconfig,
-                                              0, 1,
-                                              lib->glx->attr.context);
+    /* modern context query */
+    if (glXCreateContextAttribsARB_PROC) {
+        /* get GLXContext object */
+        glx->context = glXCreateContextAttribsARB(lib->glx->dpy,
+                                                  lib->glx->fbconfig,
+                                                  0, 1,
+                                                  lib->glx->attr.context);
+    /* legacy context query */
+    } else {
+        /* get 'XVisualInfo' from 'GLXFBConfig' */
+        XVisualInfo *vi = glXGetVisualFromFBConfig(lib->glx->dpy,
+                                                   lib->glx->fbconfig);
+        if (!vi) { free(glx); return (0); }
+
+        /* get GLXContext object */
+        glx->context = glXCreateContext(lib->glx->dpy, vi, 0, 1);
+
+        /* release 'vi' */
+        XFree(vi), vi = 0;
+    }
+
+    /* check if context failed to create */
     if (!glx->context) {
         free(glx);
         return (0);
@@ -5870,50 +5893,53 @@ WININT int __winLoadEGL(struct __window_h *lib) {
     }
 
     /* {{{ */
-    eglBindAPI_PROC = (PFN_eglBindAPI_PROC) dlsym(libegl, "eglBindAPI");
-    eglBindTexImage_PROC = (PFN_eglBindTexImage_PROC) dlsym(libegl, "eglBindTexImage");
-    eglChooseConfig_PROC = (PFN_eglChooseConfig_PROC) dlsym(libegl, "eglChooseConfig");
-    eglClientWaitSync_PROC = (PFN_eglClientWaitSync_PROC) dlsym(libegl, "eglClientWaitSync");
-    eglCopyBuffers_PROC = (PFN_eglCopyBuffers_PROC) dlsym(libegl, "eglCopyBuffers");
-    eglCreateContext_PROC = (PFN_eglCreateContext_PROC) dlsym(libegl, "eglCreateContext");
-    eglCreateImage_PROC = (PFN_eglCreateImage_PROC) dlsym(libegl, "eglCreateImage");
-    eglCreatePbufferFromClientBuffer_PROC = (PFN_eglCreatePbufferFromClientBuffer_PROC) dlsym(libegl, "eglCreatePbufferFromClientBuffer");
-    eglCreatePbufferSurface_PROC = (PFN_eglCreatePbufferSurface_PROC) dlsym(libegl, "eglCreatePbufferSurface");
-    eglCreatePixmapSurface_PROC = (PFN_eglCreatePixmapSurface_PROC) dlsym(libegl, "eglCreatePixmapSurface");
-    eglCreatePlatformPixmapSurface_PROC = (PFN_eglCreatePlatformPixmapSurface_PROC) dlsym(libegl, "eglCreatePlatformPixmapSurface");
-    eglCreatePlatformWindowSurface_PROC = (PFN_eglCreatePlatformWindowSurface_PROC) dlsym(libegl, "eglCreatePlatformWindowSurface");
-    eglCreateSync_PROC = (PFN_eglCreateSync_PROC) dlsym(libegl, "eglCreateSync");
-    eglCreateWindowSurface_PROC = (PFN_eglCreateWindowSurface_PROC) dlsym(libegl, "eglCreateWindowSurface");
-    eglDestroyContext_PROC = (PFN_eglDestroyContext_PROC) dlsym(libegl, "eglDestroyContext");
-    eglDestroyImage_PROC = (PFN_eglDestroyImage_PROC) dlsym(libegl, "eglDestroyImage");
-    eglDestroySurface_PROC = (PFN_eglDestroySurface_PROC) dlsym(libegl, "eglDestroySurface");
-    eglDestroySync_PROC = (PFN_eglDestroySync_PROC) dlsym(libegl, "eglDestroySync");
-    eglGetConfigAttrib_PROC = (PFN_eglGetConfigAttrib_PROC) dlsym(libegl, "eglGetConfigAttrib");
-    eglGetConfigs_PROC = (PFN_eglGetConfigs_PROC) dlsym(libegl, "eglGetConfigs");
-    eglGetCurrentContext_PROC = (PFN_eglGetCurrentContext_PROC) dlsym(libegl, "eglGetCurrentContext");
-    eglGetCurrentDisplay_PROC = (PFN_eglGetCurrentDisplay_PROC) dlsym(libegl, "eglGetCurrentDisplay");
-    eglGetCurrentSurface_PROC = (PFN_eglGetCurrentSurface_PROC) dlsym(libegl, "eglGetCurrentSurface");
-    eglGetDisplay_PROC = (PFN_eglGetDisplay_PROC) dlsym(libegl, "eglGetDisplay");
-    eglGetError_PROC = (PFN_eglGetError_PROC) dlsym(libegl, "eglGetError");
-    eglGetPlatformDisplay_PROC = (PFN_eglGetPlatformDisplay_PROC) dlsym(libegl, "eglGetPlatformDisplay");
+    /* load 'eglGetProcAddress'... */
     eglGetProcAddress_PROC = (PFN_eglGetProcAddress_PROC) dlsym(libegl, "eglGetProcAddress");
-    eglGetSyncAttrib_PROC = (PFN_eglGetSyncAttrib_PROC) dlsym(libegl, "eglGetSyncAttrib");
-    eglInitialize_PROC = (PFN_eglInitialize_PROC) dlsym(libegl, "eglInitialize");
-    eglMakeCurrent_PROC = (PFN_eglMakeCurrent_PROC) dlsym(libegl, "eglMakeCurrent");
-    eglQueryAPI_PROC = (PFN_eglQueryAPI_PROC) dlsym(libegl, "eglQueryAPI");
-    eglQueryContext_PROC = (PFN_eglQueryContext_PROC) dlsym(libegl, "eglQueryContext");
-    eglQueryString_PROC = (PFN_eglQueryString_PROC) dlsym(libegl, "eglQueryString");
-    eglQuerySurface_PROC = (PFN_eglQuerySurface_PROC) dlsym(libegl, "eglQuerySurface");
-    eglReleaseTexImage_PROC = (PFN_eglReleaseTexImage_PROC) dlsym(libegl, "eglReleaseTexImage");
-    eglReleaseThread_PROC = (PFN_eglReleaseThread_PROC) dlsym(libegl, "eglReleaseThread");
-    eglSurfaceAttrib_PROC = (PFN_eglSurfaceAttrib_PROC) dlsym(libegl, "eglSurfaceAttrib");
-    eglSwapBuffers_PROC = (PFN_eglSwapBuffers_PROC) dlsym(libegl, "eglSwapBuffers");
-    eglSwapInterval_PROC = (PFN_eglSwapInterval_PROC) dlsym(libegl, "eglSwapInterval");
-    eglTerminate_PROC = (PFN_eglTerminate_PROC) dlsym(libegl, "eglTerminate");
-    eglWaitClient_PROC = (PFN_eglWaitClient_PROC) dlsym(libegl, "eglWaitClient");
-    eglWaitGL_PROC = (PFN_eglWaitGL_PROC) dlsym(libegl, "eglWaitGL");
-    eglWaitNative_PROC = (PFN_eglWaitNative_PROC) dlsym(libegl, "eglWaitNative");
-    eglWaitSync_PROC = (PFN_eglWaitSync_PROC) dlsym(libegl, "eglWaitSync");
+
+    /* ...and load the rest of the EGL using it! */
+    eglBindAPI_PROC = (PFN_eglBindAPI_PROC) eglGetProcAddress("eglBindAPI");
+    eglBindTexImage_PROC = (PFN_eglBindTexImage_PROC) eglGetProcAddress("eglBindTexImage");
+    eglChooseConfig_PROC = (PFN_eglChooseConfig_PROC) eglGetProcAddress("eglChooseConfig");
+    eglClientWaitSync_PROC = (PFN_eglClientWaitSync_PROC) eglGetProcAddress("eglClientWaitSync");
+    eglCopyBuffers_PROC = (PFN_eglCopyBuffers_PROC) eglGetProcAddress("eglCopyBuffers");
+    eglCreateContext_PROC = (PFN_eglCreateContext_PROC) eglGetProcAddress("eglCreateContext");
+    eglCreateImage_PROC = (PFN_eglCreateImage_PROC) eglGetProcAddress("eglCreateImage");
+    eglCreatePbufferFromClientBuffer_PROC = (PFN_eglCreatePbufferFromClientBuffer_PROC) eglGetProcAddress("eglCreatePbufferFromClientBuffer");
+    eglCreatePbufferSurface_PROC = (PFN_eglCreatePbufferSurface_PROC) eglGetProcAddress("eglCreatePbufferSurface");
+    eglCreatePixmapSurface_PROC = (PFN_eglCreatePixmapSurface_PROC) eglGetProcAddress("eglCreatePixmapSurface");
+    eglCreatePlatformPixmapSurface_PROC = (PFN_eglCreatePlatformPixmapSurface_PROC) eglGetProcAddress("eglCreatePlatformPixmapSurface");
+    eglCreatePlatformWindowSurface_PROC = (PFN_eglCreatePlatformWindowSurface_PROC) eglGetProcAddress("eglCreatePlatformWindowSurface");
+    eglCreateSync_PROC = (PFN_eglCreateSync_PROC) eglGetProcAddress("eglCreateSync");
+    eglCreateWindowSurface_PROC = (PFN_eglCreateWindowSurface_PROC) eglGetProcAddress("eglCreateWindowSurface");
+    eglDestroyContext_PROC = (PFN_eglDestroyContext_PROC) eglGetProcAddress("eglDestroyContext");
+    eglDestroyImage_PROC = (PFN_eglDestroyImage_PROC) eglGetProcAddress("eglDestroyImage");
+    eglDestroySurface_PROC = (PFN_eglDestroySurface_PROC) eglGetProcAddress("eglDestroySurface");
+    eglDestroySync_PROC = (PFN_eglDestroySync_PROC) eglGetProcAddress("eglDestroySync");
+    eglGetConfigAttrib_PROC = (PFN_eglGetConfigAttrib_PROC) eglGetProcAddress("eglGetConfigAttrib");
+    eglGetConfigs_PROC = (PFN_eglGetConfigs_PROC) eglGetProcAddress("eglGetConfigs");
+    eglGetCurrentContext_PROC = (PFN_eglGetCurrentContext_PROC) eglGetProcAddress("eglGetCurrentContext");
+    eglGetCurrentDisplay_PROC = (PFN_eglGetCurrentDisplay_PROC) eglGetProcAddress("eglGetCurrentDisplay");
+    eglGetCurrentSurface_PROC = (PFN_eglGetCurrentSurface_PROC) eglGetProcAddress("eglGetCurrentSurface");
+    eglGetDisplay_PROC = (PFN_eglGetDisplay_PROC) eglGetProcAddress("eglGetDisplay");
+    eglGetError_PROC = (PFN_eglGetError_PROC) eglGetProcAddress("eglGetError");
+    eglGetPlatformDisplay_PROC = (PFN_eglGetPlatformDisplay_PROC) eglGetProcAddress("eglGetPlatformDisplay");
+    eglGetSyncAttrib_PROC = (PFN_eglGetSyncAttrib_PROC) eglGetProcAddress("eglGetSyncAttrib");
+    eglInitialize_PROC = (PFN_eglInitialize_PROC) eglGetProcAddress("eglInitialize");
+    eglMakeCurrent_PROC = (PFN_eglMakeCurrent_PROC) eglGetProcAddress("eglMakeCurrent");
+    eglQueryAPI_PROC = (PFN_eglQueryAPI_PROC) eglGetProcAddress("eglQueryAPI");
+    eglQueryContext_PROC = (PFN_eglQueryContext_PROC) eglGetProcAddress("eglQueryContext");
+    eglQueryString_PROC = (PFN_eglQueryString_PROC) eglGetProcAddress("eglQueryString");
+    eglQuerySurface_PROC = (PFN_eglQuerySurface_PROC) eglGetProcAddress("eglQuerySurface");
+    eglReleaseTexImage_PROC = (PFN_eglReleaseTexImage_PROC) eglGetProcAddress("eglReleaseTexImage");
+    eglReleaseThread_PROC = (PFN_eglReleaseThread_PROC) eglGetProcAddress("eglReleaseThread");
+    eglSurfaceAttrib_PROC = (PFN_eglSurfaceAttrib_PROC) eglGetProcAddress("eglSurfaceAttrib");
+    eglSwapBuffers_PROC = (PFN_eglSwapBuffers_PROC) eglGetProcAddress("eglSwapBuffers");
+    eglSwapInterval_PROC = (PFN_eglSwapInterval_PROC) eglGetProcAddress("eglSwapInterval");
+    eglTerminate_PROC = (PFN_eglTerminate_PROC) eglGetProcAddress("eglTerminate");
+    eglWaitClient_PROC = (PFN_eglWaitClient_PROC) eglGetProcAddress("eglWaitClient");
+    eglWaitGL_PROC = (PFN_eglWaitGL_PROC) eglGetProcAddress("eglWaitGL");
+    eglWaitNative_PROC = (PFN_eglWaitNative_PROC) eglGetProcAddress("eglWaitNative");
+    eglWaitSync_PROC = (PFN_eglWaitSync_PROC) eglGetProcAddress("eglWaitSync");
     /* }}} */
     egl->handle = libegl;
 
