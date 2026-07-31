@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <GL/gl.h>
 #
+#define WINDOW_BACKEND_EGL
 #define WINDOW_IMPLEMENTATION
 #include "./../window.h"
 
@@ -13,9 +14,11 @@ int main(void) {
 
     window_t window = 0;
     winCreateWindow(library, &window, 800, 600, "Hello, window.h - Sample 02. OpenGL");
+    if (!window) { winQuit(library); return (1); }
 
     context_t context = 0;
     winCreateContext(library, &context, window);
+    if (!context) { winQuit(library); return (2); }
 
     winMapWindow(library, window);
     winGLMakeCurrent(library, context);

@@ -66,7 +66,7 @@
 # /* }}} */
 #
 # /* "bsd" platform preprocessor */
-# elif defined (__FreeBSD__) || defined (__NetBSD__) || defined (__bsd__) || defined (__DragonFly__) || defined (__MidnightBSD__)
+# elif defined (__FreeBSD__) || defined (__NetBSD__) || defined (__bsdi__) || defined (__DragonFly__) || defined (__MidnightBSD__)
 # /* {{{ */
 #  define WINDOW_PLATFORM "bsd"
 #  define WINDOW_PLATFORM_BSD 1
@@ -1068,9 +1068,24 @@ WINDEF int winWaitTime(uint64_t);
 #  include <X11/XKBlib.h>
 #  include <X11/keysym.h>
 #  include <X11/keysymdef.h>
-#  include <X11/Xcursor/Xcursor.h>
-#  include <X11/extensions/XInput.h>
-#  include <X11/extensions/XInput2.h>
+#
+#  if defined (WINDOW_X11_EXTENSION_XRANDR)
+#   include <X11/Xextensions/Xrandr.h>
+#  endif /* WINDOW_X11_EXTENSION_XRANDR */
+#
+#  if defined (WINDOW_X11_EXTENSION_XCURSOR)
+#   include <X11/Xcursor/Xcursor.h>
+#  endif /* WINDOW_X11_EXTENSION_XCURSOR */
+#
+#  if defined (WINDOW_X11_EXTENSION_XINPUT2)
+#   /* XInput2 extension should also include XInput extension */
+#   define WINDOW_X11_EXTENSION_XINPUT
+#   include <X11/extensions/XInput2.h>
+#  endif /* WINDOW_X11_EXTENSION_XINPUT2 */
+#
+#  if defined (WINDOW_X11_EXTENSION_XINPUT)
+#   include <X11/extensions/XInput.h>
+#  endif /* WINDOW_X11_EXTENSION_XINPUT */
 #
 # /* include wayland headers */
 # elif defined (WINDOW_BACKEND_WAYLAND)
@@ -1576,6 +1591,14 @@ typedef void ( *__GLXextFuncPtr)(void);
 #  define GLX_PBUFFER_WIDTH 0x8041
 #  define GLX_SAMPLE_BUFFERS 100000
 #  define GLX_SAMPLES 100001
+#  define GLX_CONTEXT_DEBUG_BIT_ARB 0x00000001
+#  define GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
+#  define GLX_CONTEXT_MAJOR_VERSION_ARB 0x2091
+#  define GLX_CONTEXT_MINOR_VERSION_ARB 0x2092
+#  define GLX_CONTEXT_FLAGS_ARB 0x2094
+#  define GLX_CONTEXT_CORE_PROFILE_BIT_ARB 0x00000001
+#  define GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+#  define GLX_CONTEXT_PROFILE_MASK_ARB 0x9126
 
 /* }}} */
 /* {{{ */
@@ -1749,8 +1772,8 @@ PFN_glXCreateContextAttribsARB_PROC glXCreateContextAttribsARB_PROC = 0;
 typedef struct __window_h_context_glx *context_t_glx;
 
 struct __window_h_context_glx {
-    GLXDrawable drawable;
-    GLXContext  context;
+    GLXWindow  window;
+    GLXContext context;
 };
 
 
@@ -4642,7 +4665,293 @@ PFN_XkbXlibControlsImplemented_PROC XkbXlibControlsImplemented_PROC = 0;
 #  define XkbXlibControlsImplemented (assert(XkbXlibControlsImplemented_PROC != 0), XkbXlibControlsImplemented_PROC)
 /* }}} */
 
-/* libXcursor.so*/
+/* libXrandr.so */
+# if defined (WINDOW_X11_EXTENSION_XRANDR)
+/* {{{ */
+typedef int (* PFN_XRRQueryExtension_PROC) (Display *, int *, int *);
+PFN_XRRQueryExtension_PROC XRRQueryExtension_PROC = 0;
+#   define XRRQueryExtension (assert(XRRQueryExtension_PROC), XRRQueryExtension_PROC)
+
+typedef int (* PFN_XRRQueryVersion_PROC) (Display *, int *, int *);
+PFN_XRRQueryVersion_PROC XRRQueryVersion_PROC = 0;
+#   define XRRQueryVersion (assert(XRRQueryVersion_PROC), XRRQueryVersion_PROC)
+
+typedef XRRScreenConfiguration *(* PFN_XRRGetScreenInfo_PROC) (Display *, Window);
+PFN_XRRGetScreenInfo_PROC XRRGetScreenInfo_PROC = 0;
+#   define XRRGetScreenInfo (assert(XRRGetScreenInfo_PROC), XRRGetScreenInfo_PROC)
+
+typedef void (* PFN_XRRFreeScreenConfigInfo_PROC) (XRRScreenConfiguration *);
+PFN_XRRFreeScreenConfigInfo_PROC XRRFreeScreenConfigInfo_PROC = 0;
+#   define XRRFreeScreenConfigInfo (assert(XRRFreeScreenConfigInfo_PROC), XRRFreeScreenConfigInfo_PROC)
+
+typedef int (* PFN_XRRSetScreenConfig_PROC) (Display *, XRRScreenConfiguration *, Drawable, int, Rotation, Time);
+PFN_XRRSetScreenConfig_PROC XRRSetScreenConfig_PROC = 0;
+#   define XRRSetScreenConfig (assert(XRRSetScreenConfig_PROC), XRRSetScreenConfig_PROC)
+
+typedef int (* PFN_XRRSetScreenConfigAndRate_PROC) (Display *, XRRScreenConfiguration *, Drawable, int, Rotation, short, Time);
+PFN_XRRSetScreenConfigAndRate_PROC XRRSetScreenConfigAndRate_PROC = 0;
+#   define XRRSetScreenConfigAndRate (assert(XRRSetScreenConfigAndRate_PROC), XRRSetScreenConfigAndRate_PROC)
+
+typedef Rotation (* PFN_XRRConfigRotations_PROC) (XRRScreenConfiguration *, Rotation *);
+PFN_XRRConfigRotations_PROC XRRConfigRotations_PROC = 0;
+#   define XRRConfigRotations (assert(XRRConfigRotations_PROC), XRRConfigRotations_PROC)
+
+typedef Time (* PFN_XRRConfigTimes_PROC) (XRRScreenConfiguration *, Time *);
+PFN_XRRConfigTimes_PROC XRRConfigTimes_PROC = 0;
+#   define XRRConfigTimes (assert(XRRConfigTimes_PROC), XRRConfigTimes_PROC)
+
+typedef XRRScreenSize *(* PFN_XRRConfigSizes_PROC) (XRRScreenConfiguration *, int *);
+PFN_XRRConfigSizes_PROC XRRConfigSizes_PROC = 0;
+#   define XRRConfigSizes (assert(XRRConfigSizes_PROC), XRRConfigSizes_PROC)
+
+typedef short *(* PFN_XRRConfigRates_PROC) (XRRScreenConfiguration *, int, int *);
+PFN_XRRConfigRates_PROC XRRConfigRates_PROC = 0;
+#   define XRRConfigRates (assert(XRRConfigRates_PROC), XRRConfigRates_PROC)
+
+typedef SizeID (* PFN_XRRConfigCurrentConfiguration_PROC) (XRRScreenConfiguration *, Rotation *);
+PFN_XRRConfigCurrentConfiguration_PROC XRRConfigCurrentConfiguration_PROC = 0;
+#   define XRRConfigCurrentConfiguration (assert(XRRConfigCurrentConfiguration_PROC), XRRConfigCurrentConfiguration_PROC)
+
+typedef short (* PFN_XRRConfigCurrentRate_PROC) (XRRScreenConfiguration *);
+PFN_XRRConfigCurrentRate_PROC XRRConfigCurrentRate_PROC = 0;
+#   define XRRConfigCurrentRate (assert(XRRConfigCurrentRate_PROC), XRRConfigCurrentRate_PROC)
+
+typedef int (* PFN_XRRRootToScreen_PROC) (Display *, Window);
+PFN_XRRRootToScreen_PROC XRRRootToScreen_PROC = 0;
+#   define XRRRootToScreen (assert(XRRRootToScreen_PROC), XRRRootToScreen_PROC)
+
+typedef void (* PFN_XRRSelectInput_PROC) (Display *, Window, int);
+PFN_XRRSelectInput_PROC XRRSelectInput_PROC = 0;
+#   define XRRSelectInput (assert(XRRSelectInput_PROC), XRRSelectInput_PROC)
+
+typedef Rotation (* PFN_XRRRotations_PROC) (Display *, int, Rotation *);
+PFN_XRRRotations_PROC XRRRotations_PROC = 0;
+#   define XRRRotations (assert(XRRRotations_PROC), XRRRotations_PROC)
+
+typedef XRRScreenSize *(* PFN_XRRSizes_PROC) (Display *, int, int *);
+PFN_XRRSizes_PROC XRRSizes_PROC = 0;
+#   define XRRSizes (assert(XRRSizes_PROC), XRRSizes_PROC)
+
+typedef short *(* PFN_XRRRates_PROC) (Display *, int, int, int *);
+PFN_XRRRates_PROC XRRRates_PROC = 0;
+#   define XRRRates (assert(XRRRates_PROC), XRRRates_PROC)
+
+typedef Time (* PFN_XRRTimes_PROC) (Display *, int, Time *);
+PFN_XRRTimes_PROC XRRTimes_PROC = 0;
+#   define XRRTimes (assert(XRRTimes_PROC), XRRTimes_PROC)
+
+typedef int (* PFN_XRRGetScreenSizeRange_PROC) (Display *, Window, int *, int *, int *, int *);
+PFN_XRRGetScreenSizeRange_PROC XRRGetScreenSizeRange_PROC = 0;
+#   define XRRGetScreenSizeRange (assert(XRRGetScreenSizeRange_PROC), XRRGetScreenSizeRange_PROC)
+
+typedef void (* PFN_XRRSetScreenSize_PROC) (Display *, Window, int, int, int, int);
+PFN_XRRSetScreenSize_PROC XRRSetScreenSize_PROC = 0;
+#   define XRRSetScreenSize (assert(XRRSetScreenSize_PROC), XRRSetScreenSize_PROC)
+
+typedef XRRScreenResources *(* PFN_XRRGetScreenResources_PROC) (Display *, Window);
+PFN_XRRGetScreenResources_PROC XRRGetScreenResources_PROC = 0;
+#   define XRRGetScreenResources (assert(XRRGetScreenResources_PROC), XRRGetScreenResources_PROC)
+
+typedef void (* PFN_XRRFreeScreenResources_PROC) (XRRScreenResources *);
+PFN_XRRFreeScreenResources_PROC XRRFreeScreenResources_PROC = 0;
+#   define XRRFreeScreenResources (assert(XRRFreeScreenResources_PROC), XRRFreeScreenResources_PROC)
+
+typedef XRROutputInfo *(* PFN_XRRGetOutputInfo_PROC) (Display *, XRRScreenResources *, RROutput);
+PFN_XRRGetOutputInfo_PROC XRRGetOutputInfo_PROC = 0;
+#   define XRRGetOutputInfo (assert(XRRGetOutputInfo_PROC), XRRGetOutputInfo_PROC)
+
+typedef void (* PFN_XRRFreeOutputInfo_PROC) (XRROutputInfo *);
+PFN_XRRFreeOutputInfo_PROC XRRFreeOutputInfo_PROC = 0;
+#   define XRRFreeOutputInfo (assert(XRRFreeOutputInfo_PROC), XRRFreeOutputInfo_PROC)
+
+typedef Atom *(* PFN_XRRListOutputProperties_PROC) (Display *, RROutput, int *);
+PFN_XRRListOutputProperties_PROC XRRListOutputProperties_PROC = 0;
+#   define XRRListOutputProperties (assert(XRRListOutputProperties_PROC), XRRListOutputProperties_PROC)
+
+typedef XRRPropertyInfo *(* PFN_XRRQueryOutputProperty_PROC) (Display *, RROutput, Atom);
+PFN_XRRQueryOutputProperty_PROC XRRQueryOutputProperty_PROC = 0;
+#   define XRRQueryOutputProperty (assert(XRRQueryOutputProperty_PROC), XRRQueryOutputProperty_PROC)
+
+typedef void (* PFN_XRRConfigureOutputProperty_PROC) (Display *, RROutput, Atom, int, int, int, long *);
+PFN_XRRConfigureOutputProperty_PROC XRRConfigureOutputProperty_PROC = 0;
+#   define XRRConfigureOutputProperty (assert(XRRConfigureOutputProperty_PROC), XRRConfigureOutputProperty_PROC)
+
+typedef void (* PFN_XRRChangeOutputProperty_PROC) (Display *, RROutput, Atom, Atom, int, int, const unsigned char *, int);
+PFN_XRRChangeOutputProperty_PROC XRRChangeOutputProperty_PROC = 0;
+#   define XRRChangeOutputProperty (assert(XRRChangeOutputProperty_PROC), XRRChangeOutputProperty_PROC)
+
+typedef void (* PFN_XRRDeleteOutputProperty_PROC) (Display *, RROutput, Atom);
+PFN_XRRDeleteOutputProperty_PROC XRRDeleteOutputProperty_PROC = 0;
+#   define XRRDeleteOutputProperty (assert(XRRDeleteOutputProperty_PROC), XRRDeleteOutputProperty_PROC)
+
+typedef int (* PFN_XRRGetOutputProperty_PROC) (Display *, RROutput, Atom, long, long, int, int, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
+PFN_XRRGetOutputProperty_PROC XRRGetOutputProperty_PROC = 0;
+#   define XRRGetOutputProperty (assert(XRRGetOutputProperty_PROC), XRRGetOutputProperty_PROC)
+
+typedef XRRModeInfo *(* PFN_XRRAllocModeInfo_PROC) (const char *, int);
+PFN_XRRAllocModeInfo_PROC XRRAllocModeInfo_PROC = 0;
+#   define XRRAllocModeInfo (assert(XRRAllocModeInfo_PROC), XRRAllocModeInfo_PROC)
+
+typedef RRMode (* PFN_XRRCreateMode_PROC) (Display *, Window, XRRModeInfo *);
+PFN_XRRCreateMode_PROC XRRCreateMode_PROC = 0;
+#   define XRRCreateMode (assert(XRRCreateMode_PROC), XRRCreateMode_PROC)
+
+typedef void (* PFN_XRRDestroyMode_PROC) (Display *, RRMode);
+PFN_XRRDestroyMode_PROC XRRDestroyMode_PROC = 0;
+#   define XRRDestroyMode (assert(XRRDestroyMode_PROC), XRRDestroyMode_PROC)
+
+typedef void (* PFN_XRRAddOutputMode_PROC) (Display *, RROutput, RRMode);
+PFN_XRRAddOutputMode_PROC XRRAddOutputMode_PROC = 0;
+#   define XRRAddOutputMode (assert(XRRAddOutputMode_PROC), XRRAddOutputMode_PROC)
+
+typedef void (* PFN_XRRDeleteOutputMode_PROC) (Display *, RROutput, RRMode);
+PFN_XRRDeleteOutputMode_PROC XRRDeleteOutputMode_PROC = 0;
+#   define XRRDeleteOutputMode (assert(XRRDeleteOutputMode_PROC), XRRDeleteOutputMode_PROC)
+
+typedef void (* PFN_XRRFreeModeInfo_PROC) (XRRModeInfo *);
+PFN_XRRFreeModeInfo_PROC XRRFreeModeInfo_PROC = 0;
+#   define XRRFreeModeInfo (assert(XRRFreeModeInfo_PROC), XRRFreeModeInfo_PROC)
+
+typedef XRRCrtcInfo *(* PFN_XRRGetCrtcInfo_PROC) (Display *, XRRScreenResources *, RRCrtc);
+PFN_XRRGetCrtcInfo_PROC XRRGetCrtcInfo_PROC = 0;
+#   define XRRGetCrtcInfo (assert(XRRGetCrtcInfo_PROC), XRRGetCrtcInfo_PROC)
+
+typedef void (* PFN_XRRFreeCrtcInfo_PROC) (XRRCrtcInfo *);
+PFN_XRRFreeCrtcInfo_PROC XRRFreeCrtcInfo_PROC = 0;
+#   define XRRFreeCrtcInfo (assert(XRRFreeCrtcInfo_PROC), XRRFreeCrtcInfo_PROC)
+
+typedef int (* PFN_XRRSetCrtcConfig_PROC) (Display *, XRRScreenResources *, RRCrtc, Time, int, int, RRMode, Rotation, RROutput *, int);
+PFN_XRRSetCrtcConfig_PROC XRRSetCrtcConfig_PROC = 0;
+#   define XRRSetCrtcConfig (assert(XRRSetCrtcConfig_PROC), XRRSetCrtcConfig_PROC)
+
+typedef int (* PFN_XRRGetCrtcGammaSize_PROC) (Display *, RRCrtc);
+PFN_XRRGetCrtcGammaSize_PROC XRRGetCrtcGammaSize_PROC = 0;
+#   define XRRGetCrtcGammaSize (assert(XRRGetCrtcGammaSize_PROC), XRRGetCrtcGammaSize_PROC)
+
+typedef XRRCrtcGamma *(* PFN_XRRGetCrtcGamma_PROC) (Display *, RRCrtc);
+PFN_XRRGetCrtcGamma_PROC XRRGetCrtcGamma_PROC = 0;
+#   define XRRGetCrtcGamma (assert(XRRGetCrtcGamma_PROC), XRRGetCrtcGamma_PROC)
+
+typedef XRRCrtcGamma *(* PFN_XRRAllocGamma_PROC) (int);
+PFN_XRRAllocGamma_PROC XRRAllocGamma_PROC = 0;
+#   define XRRAllocGamma (assert(XRRAllocGamma_PROC), XRRAllocGamma_PROC)
+
+typedef void (* PFN_XRRSetCrtcGamma_PROC) (Display *, RRCrtc, XRRCrtcGamma *);
+PFN_XRRSetCrtcGamma_PROC XRRSetCrtcGamma_PROC = 0;
+#   define XRRSetCrtcGamma (assert(XRRSetCrtcGamma_PROC), XRRSetCrtcGamma_PROC)
+
+typedef void (* PFN_XRRFreeGamma_PROC) (XRRCrtcGamma *);
+PFN_XRRFreeGamma_PROC XRRFreeGamma_PROC = 0;
+#   define XRRFreeGamma (assert(XRRFreeGamma_PROC), XRRFreeGamma_PROC)
+
+typedef XRRScreenResources *(* PFN_XRRGetScreenResourcesCurrent_PROC) (Display *, Window);
+PFN_XRRGetScreenResourcesCurrent_PROC XRRGetScreenResourcesCurrent_PROC = 0;
+#   define XRRGetScreenResourcesCurrent (assert(XRRGetScreenResourcesCurrent_PROC), XRRGetScreenResourcesCurrent_PROC)
+
+typedef void (* PFN_XRRSetCrtcTransform_PROC) (Display *, RRCrtc, XTransform *, const char *, XFixed *, int);
+PFN_XRRSetCrtcTransform_PROC XRRSetCrtcTransform_PROC = 0;
+#   define XRRSetCrtcTransform (assert(XRRSetCrtcTransform_PROC), XRRSetCrtcTransform_PROC)
+
+typedef int (* PFN_XRRGetCrtcTransform_PROC) (Display *, RRCrtc, XRRCrtcTransformAttributes **);
+PFN_XRRGetCrtcTransform_PROC XRRGetCrtcTransform_PROC = 0;
+#   define XRRGetCrtcTransform (assert(XRRGetCrtcTransform_PROC), XRRGetCrtcTransform_PROC)
+
+typedef int (* PFN_XRRUpdateConfiguration_PROC) (XEvent *);
+PFN_XRRUpdateConfiguration_PROC XRRUpdateConfiguration_PROC = 0;
+#   define XRRUpdateConfiguration (assert(XRRUpdateConfiguration_PROC), XRRUpdateConfiguration_PROC)
+
+typedef XRRPanning *(* PFN_XRRGetPanning_PROC) (Display *, XRRScreenResources *, RRCrtc);
+PFN_XRRGetPanning_PROC XRRGetPanning_PROC = 0;
+#   define XRRGetPanning (assert(XRRGetPanning_PROC), XRRGetPanning_PROC)
+
+typedef void (* PFN_XRRFreePanning_PROC) (XRRPanning *);
+PFN_XRRFreePanning_PROC XRRFreePanning_PROC = 0;
+#   define XRRFreePanning (assert(XRRFreePanning_PROC), XRRFreePanning_PROC)
+
+typedef int (* PFN_XRRSetPanning_PROC) (Display *, XRRScreenResources *, RRCrtc, XRRPanning *);
+PFN_XRRSetPanning_PROC XRRSetPanning_PROC = 0;
+#   define XRRSetPanning (assert(XRRSetPanning_PROC), XRRSetPanning_PROC)
+
+typedef void (* PFN_XRRSetOutputPrimary_PROC) (Display *, Window, RROutput);
+PFN_XRRSetOutputPrimary_PROC XRRSetOutputPrimary_PROC = 0;
+#   define XRRSetOutputPrimary (assert(XRRSetOutputPrimary_PROC), XRRSetOutputPrimary_PROC)
+
+typedef RROutput (* PFN_XRRGetOutputPrimary_PROC) (Display *, Window);
+PFN_XRRGetOutputPrimary_PROC XRRGetOutputPrimary_PROC = 0;
+#   define XRRGetOutputPrimary (assert(XRRGetOutputPrimary_PROC), XRRGetOutputPrimary_PROC)
+
+typedef XRRProviderResources *(* PFN_XRRGetProviderResources_PROC) (Display *, Window);
+PFN_XRRGetProviderResources_PROC XRRGetProviderResources_PROC = 0;
+#   define XRRGetProviderResources (assert(XRRGetProviderResources_PROC), XRRGetProviderResources_PROC)
+
+typedef void (* PFN_XRRFreeProviderResources_PROC) (XRRProviderResources *);
+PFN_XRRFreeProviderResources_PROC XRRFreeProviderResources_PROC = 0;
+#   define XRRFreeProviderResources (assert(XRRFreeProviderResources_PROC), XRRFreeProviderResources_PROC)
+
+typedef XRRProviderInfo *(* PFN_XRRGetProviderInfo_PROC) (Display *, XRRScreenResources *, RRProvider);
+PFN_XRRGetProviderInfo_PROC XRRGetProviderInfo_PROC = 0;
+#   define XRRGetProviderInfo (assert(XRRGetProviderInfo_PROC), XRRGetProviderInfo_PROC)
+
+typedef void (* PFN_XRRFreeProviderInfo_PROC) (XRRProviderInfo *);
+PFN_XRRFreeProviderInfo_PROC XRRFreeProviderInfo_PROC = 0;
+#   define XRRFreeProviderInfo (assert(XRRFreeProviderInfo_PROC), XRRFreeProviderInfo_PROC)
+
+typedef int (* PFN_XRRSetProviderOutputSource_PROC) (Display *, XID, XID);
+PFN_XRRSetProviderOutputSource_PROC XRRSetProviderOutputSource_PROC = 0;
+#   define XRRSetProviderOutputSource (assert(XRRSetProviderOutputSource_PROC), XRRSetProviderOutputSource_PROC)
+
+typedef int (* PFN_XRRSetProviderOffloadSink_PROC) (Display *, XID, XID);
+PFN_XRRSetProviderOffloadSink_PROC XRRSetProviderOffloadSink_PROC = 0;
+#   define XRRSetProviderOffloadSink (assert(XRRSetProviderOffloadSink_PROC), XRRSetProviderOffloadSink_PROC)
+
+typedef Atom *(* PFN_XRRListProviderProperties_PROC) (Display *, RRProvider, int *);
+PFN_XRRListProviderProperties_PROC XRRListProviderProperties_PROC = 0;
+#   define XRRListProviderProperties (assert(XRRListProviderProperties_PROC), XRRListProviderProperties_PROC)
+
+typedef XRRPropertyInfo *(* PFN_XRRQueryProviderProperty_PROC) (Display *, RRProvider, Atom);
+PFN_XRRQueryProviderProperty_PROC XRRQueryProviderProperty_PROC = 0;
+#   define XRRQueryProviderProperty (assert(XRRQueryProviderProperty_PROC), XRRQueryProviderProperty_PROC)
+
+typedef void (* PFN_XRRConfigureProviderProperty_PROC) (Display *, RRProvider, Atom, int, int, int, long *);
+PFN_XRRConfigureProviderProperty_PROC XRRConfigureProviderProperty_PROC = 0;
+#   define XRRConfigureProviderProperty (assert(XRRConfigureProviderProperty_PROC), XRRConfigureProviderProperty_PROC)
+
+typedef void (* PFN_XRRChangeProviderProperty_PROC) (Display *, RRProvider, Atom, Atom, int, int, const unsigned char *, int);
+PFN_XRRChangeProviderProperty_PROC XRRChangeProviderProperty_PROC = 0;
+#   define XRRChangeProviderProperty (assert(XRRChangeProviderProperty_PROC), XRRChangeProviderProperty_PROC)
+
+typedef void (* PFN_XRRDeleteProviderProperty_PROC) (Display *, RRProvider, Atom);
+PFN_XRRDeleteProviderProperty_PROC XRRDeleteProviderProperty_PROC = 0;
+#   define XRRDeleteProviderProperty (assert(XRRDeleteProviderProperty_PROC), XRRDeleteProviderProperty_PROC)
+
+typedef int (* PFN_XRRGetProviderProperty_PROC) (Display *, RRProvider, Atom, long, long, int, int, Atom, Atom *, int *, unsigned long *, unsigned long *, unsigned char **);
+PFN_XRRGetProviderProperty_PROC XRRGetProviderProperty_PROC = 0;
+#   define XRRGetProviderProperty (assert(XRRGetProviderProperty_PROC), XRRGetProviderProperty_PROC)
+
+typedef XRRMonitorInfo *(* PFN_XRRAllocateMonitor_PROC) (Display *, int);
+PFN_XRRAllocateMonitor_PROC XRRAllocateMonitor_PROC = 0;
+#   define XRRAllocateMonitor (assert(XRRAllocateMonitor_PROC), XRRAllocateMonitor_PROC)
+
+typedef XRRMonitorInfo *(* PFN_XRRGetMonitors_PROC) (Display *, Window, int, int *);
+PFN_XRRGetMonitors_PROC XRRGetMonitors_PROC = 0;
+#   define XRRGetMonitors (assert(XRRGetMonitors_PROC), XRRGetMonitors_PROC)
+
+typedef void (* PFN_XRRSetMonitor_PROC) (Display *, Window, XRRMonitorInfo *);
+PFN_XRRSetMonitor_PROC XRRSetMonitor_PROC = 0;
+#   define XRRSetMonitor (assert(XRRSetMonitor_PROC), XRRSetMonitor_PROC)
+
+typedef void (* PFN_XRRDeleteMonitor_PROC) (Display *, Window, Atom);
+PFN_XRRDeleteMonitor_PROC XRRDeleteMonitor_PROC = 0;
+#   define XRRDeleteMonitor (assert(XRRDeleteMonitor_PROC), XRRDeleteMonitor_PROC)
+
+typedef void (* PFN_XRRFreeMonitors_PROC) (XRRMonitorInfo *);
+PFN_XRRFreeMonitors_PROC XRRFreeMonitors_PROC = 0;
+#   define XRRFreeMonitors (assert(XRRFreeMonitors_PROC), XRRFreeMonitors_PROC)
+/* }}} */
+# endif /* WINDOW_X11_EXTENSION_XRANDR */
+#
+# /* libXcursor.so */
+# if defined (WINDOW_X11_EXTENSION_XCURSOR)
 /* {{{ */
 typedef XcursorImage *(* PFN_XcursorImageCreate_PROC) (int, int);
 PFN_XcursorImageCreate_PROC XcursorImageCreate_PROC = 0;
@@ -4888,8 +5197,10 @@ typedef XcursorBool (* PFN_XcursorSetThemeCore_PROC) (Display *, XcursorBool);
 PFN_XcursorSetThemeCore_PROC XcursorSetThemeCore_PROC = 0;
 #  define XcursorSetThemeCore (assert(XcursorSetThemeCore_PROC != 0), XcursorSetThemeCore_PROC)
 /* }}} */
-
-/* libXi.so: XInput.h */
+# endif /* WINDOW_X11_EXTENSION_XCURSOR */
+#
+# /* libXi.so */
+# if defined (WINDOW_X11_EXTENSION_XINPUT)
 /* {{{ */
 typedef int (* PFN__XiGetDevicePresenceNotifyEvent_PROC) (Display *);
 PFN__XiGetDevicePresenceNotifyEvent_PROC _XiGetDevicePresenceNotifyEvent_PROC = 0;
@@ -5091,8 +5402,10 @@ typedef int (* PFN_XGetDeviceProperty_PROC) (Display *, XDevice *, Atom, long, l
 PFN_XGetDeviceProperty_PROC XGetDeviceProperty_PROC = 0;
 #  define XGetDeviceProperty (assert(XGetDeviceProperty_PROC != 0), XGetDeviceProperty_PROC)
 /* }}} */
-
-/* libXi: XInput2.h */
+# endif /* WINDOW_X11_EXTENSION_XINPUT */
+#
+# /* libXi.so */
+# if defined (WINDOW_X11_EXTENSION_XINPUT2)
 /* {{{ */
 typedef int (* PFN_XIQueryPointer_PROC) (Display *, int, Window, Window *, Window *, double *, double *, double *, double *, XIButtonState *, XIModifierState *, XIGroupState *);
 PFN_XIQueryPointer_PROC XIQueryPointer_PROC = 0;
@@ -5247,6 +5560,8 @@ PFN_XIFreeDeviceInfo_PROC XIFreeDeviceInfo_PROC = 0;
 #  define XIFreeDeviceInfo (assert(XIFreeDeviceInfo_PROC != 0), XIFreeDeviceInfo_PROC)
 
 /* }}} */
+# endif /* WINDOW_X11_EXTENSION_XINPUT2 */
+
 
 struct __window_h_window_x11 {
     /* child / client window handle */
@@ -5329,12 +5644,17 @@ struct __window_h_x11 {
     struct {
         /* handle do shared object */
         void *handle;
+    } xrandr;
+
+    struct {
+        /* handle do shared object */
+        void *handle;
     } xcursor;
 
     struct {
         /* handle do shared object */
         void *handle;
-    } xi;
+    } xinput;
 };
 
 /* }}} */
@@ -5501,6 +5821,61 @@ WININT int __winInitGLX(struct __window_h *lib, void *display) {
 
     /* set 'glx' members */
     glx->dpy = display;
+
+    /* set 'glx->attr' members */
+    int attr_config[] = {
+        GLX_FBCONFIG_ID,                GLX_DONT_CARE,
+        GLX_BUFFER_SIZE,                0,
+        GLX_LEVEL,                      0,
+        GLX_DOUBLEBUFFER,               True,
+        GLX_STEREO,                     False,
+        GLX_AUX_BUFFERS,                0,
+        GLX_RED_SIZE,                   0,
+        GLX_GREEN_SIZE,                 0,
+        GLX_BLUE_SIZE,                  0,
+        GLX_ALPHA_SIZE,                 0,
+        GLX_DEPTH_SIZE,                 0,
+        GLX_STENCIL_SIZE,               0,
+        GLX_ACCUM_RED_SIZE,             0,
+        GLX_ACCUM_GREEN_SIZE,           0,
+        GLX_ACCUM_BLUE_SIZE,            0,
+        GLX_ACCUM_ALPHA_SIZE,           0,
+        GLX_RENDER_TYPE,                GLX_RGBA_BIT,
+        GLX_DRAWABLE_TYPE,              GLX_WINDOW_BIT,
+        GLX_X_RENDERABLE,               GLX_DONT_CARE,
+        GLX_X_VISUAL_TYPE,              GLX_DONT_CARE,
+        GLX_CONFIG_CAVEAT,              GLX_DONT_CARE,
+        GLX_TRANSPARENT_TYPE,           GLX_NONE,
+        GLX_TRANSPARENT_INDEX_VALUE,    GLX_DONT_CARE,
+        GLX_TRANSPARENT_RED_VALUE,      GLX_DONT_CARE,
+        GLX_TRANSPARENT_GREEN_VALUE,    GLX_DONT_CARE,
+        GLX_TRANSPARENT_BLUE_VALUE,     GLX_DONT_CARE,
+        GLX_TRANSPARENT_ALPHA_VALUE,    GLX_DONT_CARE,
+
+        /* ... */
+
+        0, 0
+    };
+
+    glx->attr.config = calloc(64, sizeof(int));
+    if (!glx->attr.config) { return (0); }
+    if (!memcpy(glx->attr.config, attr_config, sizeof(attr_config))) { return (0); }
+    
+
+    int attr_context[] = {
+        GLX_CONTEXT_MAJOR_VERSION_ARB,  3,
+        GLX_CONTEXT_MINOR_VERSION_ARB,  3,
+        GLX_CONTEXT_PROFILE_MASK_ARB,   GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+        GLX_CONTEXT_FLAGS_ARB,          GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+
+        /* ... */
+
+        0, 0
+    };
+
+    glx->attr.context = calloc(64, sizeof(int));
+    if (!glx->attr.context) { return (0); }
+    if (!memcpy(glx->attr.context, attr_context, sizeof(attr_context))) { return (0); }
     
     /* success */
     return (1);
@@ -5511,7 +5886,7 @@ WININT int __winLoadGLX(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
     if (lib->glx) { return (1); }
-
+    
     /* init-check */
     struct __window_h_glx *glx = calloc(1, sizeof(struct __window_h_glx));
     if (!glx) { return (0); }
@@ -5532,50 +5907,202 @@ WININT int __winLoadGLX(struct __window_h *lib) {
     /* load 'glXGetProcAddress' and 'glXGetProcAddressARB'... */
     glXGetProcAddressARB_PROC = (PFN_glXGetProcAddressARB_PROC) dlsym(libglx, "glXGetProcAddressARB");
     glXGetProcAddress_PROC = (PFN_glXGetProcAddress_PROC) dlsym(libglx, "glXGetProcAddress");
-    
+
     /* ...and load the rest of the GLX using them! */
-    /* TODO:
-     *  Add a fallback for all the function pointers to load the symbol using 'glXGetProcAddressARB' if 'glXGetProcAddress' fails...
-     * */
     glXChooseVisual_PROC = (PFN_glXChooseVisual_PROC) glXGetProcAddress((const uint8_t *) "glXChooseVisual");
+    if (!glXChooseVisual_PROC) {
+        glXChooseVisual_PROC = (PFN_glXChooseVisual_PROC) glXGetProcAddressARB((const uint8_t *) "glXChooseVisual");
+    }
+
     glXCreateContext_PROC = (PFN_glXCreateContext_PROC) glXGetProcAddress((const uint8_t *) "glXCreateContext");
+    if (!glXCreateContext_PROC) {
+        glXCreateContext_PROC = (PFN_glXCreateContext_PROC) glXGetProcAddressARB((const uint8_t *) "glXCreateContext");
+    }
+
     glXDestroyContext_PROC = (PFN_glXDestroyContext_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyContext");
+    if (!glXDestroyContext_PROC) {
+        glXDestroyContext_PROC = (PFN_glXDestroyContext_PROC) glXGetProcAddressARB((const uint8_t *) "glXDestroyContext");
+    }
+
     glXMakeCurrent_PROC = (PFN_glXMakeCurrent_PROC) glXGetProcAddress((const uint8_t *) "glXMakeCurrent");
+    if (!glXMakeCurrent_PROC) {
+        glXMakeCurrent_PROC = (PFN_glXMakeCurrent_PROC) glXGetProcAddressARB((const uint8_t *) "glXMakeCurrent");
+    }
+
     glXCopyContext_PROC = (PFN_glXCopyContext_PROC) glXGetProcAddress((const uint8_t *) "glXCopyContext");
+    if (!glXCopyContext_PROC) {
+        glXCopyContext_PROC = (PFN_glXCopyContext_PROC) glXGetProcAddressARB((const uint8_t *) "glXCopyContext");
+    }
+
     glXSwapBuffers_PROC = (PFN_glXSwapBuffers_PROC) glXGetProcAddress((const uint8_t *) "glXSwapBuffers");
+    if (!glXSwapBuffers_PROC) {
+        glXSwapBuffers_PROC = (PFN_glXSwapBuffers_PROC) glXGetProcAddressARB((const uint8_t *) "glXSwapBuffers");
+    }
+
     glXCreateGLXPixmap_PROC = (PFN_glXCreateGLXPixmap_PROC) glXGetProcAddress((const uint8_t *) "glXCreateGLXPixmap");
+    if (!glXCreateGLXPixmap_PROC) {
+        glXCreateGLXPixmap_PROC = (PFN_glXCreateGLXPixmap_PROC) glXGetProcAddressARB((const uint8_t *) "glXCreateGLXPixmap");
+    }
+
     glXDestroyGLXPixmap_PROC = (PFN_glXDestroyGLXPixmap_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyGLXPixmap");
+    if (!glXDestroyGLXPixmap_PROC) {
+        glXDestroyGLXPixmap_PROC = (PFN_glXDestroyGLXPixmap_PROC) glXGetProcAddressARB((const uint8_t *) "glXDestroyGLXPixmap");
+    }
+
     glXQueryExtension_PROC = (PFN_glXQueryExtension_PROC) glXGetProcAddress((const uint8_t *) "glXQueryExtension");
+    if (!glXQueryExtension_PROC) {
+        glXQueryExtension_PROC = (PFN_glXQueryExtension_PROC) glXGetProcAddressARB((const uint8_t *) "glXQueryExtension");
+    }
+
     glXQueryVersion_PROC = (PFN_glXQueryVersion_PROC) glXGetProcAddress((const uint8_t *) "glXQueryVersion");
+    if (!glXQueryVersion_PROC) {
+        glXQueryVersion_PROC = (PFN_glXQueryVersion_PROC) glXGetProcAddressARB((const uint8_t *) "glXQueryVersion");
+    }
+
     glXIsDirect_PROC = (PFN_glXIsDirect_PROC) glXGetProcAddress((const uint8_t *) "glXIsDirect");
+    if (!glXIsDirect_PROC) {
+        glXIsDirect_PROC = (PFN_glXIsDirect_PROC) glXGetProcAddressARB((const uint8_t *) "glXIsDirect");
+    }
+
     glXGetConfig_PROC = (PFN_glXGetConfig_PROC) glXGetProcAddress((const uint8_t *) "glXGetConfig");
+    if (!glXGetConfig_PROC) {
+        glXGetConfig_PROC = (PFN_glXGetConfig_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetConfig");
+    }
+
     glXGetCurrentContext_PROC = (PFN_glXGetCurrentContext_PROC) glXGetProcAddress((const uint8_t *) "glXGetCurrentContext");
+    if (!glXGetCurrentContext_PROC) {
+        glXGetCurrentContext_PROC = (PFN_glXGetCurrentContext_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetCurrentContext");
+    }
+
     glXGetCurrentDrawable_PROC = (PFN_glXGetCurrentDrawable_PROC) glXGetProcAddress((const uint8_t *) "glXGetCurrentDrawable");
+    if (!glXGetCurrentDrawable_PROC) {
+        glXGetCurrentDrawable_PROC = (PFN_glXGetCurrentDrawable_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetCurrentDrawable");
+    }
+
     glXWaitGL_PROC = (PFN_glXWaitGL_PROC) glXGetProcAddress((const uint8_t *) "glXWaitGL");
+    if (!glXWaitGL_PROC) {
+        glXWaitGL_PROC = (PFN_glXWaitGL_PROC) glXGetProcAddressARB((const uint8_t *) "glXWaitGL");
+    }
+
     glXWaitX_PROC = (PFN_glXWaitX_PROC) glXGetProcAddress((const uint8_t *) "glXWaitX");
+    if (!glXWaitX_PROC) {
+        glXWaitX_PROC = (PFN_glXWaitX_PROC) glXGetProcAddressARB((const uint8_t *) "glXWaitX");
+    }
+
     glXUseXFont_PROC = (PFN_glXUseXFont_PROC) glXGetProcAddress((const uint8_t *) "glXUseXFont");
+    if (!glXUseXFont_PROC) {
+        glXUseXFont_PROC = (PFN_glXUseXFont_PROC) glXGetProcAddressARB((const uint8_t *) "glXUseXFont");
+    }
+
     glXQueryExtensionsString_PROC = (PFN_glXQueryExtensionsString_PROC) glXGetProcAddress((const uint8_t *) "glXQueryExtensionsString");
+    if (!glXQueryExtensionsString_PROC) {
+        glXQueryExtensionsString_PROC = (PFN_glXQueryExtensionsString_PROC) glXGetProcAddressARB((const uint8_t *) "glXQueryExtensionsString");
+    }
+
     glXQueryServerString_PROC = (PFN_glXQueryServerString_PROC) glXGetProcAddress((const uint8_t *) "glXQueryServerString");
+    if (!glXQueryServerString_PROC) {
+        glXQueryServerString_PROC = (PFN_glXQueryServerString_PROC) glXGetProcAddressARB((const uint8_t *) "glXQueryServerString");
+    }
+
     glXGetClientString_PROC = (PFN_glXGetClientString_PROC) glXGetProcAddress((const uint8_t *) "glXGetClientString");
+    if (!glXGetClientString_PROC) {
+        glXGetClientString_PROC = (PFN_glXGetClientString_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetClientString");
+    }
+
     glXGetCurrentDisplay_PROC = (PFN_glXGetCurrentDisplay_PROC) glXGetProcAddress((const uint8_t *) "glXGetCurrentDisplay");
+    if (!glXGetCurrentDisplay_PROC) {
+        glXGetCurrentDisplay_PROC = (PFN_glXGetCurrentDisplay_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetCurrentDisplay");
+    }
+
     glXChooseFBConfig_PROC = (PFN_glXChooseFBConfig_PROC) glXGetProcAddress((const uint8_t *) "glXChooseFBConfig");
+    if (!glXChooseFBConfig_PROC) {
+        glXChooseFBConfig_PROC = (PFN_glXChooseFBConfig_PROC) glXGetProcAddressARB((const uint8_t *) "glXChooseFBConfig");
+    }
+
     glXGetFBConfigAttrib_PROC = (PFN_glXGetFBConfigAttrib_PROC) glXGetProcAddress((const uint8_t *) "glXGetFBConfigAttrib");
+    if (!glXGetFBConfigAttrib_PROC) {
+        glXGetFBConfigAttrib_PROC = (PFN_glXGetFBConfigAttrib_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetFBConfigAttrib");
+    }
+
     glXGetFBConfigs_PROC = (PFN_glXGetFBConfigs_PROC) glXGetProcAddress((const uint8_t *) "glXGetFBConfigs");
+    if (!glXGetFBConfigs_PROC) {
+        glXGetFBConfigs_PROC = (PFN_glXGetFBConfigs_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetFBConfigs");
+    }
+
     glXGetVisualFromFBConfig_PROC = (PFN_glXGetVisualFromFBConfig_PROC) glXGetProcAddress((const uint8_t *) "glXGetVisualFromFBConfig");
+    if (!glXGetVisualFromFBConfig_PROC) {
+        glXGetVisualFromFBConfig_PROC = (PFN_glXGetVisualFromFBConfig_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetVisualFromFBConfig");
+    }
+
     glXCreateWindow_PROC = (PFN_glXCreateWindow_PROC) glXGetProcAddress((const uint8_t *) "glXCreateWindow");
+    if (!glXCreateWindow_PROC) {
+        glXCreateWindow_PROC = (PFN_glXCreateWindow_PROC) glXGetProcAddressARB((const uint8_t *) "glXCreateWindow");
+    }
+
     glXDestroyWindow_PROC = (PFN_glXDestroyWindow_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyWindow");
+    if (!glXDestroyWindow_PROC) {
+        glXDestroyWindow_PROC = (PFN_glXDestroyWindow_PROC) glXGetProcAddressARB((const uint8_t *) "glXDestroyWindow");
+    }
+
     glXCreatePixmap_PROC = (PFN_glXCreatePixmap_PROC) glXGetProcAddress((const uint8_t *) "glXCreatePixmap");
+    if (!glXCreatePixmap_PROC) {
+        glXCreatePixmap_PROC = (PFN_glXCreatePixmap_PROC) glXGetProcAddressARB((const uint8_t *) "glXCreatePixmap");
+    }
+
     glXDestroyPixmap_PROC = (PFN_glXDestroyPixmap_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyPixmap");
+    if (!glXDestroyPixmap_PROC) {
+        glXDestroyPixmap_PROC = (PFN_glXDestroyPixmap_PROC) glXGetProcAddressARB((const uint8_t *) "glXDestroyPixmap");
+    }
+
     glXCreatePbuffer_PROC = (PFN_glXCreatePbuffer_PROC) glXGetProcAddress((const uint8_t *) "glXCreatePbuffer");
+    if (!glXCreatePbuffer_PROC) {
+        glXCreatePbuffer_PROC = (PFN_glXCreatePbuffer_PROC) glXGetProcAddressARB((const uint8_t *) "glXCreatePbuffer");
+    }
+
     glXDestroyPbuffer_PROC = (PFN_glXDestroyPbuffer_PROC) glXGetProcAddress((const uint8_t *) "glXDestroyPbuffer");
+    if (!glXDestroyPbuffer_PROC) {
+        glXDestroyPbuffer_PROC = (PFN_glXDestroyPbuffer_PROC) glXGetProcAddressARB((const uint8_t *) "glXDestroyPbuffer");
+    }
+
     glXQueryDrawable_PROC = (PFN_glXQueryDrawable_PROC) glXGetProcAddress((const uint8_t *) "glXQueryDrawable");
+    if (!glXQueryDrawable_PROC) {
+        glXQueryDrawable_PROC = (PFN_glXQueryDrawable_PROC) glXGetProcAddressARB((const uint8_t *) "glXQueryDrawable");
+    }
+
     glXCreateNewContext_PROC = (PFN_glXCreateNewContext_PROC) glXGetProcAddress((const uint8_t *) "glXCreateNewContext");
+    if (!glXCreateNewContext_PROC) {
+        glXCreateNewContext_PROC = (PFN_glXCreateNewContext_PROC) glXGetProcAddressARB((const uint8_t *) "glXCreateNewContext");
+    }
+
     glXMakeContextCurrent_PROC = (PFN_glXMakeContextCurrent_PROC) glXGetProcAddress((const uint8_t *) "glXMakeContextCurrent");
+    if (!glXMakeContextCurrent_PROC) {
+        glXMakeContextCurrent_PROC = (PFN_glXMakeContextCurrent_PROC) glXGetProcAddressARB((const uint8_t *) "glXMakeContextCurrent");
+    }
+
     glXGetCurrentReadDrawable_PROC = (PFN_glXGetCurrentReadDrawable_PROC) glXGetProcAddress((const uint8_t *) "glXGetCurrentReadDrawable");
+    if (!glXGetCurrentReadDrawable_PROC) {
+        glXGetCurrentReadDrawable_PROC = (PFN_glXGetCurrentReadDrawable_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetCurrentReadDrawable");
+    }
+
     glXQueryContext_PROC = (PFN_glXQueryContext_PROC) glXGetProcAddress((const uint8_t *) "glXQueryContext");
+    if (!glXQueryContext_PROC) {
+        glXQueryContext_PROC = (PFN_glXQueryContext_PROC) glXGetProcAddressARB((const uint8_t *) "glXQueryContext");
+    }
+
     glXSelectEvent_PROC = (PFN_glXSelectEvent_PROC) glXGetProcAddress((const uint8_t *) "glXSelectEvent");
+    if (!glXSelectEvent_PROC) {
+        glXSelectEvent_PROC = (PFN_glXSelectEvent_PROC) glXGetProcAddressARB((const uint8_t *) "glXSelectEvent");
+    }
+
     glXGetSelectedEvent_PROC = (PFN_glXGetSelectedEvent_PROC) glXGetProcAddress((const uint8_t *) "glXGetSelectedEvent");
+    if (!glXGetSelectedEvent_PROC) {
+        glXGetSelectedEvent_PROC = (PFN_glXGetSelectedEvent_PROC) glXGetProcAddressARB((const uint8_t *) "glXGetSelectedEvent");
+    }
+
     glXCreateContextAttribsARB_PROC = (PFN_glXCreateContextAttribsARB_PROC) glXGetProcAddress((const uint8_t *) "glXCreateContextAttribsARB");
+    if (!glXCreateContextAttribsARB_PROC) {
+        glXCreateContextAttribsARB_PROC = (PFN_glXCreateContextAttribsARB_PROC) glXGetProcAddressARB((const uint8_t *) "glXCreateContextAttribsARB");
+    }
     /* }}} */
     glx->handle = libglx;
 
@@ -5595,6 +6122,10 @@ WININT int __winUnloadGLX(struct __window_h *lib) {
     struct __window_h_glx *glx = lib->glx;
     if (!glx) { return (0); }
 
+    /* release 'glx->attr' members */
+    if (glx->attr.config)  { free(glx->attr.config),  glx->attr.config = 0;  }
+    if (glx->attr.context) { free(glx->attr.context), glx->attr.context = 0; }
+
     /* release GLX modules */
     dlclose(glx->handle), glx->handle = 0;
 
@@ -5611,20 +6142,25 @@ WININT int __winCreateContextGLX(struct __window_h *lib, struct __window_h_conte
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
     if (!win) { return (0); }
-
-    /* Context MUST inherit the context from the 'window'!
-     * Like, imagine: you create 'Native' window and 'OpenGL' context?
-     * Window and Context must have the same API and in-between their creation
-     * 'WINDOW_CLIENT_API' hint can change.
-     * */
-    ctx->attrib.api = win->attrib.api;
     
     /* alloc new 'glx' object */
     struct __window_h_context_glx *glx = calloc(1, sizeof(struct __window_h_context_glx));
     if (!glx) { return (0); }
 
     /* set 'glx' members */
-    glx->drawable = (GLXDrawable) win->handle;
+    if (glXCreateWindow_PROC) {
+        glx->window = glXCreateWindow(lib->glx->dpy,
+                                      lib->glx->fbconfig,
+                                      win->handle, 0);
+        if (!glx->window) {
+            free(glx);
+            return (0);
+        }
+
+    } else {
+        /* if 'glXCreateDrawable' is not available... */
+        glx->window = (GLXDrawable) win->handle;
+    }
 
     /* modern context query */
     if (glXCreateContextAttribsARB_PROC) {
@@ -5665,10 +6201,14 @@ WININT int __winDestroyContextGLX(struct __window_h *lib, struct __window_h_cont
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
-            
+
     /* release 'context' */
     glXDestroyContext(lib->glx->dpy,
                       ctx->glx->context);
+    
+    /* release 'drawawble' */
+    glXDestroyWindow(lib->glx->dpy,
+                     ctx->glx->window);
 
     /* release 'glx' */
     free(ctx->glx);
@@ -5722,7 +6262,7 @@ WININT int __winMakeCurrentGLX(struct __window_h *lib, struct __window_h_context
 
     /* set context current */
     if (!glXMakeCurrent(lib->glx->dpy,
-                        glx->drawable,
+                        glx->window,
                         glx->context)
     ) {
         return (0);
@@ -5743,7 +6283,7 @@ WININT int __winSwapBuffersGLX(struct __window_h *lib, struct __window_h_context
     if (!glx) { return (0); }
 
     /* set context current */
-    glXSwapBuffers(lib->glx->dpy, glx->drawable);
+    glXSwapBuffers(lib->glx->dpy, glx->window);
 
     /* success */
     return (1);
@@ -5857,10 +6397,70 @@ WININT int __winInitEGL(struct __window_h *lib, void *display) {
     if (!egl) { return (0); }
     if (egl->dpy) { return (1); }
 
+    /* set 'glx' members */
     egl->dpy = eglGetDisplay(display);
     if (egl->dpy == EGL_NO_DISPLAY) {
         return (0);
     }
+    
+    /* set 'egl->attr' members */
+    int attr_config[] = {
+        EGL_ALPHA_MASK_SIZE,            0,
+        EGL_ALPHA_SIZE,                 0,
+        EGL_BIND_TO_TEXTURE_RGB,        EGL_DONT_CARE,
+        EGL_BIND_TO_TEXTURE_RGBA,       EGL_DONT_CARE,
+        EGL_BLUE_SIZE,                  0,
+        EGL_BUFFER_SIZE,                0,
+        EGL_COLOR_BUFFER_TYPE,          EGL_RGB_BUFFER,
+        EGL_CONFIG_CAVEAT,              EGL_DONT_CARE,
+        EGL_CONFIG_ID,                  EGL_DONT_CARE,
+        EGL_CONFORMANT,                 0,
+        EGL_DEPTH_SIZE,                 0,
+        EGL_GREEN_SIZE,                 0,
+        EGL_LEVEL,                      0,
+        EGL_LUMINANCE_SIZE,             0,
+        EGL_MATCH_NATIVE_PIXMAP,        EGL_NONE,
+        EGL_NATIVE_RENDERABLE,          EGL_DONT_CARE,
+        EGL_MAX_SWAP_INTERVAL,          EGL_DONT_CARE,
+        EGL_MIN_SWAP_INTERVAL,          EGL_DONT_CARE,
+        EGL_RED_SIZE,                   0,
+        EGL_SAMPLE_BUFFERS,             0,
+        EGL_SAMPLES,                    0,
+        EGL_STENCIL_SIZE,               0,
+        EGL_RENDERABLE_TYPE,            EGL_OPENGL_BIT,
+        EGL_SURFACE_TYPE,               EGL_WINDOW_BIT,
+        EGL_TRANSPARENT_TYPE,           EGL_NONE,
+        EGL_TRANSPARENT_RED_VALUE,      EGL_DONT_CARE,
+        EGL_TRANSPARENT_GREEN_VALUE,    EGL_DONT_CARE,
+        EGL_TRANSPARENT_BLUE_VALUE,     EGL_DONT_CARE,
+
+        /* ... */
+
+        EGL_NONE, EGL_NONE
+    };
+
+    egl->attr.config = calloc(64, sizeof(int));
+    if (!egl->attr.config) { return (0); }
+    if (!memcpy(egl->attr.config, attr_config, sizeof(attr_config))) { return (0); }
+    
+
+    int attr_context[] = {
+        EGL_CONTEXT_MAJOR_VERSION,                      3,
+        EGL_CONTEXT_MINOR_VERSION,                      3,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK,                EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+        EGL_CONTEXT_OPENGL_DEBUG,                       EGL_FALSE,
+        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE,          EGL_FALSE,
+        EGL_CONTEXT_OPENGL_ROBUST_ACCESS,               EGL_FALSE,
+        EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY, EGL_NO_RESET_NOTIFICATION,
+
+        /* ... */
+
+        EGL_NONE, EGL_NONE
+    };
+
+    egl->attr.context = calloc(64, sizeof(int));
+    if (!egl->attr.context) { return (0); }
+    if (!memcpy(egl->attr.context, attr_context, sizeof(attr_context))) { return (0); }
     
     /* initialize EGL */
     if (!eglInitialize(egl->dpy, 0, 0)) { return (0); }
@@ -5978,13 +6578,6 @@ WININT int __winCreateContextEGL(struct __window_h *lib, struct __window_h_conte
     if (!ctx) { return (0); }
     if (!win) { return (0); }
 
-    /* Context MUST inherit the context from the 'window'!
-     * Like, imagine: you create 'Native' window and 'OpenGL' context?
-     * Window and Context must have the same API and in-between their creation
-     * 'WINDOW_CLIENT_API' hint can change.
-     * */
-    ctx->attrib.api = win->attrib.api;
-    
     /* alloc new 'egl' object */
     struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
     if (!egl) { return (0); }
@@ -7605,7 +8198,100 @@ WININT int __winLoadX11(struct __window_h *lib) {
 
     x11->handle = libx11;
 
+# if (WINDOW_X11_EXTENSION_XRANDR) 
+    void *libxrandr  = 0;
+    {
+        const char  *names[] = { "libXrandr.so", "libXcursor.so.1", "libXcursor.so.1.0.2", 0 };
+        for (const char **name = names; *name; name++) {
+            libxrandr = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
+            if (libxrandr) { break; }
+        }
 
+        /* check if libxrandr is loaded */
+        if (!libxrandr) {
+            return (0);
+        }
+    }
+    
+    /* {{{ */
+
+    XRRQueryExtension_PROC = (PFN_XRRQueryExtension_PROC) dlsym(libxrandr, "XRRQueryExtension");
+    XRRQueryVersion_PROC = (PFN_XRRQueryVersion_PROC) dlsym(libxrandr, "XRRQueryVersion");
+    XRRGetScreenInfo_PROC = (PFN_XRRGetScreenInfo_PROC) dlsym(libxrandr, "XRRGetScreenInfo");
+    XRRFreeScreenConfigInfo_PROC = (PFN_XRRFreeScreenConfigInfo_PROC) dlsym(libxrandr, "XRRFreeScreenConfigInfo");
+    XRRSetScreenConfig_PROC = (PFN_XRRSetScreenConfig_PROC) dlsym(libxrandr, "XRRSetScreenConfig");
+    XRRSetScreenConfigAndRate_PROC = (PFN_XRRSetScreenConfigAndRate_PROC) dlsym(libxrandr, "XRRSetScreenConfigAndRate");
+    XRRConfigRotations_PROC = (PFN_XRRConfigRotations_PROC) dlsym(libxrandr, "XRRConfigRotations");
+    XRRConfigTimes_PROC = (PFN_XRRConfigTimes_PROC) dlsym(libxrandr, "XRRConfigTimes");
+    XRRConfigSizes_PROC = (PFN_XRRConfigSizes_PROC) dlsym(libxrandr, "XRRConfigSizes");
+    XRRConfigRates_PROC = (PFN_XRRConfigRates_PROC) dlsym(libxrandr, "XRRConfigRates");
+    XRRConfigCurrentConfiguration_PROC = (PFN_XRRConfigCurrentConfiguration_PROC) dlsym(libxrandr, "XRRConfigCurrentConfiguration");
+    XRRConfigCurrentRate_PROC = (PFN_XRRConfigCurrentRate_PROC) dlsym(libxrandr, "XRRConfigCurrentRate");
+    XRRRootToScreen_PROC = (PFN_XRRRootToScreen_PROC) dlsym(libxrandr, "XRRRootToScreen");
+    XRRSelectInput_PROC = (PFN_XRRSelectInput_PROC) dlsym(libxrandr, "XRRSelectInput");
+    XRRRotations_PROC = (PFN_XRRRotations_PROC) dlsym(libxrandr, "XRRRotations");
+    XRRSizes_PROC = (PFN_XRRSizes_PROC) dlsym(libxrandr, "XRRSizes");
+    XRRRates_PROC = (PFN_XRRRates_PROC) dlsym(libxrandr, "XRRRates");
+    XRRTimes_PROC = (PFN_XRRTimes_PROC) dlsym(libxrandr, "XRRTimes");
+    XRRGetScreenSizeRange_PROC = (PFN_XRRGetScreenSizeRange_PROC) dlsym(libxrandr, "XRRGetScreenSizeRange");
+    XRRSetScreenSize_PROC = (PFN_XRRSetScreenSize_PROC) dlsym(libxrandr, "XRRSetScreenSize");
+    XRRGetScreenResources_PROC = (PFN_XRRGetScreenResources_PROC) dlsym(libxrandr, "XRRGetScreenResources");
+    XRRFreeScreenResources_PROC = (PFN_XRRFreeScreenResources_PROC) dlsym(libxrandr, "XRRFreeScreenResources");
+    XRRGetOutputInfo_PROC = (PFN_XRRGetOutputInfo_PROC) dlsym(libxrandr, "XRRGetOutputInfo");
+    XRRFreeOutputInfo_PROC = (PFN_XRRFreeOutputInfo_PROC) dlsym(libxrandr, "XRRFreeOutputInfo");
+    XRRListOutputProperties_PROC = (PFN_XRRListOutputProperties_PROC) dlsym(libxrandr, "XRRListOutputProperties");
+    XRRQueryOutputProperty_PROC = (PFN_XRRQueryOutputProperty_PROC) dlsym(libxrandr, "XRRQueryOutputProperty");
+    XRRConfigureOutputProperty_PROC = (PFN_XRRConfigureOutputProperty_PROC) dlsym(libxrandr, "XRRConfigureOutputProperty");
+    XRRChangeOutputProperty_PROC = (PFN_XRRChangeOutputProperty_PROC) dlsym(libxrandr, "XRRChangeOutputProperty");
+    XRRDeleteOutputProperty_PROC = (PFN_XRRDeleteOutputProperty_PROC) dlsym(libxrandr, "XRRDeleteOutputProperty");
+    XRRGetOutputProperty_PROC = (PFN_XRRGetOutputProperty_PROC) dlsym(libxrandr, "XRRGetOutputProperty");
+    XRRAllocModeInfo_PROC = (PFN_XRRAllocModeInfo_PROC) dlsym(libxrandr, "XRRAllocModeInfo");
+    XRRCreateMode_PROC = (PFN_XRRCreateMode_PROC) dlsym(libxrandr, "XRRCreateMode");
+    XRRDestroyMode_PROC = (PFN_XRRDestroyMode_PROC) dlsym(libxrandr, "XRRDestroyMode");
+    XRRAddOutputMode_PROC = (PFN_XRRAddOutputMode_PROC) dlsym(libxrandr, "XRRAddOutputMode");
+    XRRDeleteOutputMode_PROC = (PFN_XRRDeleteOutputMode_PROC) dlsym(libxrandr, "XRRDeleteOutputMode");
+    XRRFreeModeInfo_PROC = (PFN_XRRFreeModeInfo_PROC) dlsym(libxrandr, "XRRFreeModeInfo");
+    XRRGetCrtcInfo_PROC = (PFN_XRRGetCrtcInfo_PROC) dlsym(libxrandr, "XRRGetCrtcInfo");
+    XRRFreeCrtcInfo_PROC = (PFN_XRRFreeCrtcInfo_PROC) dlsym(libxrandr, "XRRFreeCrtcInfo");
+    XRRSetCrtcConfig_PROC = (PFN_XRRSetCrtcConfig_PROC) dlsym(libxrandr, "XRRSetCrtcConfig");
+    XRRGetCrtcGammaSize_PROC = (PFN_XRRGetCrtcGammaSize_PROC) dlsym(libxrandr, "XRRGetCrtcGammaSize");
+    XRRGetCrtcGamma_PROC = (PFN_XRRGetCrtcGamma_PROC) dlsym(libxrandr, "XRRGetCrtcGamma");
+    XRRAllocGamma_PROC = (PFN_XRRAllocGamma_PROC) dlsym(libxrandr, "XRRAllocGamma");
+    XRRSetCrtcGamma_PROC = (PFN_XRRSetCrtcGamma_PROC) dlsym(libxrandr, "XRRSetCrtcGamma");
+    XRRFreeGamma_PROC = (PFN_XRRFreeGamma_PROC) dlsym(libxrandr, "XRRFreeGamma");
+    XRRGetScreenResourcesCurrent_PROC = (PFN_XRRGetScreenResourcesCurrent_PROC) dlsym(libxrandr, "XRRGetScreenResourcesCurrent");
+    XRRSetCrtcTransform_PROC = (PFN_XRRSetCrtcTransform_PROC) dlsym(libxrandr, "XRRSetCrtcTransform");
+    XRRGetCrtcTransform_PROC = (PFN_XRRGetCrtcTransform_PROC) dlsym(libxrandr, "XRRGetCrtcTransform");
+    XRRUpdateConfiguration_PROC = (PFN_XRRUpdateConfiguration_PROC) dlsym(libxrandr, "XRRUpdateConfiguration");
+    XRRGetPanning_PROC = (PFN_XRRGetPanning_PROC) dlsym(libxrandr, "XRRGetPanning");
+    XRRFreePanning_PROC = (PFN_XRRFreePanning_PROC) dlsym(libxrandr, "XRRFreePanning");
+    XRRSetPanning_PROC = (PFN_XRRSetPanning_PROC) dlsym(libxrandr, "XRRSetPanning");
+    XRRSetOutputPrimary_PROC = (PFN_XRRSetOutputPrimary_PROC) dlsym(libxrandr, "XRRSetOutputPrimary");
+    XRRGetOutputPrimary_PROC = (PFN_XRRGetOutputPrimary_PROC) dlsym(libxrandr, "XRRGetOutputPrimary");
+    XRRGetProviderResources_PROC = (PFN_XRRGetProviderResources_PROC) dlsym(libxrandr, "XRRGetProviderResources");
+    XRRFreeProviderResources_PROC = (PFN_XRRFreeProviderResources_PROC) dlsym(libxrandr, "XRRFreeProviderResources");
+    XRRGetProviderInfo_PROC = (PFN_XRRGetProviderInfo_PROC) dlsym(libxrandr, "XRRGetProviderInfo");
+    XRRFreeProviderInfo_PROC = (PFN_XRRFreeProviderInfo_PROC) dlsym(libxrandr, "XRRFreeProviderInfo");
+    XRRSetProviderOutputSource_PROC = (PFN_XRRSetProviderOutputSource_PROC) dlsym(libxrandr, "XRRSetProviderOutputSource");
+    XRRSetProviderOffloadSink_PROC = (PFN_XRRSetProviderOffloadSink_PROC) dlsym(libxrandr, "XRRSetProviderOffloadSink");
+    XRRListProviderProperties_PROC = (PFN_XRRListProviderProperties_PROC) dlsym(libxrandr, "XRRListProviderProperties");
+    XRRQueryProviderProperty_PROC = (PFN_XRRQueryProviderProperty_PROC) dlsym(libxrandr, "XRRQueryProviderProperty");
+    XRRConfigureProviderProperty_PROC = (PFN_XRRConfigureProviderProperty_PROC) dlsym(libxrandr, "XRRConfigureProviderProperty");
+    XRRChangeProviderProperty_PROC = (PFN_XRRChangeProviderProperty_PROC) dlsym(libxrandr, "XRRChangeProviderProperty");
+    XRRDeleteProviderProperty_PROC = (PFN_XRRDeleteProviderProperty_PROC) dlsym(libxrandr, "XRRDeleteProviderProperty");
+    XRRGetProviderProperty_PROC = (PFN_XRRGetProviderProperty_PROC) dlsym(libxrandr, "XRRGetProviderProperty");
+    XRRAllocateMonitor_PROC = (PFN_XRRAllocateMonitor_PROC) dlsym(libxrandr, "XRRAllocateMonitor");
+    XRRGetMonitors_PROC = (PFN_XRRGetMonitors_PROC) dlsym(libxrandr, "XRRGetMonitors");
+    XRRSetMonitor_PROC = (PFN_XRRSetMonitor_PROC) dlsym(libxrandr, "XRRSetMonitor");
+    XRRDeleteMonitor_PROC = (PFN_XRRDeleteMonitor_PROC) dlsym(libxrandr, "XRRDeleteMonitor");
+    XRRFreeMonitors_PROC = (PFN_XRRFreeMonitors_PROC) dlsym(libxrandr, "XRRFreeMonitors");
+    
+    /* }}} */
+
+    x11->xrandr.handle = libxrandr;
+# endif /* WINDOW_X11_EXTENSION_XRANDR */
+
+# if (WINDOW_X11_EXTENSION_XCURSOR) 
     void *libxcursor  = 0;
     {
         const char  *names[] = { "libXcursor.so", "libXcursor.so.1", "libXcursor.so.1.0.2", 0 };
@@ -7687,7 +8373,10 @@ WININT int __winLoadX11(struct __window_h *lib) {
     /* }}} */
 
     x11->xcursor.handle = libxcursor;
+# endif /* WINDOW_X11_EXTENSION_XCURSOR */
 
+#  if defined (WINDOW_X11_EXTENSION_XINPUT) || \
+      defined (WINDOW_X11_EXTENSION_XINPUT2)
     void *libxi = 0;
     {
         const char  *names[] = { "libXi.so", "libXi.so.6", 0 };
@@ -7798,7 +8487,9 @@ WININT int __winLoadX11(struct __window_h *lib) {
 
     /* }}} */
 
-    x11->xi.handle = libxi;
+    x11->xinput.handle = libxi;
+#  endif /* WINDOW_X11_EXTENSION_XINPUT */
+         /* WINDOW_X11_EXTENSION_XINPUT2 */
 
     /* return the result */
     lib->x11 = x11;
@@ -7835,10 +8526,13 @@ WININT int __winUnloadX11(struct __window_h *lib) {
 
     XCloseDisplay(x11->dpy);
 
-    /* release X11 modules*/
-    dlclose(x11->handle), x11->handle = 0;
-    dlclose(x11->xcursor.handle), x11->xcursor.handle = 0;
-    dlclose(x11->xi.handle), x11->xi.handle = 0;
+    /* release X11 extension modules */
+    if (x11->xrandr.handle)  { dlclose(x11->xrandr.handle), x11->xrandr.handle = 0; }
+    if (x11->xcursor.handle) { dlclose(x11->xcursor.handle), x11->xcursor.handle = 0; }
+    if (x11->xinput.handle)  { dlclose(x11->xinput.handle), x11->xinput.handle = 0; }
+
+    /* release X11 module */
+    if (x11->handle)         { dlclose(x11->handle), x11->handle = 0; }
 
     /* release 'x11' */
     free(x11);
@@ -8183,6 +8877,11 @@ WININT int __winCreateCursorX11(struct __window_h *lib, struct __window_h_cursor
     struct __window_h_cursor_x11 *x11 = calloc(1, sizeof(struct __window_h_cursor_x11));
     if (!x11) { return (0); }
 
+# if defined (WINDOW_X11_EXTENSION_XCURSOR)
+    
+    /* init check */
+    if (!lib->x11->xcursor.handle) { return (0); }
+
     /* create Xcursor image */
     XcursorImage *image = XcursorImageCreate(width, height);
     if (!image) {
@@ -8206,8 +8905,34 @@ WININT int __winCreateCursorX11(struct __window_h *lib, struct __window_h_cursor
     Cursor handle = XcursorImageLoadCursor(lib->x11->dpy, image);
     XcursorImageDestroy(image);
 
+# endif /* WINDOW_X11_EXTENSION_XCURSOR */
+
+    /* create 'source' pixmap */
+    Pixmap source = XCreateBitmapFromData(lib->x11->dpy,
+                                          lib->x11->root,
+                                          (char *) data,
+                                          width, height);
+    if (!source) { free(x11); return (0); }
+
+    /* create 'foreground_color' and 'background_color' XColor components */
+    XColor foreground_color = { .red   = 0xffff,
+                                .green = 0xffff,
+                                .blue  = 0xffff },
+           background_color = { .red   = 0x0000,
+                                .green = 0x0000,
+                                .blue  = 0x0000 };
+
+    Cursor handle = XCreatePixmapCursor(lib->x11->dpy,
+                                        source, None,
+                                        &foreground_color,
+                                        &background_color,
+                                        xhot, yhot);
+
     /* failure */
     if (!handle) { return (0); }
+
+    /* release 'source' pixmap */
+    XFreePixmap(lib->x11->dpy, source);
 
     /* return the result */
     x11->handle = handle; 
@@ -8638,36 +9363,43 @@ WININT int __winChooseVisualX11(struct __window_h *lib, Visual **visual, int *de
 #  /* GLX-specific implementation */ 
 #  if defined (WINDOW_BACKEND_GLX)
 
-    /* get the 'fbconfig' list */
-    int nelements = 0;
-    GLXFBConfig *fbconfigs = glXChooseFBConfig(lib->glx->dpy, screen, lib->glx->attr.config, &nelements);
-    if (!fbconfigs) { return (0); }
-    if (!nelements) { return (0); }
+    /* check and get the stored 'fbconfig' */
+    if (!lib->glx->fbconfig) {
+        /* get the 'fbconfigs' array */
+        int nelements = 0;
+        GLXFBConfig *fbconfigs = glXChooseFBConfig(lib->glx->dpy, screen, lib->glx->attr.config, &nelements);
+        if (!fbconfigs) { return (0); }
+        if (!nelements) { return (0); }
 
-    /* iterate over the 'fbconfig' list to find the best matching */
-    ssize_t fbconfig_best = -1;
-    for (size_t i = 0; i < (size_t) nelements; i++) {
-        /* check if we can create an 'XVisualInfo' from the current config */
-        XVisualInfo *vi = glXGetVisualFromFBConfig(lib->glx->dpy, fbconfigs[i]);
-        if (!vi) { continue; }
+        /* iterate over the 'fbconfigs' list to find the best matching */
+        ssize_t fbconfig_best = -1;
+        for (size_t i = 0; fbconfig_best == -1 || i < (size_t) nelements; i++) {
+            /* check if we can create an 'XVisualInfo' from the current config */
+            XVisualInfo *vi = glXGetVisualFromFBConfig(lib->glx->dpy, fbconfigs[i]);
+            if (!vi) { continue; }
 
-        int fbconfig_sample_buffers = 0,
-            fbconfig_samples        = 0;
-		glXGetFBConfigAttrib(lib->glx->dpy, fbconfigs[i], GLX_SAMPLE_BUFFERS, &fbconfig_sample_buffers);
-		glXGetFBConfigAttrib(lib->glx->dpy, fbconfigs[i], GLX_SAMPLES, &fbconfig_samples);
-		if ((fbconfig_best == -1 || fbconfig_sample_buffers) &&
-            (fbconfig_best == -1 && !fbconfig_samples)
-        ) {
-			fbconfig_best = i;
-		}
+            /* release 'vi' */
+            XFree(vi);
+
+            /* TODO: consider adding some real config filtering */
+            fbconfig_best = i;
+        }
+
+        /* check if we have any matching */
+        if (fbconfig_best == -1) {
+            free(fbconfigs);
+            return (0);
+        }
+
+        /* store the 'fbconfig' in the 'glx' */
+        lib->glx->fbconfig = fbconfigs[fbconfig_best];
+
+        /* release 'fbconfigs' */
+        free(fbconfigs);
     }
 
-    /* check if we have any matching */
-    if (fbconfig_best == -1) { return (0); }
-
-    /* get the 'XVisualInfo' from the best 'GLXFBConfig' */
-    GLXFBConfig fbconfig = fbconfigs[fbconfig_best];
-    XVisualInfo *vi = glXGetVisualFromFBConfig(lib->glx->dpy, fbconfig);
+    XVisualInfo *vi = glXGetVisualFromFBConfig(lib->glx->dpy,
+                                               lib->glx->fbconfig);
     if (!vi) { return (0); }
 
     /* get 'visual' from 'vi' */
@@ -8679,20 +9411,51 @@ WININT int __winChooseVisualX11(struct __window_h *lib, Visual **visual, int *de
     /* release 'vi' */
     XFree(vi), vi = 0;
 
-    /* store the 'fbconfig' in the 'glx' */
-    lib->glx->fbconfig = fbconfig;
-
 #  /* EGL-specific implementation */ 
 #  elif defined (WINDOW_BACKEND_EGL)
 
-    /* get EGLConfig object */
-    int num_config   = 0;
-    EGLConfig config = 0;
-    if (!eglChooseConfig(lib->egl->dpy, lib->egl->attr.config, &config, 1, &num_config)) { return (0); }
+    /* check and get the stored 'config' */
+    if (!lib->egl->config) {
+        /* get EGLConfig array size */
+        int num_config = 0;
+        if (!eglChooseConfig(lib->egl->dpy, lib->egl->attr.config, 0, 1, &num_config)) { return (0); }
+        if (!num_config) { return (0); }
+
+        /* get EGLConfig array */
+        EGLConfig *configs = malloc(num_config * sizeof(EGLConfig));
+        if (!eglChooseConfig(lib->egl->dpy, lib->egl->attr.config, configs, num_config, &num_config)) { return (0); }
+        if (!configs) { return (0); }
+
+        /* iterate over the 'configs' list to find the best matching */
+        int config_best = -1;
+        for (size_t i = 0; config_best == -1 || i < (size_t) num_config; i++) {
+            /* check if we can create an 'XVisualInfo' from the current config */
+            int visualid = 0;
+            eglGetConfigAttrib(lib->egl->dpy, configs[i], EGL_NATIVE_VISUAL_ID, &visualid);
+            if (!visualid) { continue; }
+
+            /* TODO: consider adding some real config filtering */
+            config_best = i;
+        }
+
+        /* check if we have any matching */
+        if (config_best == -1) { 
+            free(configs);
+            return (0);
+        }
+
+        /* store the 'config' in the 'egl' */
+        lib->egl->config = configs[config_best];
+
+        /* release 'configs' */
+        free(configs);
+    }
 
     /* get visual ID based on EGLConfig */
     int visualid = 0;
-    eglGetConfigAttrib(lib->egl->dpy, config, EGL_NATIVE_VISUAL_ID, &visualid);
+    eglGetConfigAttrib(lib->egl->dpy,
+                       lib->egl->config,
+                       EGL_NATIVE_VISUAL_ID, &visualid);
 
     /* create desired XVisualInfo */
     XVisualInfo desired = {
@@ -8713,9 +9476,6 @@ WININT int __winChooseVisualX11(struct __window_h *lib, Visual **visual, int *de
 
     /* release 'vi' */
     XFree(vi), vi = 0;
-
-    /* store the 'fbconfig' in the 'egl' */
-    lib->egl->config = config;
 
 #  else
 #   error /* no valid backend selected */
