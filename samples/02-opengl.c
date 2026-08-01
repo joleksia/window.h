@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <GL/gl.h>
 #
-#define WINDOW_BACKEND_EGL
 #define WINDOW_IMPLEMENTATION
 #include "./../window.h"
 
@@ -11,6 +10,9 @@ int main(void) {
     winInit(&library);
 
     winSetHints(library, WINDOW_CLIENT_API, WINDOW_API_OPENGL);
+    winSetHints(library, WINDOW_GL_CONTEXT_VERSION_MAJOR, 1);
+    winSetHints(library, WINDOW_GL_CONTEXT_VERSION_MINOR, 0);
+    winSetHints(library, WINDOW_GL_CONTEXT_PROFILE, WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
     window_t window = 0;
     winCreateWindow(library, &window, 800, 600, "Hello, window.h - Sample 02. OpenGL");

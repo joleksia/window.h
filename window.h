@@ -755,17 +755,14 @@ enum {
 
 enum {
     WINDOW_GL_NONE = 0,
-    WINDOW_GL_DOUBLEBUFFER,
-    WINDOW_GL_RED_SIZE,
-    WINDOW_GL_GREEN_SIZE,
-    WINDOW_GL_BLUE_SIZE,
-    WINDOW_GL_ALPHA_SIZE,
-    WINDOW_GL_DEPTH_SIZE,
-    WINDOW_GL_STENCIL_SIZE,
-    WINDOW_GL_CONTEXT_MAJOR_VERSION,
-    WINDOW_GL_CONTEXT_MINOR_VERSION,
-    WINDOW_GL_CONTEXT_PROFILE_MASK,
-    WINDOW_GL_CONTEXT_DEBUG,
+
+    WINDOW_GL_CONTEXT_VERSION_MAJOR,
+    WINDOW_GL_CONTEXT_VERSION_MINOR,
+   
+    /* 'WINDOW_GL_CONTEXT_PROFILE_' values matches how GLX, EGL and WGL match their 'CORE' and 'COMPATIBILITY' profiles */
+    WINDOW_GL_CONTEXT_PROFILE,
+    WINDOW_GL_CONTEXT_PROFILE_CORE          = 0x00000001,
+    WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY = 0x00000002,
     
     /* ... */
 };
@@ -976,8 +973,6 @@ WINDEF int winGetContextWindow(library_t, context_t, window_t *);
 WINDEF int winSetContextWindow(library_t, context_t, window_t);
 
 /* opengl context functions */
-
-WINDEF int winGLSetAttribute(library_t, const int, const int);
 
 WINDEF int winGLMakeCurrent(library_t, context_t);
 
@@ -1216,7 +1211,6 @@ struct __window_h_platform {
     int (*GLunload) (struct __window_h *);
     int (*GLCreateContext) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
     int (*GLDestroyContext) (struct __window_h *, struct __window_h_context *);
-    int (*GLSetAttribute) (struct __window_h *, const int, const int);
     int (*GLMakeCurrent) (struct __window_h *, struct __window_h_context *);
     int (*GLSwapBuffers) (struct __window_h *, struct __window_h_context *);
     int (*GLSwapInterval) (struct __window_h *, struct __window_h_context *, const int);
@@ -1381,16 +1375,23 @@ struct __window_h {
         uint32_t api;
 
         struct {
-            uint8_t resizable;
-            uint8_t decorations;
-            uint8_t maximized;
+            /* resizable boolean */
+            uint8_t resize;
+        
+            /* decorations boolean */
+            uint8_t decor;
         } window;
 
         struct {
-            uint8_t profile;
+            /* 'major' OpenGL version */
             uint8_t major;
+
+            /* 'minor' OpenGL version */
             uint8_t minor;
-        } context;
+            
+            /* OpenGL 'profile' (core/compatibility) */
+            uint8_t profile;
+        } gl;
     } hints;
 
     /* selections */
@@ -5772,21 +5773,6 @@ struct __window_h_win32 {
 # if defined (WINDOW_BACKEND_GLX)
 /* {{{ */
 
-static const struct __window_h_glx_attrmap {
-    uint32_t src;
-    uint32_t dst;
-} __window_h_glx_attrmap[] = {
-    
-/* {{{ */
-
-    /* ... */
-
-    { GLX_NONE, WINDOW_GL_NONE }
-
-/* }}} */
-
-};
-
 /* internal functions (declarations) */
 
 WININT int __winInitGLX(struct __window_h *, void *);
@@ -5798,8 +5784,6 @@ WININT int __winUnloadGLX(struct __window_h *);
 WININT int __winCreateContextGLX(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
 
 WININT int __winDestroyContextGLX(struct __window_h *, struct __window_h_context *);
-
-WININT int __winSetAttributeGLX(struct __window_h *, const int, const int);
 
 WININT int __winMakeCurrentGLX(struct __window_h *, struct __window_h_context *);
 
@@ -5863,10 +5847,9 @@ WININT int __winInitGLX(struct __window_h *lib, void *display) {
     
 
     int attr_context[] = {
-        GLX_CONTEXT_MAJOR_VERSION_ARB,  3,
-        GLX_CONTEXT_MINOR_VERSION_ARB,  3,
-        GLX_CONTEXT_PROFILE_MASK_ARB,   GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
-        GLX_CONTEXT_FLAGS_ARB,          GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        GLX_CONTEXT_MAJOR_VERSION_ARB,  lib->hints.gl.major,
+        GLX_CONTEXT_MINOR_VERSION_ARB,  lib->hints.gl.minor,
+        GLX_CONTEXT_PROFILE_MASK_ARB,   lib->hints.gl.profile,
 
         /* ... */
 
@@ -6218,39 +6201,6 @@ WININT int __winDestroyContextGLX(struct __window_h *lib, struct __window_h_cont
 }
 
 
-WININT int __winSetAttributeGLX(struct __window_h *lib, const int attr, const int value) {
-    /* null-check */
-    if (!lib) { return (0); }
-    
-    /* references */
-    struct __window_h_glx *glx = lib->glx;
-    if (!glx) { return (0); }
-
-    /* get GLX attribute */
-    int glx_attr = 0;
-    for (size_t i = 0; __window_h_glx_attrmap[i].dst; i++) {
-        if (__window_h_glx_attrmap[i].dst == (const uint32_t) attr) {
-            glx_attr = __window_h_glx_attrmap[i].src;
-            break;
-        }
-    }
-
-    /* unhandled attribute */
-    if (!glx_attr) { return (0); }
-    
-    int *list = glx->attr.context;
-    for (size_t i = 0; list[i] != GLX_NONE; i += 2) {
-        if (list[i] == glx_attr) {
-            list[i + 1] = value;
-            return (1);
-        }
-    }
-
-    /* failure */
-    return (0);
-}
-
-
 WININT int __winMakeCurrentGLX(struct __window_h *lib, struct __window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
@@ -6333,28 +6283,12 @@ static const struct __window_h_egl_attrmap {
 } __window_h_egl_attrmap[] = {
     
 /* {{{ */
-
-    { EGL_RENDER_BUFFER, WINDOW_GL_DOUBLEBUFFER },
     
-    { EGL_RED_SIZE, WINDOW_GL_RED_SIZE },
+    { EGL_CONTEXT_MAJOR_VERSION, WINDOW_GL_CONTEXT_VERSION_MAJOR },
     
-    { EGL_GREEN_SIZE, WINDOW_GL_GREEN_SIZE },
+    { EGL_CONTEXT_MINOR_VERSION, WINDOW_GL_CONTEXT_VERSION_MINOR },
     
-    { EGL_BLUE_SIZE, WINDOW_GL_BLUE_SIZE },
-    
-    { EGL_ALPHA_SIZE, WINDOW_GL_ALPHA_SIZE },
-    
-    { EGL_DEPTH_SIZE, WINDOW_GL_DEPTH_SIZE },
-    
-    { EGL_STENCIL_SIZE, WINDOW_GL_STENCIL_SIZE },
-    
-    { EGL_CONTEXT_MAJOR_VERSION, WINDOW_GL_CONTEXT_MAJOR_VERSION },
-    
-    { EGL_CONTEXT_MINOR_VERSION, WINDOW_GL_CONTEXT_MINOR_VERSION },
-    
-    { EGL_CONTEXT_OPENGL_PROFILE_MASK, WINDOW_GL_CONTEXT_PROFILE_MASK },
-    
-    { EGL_CONTEXT_OPENGL_DEBUG, WINDOW_GL_CONTEXT_DEBUG },
+    { EGL_CONTEXT_OPENGL_PROFILE_MASK, WINDOW_GL_CONTEXT_PROFILE },
 
     /* ... */
 
@@ -6375,8 +6309,6 @@ WININT int __winUnloadEGL(struct __window_h *);
 WININT int __winCreateContextEGL(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
 
 WININT int __winDestroyContextEGL(struct __window_h *, struct __window_h_context *);
-
-WININT int __winSetAttributeEGL(struct __window_h *, const int, const int);
 
 WININT int __winMakeCurrentEGL(struct __window_h *, struct __window_h_context *);
 
@@ -6443,15 +6375,10 @@ WININT int __winInitEGL(struct __window_h *lib, void *display) {
     if (!egl->attr.config) { return (0); }
     if (!memcpy(egl->attr.config, attr_config, sizeof(attr_config))) { return (0); }
     
-
     int attr_context[] = {
-        EGL_CONTEXT_MAJOR_VERSION,                      3,
-        EGL_CONTEXT_MINOR_VERSION,                      3,
-        EGL_CONTEXT_OPENGL_PROFILE_MASK,                EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
-        EGL_CONTEXT_OPENGL_DEBUG,                       EGL_FALSE,
-        EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE,          EGL_FALSE,
-        EGL_CONTEXT_OPENGL_ROBUST_ACCESS,               EGL_FALSE,
-        EGL_CONTEXT_OPENGL_RESET_NOTIFICATION_STRATEGY, EGL_NO_RESET_NOTIFICATION,
+        EGL_CONTEXT_MAJOR_VERSION,          lib->hints.gl.major,
+        EGL_CONTEXT_MINOR_VERSION,          lib->hints.gl.minor,
+        EGL_CONTEXT_OPENGL_PROFILE_MASK,    lib->hints.gl.profile,
 
         /* ... */
 
@@ -6639,56 +6566,6 @@ WININT int __winDestroyContextEGL(struct __window_h *lib, struct __window_h_cont
 
     /* success */
     return (1);
-}
-
-
-WININT int __winSetAttributeEGL(struct __window_h *lib, const int attr, const int value) {
-    /* null-check */
-    if (!lib) { return (0); }
-    
-    /* references */
-    struct __window_h_egl *egl = lib->egl;
-    if (!egl) { return (0); }
-
-    /* get EGL attribute */
-    int egl_attr = 0;
-    for (size_t i = 0; __window_h_egl_attrmap[i].dst; i++) {
-        if (__window_h_egl_attrmap[i].dst == (const uint32_t) attr) {
-            egl_attr = __window_h_egl_attrmap[i].src;
-            break;
-        }
-    }
-
-    /* unhandled attribute */
-    if (!egl_attr) { return (0); }
-
-    /* iterate over available hints and set their values */
-    int *list = egl->attr.surface;
-    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
-        if (list[i] == egl_attr) {
-            list[i + 1] = value;
-            return (1);
-        }
-    }
-    
-    list = egl->attr.context;
-    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
-        if (list[i] == egl_attr) {
-            list[i + 1] = value;
-            return (1);
-        }
-    }
-    
-    list = egl->attr.config;
-    for (size_t i = 0; list[i] != EGL_NONE; i += 2) {
-        if (list[i] == egl_attr) {
-            list[i + 1] = value;
-            return (1);
-        }
-    }
-
-    /* failure */
-    return (0);
 }
 
 
@@ -9375,13 +9252,16 @@ WININT int __winChooseVisualX11(struct __window_h *lib, Visual **visual, int *de
         ssize_t fbconfig_best = -1;
         for (size_t i = 0; fbconfig_best == -1 || i < (size_t) nelements; i++) {
             /* check if we can create an 'XVisualInfo' from the current config */
-            XVisualInfo *vi = glXGetVisualFromFBConfig(lib->glx->dpy, fbconfigs[i]);
-            if (!vi) { continue; }
+            int glx_visual_id = 0;
+            glXGetFBConfigAttrib(lib->glx->dpy, fbconfigs[i], GLX_VISUAL_ID, &glx_visual_id);
+            if (!glx_visual_id) { continue; }
 
-            /* release 'vi' */
-            XFree(vi);
-
-            /* TODO: consider adding some real config filtering */
+            /* get 'GLX_DRAWABLE_TYPE': reject if no 'GLX_WINDOW_BIT' bit set */
+            int glx_drawable_type = 0;
+            glXGetFBConfigAttrib(lib->glx->dpy, fbconfigs[i], GLX_DRAWABLE_TYPE, &glx_drawable_type);
+            if (!(glx_drawable_type & GLX_WINDOW_BIT)) { continue; }
+            
+            /* set the current 'fbconfig_best' to 'i' */
             fbconfig_best = i;
         }
 
@@ -9430,11 +9310,16 @@ WININT int __winChooseVisualX11(struct __window_h *lib, Visual **visual, int *de
         int config_best = -1;
         for (size_t i = 0; config_best == -1 || i < (size_t) num_config; i++) {
             /* check if we can create an 'XVisualInfo' from the current config */
-            int visualid = 0;
-            eglGetConfigAttrib(lib->egl->dpy, configs[i], EGL_NATIVE_VISUAL_ID, &visualid);
-            if (!visualid) { continue; }
+            int egl_native_visual_id = 0;
+            eglGetConfigAttrib(lib->egl->dpy, configs[i], EGL_NATIVE_VISUAL_ID, &egl_native_visual_id);
+            if (!egl_native_visual_id) { continue; }
+            
+            /* get 'EGL_SURFACE_TYPE': reject if no 'EGL_WINDOW_BIT' bit set */
+            int egl_surface_type = 0;
+            eglGetConfigAttrib(lib->egl->dpy, configs[i], EGL_SURFACE_TYPE, &egl_surface_type);
+            if (!(egl_surface_type & EGL_WINDOW_BIT)) { continue; }
 
-            /* TODO: consider adding some real config filtering */
+            /* set the current 'config_best' to 'i' */
             config_best = i;
         }
 
@@ -9452,14 +9337,15 @@ WININT int __winChooseVisualX11(struct __window_h *lib, Visual **visual, int *de
     }
 
     /* get visual ID based on EGLConfig */
-    int visualid = 0;
+    int egl_native_visual_id = 0;
     eglGetConfigAttrib(lib->egl->dpy,
                        lib->egl->config,
-                       EGL_NATIVE_VISUAL_ID, &visualid);
+                       EGL_NATIVE_VISUAL_ID,
+                       &egl_native_visual_id);
 
     /* create desired XVisualInfo */
     XVisualInfo desired = {
-        .visualid = visualid,
+        .visualid = egl_native_visual_id,
         .screen = screen
     };
 
@@ -9571,6 +9457,15 @@ WINDEF int winInit(library_t *result) {
 
     /* set default hints */
     lib->hints.api = WINDOW_API_NATIVE;
+    
+    /* set default 'window' hints */
+    lib->hints.window.resize = 0;
+    lib->hints.window.decor  = 1;
+
+    /* set default 'gl' hints */
+    lib->hints.gl.major   = 1;
+    lib->hints.gl.minor   = 0;
+    lib->hints.gl.profile = WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY;
 
     /* load window.h platform */
     if (!__winLoadPlatform(lib, &lib->platform)) {
@@ -9678,22 +9573,24 @@ WINDEF int winSetHints(library_t library, const uint32_t hint, const int32_t val
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    /* WINDOW_CLIENT_API */
-    if (hint == WINDOW_CLIENT_API) {
-        if (value != WINDOW_API_NATIVE  &&
-            value != WINDOW_API_OPENGL  &&
-            value != WINDOW_API_VULKAN  &&
-            value != WINDOW_API_DIRECTX &&
-            value != WINDOW_API_METAL
-        ) {
-            return (0);
-        }
+    switch (hint) {
+        case (WINDOW_CLIENT_API): { lib->hints.api = value; } break;
 
-        lib->hints.api = value;
+        case (WINDOW_GL_CONTEXT_VERSION_MAJOR): {
+            lib->hints.gl.major = value;
+        } break;
+
+        case (WINDOW_GL_CONTEXT_VERSION_MINOR): {
+            lib->hints.gl.minor = value;
+        } break;
+
+        case (WINDOW_GL_CONTEXT_PROFILE): {
+            lib->hints.gl.profile = value;
+        } break;
+
+        /* failure */
+        default: { return (0); }
     }
-
-    /* unhandled 'hint' */
-    else { return (0); }
 
     /* success */
     return (1);
@@ -10024,14 +9921,6 @@ WINDEF int winSetContextWindow(library_t library, context_t context, window_t wi
 }
 
 /* opengl context functions */
-
-WINDEF int winGLSetAttribute(library_t library, const int attr, const int value) {
-    /* references */
-    struct __window_h *lib = (struct __window_h *) library;
-    if (!lib) { return (0); }
-    
-    return (lib->platform.GLSetAttribute(library, attr, value));
-}
 
 WINDEF int winGLMakeCurrent(library_t library, context_t context) {
     /* references */
@@ -10485,7 +10374,6 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     plat->GLunload = __winUnloadGLX;
     plat->GLCreateContext = __winCreateContextGLX;
     plat->GLDestroyContext = __winDestroyContextGLX;
-    plat->GLSetAttribute = __winSetAttributeGLX;
     plat->GLMakeCurrent = __winMakeCurrentGLX;
     plat->GLSwapBuffers = __winSwapBuffersGLX;
     plat->GLSwapInterval = __winSwapIntervalGLX;
@@ -10500,7 +10388,6 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     plat->GLunload = __winUnloadEGL;
     plat->GLCreateContext = __winCreateContextEGL;
     plat->GLDestroyContext = __winDestroyContextEGL;
-    plat->GLSetAttribute = __winSetAttributeEGL;
     plat->GLMakeCurrent = __winMakeCurrentEGL;
     plat->GLSwapBuffers = __winSwapBuffersEGL;
     plat->GLSwapInterval = __winSwapIntervalEGL;
@@ -10515,7 +10402,6 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     plat->GLunload = __winUnloadWGL;
     plat->GLCreateContext = __winCreateContextWGL;
     plat->GLDestroyContext = __winDestroyContextWGL;
-    plat->GLSetAttribute = __winSetAttributeWGL;
     plat->GLMakeCurrent = __winMakeCurrentWGL;
     plat->GLSwapBuffers = __winSwapBuffersWGL;
     plat->GLSwapInterval = __winSwapIntervalWGL;
