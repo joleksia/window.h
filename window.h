@@ -756,6 +756,15 @@ enum {
 enum {
     WINDOW_GL_NONE = 0,
 
+    WINDOW_GL_RED,
+    WINDOW_GL_GREEN,
+    WINDOW_GL_BLUE,
+    WINDOW_GL_ALPHA,
+    WINDOW_GL_DEPTH,
+    WINDOW_GL_STENCIL,
+    
+    WINDOW_GL_DOUBLEBUFFER,
+
     WINDOW_GL_CONTEXT_VERSION_MAJOR,
     WINDOW_GL_CONTEXT_VERSION_MINOR,
    
@@ -1215,6 +1224,8 @@ struct __window_h_platform {
     int (*GLSwapBuffers) (struct __window_h *, struct __window_h_context *);
     int (*GLSwapInterval) (struct __window_h *, struct __window_h_context *, const int);
     void *(*GLGetProcAddress) (struct __window_h *, const char *);
+    int (*GLChooseConfig) (struct __window_h *);
+    int (*GLGetVisual) (struct __window_h *, int *);
 };
 
 
@@ -1383,13 +1394,34 @@ struct __window_h {
         } window;
 
         struct {
+            /* 'red' channel size */
+            uint32_t red;
+            
+            /* 'green' channel size */
+            uint32_t green;
+            
+            /* 'blue' channel size */
+            uint32_t blue;
+            
+            /* 'alpha' channel size */
+            uint32_t alpha;
+            
+            /* 'depth' buffer size */
+            uint32_t depth;
+            
+            /* 'stencil' buffer size */
+            uint32_t stencil;
+
+            /* doublebuffer boolean */
+            uint8_t dblbuf;
+
             /* 'major' OpenGL version */
             uint8_t major;
 
             /* 'minor' OpenGL version */
             uint8_t minor;
             
-            /* OpenGL 'profile' (core/compatibility) */
+            /* OpenGL 'profile' */
             uint8_t profile;
         } gl;
     } hints;
@@ -5793,6 +5825,10 @@ WININT int __winSwapIntervalGLX(struct __window_h *, struct __window_h_context *
 
 WININT void *__winGetProcAddressGLX(struct __window_h *, const char *);
 
+WININT int __winChooseConfigGLX(struct __window_h *);
+
+WININT int __winGetVisualGLX(struct __window_h *, int *);
+
 /* internal functions (definitions) */
 
 WININT int __winInitGLX(struct __window_h *lib, void *display) {
@@ -5811,15 +5847,15 @@ WININT int __winInitGLX(struct __window_h *lib, void *display) {
         GLX_FBCONFIG_ID,                GLX_DONT_CARE,
         GLX_BUFFER_SIZE,                0,
         GLX_LEVEL,                      0,
-        GLX_DOUBLEBUFFER,               True,
+        GLX_DOUBLEBUFFER,               lib->hints.gl.dblbuf,
         GLX_STEREO,                     False,
         GLX_AUX_BUFFERS,                0,
-        GLX_RED_SIZE,                   0,
-        GLX_GREEN_SIZE,                 0,
-        GLX_BLUE_SIZE,                  0,
-        GLX_ALPHA_SIZE,                 0,
-        GLX_DEPTH_SIZE,                 0,
-        GLX_STENCIL_SIZE,               0,
+        GLX_RED_SIZE,                   lib->hints.gl.red,
+        GLX_GREEN_SIZE,                 lib->hints.gl.green,
+        GLX_BLUE_SIZE,                  lib->hints.gl.blue,
+        GLX_ALPHA_SIZE,                 lib->hints.gl.alpha,
+        GLX_DEPTH_SIZE,                 lib->hints.gl.depth,
+        GLX_STENCIL_SIZE,               lib->hints.gl.stencil,
         GLX_ACCUM_RED_SIZE,             0,
         GLX_ACCUM_GREEN_SIZE,           0,
         GLX_ACCUM_BLUE_SIZE,            0,
@@ -6270,6 +6306,81 @@ WININT void *__winGetProcAddressGLX(struct __window_h *lib, const char *proc) {
     return (glXGetProcAddress((const uint8_t *) proc));
 }
 
+
+WININT int __winChooseConfigGLX(struct __window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* init-check */
+    if (lib->glx->fbconfig) { return (1); }
+
+    /* get 'screen' */
+    int screen = DefaultScreen(lib->glx->dpy);
+    
+    /* get the 'fbconfigs' array */
+    int nelements = 0;
+    GLXFBConfig *fbconfigs = glXChooseFBConfig(lib->glx->dpy, screen, lib->glx->attr.config, &nelements);
+    if (!fbconfigs) { return (0); }
+    if (!nelements) { return (0); }
+
+    /* iterate over the 'fbconfigs' list to find the best matching */
+    ssize_t fbconfig_best = -1;
+    for (size_t i = 0; fbconfig_best == -1 || i < (size_t) nelements; i++) {
+        /* check if we can create an 'XVisualInfo' from the current config */
+        int glx_visual_id = 0;
+        glXGetFBConfigAttrib(lib->glx->dpy, fbconfigs[i], GLX_VISUAL_ID, &glx_visual_id);
+        if (!glx_visual_id) { continue; }
+
+        /* get 'GLX_DRAWABLE_TYPE': reject if no 'GLX_WINDOW_BIT' bit set */
+        int glx_drawable_type = 0;
+        glXGetFBConfigAttrib(lib->glx->dpy, fbconfigs[i], GLX_DRAWABLE_TYPE, &glx_drawable_type);
+        if (!(glx_drawable_type & GLX_WINDOW_BIT)) { continue; }
+        
+        /* set the current 'fbconfig_best' to 'i' */
+        fbconfig_best = i;
+    }
+
+    /* check if we have any matching */
+    if (fbconfig_best == -1) {
+        free(fbconfigs);
+        return (0);
+    }
+
+    /* store the 'fbconfig' in the 'glx' */
+    lib->glx->fbconfig = fbconfigs[fbconfig_best];
+
+    /* release 'fbconfigs' */
+    free(fbconfigs);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGetVisualGLX(struct __window_h *lib, int *v_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* check for 'fbconfig' */
+    if (!lib->glx->fbconfig) {
+        /* first time running: cache the new 'fbconfig' */
+        if (!__winChooseConfigGLX(lib)) { return (0); }
+    }
+        
+    /* get the value of 'GLX_VISUAL_ID' */
+    int glx_visual_id = 0;
+    glXGetFBConfigAttrib(lib->glx->dpy,
+                         lib->glx->fbconfig,
+                         GLX_VISUAL_ID, &glx_visual_id);
+    if (!glx_visual_id) { return (0); }
+
+    /* return the result */
+    if (v_ptr) { *v_ptr = glx_visual_id; }
+
+    /* success */
+    return (1);
+}
+
 /* }}} */
 # endif /* WINDOW_BACKEND_GLX */
 #
@@ -6318,6 +6429,10 @@ WININT int __winSwapIntervalEGL(struct __window_h *, struct __window_h_context *
 
 WININT void *__winGetProcAddressEGL(struct __window_h *, const char *);
 
+WININT int __winChooseConfigEGL(struct __window_h *);
+
+WININT int __winGetVisualEGL(struct __window_h *, int *);
+
 /* internal functions (definitions) */
 
 WININT int __winInitEGL(struct __window_h *lib, void *display) {
@@ -6338,27 +6453,27 @@ WININT int __winInitEGL(struct __window_h *lib, void *display) {
     /* set 'egl->attr' members */
     int attr_config[] = {
         EGL_ALPHA_MASK_SIZE,            0,
-        EGL_ALPHA_SIZE,                 0,
+        EGL_ALPHA_SIZE,                 lib->hints.gl.alpha,
         EGL_BIND_TO_TEXTURE_RGB,        EGL_DONT_CARE,
         EGL_BIND_TO_TEXTURE_RGBA,       EGL_DONT_CARE,
-        EGL_BLUE_SIZE,                  0,
+        EGL_BLUE_SIZE,                  lib->hints.gl.blue,
         EGL_BUFFER_SIZE,                0,
         EGL_COLOR_BUFFER_TYPE,          EGL_RGB_BUFFER,
         EGL_CONFIG_CAVEAT,              EGL_DONT_CARE,
         EGL_CONFIG_ID,                  EGL_DONT_CARE,
         EGL_CONFORMANT,                 0,
-        EGL_DEPTH_SIZE,                 0,
-        EGL_GREEN_SIZE,                 0,
+        EGL_DEPTH_SIZE,                 lib->hints.gl.depth,
+        EGL_GREEN_SIZE,                 lib->hints.gl.green,
         EGL_LEVEL,                      0,
         EGL_LUMINANCE_SIZE,             0,
         EGL_MATCH_NATIVE_PIXMAP,        EGL_NONE,
         EGL_NATIVE_RENDERABLE,          EGL_DONT_CARE,
         EGL_MAX_SWAP_INTERVAL,          EGL_DONT_CARE,
         EGL_MIN_SWAP_INTERVAL,          EGL_DONT_CARE,
-        EGL_RED_SIZE,                   0,
+        EGL_RED_SIZE,                   lib->hints.gl.red,
         EGL_SAMPLE_BUFFERS,             0,
         EGL_SAMPLES,                    0,
-        EGL_STENCIL_SIZE,               0,
+        EGL_STENCIL_SIZE,               lib->hints.gl.stencil,
         EGL_RENDERABLE_TYPE,            EGL_OPENGL_BIT,
         EGL_SURFACE_TYPE,               EGL_WINDOW_BIT,
         EGL_TRANSPARENT_TYPE,           EGL_NONE,
@@ -6637,6 +6752,82 @@ WININT void *__winGetProcAddressEGL(struct __window_h *lib, const char *proc) {
     
     /* success */
     return (eglGetProcAddress(proc));
+}
+
+
+WININT int __winChooseConfigEGL(struct __window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* init-check */
+    if (lib->egl->config) { return (1); }
+    
+    /* get EGLConfig array size */
+    int num_config = 0;
+    if (!eglChooseConfig(lib->egl->dpy, lib->egl->attr.config, 0, 1, &num_config)) { return (0); }
+    if (!num_config) { return (0); }
+
+    /* get EGLConfig array */
+    EGLConfig *configs = malloc(num_config * sizeof(EGLConfig));
+    if (!eglChooseConfig(lib->egl->dpy, lib->egl->attr.config, configs, num_config, &num_config)) { return (0); }
+    if (!configs) { return (0); }
+
+    /* iterate over the 'configs' list to find the best matching */
+    int config_best = -1;
+    for (size_t i = 0; config_best == -1 || i < (size_t) num_config; i++) {
+        /* check if we can create an 'XVisualInfo' from the current config */
+        int egl_native_visual_id = 0;
+        eglGetConfigAttrib(lib->egl->dpy, configs[i], EGL_NATIVE_VISUAL_ID, &egl_native_visual_id);
+        if (!egl_native_visual_id) { continue; }
+        
+        /* get 'EGL_SURFACE_TYPE': reject if no 'EGL_WINDOW_BIT' bit set */
+        int egl_surface_type = 0;
+        eglGetConfigAttrib(lib->egl->dpy, configs[i], EGL_SURFACE_TYPE, &egl_surface_type);
+        if (!(egl_surface_type & EGL_WINDOW_BIT)) { continue; }
+
+        /* set the current 'config_best' to 'i' */
+        config_best = i;
+    }
+
+    /* check if we have any matching */
+    if (config_best == -1) { 
+        free(configs);
+        return (0);
+    }
+
+    /* store the 'config' in the 'egl' */
+    lib->egl->config = configs[config_best];
+
+    /* release 'configs' */
+    free(configs);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGetVisualEGL(struct __window_h *lib, int *v_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* check for 'config' */
+    if (!lib->egl->config) {
+        /* first time running: cache the new 'fbconfig' */
+        if (!__winChooseConfigEGL(lib)) { return (0); }
+    }
+        
+    /* get the value of 'EGL_NATIVE_VISUAL_ID' */
+    int egl_native_visual_id = 0;
+    eglGetConfigAttrib(lib->egl->dpy,
+                       lib->egl->config,
+                       EGL_NATIVE_VISUAL_ID, &egl_native_visual_id);
+    if (!egl_native_visual_id) { return (0); }
+
+    /* return the result */
+    if (v_ptr) { *v_ptr = egl_native_visual_id; }
+
+    /* success */
+    return (1);
 }
 
 /* }}} */
@@ -7102,8 +7293,6 @@ WININT int __winPollEventsX11(struct __window_h *);
 WININT int __winCopyX11(struct __window_h *, const uint32_t, const void *, const size_t);
 
 WININT int __winPasteX11(struct __window_h *, const uint32_t, void **, size_t *);
-
-WININT int __winChooseVisualX11(struct __window_h *, Visual **, int *);
 
 /* internal functions (definitions) */
 
@@ -8440,7 +8629,29 @@ WININT int __winCreateWindowX11(struct __window_h *lib, struct __window_h_window
     if (win->attrib.api == WINDOW_API_OPENGL ||
         win->attrib.api == WINDOW_API_OPENGLES
     ) {
-        if (!__winChooseVisualX11(lib, &visual, &depth)) { free(x11); return (0); }
+        /* get 'visualid' */
+        int visualid = 0;
+        if (!lib->platform.GLGetVisual(lib, &visualid)) { free(x11); return (0); }
+
+        /* create desired XVisualInfo */
+        XVisualInfo desired = {
+            .visualid = visualid,
+            .screen = screen
+        };
+
+        /* get XVisualInfo based on 'desired' */
+        int count = 0;
+        XVisualInfo *vi = XGetVisualInfo(lib->x11->dpy, VisualScreenMask | VisualIDMask, &desired, &count);
+        if (!vi) { return (0); }
+
+        /* get 'visual' from 'vi' */
+        visual = vi->visual;
+
+        /* get 'depth' value from 'vi' */
+        depth = vi->depth;
+
+        /* release 'vi' */
+        XFree(vi), vi = 0;
     }
 
     /* fallback to default 'visual' and 'depth' values */
@@ -9228,149 +9439,6 @@ WININT int __winPasteX11(struct __window_h *lib, const uint32_t selection, void 
     return (__winGetSelectionX11(lib, atom, d_ptr, s_ptr));
 }
 
-WININT int __winChooseVisualX11(struct __window_h *lib, Visual **visual, int *depth) {
-    /* null-check */
-    if (!lib) { return (0); }
-    if (!visual) { return (0); }
-    if (!depth)  { return (0); }
-
-    /* get 'screen' */
-    int screen = DefaultScreen(lib->x11->dpy);
-
-#  /* GLX-specific implementation */ 
-#  if defined (WINDOW_BACKEND_GLX)
-
-    /* check and get the stored 'fbconfig' */
-    if (!lib->glx->fbconfig) {
-        /* get the 'fbconfigs' array */
-        int nelements = 0;
-        GLXFBConfig *fbconfigs = glXChooseFBConfig(lib->glx->dpy, screen, lib->glx->attr.config, &nelements);
-        if (!fbconfigs) { return (0); }
-        if (!nelements) { return (0); }
-
-        /* iterate over the 'fbconfigs' list to find the best matching */
-        ssize_t fbconfig_best = -1;
-        for (size_t i = 0; fbconfig_best == -1 || i < (size_t) nelements; i++) {
-            /* check if we can create an 'XVisualInfo' from the current config */
-            int glx_visual_id = 0;
-            glXGetFBConfigAttrib(lib->glx->dpy, fbconfigs[i], GLX_VISUAL_ID, &glx_visual_id);
-            if (!glx_visual_id) { continue; }
-
-            /* get 'GLX_DRAWABLE_TYPE': reject if no 'GLX_WINDOW_BIT' bit set */
-            int glx_drawable_type = 0;
-            glXGetFBConfigAttrib(lib->glx->dpy, fbconfigs[i], GLX_DRAWABLE_TYPE, &glx_drawable_type);
-            if (!(glx_drawable_type & GLX_WINDOW_BIT)) { continue; }
-            
-            /* set the current 'fbconfig_best' to 'i' */
-            fbconfig_best = i;
-        }
-
-        /* check if we have any matching */
-        if (fbconfig_best == -1) {
-            free(fbconfigs);
-            return (0);
-        }
-
-        /* store the 'fbconfig' in the 'glx' */
-        lib->glx->fbconfig = fbconfigs[fbconfig_best];
-
-        /* release 'fbconfigs' */
-        free(fbconfigs);
-    }
-
-    XVisualInfo *vi = glXGetVisualFromFBConfig(lib->glx->dpy,
-                                               lib->glx->fbconfig);
-    if (!vi) { return (0); }
-
-    /* get 'visual' from 'vi' */
-    *visual = vi->visual;
-
-    /* get 'depth' value from 'vi' */
-    *depth = vi->depth;
-
-    /* release 'vi' */
-    XFree(vi), vi = 0;
-
-#  /* EGL-specific implementation */ 
-#  elif defined (WINDOW_BACKEND_EGL)
-
-    /* check and get the stored 'config' */
-    if (!lib->egl->config) {
-        /* get EGLConfig array size */
-        int num_config = 0;
-        if (!eglChooseConfig(lib->egl->dpy, lib->egl->attr.config, 0, 1, &num_config)) { return (0); }
-        if (!num_config) { return (0); }
-
-        /* get EGLConfig array */
-        EGLConfig *configs = malloc(num_config * sizeof(EGLConfig));
-        if (!eglChooseConfig(lib->egl->dpy, lib->egl->attr.config, configs, num_config, &num_config)) { return (0); }
-        if (!configs) { return (0); }
-
-        /* iterate over the 'configs' list to find the best matching */
-        int config_best = -1;
-        for (size_t i = 0; config_best == -1 || i < (size_t) num_config; i++) {
-            /* check if we can create an 'XVisualInfo' from the current config */
-            int egl_native_visual_id = 0;
-            eglGetConfigAttrib(lib->egl->dpy, configs[i], EGL_NATIVE_VISUAL_ID, &egl_native_visual_id);
-            if (!egl_native_visual_id) { continue; }
-            
-            /* get 'EGL_SURFACE_TYPE': reject if no 'EGL_WINDOW_BIT' bit set */
-            int egl_surface_type = 0;
-            eglGetConfigAttrib(lib->egl->dpy, configs[i], EGL_SURFACE_TYPE, &egl_surface_type);
-            if (!(egl_surface_type & EGL_WINDOW_BIT)) { continue; }
-
-            /* set the current 'config_best' to 'i' */
-            config_best = i;
-        }
-
-        /* check if we have any matching */
-        if (config_best == -1) { 
-            free(configs);
-            return (0);
-        }
-
-        /* store the 'config' in the 'egl' */
-        lib->egl->config = configs[config_best];
-
-        /* release 'configs' */
-        free(configs);
-    }
-
-    /* get visual ID based on EGLConfig */
-    int egl_native_visual_id = 0;
-    eglGetConfigAttrib(lib->egl->dpy,
-                       lib->egl->config,
-                       EGL_NATIVE_VISUAL_ID,
-                       &egl_native_visual_id);
-
-    /* create desired XVisualInfo */
-    XVisualInfo desired = {
-        .visualid = egl_native_visual_id,
-        .screen = screen
-    };
-
-    /* get XVisualInfo based on 'desired' */
-    int count = 0;
-    XVisualInfo *vi = XGetVisualInfo(lib->x11->dpy, VisualScreenMask | VisualIDMask, &desired, &count);
-    if (!vi) { return (0); }
-
-    /* get 'visual' from 'vi' */
-    *visual = vi->visual;
-
-    /* get 'depth' value from 'vi' */
-    *depth = vi->depth;
-
-    /* release 'vi' */
-    XFree(vi), vi = 0;
-
-#  else
-#   error /* no valid backend selected */
-#  endif
-
-    /* success */
-    return (1);
-}
-
 /* }}} */
 # endif /* WINDOW_BACKEND_X11 */
 #
@@ -9463,6 +9531,13 @@ WINDEF int winInit(library_t *result) {
     lib->hints.window.decor  = 1;
 
     /* set default 'gl' hints */
+    lib->hints.gl.red     = 8;
+    lib->hints.gl.green   = 8;
+    lib->hints.gl.blue    = 8;
+    lib->hints.gl.alpha   = 8;
+    lib->hints.gl.depth   = 24;
+    lib->hints.gl.stencil = 8;
+    lib->hints.gl.dblbuf  = 1;
     lib->hints.gl.major   = 1;
     lib->hints.gl.minor   = 0;
     lib->hints.gl.profile = WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY;
@@ -9575,6 +9650,34 @@ WINDEF int winSetHints(library_t library, const uint32_t hint, const int32_t val
     
     switch (hint) {
         case (WINDOW_CLIENT_API): { lib->hints.api = value; } break;
+
+        case (WINDOW_GL_RED): {
+            lib->hints.gl.red = value;
+        } break;
+
+        case (WINDOW_GL_GREEN): {
+            lib->hints.gl.green = value;
+        } break;
+
+        case (WINDOW_GL_BLUE): {
+            lib->hints.gl.blue = value;
+        } break;
+
+        case (WINDOW_GL_ALPHA): {
+            lib->hints.gl.alpha = value;
+        } break;
+
+        case (WINDOW_GL_DEPTH): {
+            lib->hints.gl.depth = value;
+        } break;
+
+        case (WINDOW_GL_STENCIL): {
+            lib->hints.gl.stencil = value;
+        } break;
+
+        case (WINDOW_GL_DOUBLEBUFFER): {
+            lib->hints.gl.dblbuf = value;
+        } break;
 
         case (WINDOW_GL_CONTEXT_VERSION_MAJOR): {
             lib->hints.gl.major = value;
@@ -10378,6 +10481,8 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     plat->GLSwapBuffers = __winSwapBuffersGLX;
     plat->GLSwapInterval = __winSwapIntervalGLX;
     plat->GLGetProcAddress = __winGetProcAddressGLX;
+    plat->GLChooseConfig = __winChooseConfigGLX;
+    plat->GLGetVisual = __winGetVisualGLX;
 
 # elif defined (WINDOW_BACKEND_EGL)
 
@@ -10392,6 +10497,8 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
     plat->GLSwapBuffers = __winSwapBuffersEGL;
     plat->GLSwapInterval = __winSwapIntervalEGL;
     plat->GLGetProcAddress = __winGetProcAddressEGL;
+    plat->GLChooseConfig = __winChooseConfigEGL;
+    plat->GLGetVisual = __winGetVisualEGL;
 
 # elif defined (WINDOW_BACKEND_WGL)
     
