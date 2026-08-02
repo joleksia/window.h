@@ -6489,7 +6489,25 @@ WININT int __winInitEGL(struct __window_h *lib, void *display) {
     egl->attr.config = calloc(64, sizeof(int));
     if (!egl->attr.config) { return (0); }
     if (!memcpy(egl->attr.config, attr_config, sizeof(attr_config))) { return (0); }
+
+
+    int attr_surface[] = {
+        EGL_GL_COLORSPACE,      EGL_GL_COLORSPACE_LINEAR,
+        EGL_RENDER_BUFFER,      lib->hints.gl.dblbuf ? EGL_BACK_BUFFER :
+                                                       EGL_SINGLE_BUFFER,
+        EGL_VG_ALPHA_FORMAT,    EGL_VG_ALPHA_FORMAT_NONPRE,
+        EGL_VG_COLORSPACE,      EGL_VG_COLORSPACE_sRGB,
+
+        /* ... */
+
+        EGL_NONE
+    };
+
+    egl->attr.surface = calloc(64, sizeof(int));
+    if (!egl->attr.surface) { return (0); }
+    if (!memcpy(egl->attr.surface, attr_surface, sizeof(attr_surface))) { return (0); }
     
+
     int attr_context[] = {
         EGL_CONTEXT_MAJOR_VERSION,          lib->hints.gl.major,
         EGL_CONTEXT_MINOR_VERSION,          lib->hints.gl.minor,
@@ -8631,7 +8649,11 @@ WININT int __winCreateWindowX11(struct __window_h *lib, struct __window_h_window
     ) {
         /* get 'visualid' */
         int visualid = 0;
-        if (!lib->platform.GLGetVisual(lib, &visualid)) { free(x11); return (0); }
+        if (!lib->platform.GLChooseConfig(lib) ||
+            !lib->platform.GLGetVisual(lib, &visualid)
+        ) {
+            free(x11); return (0);
+        }
 
         /* create desired XVisualInfo */
         XVisualInfo desired = {

@@ -41,7 +41,10 @@ int main(void) {
         glEnd();
 
         /* poll events */
-        winGLSwapBuffers(library, context);
+        if (!winGLSwapBuffers(library, context)) {
+            /* 'winGLSwapBuffers' failed: fall-back to 'glFlush' */
+            glFlush();
+        }
         event_t event = { 0 };
         while (winPollEvents(library, &event)) {
             switch (event.type) {
