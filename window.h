@@ -1800,6 +1800,10 @@ typedef GLXContext (* PFN_glXCreateContextAttribsARB_PROC) (Display *, GLXFBConf
 PFN_glXCreateContextAttribsARB_PROC glXCreateContextAttribsARB_PROC = 0;
 #  define glXCreateContextAttribsARB (assert(glXCreateContextAttribsARB_PROC), glXCreateContextAttribsARB_PROC)
 
+typedef void (* PFN_glXSwapIntervalEXT_PROC) (Display *, GLXDrawable, int);
+PFN_glXSwapIntervalEXT_PROC glXSwapIntervalEXT_PROC = 0;
+#  define glXSwapIntervalEXT (assert(glXSwapIntervalEXT_PROC), glXSwapIntervalEXT_PROC)
+
 /* }}} */
 
 typedef struct __window_h_context_glx *context_t_glx;
@@ -6122,6 +6126,11 @@ WININT int __winLoadGLX(struct __window_h *lib) {
     if (!glXCreateContextAttribsARB_PROC) {
         glXCreateContextAttribsARB_PROC = (PFN_glXCreateContextAttribsARB_PROC) glXGetProcAddressARB((const uint8_t *) "glXCreateContextAttribsARB");
     }
+
+    glXSwapIntervalEXT_PROC = (PFN_glXSwapIntervalEXT_PROC) glXGetProcAddress((const uint8_t *) "glXSwapIntervalEXT");
+    if (!glXSwapIntervalEXT_PROC) {
+        glXSwapIntervalEXT_PROC = (PFN_glXSwapIntervalEXT_PROC) glXGetProcAddressARB((const uint8_t *) "glXSwapIntervalEXT");
+    }
     /* }}} */
     glx->handle = libglx;
 
@@ -6267,8 +6276,15 @@ WININT int __winSwapBuffersGLX(struct __window_h *lib, struct __window_h_context
     /* references */
     struct __window_h_context_glx *glx = (struct __window_h_context_glx *) ctx->glx;
     if (!glx) { return (0); }
+    
+    /* check if "double-buffering" is enabled */
+    int glx_doublebuffer = 0;
+    glXGetFBConfigAttrib(lib->glx->dpy, lib->glx->fbconfig, GLX_DOUBLEBUFFER, &glx_doublebuffer);
+    if (!glx_doublebuffer) {
+        return (0);
+    }
 
-    /* set context current */
+    /* swap buffers */
     glXSwapBuffers(lib->glx->dpy, glx->window);
 
     /* success */
@@ -6285,12 +6301,8 @@ WININT int __winSwapIntervalGLX(struct __window_h *lib, struct __window_h_contex
     struct __window_h_context_glx *glx = (struct __window_h_context_glx *) ctx->glx;
     if (!glx) { return (0); }
 
-    (void) interval;
-    /* set context current
-    if (!glXSwapInterval(lib->glx->dpy, interval)) {
-        return (0);
-    }
-    */
+    /* set swap intervals */
+    glXSwapIntervalEXT(lib->glx->dpy, glx->window, interval);
 
     /* success */
     return (1);
@@ -6734,7 +6746,14 @@ WININT int __winSwapBuffersEGL(struct __window_h *lib, struct __window_h_context
     struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
     if (!egl) { return (0); }
 
-    /* set context current */
+    /* check if "double-buffering" is enabled */
+    int egl_render_buffer = 0;
+    eglQueryContext(lib->egl->dpy, egl->context, EGL_RENDER_BUFFER, &egl_render_buffer);
+    if (egl_render_buffer == EGL_SINGLE_BUFFER) {
+        return (0);
+    }
+
+    /* swap buffers */
     if (!eglSwapBuffers(lib->egl->dpy, egl->surface)) {
         return (0);
     }
@@ -6753,7 +6772,7 @@ WININT int __winSwapIntervalEGL(struct __window_h *lib, struct __window_h_contex
     struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
     if (!egl) { return (0); }
 
-    /* set context current */
+    /* set swap intervals */
     if (!eglSwapInterval(lib->egl->dpy, interval)) {
         return (0);
     }
