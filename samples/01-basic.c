@@ -24,6 +24,8 @@ int main(void) {
     /* map window */
     winMapWindow(library, window);
 
+    /* set cursor mode */
+
     /* update loop */
     int exit = 0;
     while (!exit) {
@@ -31,6 +33,17 @@ int main(void) {
         while (winPollEvents(library, &event)) {
             /* wait for 'quit' event */
             if (event.type == WINDOW_EVENT_QUIT) { exit = 1; }
+
+            if (event.type == WINDOW_EVENT_KEYBOARD_KEY) {
+                switch (event.keyboard.keycode) {
+                    case (WINDOW_KEYCODE_C): {
+                        winSetCursorMode(library, window, WINDOW_CURSOR_MODE_CAPTURED);
+                    } break;
+                    case (WINDOW_KEYCODE_N): {
+                        winSetCursorMode(library, window, WINDOW_CURSOR_MODE_NORMAL);
+                    } break;
+                }
+            }
         }
     }
 

@@ -1203,6 +1203,8 @@ struct __window_h_platform {
     int (*setCursorPositionCenter) (struct __window_h *, struct __window_h_window *);
     int (*getCursorMode) (struct __window_h *, struct __window_h_window *, uint32_t *);
     int (*setCursorMode) (struct __window_h *, struct __window_h_window *, const uint32_t);
+    int (*getCursorRawMotion) (struct __window_h *, struct __window_h_window *, uint8_t *);
+    int (*setCursorRawMotion) (struct __window_h *, struct __window_h_window *, const uint8_t);
 
     /* event functions */
 
@@ -1244,13 +1246,22 @@ struct __window_h_window {
     /* pointer to the 'next' node in linked-list of window */
     struct __window_h_window *next;
 
+
     struct {
-        struct __window_h_context *current;
+        /* 'handle' to this window's context */
+        struct __window_h_context *handle;
     } context;
 
 
     struct {
+        /* 'handle' to this window's cursor */
         struct __window_h_cursor *handle;
+
+        /* cursor 'mode' */
+        uint32_t mode;
+
+        /* 'raw' cursor motion boolean */
+        uint8_t raw;
     } cursor;
 
 
@@ -1263,7 +1274,7 @@ struct __window_h_window {
     struct __window_h_window_win32 *win32;
 
 
-    /* struct of window hints */
+    /* struct of window attributes */
     struct {
         size_t siz_x, siz_y;
 
@@ -6255,7 +6266,7 @@ WININT int __winMakeCurrentGLX(struct __window_h *lib, struct __window_h_context
     struct __window_h_context_glx *glx = (struct __window_h_context_glx *) ctx->glx;
     if (!glx) { return (0); }
 
-    /* set context current */
+    /* set context.handle */
     if (!glXMakeCurrent(lib->glx->dpy,
                         glx->window,
                         glx->context)
@@ -6723,7 +6734,7 @@ WININT int __winMakeCurrentEGL(struct __window_h *lib, struct __window_h_context
     struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
     if (!egl) { return (0); }
 
-    /* set context current */
+    /* set context.handle */
     if (!eglMakeCurrent(lib->egl->dpy,
                         egl->surface,
                         egl->surface,
@@ -7307,13 +7318,9 @@ WININT int __winCreateCursorX11(struct __window_h *, struct __window_h_cursor *,
 
 WININT int __winDestroyCursorX11(struct __window_h *, struct __window_h_cursor *);
 
-/*
-
 WININT int __winGetCursorPositionX11(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
 
 WININT int __winSetCursorPositionX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-
-WININT int __winSetCursorPositionCenterX11(struct __window_h *, struct __window_h_window *);
 
 WININT int __winGetCursorModeX11(struct __window_h *, struct __window_h_window *, uint32_t *);
 
@@ -7322,8 +7329,6 @@ WININT int __winSetCursorModeX11(struct __window_h *, struct __window_h_window *
 WININT int __winGetCursorRawMotionX11(struct __window_h *, struct __window_h_window *, uint8_t *);
 
 WININT int __winSetCursorRawMotionX11(struct __window_h *, struct __window_h_window *, const uint8_t);
-
-*/
 
 WININT int __winPollEventsX11(struct __window_h *);
 
@@ -9092,6 +9097,196 @@ WININT int __winDestroyCursorX11(struct __window_h *lib, struct __window_h_curso
 }
 
 
+WININT int __winGetCursorPositionX11(struct __window_h *lib, struct __window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* get cursor position */
+    Window root_return  = None,
+           child_return = None;
+    int root_x  = 0, root_y  = 0;
+    int child_x = 0, child_y = 0;
+    unsigned int mask_return = 0;
+    if (!XQueryPointer(lib->x11->dpy,
+                       win->x11->handle,
+                       &root_return,
+                       &child_return,
+                       &root_x, &root_y,
+                       &child_x, &child_y,
+                       &mask_return)) { return (0); }
+
+    /* return values */
+    if (x_ptr) { *x_ptr = child_x; }
+    if (y_ptr) { *y_ptr = child_y; }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetCursorPositionX11(struct __window_h *lib, struct __window_h_window *win, const size_t x, const size_t y) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    if (!XWarpPointer(lib->x11->dpy, None,
+                      win->x11->handle,
+                      0, 0, 0, 0,
+                      x, y)) { return (0); }
+    XFlush(lib->x11->dpy);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGetCursorModeX11(struct __window_h *lib, struct __window_h_window *win, uint32_t *m_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* return result */
+    if (m_ptr) {
+        *m_ptr = win->cursor.mode;
+    }
+    
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetCursorModeX11(struct __window_h *lib, struct __window_h_window *win, const uint32_t mode) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* update 'win->cursor' members */
+    win->cursor.mode = mode;
+
+    /* only execute if window is focused */
+    if (win->attrib.focused) {
+        /* enable / disable raw mouse motion */
+        switch (mode) {
+            case (WINDOW_CURSOR_MODE_NORMAL):
+            case (WINDOW_CURSOR_MODE_CAPTURED):
+            case (WINDOW_CURSOR_MODE_HIDDEN): {
+                winSetCursorRawMotion(lib, win, 0);
+            } break;
+
+            case (WINDOW_CURSOR_MODE_LOCKED):
+            case (WINDOW_CURSOR_MODE_DISABLED): {
+                winSetCursorRawMotion(lib, win, 1);
+            } break;
+        }
+
+        /* set the confinement of the cursor */
+        switch (mode) {
+            case (WINDOW_CURSOR_MODE_NORMAL):
+            case (WINDOW_CURSOR_MODE_HIDDEN): {
+                XUngrabPointer(lib->x11->dpy, CurrentTime);
+            } break;
+
+            case (WINDOW_CURSOR_MODE_LOCKED):
+            case (WINDOW_CURSOR_MODE_CAPTURED):
+            case (WINDOW_CURSOR_MODE_DISABLED): {
+                XGrabPointer(lib->x11->dpy, win->x11->handle, True,
+                             ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
+                             GrabModeAsync, GrabModeAsync,
+                             win->x11->handle, None, CurrentTime);
+            } break;
+        }
+    }
+
+    /* set cursor visibility */
+    switch (mode) {
+        case (WINDOW_CURSOR_MODE_NORMAL):
+        case (WINDOW_CURSOR_MODE_CAPTURED):
+        case (WINDOW_CURSOR_MODE_LOCKED): {
+            /* define 'win' cursor as it's 'cursor.handle' */
+            if (win->cursor.handle) {
+                XDefineCursor(lib->x11->dpy,
+                              win->x11->handle,
+                              win->cursor.handle->x11->handle);
+            }
+            /* otherwise, undefine the cursor */
+            else {
+                XUndefineCursor(lib->x11->dpy,
+                                win->x11->handle);
+            }
+
+        } break;
+
+        case (WINDOW_CURSOR_MODE_HIDDEN):
+        case (WINDOW_CURSOR_MODE_DISABLED): {
+            XDefineCursor(lib->x11->dpy,
+                          win->x11->handle,
+                          lib->cursor.blank->x11->handle);
+        } break;
+    }
+    
+    /* success */
+    return (1);
+}
+
+
+WININT int __winGetCursorRawMotionX11(struct __window_h *lib, struct __window_h_window *win, uint8_t *r_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* return result */
+    if (r_ptr) {
+        *r_ptr = win->cursor.raw;
+    }
+    
+    /* success */
+    return (1);
+}
+
+
+WININT int __winSetCursorRawMotionX11(struct __window_h *lib, struct __window_h_window *win, const uint8_t raw) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+    
+    /* references */
+    struct __window_h_x11 *x11 = lib->x11; 
+    if (!x11) { return (0); }
+   
+# if defined (WINDOW_X11_EXTENSION_XINPUT2)
+    
+    /* init check */
+    if (!lib->x11->xinput.handle) { return (0); }
+
+    unsigned char mask[XIMaskLen(XI_RawMotion)] = { 0 };
+    
+    XIEventMask xi_event_mask = {
+        .deviceid = XIAllMasterDevices,
+        .mask_len = sizeof(mask),
+        .mask     = mask
+    };
+
+    /* only for 'raw motion' */
+    if (raw) {
+        XISetMask(mask, XI_RawMotion);
+    }
+
+    XISelectEvents(lib->x11->dpy,
+                   lib->x11->root,
+                   &xi_event_mask, 1);
+
+    /* success */
+    return (1);
+
+# endif /* WINDOW_X11_EXTENSION_XINPUT2 */
+
+    /* failure */
+    (void) raw;
+    return (0);
+}
+
+
 WININT int __winPollEventsX11(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
@@ -9906,7 +10101,7 @@ WINDEF int winGetWindowContext(library_t library, window_t window, context_t *c_
     if (!win) { return (0); }
 
     /* get the context from the 'win' */
-    if (c_ptr) { *c_ptr = win->context.current; }
+    if (c_ptr) { *c_ptr = win->context.handle; }
 
     /* success */
     return (1);
@@ -9921,7 +10116,7 @@ WINDEF int winSetWindowContext(library_t library, window_t window, context_t con
     struct __window_h_context *ctx = (struct __window_h_context *) context;
 
     /* update the internal references in 'win' and 'ctx' */
-    win->context.current = context;
+    win->context.handle = context;
     ctx->window.current  = window;
 
     /* success */
@@ -10058,7 +10253,7 @@ WINDEF int winSetContextWindow(library_t library, context_t context, window_t wi
 
     /* update the internal references in 'win' and 'ctx' */
     ctx->window.current  = window;
-    win->context.current = context;
+    win->context.handle = context;
 
     /* success */
     return (1);
@@ -10178,11 +10373,16 @@ WINDEF int winSetCursorPosition(library_t library, window_t window, const size_t
 }
 
 WINDEF int winSetCursorPositionCenter(library_t library, window_t window) {
-    /* references */
-    struct __window_h *lib = (struct __window_h *) library;
-    if (!lib) { return (0); }
-    
-    return (lib->platform.setCursorPositionCenter(library, window));
+    /* 'result' exit-code */
+    int result = 1;
+   
+    /* get the window size */
+    size_t w, h;
+    result = winGetWindowSize(library, window, &w, &h);
+
+    /* set the cursor to the middle of the window */
+    result = winSetCursorPosition(library, window, w / 2, h / 2);
+    return (result);
 }
 
 WINDEF int winGetCursorMode(library_t library, window_t window, uint32_t *m_ptr) {
@@ -10199,6 +10399,24 @@ WINDEF int winSetCursorMode(library_t library, window_t window, const uint32_t m
     if (!lib) { return (0); }
     
     return (lib->platform.setCursorMode(library, window, mode));
+}
+
+
+WINDEF int winGetCursorRawMotion(library_t library, window_t window, uint8_t *r_ptr) {
+    /* references */
+    struct __window_h *lib = (struct __window_h *) library;
+    if (!lib) { return (0); }
+    
+    return (lib->platform.getCursorRawMotion(library, window, r_ptr));
+}
+
+
+WINDEF int winSetCursorRawMotion(library_t library, window_t window, const uint8_t raw) {
+    /* references */
+    struct __window_h *lib = (struct __window_h *) library;
+    if (!lib) { return (0); }
+    
+    return (lib->platform.setCursorRawMotion(library, window, raw));
 }
 
 /* event functions */
@@ -10487,15 +10705,12 @@ WININT int __winLoadPlatform(struct __window_h *lib, struct __window_h_platform 
 
     plat->createCursor = __winCreateCursorX11;
     plat->destroyCursor = __winDestroyCursorX11;
-    /*
     plat->getCursorPosition = __winGetCursorPositionX11;
     plat->setCursorPosition = __winSetCursorPositionX11;
-    plat->setCursorPositionCenter = __winSetCursorPositionCenterX11;
     plat->getCursorMode = __winGetCursorModeX11;
     plat->setCursorMode = __winSetCursorModeX11;
     plat->getCursorRawMotion = __winGetCursorRawMotionX11;
     plat->setCursorRawMotion = __winSetCursorRawMotionX11;
-    */
 
     /* event functions */
 
