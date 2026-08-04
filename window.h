@@ -801,6 +801,7 @@ typedef struct eventCommon_s eventCommon_t;
 struct eventCommon_s {
     uint32_t type;
     uint64_t time;
+    window_t window;
 };
 
 
@@ -809,76 +810,75 @@ typedef struct eventQuit_s eventQuit_t;
 struct eventQuit_s {
     uint32_t type;
     uint64_t time;
+    window_t window;
 };
 
 
 typedef struct eventMouse_s eventMouse_t;
 
 struct eventMouse_s {
-    uint32_t type;      /* WINDOW_EVENT_MOUSE */
-    uint64_t time;      /* event timestampt */
+    uint32_t type;
+    uint64_t time;
+    window_t window;
 
-    window_t window;    /* window with mouse focus (if any) */
-    uint64_t which;     /* mouse instance ID (if any) */ 
+    struct {
+        int32_t x, xrel;
+        int32_t y, yrel;
+    } motion;
 
-    /* WINDOW_EVENT_MOUSE_MOTION */
-    int32_t x, xrel;    /* absolute and relative X position */
-    int32_t y, yrel;    /* absolute and relative Y position */
+    struct {
+        uint8_t btn;
+        uint8_t state;
+    } input;
 
-    /* WINDOW_EVENT_MOUSE_BUTTON */
-    uint8_t btn;        /* */
-    uint8_t state;      /* input state (1.: PRESS, 0.: RELEASE) */
-
-    /* WINDOW_EVENT_MOUSE_SCROLL */
-    int32_t scroll_x;   /* Horizontal scroll (scroll_x < 0: LEFT, scroll_x > 0: RIGHT) */
-    int32_t scroll_y;   /* Vertical scroll (scroll_y < 0: UP, scroll_y > 0: DOWN) */
+    struct {
+        int32_t x;
+        int32_t y;
+    } scroll;
 };
 
 
 typedef struct eventMouseDevice_s eventMouseDevice_t;
 
 struct eventMouseDevice_s {
-    uint32_t type;      /* WINDOW_EVENT_MOUSE_ADD, WINDOW_EVENT_MOUSE_REMOVE */
-    uint64_t time;      /* event timestampt */
-
-    uint64_t which;     /* mouse instance ID */ 
+    uint32_t type;
+    uint64_t time;
+    window_t window;
 };
 
 
 typedef struct eventKeyboard_s eventKeyboard_t;
 
 struct eventKeyboard_s {
-    uint32_t type;      /* WINDOW_EVENT_KEYBOARD */
-    uint64_t time;      /* event timestampt */
-
-    window_t window;    /* window with keyboard focus (if any) */
-    uint64_t which;     /* keyboard instance ID */ 
-    uint32_t keysym;    /* symbolic window.h keyboard key */
-    uint32_t keycode;   /* physical window.h keyboard key */
-    uint32_t keymod;    /* window.h current modifier key */
-    uint32_t keyraw;    /* platform-specific raw input */
-    uint8_t  state;     /* input state (1.: PRESS, 0.: RELEASE) */
-    uint8_t  repeat;    /* key repeat state (1.: REPEATING) */
+    uint32_t type;
+    uint64_t time;
+    window_t window;
+    
+    uint32_t keysym;
+    uint32_t keycode;
+    uint32_t keymod;
+    uint32_t keyraw;
+    uint8_t  state;
+    uint8_t  repeat;
 };
 
 
 typedef struct eventKeyboardDevice_s eventKeyboardDevice_t;
 
 struct eventKeyboardDevice_s {
-    uint32_t type;      /* WINDOW_EVENT_KEYBOARD_ADD, WINDOW_EVENT_KEYBOARD_REMOVE */
-    uint64_t time;      /* event timestampt */
-
-    uint64_t which;     /* keyboard instance ID */ 
+    uint32_t type;
+    uint64_t time;
+    window_t window;
 };
 
 
 typedef struct eventWindow_s eventWindow_t;
 
 struct eventWindow_s {
-    uint32_t type;      /* WINDOW_EVENT_WINDOW */
-    uint64_t time;      /* event timestampt */
+    uint32_t type;
+    uint64_t time;
+    window_t window;
 
-    window_t window;    /* which window sends the event */
     uint32_t data1;
     uint32_t data2;
 };
@@ -887,8 +887,9 @@ struct eventWindow_s {
 typedef struct eventSelection_s eventSelection_t;
 
 struct eventSelection_s {
-    uint32_t type;      /* WINDOW_EVENT_SELECTION */
-    uint64_t time;      /* event timestampt */
+    uint32_t type;
+    uint64_t time;
+    window_t window;
 
     void  *data;
     size_t size;
@@ -899,33 +900,13 @@ struct eventSelection_s {
 typedef union event_u event_t;
 
 union event_u {
-    /* default event data */
-    struct {
-        uint32_t type;  /* WINDOW_EVENT_ */
-        uint64_t time;  /* event timestamp */
-    };
-
-    /* WINDOW_EVENT_QUIT */
-    eventQuit_t quit;
-
-    /* WINDOW_EVENT_MOUSE */
-    eventMouse_t mouse;
-
-    /* WINDOW_EVENT_MOUSE_ADD, WINDOW_EVENT_MOUSE_REMOVE */
-    eventMouseDevice_t mouse_device;
-
-    /* WINDOW_EVENT_KEYBOARD */
-    eventKeyboard_t keyboard;
-
-    /* WINDOW_EVENT_KEYBOARD_ADD, WINDOW_EVENT_KEYBOARD_REMOVE */
-    eventKeyboardDevice_t keyboard_device;
-
-    /* WINDOW_EVENT_WINDOW */
-    eventWindow_t window;
-
-    /* WINDOW_EVENT_SELECTION */
-    eventSelection_t clipboard;
-
+    uint32_t type;
+    eventCommon_t       common;
+    eventQuit_t         quit;
+    eventMouse_t        mouse;
+    eventKeyboard_t     keyboard;
+    eventWindow_t       window;
+    eventSelection_t    clipboard;
 };
 
 
@@ -1021,7 +1002,7 @@ WINDEF int winPushEvent(library_t, event_t *);
 
 WINDEF int winPopEvent(library_t, event_t *);
 
-WINDEF int winSendEvent(library_t, uint32_t, ...);
+WINDEF int winSendEvent(library_t, window_t, uint32_t, ...);
 
 WINDEF int winPeekEvent(library_t, event_t *);
 
@@ -8957,13 +8938,6 @@ WININT int __winCreateContextX11(struct __window_h *lib, struct __window_h_conte
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
     if (!win) { return (0); }
-
-    /* Context MUST inherit the context from the 'window'!
-     * Like, imagine: you create 'Native' window and 'OpenGL' context?
-     * Window and Context must have the same API and in-between their creation
-     * 'WINDOW_CLIENT_API' hint can change.
-     * */
-    ctx->attrib.api = win->attrib.api;
             
     /* alloc new 'x11' object */
     struct __window_h_context_x11 *x11 = calloc(1, sizeof(struct __window_h_context_x11));
@@ -9180,7 +9154,7 @@ WININT int __winSetCursorModeX11(struct __window_h *lib, struct __window_h_windo
             } break;
         }
 
-        /* set the confinement of the cursor */
+        /* grab / ungrab the cursor */
         switch (mode) {
             case (WINDOW_CURSOR_MODE_NORMAL):
             case (WINDOW_CURSOR_MODE_HIDDEN): {
@@ -9194,6 +9168,18 @@ WININT int __winSetCursorModeX11(struct __window_h *lib, struct __window_h_windo
                              ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
                              GrabModeAsync, GrabModeAsync,
                              win->x11->handle, None, CurrentTime);
+            } break;
+        }
+
+        /* cursor confinement */
+        switch (mode) {
+            case (WINDOW_CURSOR_MODE_NORMAL):
+            case (WINDOW_CURSOR_MODE_CAPTURED):
+            case (WINDOW_CURSOR_MODE_HIDDEN): {
+            } break;
+
+            case (WINDOW_CURSOR_MODE_LOCKED):
+            case (WINDOW_CURSOR_MODE_DISABLED): {
             } break;
         }
     }
@@ -9305,6 +9291,13 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
         switch (xevent.type) {
             case (ClientMessage): {
                 XClientMessageEvent xclient = xevent.xclient;
+                
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = lib->window.list;
+                while (window) {
+                    if (window->x11->handle == xevent.xany.window) { break; }
+                }
+                if (!window) { break; }
 
                 /* xatom references */
                 Atom WM_PROTOCOLS     = x11->WM_PROTOCOLS;
@@ -9318,99 +9311,87 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
 
                     /* WINDOW_EVENT_QUIT */
                     if (data == WM_DELETE_WINDOW) {
-                        winSendEvent(lib, WINDOW_EVENT_QUIT);
+                        winSendEvent(lib, window, WINDOW_EVENT_QUIT);
                     }
                 }
             } break;
 
             case (CreateNotify): {
-                XCreateWindowEvent xcreatewindow = xevent.xcreatewindow;
-
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xcreatewindow.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
 
-                winSendEvent(lib, WINDOW_EVENT_WINDOW_CREATE, window, 0, 0); 
+                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_CREATE, window, 0, 0); 
             } break;
 
             case (DestroyNotify): {
-                XDestroyWindowEvent xdestroywindow = xevent.xdestroywindow;
-
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xdestroywindow.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
 
-                winSendEvent(lib, WINDOW_EVENT_WINDOW_DESTROY, window, 0, 0); 
+                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_DESTROY, window, 0, 0); 
             } break;
 
             case (MapNotify): {
-                XMapEvent xmap = xevent.xmap;
-                                
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xmap.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
 
                 /* update attribute */
                 window->attrib.mapped = 1;
 
-                winSendEvent(lib, WINDOW_EVENT_WINDOW_MAP, window, 0, 0); 
+                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_MAP, window, 0, 0); 
             } break;
 
             case (UnmapNotify): {
-                XUnmapEvent xunmap = xevent.xunmap;
-
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xunmap.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
 
                 /* update attribute */
                 window->attrib.mapped = 0;
 
-                winSendEvent(lib, WINDOW_EVENT_WINDOW_UNMAP, window, 0, 0); 
+                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_UNMAP, window, 0, 0); 
             } break;
 
             case (EnterNotify): {
-                XCrossingEvent xcrossing = xevent.xcrossing;
-                                
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xcrossing.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
 
                 /* update attribute */
                 window->attrib.focused = 1;
 
-                winSendEvent(lib, WINDOW_EVENT_WINDOW_ENTER, window, 0, 0); 
+                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_ENTER, window, 0, 0); 
             } break;
 
             case (LeaveNotify): {
-                XCrossingEvent xcrossing = xevent.xcrossing;
-
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xcrossing.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
 
                 /* update attribute */
                 window->attrib.focused = 0;
 
-                winSendEvent(lib, WINDOW_EVENT_WINDOW_LEAVE, window, 0, 0);
+                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_LEAVE, window, 0, 0);
             } break;
 
             case (ConfigureNotify): {
@@ -9419,7 +9400,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xconfigure.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
                 
@@ -9429,7 +9410,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 ) {
                     window->attrib.siz_x = xconfigure.width;
                     window->attrib.siz_y = xconfigure.height;
-                    winSendEvent(lib, WINDOW_EVENT_WINDOW_RESIZE, window, window->attrib.siz_x,
+                    winSendEvent(lib, window, WINDOW_EVENT_WINDOW_RESIZE, window->attrib.siz_x,
                                                                           window->attrib.siz_y);
                 }
                 
@@ -9439,7 +9420,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 ) {
                     window->attrib.pos_x = xconfigure.x;
                     window->attrib.pos_y = xconfigure.y;
-                    winSendEvent(lib, WINDOW_EVENT_WINDOW_MOTION, window, window->attrib.pos_x,
+                    winSendEvent(lib, window, WINDOW_EVENT_WINDOW_MOTION, window->attrib.pos_x,
                                                                           window->attrib.pos_y);
                 }
             } break;
@@ -9450,7 +9431,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xproperty.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
 
@@ -9484,19 +9465,19 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                     for (size_t i = 0; i < (size_t) nitems_return; i++) {
                         /* _NET_WM_STAET_FULLSCREEN */
                         if (states[i] == lib->x11->_NET_WM_STATE_FULLSCREEN) {
-                            /* ... */
+                            window->attrib.fullscreen = !window->attrib.fullscreen;
                         }
                         
                         /* _NET_WM_STATE_HIDDEN */
                         else if (states[i] == lib->x11->_NET_WM_STATE_HIDDEN) {
-                            /* ... */
+                            window->attrib.minimized = !window->attrib.minimized;
                         }
                         
                         /* _NET_WM_STATE_MAXIMIZED */
                         else if (states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_VERT ||
                                  states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_HORZ
                         ) {
-                            /* ... */
+                            window->attrib.maximized = !window->attrib.maximized;
                         }
                     }
 
@@ -9512,7 +9493,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xmotion.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
                 
@@ -9520,7 +9501,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                          y = xmotion.y;
                 uint32_t xrel = xmotion.x_root,
                          yrel = xmotion.y_root;
-                winSendEvent(lib, WINDOW_EVENT_MOUSE_MOTION, window, 0, x, xrel, y, yrel);
+                winSendEvent(lib, window, WINDOW_EVENT_MOUSE_MOTION, x, xrel, y, yrel);
             } break;
 
             case (ButtonPress):
@@ -9530,7 +9511,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xbutton.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
                 
@@ -9542,7 +9523,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                         case (3): { btn = WINDOW_BUTTON_RIGHT;  } break; /* right */
                     }
                     uint8_t state = xbutton.type == ButtonPress ? 1 : 0;
-                    winSendEvent(lib, WINDOW_EVENT_MOUSE_BUTTON, window, 0, btn, state);
+                    winSendEvent(lib, window, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
                 }
                 else if (xbutton.button >= 4 && xbutton.button <= 7) {
                     int32_t scroll_x = 0,
@@ -9551,12 +9532,12 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                     else if (xbutton.button == 5) { scroll_y = -1; }
                     else if (xbutton.button == 6) { scroll_x =  1; }
                     else if (xbutton.button == 7) { scroll_x = -1; }
-                    winSendEvent(lib, WINDOW_EVENT_MOUSE_SCROLL, window, 0, scroll_x, scroll_y);
+                    winSendEvent(lib, window, WINDOW_EVENT_MOUSE_SCROLL, scroll_x, scroll_y);
                 }
                 else {
                     uint8_t btn   = xbutton.button - Button1 - 4,
                             state = xbutton.type == ButtonPress ? 1 : 0;
-                    winSendEvent(lib, WINDOW_EVENT_MOUSE_BUTTON, window, 0, btn, state);
+                    winSendEvent(lib, window, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
                 }
             } break;
 
@@ -9567,7 +9548,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 /* get 'window_t' from XID */
                 struct __window_h_window *window = lib->window.list;
                 while (window) {
-                    if (window->x11->handle == xkey.window) { break; }
+                    if (window->x11->handle == xevent.xany.window) { break; }
                 }
                 if (!window) { break; }
 
@@ -9604,20 +9585,36 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
                 /* get keyboard press/release state */
                 uint8_t state = xkey.type == KeyPress ? 1 : 0;
 
-                winSendEvent(lib, WINDOW_EVENT_KEYBOARD_KEY, window, 0, keysym, keycode, keymod, keyraw, state, 0);
+                winSendEvent(lib, window, WINDOW_EVENT_KEYBOARD_KEY, keysym, keycode, keymod, keyraw, state, 0);
             } break;
 
             case (SelectionRequest): {
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = lib->window.list;
+                while (window) {
+                    if (window->x11->handle == xevent.xany.window) { break; }
+                }
+                if (!window) { break; }
+                
+                /* process selections */
                 if (__winHandleSelectionX11(lib, &xevent)) {
-                    winSendEvent(lib, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
-                                                                    lib->selection.clipboard.size);
+                    winSendEvent(lib, window, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
+                                                                            lib->selection.clipboard.size);
                 }
             } break;
 
             case (SelectionNotify): {
+                /* get 'window_t' from XID */
+                struct __window_h_window *window = lib->window.list;
+                while (window) {
+                    if (window->x11->handle == xevent.xany.window) { break; }
+                }
+                if (!window) { break; }
+                
+                /* process selections */
                 if (__winHandleSelectionX11(lib, &xevent)) {
-                    winSendEvent(lib, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
-                                                                   lib->selection.clipboard.size);
+                    winSendEvent(lib, window, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
+                                                                           lib->selection.clipboard.size);
                 }
             } break;
 
@@ -10505,14 +10502,19 @@ WINDEF int winPopEvent(library_t library, event_t *event) {
     return (1);
 }
 
-WINDEF int winSendEvent(library_t library, uint32_t type, ...) {
+WINDEF int winSendEvent(library_t library, window_t window, uint32_t type, ...) {
     /* null-check */
     if (!library) { return (0); }
 
     /* default 'event' object */
     event_t event = { 0 };
+    
+    /* set event 'type' */
     event.type = type;
-    event.time = winGetTime();
+
+    /* set event 'common' members */
+    event.common.time = winGetTime();
+    event.common.window = window;
 
     /* get the variadic argument list */
     va_list list;
@@ -10524,37 +10526,25 @@ WINDEF int winSendEvent(library_t library, uint32_t type, ...) {
         /* Mouse events */
 
         case (WINDOW_EVENT_MOUSE_MOTION): {
-            event.mouse.window = va_arg(list, window_t);
-            event.mouse.which  = va_arg(list, uint64_t);
-            event.mouse.x    = va_arg(list, int32_t);
-            event.mouse.xrel = va_arg(list, int32_t);
-            event.mouse.y    = va_arg(list, int32_t);
-            event.mouse.yrel = va_arg(list, int32_t);
+            event.mouse.motion.x    = va_arg(list, int32_t);
+            event.mouse.motion.xrel = va_arg(list, int32_t);
+            event.mouse.motion.y    = va_arg(list, int32_t);
+            event.mouse.motion.yrel = va_arg(list, int32_t);
         } break;
 
         case (WINDOW_EVENT_MOUSE_BUTTON): {
-            event.mouse.window = va_arg(list, window_t);
-            event.mouse.which  = va_arg(list, uint64_t);
-            event.mouse.btn   = va_arg(list, int);
-            event.mouse.state = va_arg(list, int);
+            event.mouse.input.btn   = va_arg(list, int);
+            event.mouse.input.state = va_arg(list, int);
         } break;
 
         case (WINDOW_EVENT_MOUSE_SCROLL): {
-            event.mouse.window = va_arg(list, window_t);
-            event.mouse.which  = va_arg(list, uint64_t);
-            event.mouse.scroll_x = va_arg(list, int32_t);
-            event.mouse.scroll_y = va_arg(list, int32_t);
+            event.mouse.scroll.x = va_arg(list, int32_t);
+            event.mouse.scroll.y = va_arg(list, int32_t);
         } break;
-
-        case (WINDOW_EVENT_MOUSE_ADDED): { } break;
-
-        case (WINDOW_EVENT_MOUSE_REMOVED): { } break;
 
         /* Keyboard events */
 
         case (WINDOW_EVENT_KEYBOARD_KEY): {
-            event.keyboard.window  = va_arg(list, window_t);
-            event.keyboard.which   = va_arg(list, uint64_t);
             event.keyboard.keysym  = va_arg(list, uint64_t);
             event.keyboard.keycode = va_arg(list, uint32_t);
             event.keyboard.keymod  = va_arg(list, uint32_t);
@@ -10562,10 +10552,6 @@ WINDEF int winSendEvent(library_t library, uint32_t type, ...) {
             event.keyboard.state   = va_arg(list, uint32_t);
             event.keyboard.repeat  = va_arg(list, uint32_t);
         } break;
-
-        case (WINDOW_EVENT_KEYBOARD_ADDED): { } break;
-
-        case (WINDOW_EVENT_KEYBOARD_REMOVED): { } break;
 
         /* Window events */
 
@@ -10580,7 +10566,6 @@ WINDEF int winSendEvent(library_t library, uint32_t type, ...) {
         case (WINDOW_EVENT_WINDOW_MAXIMIZE):
         case (WINDOW_EVENT_WINDOW_MINIMIZE):
         case (WINDOW_EVENT_WINDOW_FULLSCREEN): {
-            event.window.window = va_arg(list, window_t);
             event.window.data1  = va_arg(list, uint32_t);
             event.window.data2  = va_arg(list, uint32_t);
         } break;

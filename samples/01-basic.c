@@ -42,6 +42,9 @@ int main(void) {
                     case (WINDOW_KEYCODE_N): {
                         winSetCursorMode(library, window, WINDOW_CURSOR_MODE_NORMAL);
                     } break;
+                    case (WINDOW_KEYCODE_L): {
+                        winSetCursorMode(library, window, WINDOW_CURSOR_MODE_LOCKED);
+                    } break;
                 }
             }
         }
