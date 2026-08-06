@@ -1,5 +1,6 @@
 #include <stdio.h>
 #
+#define WINDOW_X11_EXTENSION_XINPUT2
 #define WINDOW_IMPLEMENTATION
 #include "./../window.h"
 
@@ -43,7 +44,7 @@ int main(void) {
                         winSetCursorMode(library, window, WINDOW_CURSOR_MODE_NORMAL);
                     } break;
                     case (WINDOW_KEYCODE_L): {
-                        winSetCursorMode(library, window, WINDOW_CURSOR_MODE_LOCKED);
+                        winSetCursorMode(library, window, WINDOW_CURSOR_MODE_CENTERED);
                     } break;
                 }
             }
