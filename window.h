@@ -1190,6 +1190,7 @@ struct __window_h_platform {
     /* event functions */
 
     int (*pollEvents) (struct __window_h *);
+    int (*waitEvents) (struct __window_h *);
 
     /* clipboard functions */
 
@@ -7253,6 +7254,8 @@ static const struct __window_h_keymap __window_h_keymap_en_us_qwerty[] = {
 
 /* internal functions (declarations) */
 
+WININT int __winProcessEventX11(struct __window_h *, XEvent *);
+
 WININT int __winGetSelectionX11(struct __window_h *, const Atom, void **, size_t *);
 
 WININT int __winSetSelectionX11(struct __window_h *, const Atom, const void *, const size_t);
@@ -7315,11 +7318,294 @@ WININT int __winSetCursorRawMotionX11(struct __window_h *, struct __window_h_win
 
 WININT int __winPollEventsX11(struct __window_h *);
 
+WININT int __winWaitEventsX11(struct __window_h *);
+
 WININT int __winCopyX11(struct __window_h *, const uint32_t, const void *, const size_t);
 
 WININT int __winPasteX11(struct __window_h *, const uint32_t, void **, size_t *);
 
 /* internal functions (definitions) */
+
+WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
+    /* null-check */
+    if (!lib)    { return (0); }
+    if (!xevent) { return (0); }
+    
+    /* get 'window_t' from XID */
+    struct __window_h_window *win = lib->window.list;
+    while (win) {
+        if (win->x11->handle == xevent->xany.window) { break; }
+    }
+    if (!win) { return (0); }
+
+    switch (xevent->type) {
+        case (ClientMessage): {
+            XClientMessageEvent xclient = xevent->xclient;
+
+            /* process different kind of client events */
+            const Atom message_type = xclient.message_type;
+            if (message_type == lib->x11->WM_PROTOCOLS) {
+                /* get the received atom */
+                const Atom data = xclient.data.l[0];
+
+                /* WINDOW_EVENT_QUIT */
+                if (data == lib->x11->WM_DELETE_WINDOW) {
+                    winSendEvent(lib, win, WINDOW_EVENT_QUIT);
+                }
+            }
+
+            /* unhandled message type */
+            else {
+                return (0);
+            }
+        } break;
+
+        case (CreateNotify): {
+            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_CREATE, win, 0, 0); 
+        } break;
+
+        case (DestroyNotify): {
+            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_DESTROY, win, 0, 0); 
+        } break;
+
+        case (MapNotify): {
+            /* update attribute */
+            win->attrib.mapped = 1;
+
+            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_MAP, win, 0, 0); 
+        } break;
+
+        case (UnmapNotify): {
+            /* update attribute */
+            win->attrib.mapped = 0;
+
+            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_UNMAP, win, 0, 0); 
+        } break;
+
+        case (EnterNotify): {
+            /* update attribute */
+            win->attrib.focused = 1;
+
+            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_ENTER, win, 0, 0); 
+        } break;
+
+        case (LeaveNotify): {
+            /* update attribute */
+            win->attrib.focused = 0;
+
+            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_LEAVE, win, 0, 0);
+        } break;
+
+        case (ConfigureNotify): {
+            XConfigureEvent xconfigure = xevent->xconfigure;
+            
+            /* WINDOW_EVENT_WINDOW_RESIZE */
+            if (xconfigure.width  != (int) win->attrib.siz_x ||
+                xconfigure.height != (int) win->attrib.siz_y
+            ) {
+                win->attrib.siz_x = xconfigure.width;
+                win->attrib.siz_y = xconfigure.height;
+                winSendEvent(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attrib.siz_x,
+                                                                   win->attrib.siz_y);
+            }
+            
+            /* WINDOW_EVENT_WINDOW_MOTION */
+            if (xconfigure.x != (int) win->attrib.pos_x ||
+                xconfigure.y != (int) win->attrib.pos_y
+            ) {
+                win->attrib.pos_x = xconfigure.x;
+                win->attrib.pos_y = xconfigure.y;
+                winSendEvent(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attrib.pos_x,
+                                                                   win->attrib.pos_y);
+            }
+        } break;
+
+        case (PropertyNotify): {
+            XPropertyEvent xproperty = xevent->xproperty;
+
+            /* property 'atom' */
+            Atom atom = xproperty.atom;
+
+            /* _NET_WM_STATE */
+            Atom _NET_WM_STATE = lib->x11->_NET_WM_STATE;
+            if (atom == _NET_WM_STATE) {
+                /* get _NET_WM_STATE properties */
+                Atom actual_type_return      = 0;
+                int32_t actual_format_return = 0;
+                uint64_t nitems_return       = 0;
+                uint64_t bytes_after_return  = 0;
+                uint8_t *prop_return         = 0;
+                if (XGetWindowProperty(xproperty.display,
+                                       xproperty.window,
+                                       _NET_WM_STATE,
+                                       0, ~0L, False, XA_ATOM,
+                                       &actual_type_return,
+                                       &actual_format_return,
+                                       &nitems_return,
+                                       &bytes_after_return,
+                                       &prop_return)
+                ) { return (0); }
+
+                /* get win states */
+                Atom *states = (Atom *) prop_return;
+
+                /* iterate over win states */
+                for (size_t i = 0; i < (size_t) nitems_return; i++) {
+                    /* _NET_WM_STAET_FULLSCREEN */
+                    if (states[i] == lib->x11->_NET_WM_STATE_FULLSCREEN) {
+                        win->attrib.fullscreen = !win->attrib.fullscreen;
+                    }
+                    
+                    /* _NET_WM_STATE_HIDDEN */
+                    else if (states[i] == lib->x11->_NET_WM_STATE_HIDDEN) {
+                        win->attrib.minimized = !win->attrib.minimized;
+                    }
+                    
+                    /* _NET_WM_STATE_MAXIMIZED */
+                    else if (states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_VERT ||
+                             states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_HORZ
+                    ) {
+                        win->attrib.maximized = !win->attrib.maximized;
+                    }
+                }
+
+                /* release win states  */
+                XFree(states);
+            }
+
+        } break;
+
+        case (MotionNotify): {
+            XMotionEvent xmotion = xevent->xmotion;
+
+            uint32_t x = xmotion.x,
+                     y = xmotion.y;
+
+            winSendEvent(lib, win, WINDOW_EVENT_MOUSE_MOTION, x, 0, y, 0);
+        } break;
+
+        case (ButtonPress):
+        case (ButtonRelease): {
+            XButtonEvent xbutton = xevent->xbutton;
+            
+            /* WINDOW_EVENT_MOUSE_BUTTON */
+            if (xbutton.button >= 1 && xbutton.button <= 3) {
+                uint8_t btn = 0;
+                switch (xbutton.button) {
+                    case (1): { btn = WINDOW_BUTTON_LEFT;   } break; /* left */
+                    case (2): { btn = WINDOW_BUTTON_MIDDLE; } break; /* middle */
+                    case (3): { btn = WINDOW_BUTTON_RIGHT;  } break; /* right */
+                }
+                uint8_t state = xbutton.type == ButtonPress ? 1 : 0;
+                winSendEvent(lib, win, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
+            }
+            
+            /* WINDOW_EVENT_MOUSE_SCROLL */
+            else if (xbutton.button >= 4 && xbutton.button <= 7) {
+                int32_t scroll_x = 0,
+                        scroll_y = 0;
+                if (xbutton.button == 4)      { scroll_y =  1; }
+                else if (xbutton.button == 5) { scroll_y = -1; }
+                else if (xbutton.button == 6) { scroll_x =  1; }
+                else if (xbutton.button == 7) { scroll_x = -1; }
+                winSendEvent(lib, win, WINDOW_EVENT_MOUSE_SCROLL, scroll_x, scroll_y);
+            }
+            
+            /* WINDOW_EVENT_MOUSE_BUTTON */
+            else {
+                uint8_t btn   = xbutton.button - Button1 - 4,
+                        state = xbutton.type == ButtonPress ? 1 : 0;
+                winSendEvent(lib, win, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
+            }
+        } break;
+
+        case (KeyPress):
+        case (KeyRelease): {
+            XKeyEvent xkey = xevent->xkey;
+
+            /* get the X11's keysym */
+            uint32_t keyraw = XkbKeycodeToKeysym(xkey.display,
+                                                 xkey.keycode, 0,
+                                                 xkey.state & ShiftMask ? 1 : 0);
+
+            /* Iterate over the keymap to find the matching mapping.
+             * As of now we're only processing en-US QWERTY keymap with latin symbols.
+             * Other keyboard layout's might not work. However, there're some foudnations
+             * to implement layout switching which *might* make it available to layout-switch!
+             * */
+            uint32_t keycode = 0,
+                     keysym  = 0;
+            for (size_t i = 0; __window_h_keymap_en_us_qwerty[i].src; i++) {
+                if (keyraw == __window_h_keymap_en_us_qwerty[i].src) {
+                    keycode = __window_h_keymap_en_us_qwerty[i].kc;
+                    keysym  = __window_h_keymap_en_us_qwerty[i].ks;
+                    break;
+                }
+            }
+
+            /* if either 'keycode' or 'keysym' are '0', it's an obvious fail */
+            if (!keycode || !keysym) { return (0); }
+
+            /* get the keyboard modes mask */
+            uint32_t keymod = 0;
+            if (xkey.state & ShiftMask)   { keymod |= WINDOW_KEYMOD_SHIFT; }
+            if (xkey.state & ControlMask) { keymod |= WINDOW_KEYMOD_CTRL; }
+            if (xkey.state & Mod1Mask)    { keymod |= WINDOW_KEYMOD_ALT; }
+            if (xkey.state & Mod2Mask)    { keymod |= WINDOW_KEYMOD_NUMLOCK; }
+            if (xkey.state & Mod4Mask)    { keymod |= WINDOW_KEYMOD_GUI; }
+            if (xkey.state & LockMask)    { keymod |= WINDOW_KEYMOD_CAPSLOCK; }
+
+            /* get keyboard press/release state */
+            uint8_t state = xkey.type == KeyPress ? 1 : 0;
+
+            winSendEvent(lib, win, WINDOW_EVENT_KEYBOARD_KEY, keysym, keycode, keymod, keyraw, state, 0);
+        } break;
+
+        case (SelectionRequest): {
+            /* process selections */
+            if (__winHandleSelectionX11(lib, xevent)) {
+                winSendEvent(lib, win, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
+                                                                        lib->selection.clipboard.size);
+            }
+        } break;
+
+        case (SelectionNotify): {
+            /* process selections */
+            if (__winHandleSelectionX11(lib, xevent)) {
+                winSendEvent(lib, win, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
+                                                                       lib->selection.clipboard.size);
+            }
+        } break;
+
+        case (SelectionClear): { } break;
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __winCopyX11(struct __window_h *lib, const uint32_t selection, const void *data, const size_t size) {
+    /* null-check */
+    if (!lib) { return (0); }
+    
+    /* references */
+    struct __window_h_x11 *x11 = lib->x11; 
+    if (!x11) { return (0); }
+
+    /* get selection atom */
+    Atom atom = 0;
+    switch (selection) {
+        case (WINDOW_SELECTION_PRIMARY):   { atom = XA_PRIMARY;     } break;
+        case (WINDOW_SELECTION_SECONDARY): { atom = XA_SECONDARY;   } break;
+        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->CLIPBOARD; } break;
+
+        /* ... */
+        default: { return (0); }
+    }
+
+    return (__winSetSelectionX11(lib, atom, data, size));
+}
 
 WININT int __winGetSelectionX11(struct __window_h *lib, const Atom selection, void **d_ptr, size_t *s_ptr) {
     /* null-check */
@@ -9281,258 +9567,16 @@ WININT int __winSetCursorRawMotionX11(struct __window_h *lib, struct __window_h_
 WININT int __winPollEventsX11(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
-    
-    /* references */
-    struct __window_h_x11 *x11 = lib->x11; 
-    if (!x11) { return (0); }
-
-    /* xlib references */
-	Display *dpy = x11->dpy;
 
     XEvent xevent = { 0 };
-    while (XPending(dpy)) {
-        XNextEvent(dpy, &xevent);
+    /* iterate until X11's queue is not empty */
+    XPending(lib->x11->dpy);
+    while (QLength(lib->x11->dpy)) {
+        /* get the next event from queue */
+        XNextEvent(lib->x11->dpy, &xevent);
 
-        /* get 'window_t' from XID */
-        struct __window_h_window *window = lib->window.list;
-        while (window) {
-            if (window->x11->handle == xevent.xany.window) { break; }
-        }
-        if (!window) { break; }
-
-        switch (xevent.type) {
-            case (ClientMessage): {
-                XClientMessageEvent xclient = xevent.xclient;
-
-                /* xatom references */
-                Atom WM_PROTOCOLS     = x11->WM_PROTOCOLS;
-                Atom WM_DELETE_WINDOW = x11->WM_DELETE_WINDOW;
-
-                /* process different kind of client events */
-                const Atom message_type = xclient.message_type;
-                if (message_type == WM_PROTOCOLS) {
-                    /* get the received atom */
-                    const Atom data = xclient.data.l[0];
-
-                    /* WINDOW_EVENT_QUIT */
-                    if (data == WM_DELETE_WINDOW) {
-                        winSendEvent(lib, window, WINDOW_EVENT_QUIT);
-                    }
-                }
-            } break;
-
-            case (CreateNotify): {
-                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_CREATE, window, 0, 0); 
-            } break;
-
-            case (DestroyNotify): {
-                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_DESTROY, window, 0, 0); 
-            } break;
-
-            case (MapNotify): {
-                /* update attribute */
-                window->attrib.mapped = 1;
-
-                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_MAP, window, 0, 0); 
-            } break;
-
-            case (UnmapNotify): {
-                /* update attribute */
-                window->attrib.mapped = 0;
-
-                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_UNMAP, window, 0, 0); 
-            } break;
-
-            case (EnterNotify): {
-                /* update attribute */
-                window->attrib.focused = 1;
-
-                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_ENTER, window, 0, 0); 
-            } break;
-
-            case (LeaveNotify): {
-                /* update attribute */
-                window->attrib.focused = 0;
-
-                winSendEvent(lib, window, WINDOW_EVENT_WINDOW_LEAVE, window, 0, 0);
-            } break;
-
-            case (ConfigureNotify): {
-                XConfigureEvent xconfigure = xevent.xconfigure;
-                
-                /* WINDOW_EVENT_WINDOW_RESIZE */
-                if (xconfigure.width  != (int) window->attrib.siz_x ||
-                    xconfigure.height != (int) window->attrib.siz_y
-                ) {
-                    window->attrib.siz_x = xconfigure.width;
-                    window->attrib.siz_y = xconfigure.height;
-                    winSendEvent(lib, window, WINDOW_EVENT_WINDOW_RESIZE, window->attrib.siz_x,
-                                                                          window->attrib.siz_y);
-                }
-                
-                /* WINDOW_EVENT_WINDOW_MOTION */
-                if (xconfigure.x != (int) window->attrib.pos_x ||
-                    xconfigure.y != (int) window->attrib.pos_y
-                ) {
-                    window->attrib.pos_x = xconfigure.x;
-                    window->attrib.pos_y = xconfigure.y;
-                    winSendEvent(lib, window, WINDOW_EVENT_WINDOW_MOTION, window->attrib.pos_x,
-                                                                          window->attrib.pos_y);
-                }
-            } break;
-
-            case (PropertyNotify): {
-                XPropertyEvent xproperty = xevent.xproperty;
-
-                /* property 'atom' */
-                Atom atom = xproperty.atom;
-
-                /* _NET_WM_STATE */
-                Atom _NET_WM_STATE = lib->x11->_NET_WM_STATE;
-                if (atom == _NET_WM_STATE) {
-                    /* get _NET_WM_STATE properties */
-                    Atom actual_type_return      = 0;
-                    int32_t actual_format_return = 0;
-                    uint64_t nitems_return       = 0;
-                    uint64_t bytes_after_return  = 0;
-                    uint8_t *prop_return         = 0;
-                    if (XGetWindowProperty(lib->x11->dpy,
-                                           window->x11->handle,
-                                           _NET_WM_STATE,
-                                           0, ~0L, False, XA_ATOM,
-                                           &actual_type_return,
-                                           &actual_format_return,
-                                           &nitems_return,
-                                           &bytes_after_return,
-                                           &prop_return)
-                    ) { return (0); }
-
-                    /* get window states */
-                    Atom *states = (Atom *) prop_return;
-
-                    /* iterate over window states */
-                    for (size_t i = 0; i < (size_t) nitems_return; i++) {
-                        /* _NET_WM_STAET_FULLSCREEN */
-                        if (states[i] == lib->x11->_NET_WM_STATE_FULLSCREEN) {
-                            window->attrib.fullscreen = !window->attrib.fullscreen;
-                        }
-                        
-                        /* _NET_WM_STATE_HIDDEN */
-                        else if (states[i] == lib->x11->_NET_WM_STATE_HIDDEN) {
-                            window->attrib.minimized = !window->attrib.minimized;
-                        }
-                        
-                        /* _NET_WM_STATE_MAXIMIZED */
-                        else if (states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_VERT ||
-                                 states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_HORZ
-                        ) {
-                            window->attrib.maximized = !window->attrib.maximized;
-                        }
-                    }
-
-                    /* release window states  */
-                    XFree(states);
-                }
-
-            } break;
-
-            case (MotionNotify): {
-                XMotionEvent xmotion = xevent.xmotion;
-
-                uint32_t x = xmotion.x,
-                         y = xmotion.y;
-
-                winSendEvent(lib, window, WINDOW_EVENT_MOUSE_MOTION, x, 0, y, 0);
-            } break;
-
-            case (ButtonPress):
-            case (ButtonRelease): {
-                XButtonEvent xbutton = xevent.xbutton;
-                
-                if (xbutton.button >= 1 && xbutton.button <= 3) {
-                    uint8_t btn = 0;
-                    switch (xbutton.button) {
-                        case (1): { btn = WINDOW_BUTTON_LEFT;   } break; /* left */
-                        case (2): { btn = WINDOW_BUTTON_MIDDLE; } break; /* middle */
-                        case (3): { btn = WINDOW_BUTTON_RIGHT;  } break; /* right */
-                    }
-                    uint8_t state = xbutton.type == ButtonPress ? 1 : 0;
-                    winSendEvent(lib, window, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
-                }
-                else if (xbutton.button >= 4 && xbutton.button <= 7) {
-                    int32_t scroll_x = 0,
-                            scroll_y = 0;
-                    if (xbutton.button == 4)      { scroll_y =  1; }
-                    else if (xbutton.button == 5) { scroll_y = -1; }
-                    else if (xbutton.button == 6) { scroll_x =  1; }
-                    else if (xbutton.button == 7) { scroll_x = -1; }
-                    winSendEvent(lib, window, WINDOW_EVENT_MOUSE_SCROLL, scroll_x, scroll_y);
-                }
-                else {
-                    uint8_t btn   = xbutton.button - Button1 - 4,
-                            state = xbutton.type == ButtonPress ? 1 : 0;
-                    winSendEvent(lib, window, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
-                }
-            } break;
-
-            case (KeyPress):
-            case (KeyRelease): {
-                XKeyEvent xkey = xevent.xkey;
-
-                /* get the X11's keysym */
-                uint32_t keyraw = XkbKeycodeToKeysym(dpy, xkey.keycode, 0, xkey.state & ShiftMask ? 1 : 0);
-
-                /* Iterate over the keymap to find the matching mapping.
-                 * As of now we're only processing en-US QWERTY keymap with latin symbols.
-                 * Other keyboard layout's might not work. However, there're some foudnations
-                 * to implement layout switching which *might* make it available to layout-switch!
-                 * */
-                uint32_t keycode = 0,
-                         keysym  = 0;
-                for (size_t i = 0; __window_h_keymap_en_us_qwerty[i].src; i++) {
-                    if (keyraw == __window_h_keymap_en_us_qwerty[i].src) {
-                        keycode = __window_h_keymap_en_us_qwerty[i].kc;
-                        keysym  = __window_h_keymap_en_us_qwerty[i].ks;
-                        break;
-                    }
-                }
-
-                /* if either 'keycode' or 'keysym' are '0', it's an obvious fail */
-                if (!keycode || !keysym) { break; }
-
-                /* get the keyboard modes mask */
-                uint32_t keymod = 0;
-                if (xkey.state & ShiftMask)   { keymod |= WINDOW_KEYMOD_SHIFT; }
-                if (xkey.state & ControlMask) { keymod |= WINDOW_KEYMOD_CTRL; }
-                if (xkey.state & Mod1Mask)    { keymod |= WINDOW_KEYMOD_ALT; }
-                if (xkey.state & Mod2Mask)    { keymod |= WINDOW_KEYMOD_NUMLOCK; }
-                if (xkey.state & Mod4Mask)    { keymod |= WINDOW_KEYMOD_GUI; }
-                if (xkey.state & LockMask)    { keymod |= WINDOW_KEYMOD_CAPSLOCK; }
-
-                /* get keyboard press/release state */
-                uint8_t state = xkey.type == KeyPress ? 1 : 0;
-
-                winSendEvent(lib, window, WINDOW_EVENT_KEYBOARD_KEY, keysym, keycode, keymod, keyraw, state, 0);
-            } break;
-
-            case (SelectionRequest): {
-                /* process selections */
-                if (__winHandleSelectionX11(lib, &xevent)) {
-                    winSendEvent(lib, window, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
-                                                                            lib->selection.clipboard.size);
-                }
-            } break;
-
-            case (SelectionNotify): {
-                /* process selections */
-                if (__winHandleSelectionX11(lib, &xevent)) {
-                    winSendEvent(lib, window, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
-                                                                           lib->selection.clipboard.size);
-                }
-            } break;
-
-            case (SelectionClear): { } break;
-        }
+        /* process upcoming events */
+        __winProcessEventX11(lib, &xevent);
     }
 
     /* success */
@@ -9540,26 +9584,12 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
 }
 
 
-WININT int __winCopyX11(struct __window_h *lib, const uint32_t selection, const void *data, const size_t size) {
+WININT int __winWaitEventsX11(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
-    
-    /* references */
-    struct __window_h_x11 *x11 = lib->x11; 
-    if (!x11) { return (0); }
 
-    /* get selection atom */
-    Atom atom = 0;
-    switch (selection) {
-        case (WINDOW_SELECTION_PRIMARY):   { atom = XA_PRIMARY;     } break;
-        case (WINDOW_SELECTION_SECONDARY): { atom = XA_SECONDARY;   } break;
-        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->CLIPBOARD; } break;
-
-        /* ... */
-        default: { return (0); }
-    }
-
-    return (__winSetSelectionX11(lib, atom, data, size));
+    /* success */
+    return (1);
 }
 
 
@@ -10348,11 +10378,19 @@ WINDEF int winPollEvents(library_t library, event_t *event) {
 }
 
 WINDEF int winWaitEvents(library_t library, event_t *event) {
-    (void) library;
-    (void) event;
+    /* references */
+    struct __window_h *lib = (struct __window_h *) library;
+    if (!lib) { return (0); }
+    
+    /* flush the event queue */
+    if (winPopEvent(library, event)) { return (1); }
 
-    /* success */
-    return (1);
+    /* call platform-specific poll events function */
+    lib->platform.waitEvents(library);
+
+    /* this means we don't have any event... */
+    *event = (event_t) { 0 };
+    return (0);
 }
 
 WINDEF int winPushEvent(library_t library, event_t *event) {
