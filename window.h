@@ -5799,31 +5799,31 @@ struct __window_h_win32 {
 
 /* internal functions (declarations) */
 
-WININT int __winInitGLX(struct __window_h *, void *);
+WININT int __win_glx_init(struct __window_h *, void *);
 
-WININT int __winLoadGLX(struct __window_h *);
+WININT int __win_glx_load(struct __window_h *);
 
-WININT int __winUngl_loadX(struct __window_h *);
+WININT int __win_glx_unload(struct __window_h *);
 
-WININT int __winCreateContextGLX(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+WININT int __win_glx_create_context(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
 
-WININT int __winDestroyContextGLX(struct __window_h *, struct __window_h_context *);
+WININT int __win_glx_context_destroy(struct __window_h *, struct __window_h_context *);
 
-WININT int __winMakeCurrentGLX(struct __window_h *, struct __window_h_context *);
+WININT int __win_glx_make_current(struct __window_h *, struct __window_h_context *);
 
-WININT int __winSwapBuffersGLX(struct __window_h *, struct __window_h_context *);
+WININT int __win_glx_swap_buffers(struct __window_h *, struct __window_h_context *);
 
-WININT int __winSwapIntervalGLX(struct __window_h *, struct __window_h_context *, const int);
+WININT int __win_glx_swap_interval(struct __window_h *, struct __window_h_context *, const int);
 
-WININT void *__winGetProcAddressGLX(struct __window_h *, const char *);
+WININT void *__win_glx_get_proc_address(struct __window_h *, const char *);
 
-WININT int __winChooseConfigGLX(struct __window_h *);
+WININT int __win_glx_choose_config(struct __window_h *);
 
-WININT int __winGetVisualGLX(struct __window_h *, int *);
+WININT int __win_glx_get_visual(struct __window_h *, int *);
 
 /* internal functions (definitions) */
 
-WININT int __winInitGLX(struct __window_h *lib, void *display) {
+WININT int __win_glx_init(struct __window_h *lib, void *display) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -5893,7 +5893,7 @@ WININT int __winInitGLX(struct __window_h *lib, void *display) {
 }
 
 
-WININT int __winLoadGLX(struct __window_h *lib) {
+WININT int __win_glx_load(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
     if (lib->glx) { return (1); }
@@ -6130,7 +6130,7 @@ WININT int __winLoadGLX(struct __window_h *lib) {
 }
 
 
-WININT int __winUngl_loadX(struct __window_h *lib) {
+WININT int __win_glx_unload(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -6153,7 +6153,7 @@ WININT int __winUngl_loadX(struct __window_h *lib) {
 }
 
 
-WININT int __winCreateContextGLX(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
+WININT int __win_glx_create_context(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6213,7 +6213,7 @@ WININT int __winCreateContextGLX(struct __window_h *lib, struct __window_h_conte
 }
 
 
-WININT int __winDestroyContextGLX(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_glx_context_destroy(struct __window_h *lib, struct __window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6234,7 +6234,7 @@ WININT int __winDestroyContextGLX(struct __window_h *lib, struct __window_h_cont
 }
 
 
-WININT int __winMakeCurrentGLX(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_glx_make_current(struct __window_h *lib, struct __window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6256,7 +6256,7 @@ WININT int __winMakeCurrentGLX(struct __window_h *lib, struct __window_h_context
 }
 
 
-WININT int __winSwapBuffersGLX(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_glx_swap_buffers(struct __window_h *lib, struct __window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6280,7 +6280,7 @@ WININT int __winSwapBuffersGLX(struct __window_h *lib, struct __window_h_context
 }
 
 
-WININT int __winSwapIntervalGLX(struct __window_h *lib, struct __window_h_context *ctx, const int interval) {
+WININT int __win_glx_swap_interval(struct __window_h *lib, struct __window_h_context *ctx, const int interval) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6297,7 +6297,7 @@ WININT int __winSwapIntervalGLX(struct __window_h *lib, struct __window_h_contex
 }
 
 
-WININT void *__winGetProcAddressGLX(struct __window_h *lib, const char *proc) {
+WININT void *__win_glx_get_proc_address(struct __window_h *lib, const char *proc) {
     /* null-check */
     if (!lib)  { return (0); }
     if (!proc) { return (0); }
@@ -6307,7 +6307,7 @@ WININT void *__winGetProcAddressGLX(struct __window_h *lib, const char *proc) {
 }
 
 
-WININT int __winChooseConfigGLX(struct __window_h *lib) {
+WININT int __win_glx_choose_config(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -6357,14 +6357,14 @@ WININT int __winChooseConfigGLX(struct __window_h *lib) {
 }
 
 
-WININT int __winGetVisualGLX(struct __window_h *lib, int *v_ptr) {
+WININT int __win_glx_get_visual(struct __window_h *lib, int *v_ptr) {
     /* null-check */
     if (!lib) { return (0); }
 
     /* check for 'fbconfig' */
     if (!lib->glx->fbconfig) {
         /* first time running: cache the new 'fbconfig' */
-        if (!__winChooseConfigGLX(lib)) { return (0); }
+        if (!__win_glx_choose_config(lib)) { return (0); }
     }
         
     /* get the value of 'GLX_VISUAL_ID' */
@@ -10654,17 +10654,17 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
     
     /* opengl context functions */
 
-    platform->gl_init = __winInitGLX;
-    platform->gl_load = __winLoadGLX;
-    platform->gl_unload = __winUngl_loadX;
-    platform->gl_context_create = __winCreateContextGLX;
-    platform->gl_context_destroy = __winDestroyContextGLX;
-    platform->gl_make_current = __winMakeCurrentGLX;
-    platform->gl_swap_buffers = __winSwapBuffersGLX;
-    platform->gl_swap_interval = __winSwapIntervalGLX;
-    platform->gl_get_proc_address = __winGetProcAddressGLX;
-    platform->gl_choose_config = __winChooseConfigGLX;
-    platform->gl_get_visual = __winGetVisualGLX;
+    platform->gl_init = __win_glx_init;
+    platform->gl_load = __win_glx_load;
+    platform->gl_unload = __win_glx_unload;
+    platform->gl_context_create = __win_glx_create_context;
+    platform->gl_context_destroy = __win_glx_context_destroy;
+    platform->gl_make_current = __win_glx_make_current;
+    platform->gl_swap_buffers = __win_glx_swap_buffers;
+    platform->gl_swap_interval = __win_glx_swap_interval;
+    platform->gl_get_proc_address = __win_glx_get_proc_address;
+    platform->gl_choose_config = __win_glx_choose_config;
+    platform->gl_get_visual = __win_glx_get_visual;
 
 # elif defined (WINDOW_BACKEND_EGL)
 
