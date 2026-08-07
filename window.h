@@ -6411,31 +6411,31 @@ static const struct __window_h_egl_attrmap {
 
 /* internal functions (declarations) */
 
-WININT int __winInitEGL(struct __window_h *, void *);
+WININT int __win_egl_init(struct __window_h *, void *);
 
-WININT int __winLoadEGL(struct __window_h *);
+WININT int __win_egl_load(struct __window_h *);
 
-WININT int __winUnloadEGL(struct __window_h *);
+WININT int __win_egl_unload(struct __window_h *);
 
-WININT int __winCreateContextEGL(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+WININT int __win_egl_create_context(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
 
-WININT int __winDestroyContextEGL(struct __window_h *, struct __window_h_context *);
+WININT int __win_egl_context_destroy(struct __window_h *, struct __window_h_context *);
 
-WININT int __winMakeCurrentEGL(struct __window_h *, struct __window_h_context *);
+WININT int __win_egl_make_current(struct __window_h *, struct __window_h_context *);
 
-WININT int __winSwapBuffersEGL(struct __window_h *, struct __window_h_context *);
+WININT int __win_egl_swap_buffers(struct __window_h *, struct __window_h_context *);
 
-WININT int __winSwapIntervalEGL(struct __window_h *, struct __window_h_context *, const int);
+WININT int __win_egl_swap_interval(struct __window_h *, struct __window_h_context *, const int);
 
-WININT void *__winGetProcAddressEGL(struct __window_h *, const char *);
+WININT void *__win_egl_get_proc_address(struct __window_h *, const char *);
 
-WININT int __winChooseConfigEGL(struct __window_h *);
+WININT int __win_egl_choose_config(struct __window_h *);
 
-WININT int __winGetVisualEGL(struct __window_h *, int *);
+WININT int __win_egl_get_visual(struct __window_h *, int *);
 
 /* internal functions (definitions) */
 
-WININT int __winInitEGL(struct __window_h *lib, void *display) {
+WININT int __win_egl_init(struct __window_h *lib, void *display) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -6531,7 +6531,7 @@ WININT int __winInitEGL(struct __window_h *lib, void *display) {
 }
 
 
-WININT int __winLoadEGL(struct __window_h *lib) {
+WININT int __win_egl_load(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
     if (lib->egl) { return (1); }
@@ -6611,7 +6611,7 @@ WININT int __winLoadEGL(struct __window_h *lib) {
 }
 
 
-WININT int __winUnloadEGL(struct __window_h *lib) {
+WININT int __win_egl_unload(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -6632,7 +6632,7 @@ WININT int __winUnloadEGL(struct __window_h *lib) {
 }
 
 
-WININT int __winCreateContextEGL(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
+WININT int __win_egl_create_context(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6681,7 +6681,7 @@ WININT int __winCreateContextEGL(struct __window_h *lib, struct __window_h_conte
 }
 
 
-WININT int __winDestroyContextEGL(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_egl_context_destroy(struct __window_h *lib, struct __window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6702,7 +6702,7 @@ WININT int __winDestroyContextEGL(struct __window_h *lib, struct __window_h_cont
 }
 
 
-WININT int __winMakeCurrentEGL(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_egl_make_current(struct __window_h *lib, struct __window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6725,7 +6725,7 @@ WININT int __winMakeCurrentEGL(struct __window_h *lib, struct __window_h_context
 }
 
 
-WININT int __winSwapBuffersEGL(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_egl_swap_buffers(struct __window_h *lib, struct __window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6751,7 +6751,7 @@ WININT int __winSwapBuffersEGL(struct __window_h *lib, struct __window_h_context
 }
 
 
-WININT int __winSwapIntervalEGL(struct __window_h *lib, struct __window_h_context *ctx, const int interval) {
+WININT int __win_egl_swap_interval(struct __window_h *lib, struct __window_h_context *ctx, const int interval) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6770,7 +6770,7 @@ WININT int __winSwapIntervalEGL(struct __window_h *lib, struct __window_h_contex
 }
 
 
-WININT void *__winGetProcAddressEGL(struct __window_h *lib, const char *proc) {
+WININT void *__win_egl_get_proc_address(struct __window_h *lib, const char *proc) {
     /* null-check */
     if (!lib)  { return (0); }
     if (!proc) { return (0); }
@@ -6780,7 +6780,7 @@ WININT void *__winGetProcAddressEGL(struct __window_h *lib, const char *proc) {
 }
 
 
-WININT int __winChooseConfigEGL(struct __window_h *lib) {
+WININT int __win_egl_choose_config(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -6831,14 +6831,14 @@ WININT int __winChooseConfigEGL(struct __window_h *lib) {
 }
 
 
-WININT int __winGetVisualEGL(struct __window_h *lib, int *v_ptr) {
+WININT int __win_egl_get_visual(struct __window_h *lib, int *v_ptr) {
     /* null-check */
     if (!lib) { return (0); }
 
     /* check for 'config' */
     if (!lib->egl->config) {
         /* first time running: cache the new 'fbconfig' */
-        if (!__winChooseConfigEGL(lib)) { return (0); }
+        if (!__win_egl_choose_config(lib)) { return (0); }
     }
         
     /* get the value of 'EGL_NATIVE_VISUAL_ID' */
@@ -10670,17 +10670,17 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
 
     /* opengl context functions */
 
-    platform->gl_init = __winInitEGL;
-    platform->gl_load = __winLoadEGL;
-    platform->gl_unload = __winUnloadEGL;
-    platform->gl_context_create = __winCreateContextEGL;
-    platform->gl_context_destroy = __winDestroyContextEGL;
-    platform->gl_make_current = __winMakeCurrentEGL;
-    platform->gl_swap_buffers = __winSwapBuffersEGL;
-    platform->gl_swap_interval = __winSwapIntervalEGL;
-    platform->gl_get_proc_address = __winGetProcAddressEGL;
-    platform->gl_choose_config = __winChooseConfigEGL;
-    platform->gl_get_visual = __winGetVisualEGL;
+    platform->gl_init = __win_egl_init;
+    platform->gl_load = __win_egl_load;
+    platform->gl_unload = __win_egl_unload;
+    platform->gl_context_create = __win_egl_create_context;
+    platform->gl_context_destroy = __win_egl_context_destroy;
+    platform->gl_make_current = __win_egl_make_current;
+    platform->gl_swap_buffers = __win_egl_swap_buffers;
+    platform->gl_swap_interval = __win_egl_swap_interval;
+    platform->gl_get_proc_address = __win_egl_get_proc_address;
+    platform->gl_choose_config = __win_egl_choose_config;
+    platform->gl_get_visual = __win_egl_get_visual;
 
 # elif defined (WINDOW_BACKEND_WGL)
     
