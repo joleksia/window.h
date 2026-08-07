@@ -7257,65 +7257,65 @@ WININT int __winHandleSelectionX11(struct __window_h *, XEvent *);
 
 /* window.h API (declarations) */
 
-WININT int __winInitX11(struct __window_h *);
+WININT int __win_x11_init(struct __window_h *);
 
-WININT int __winLoadX11(struct __window_h *);
+WININT int __win_x11_load(struct __window_h *);
 
-WININT int __winQuitX11(struct __window_h *);
+WININT int __win_x11_quit(struct __window_h *);
 
-WININT int __winUnloadX11(struct __window_h *);
+WININT int __win_x11_unload(struct __window_h *);
 
-WININT int __winCreateWindowX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
+WININT int __win_x11_window_create(struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
 
-WININT int __winDestroyWindowX11(struct __window_h *, struct __window_h_window *);
+WININT int __win_x11_window_destroy(struct __window_h *, struct __window_h_window *);
 
-WININT int __winMapWindowX11(struct __window_h *, struct __window_h_window *);
+WININT int __win_x11_window_map(struct __window_h *, struct __window_h_window *);
 
-WININT int __winUnwindow_mapX11(struct __window_h *, struct __window_h_window *);
+WININT int __win_x11_window_unmap(struct __window_h *, struct __window_h_window *);
 
-WININT int __winGetWindowSizeX11(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+WININT int __win_x11_window_get_size(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
 
-WININT int __winSetWindowSizeX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_window_set_size(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
 
-WININT int __winSetWindowMinSizeX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_window_set_size_min(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
 
-WININT int __winSetWindowMaxSizeX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_window_set_size_max(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
 
-WININT int __winGetWindowPositionX11(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+WININT int __win_x11_window_get_position(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
 
-WININT int __winSetWindowPositionX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_window_set_position(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
 
-WININT int __winGetWindowTitleX11(struct __window_h *, struct __window_h_window *, char **);
+WININT int __win_x11_window_get_title(struct __window_h *, struct __window_h_window *, char **);
 
-WININT int __winSetWindowTitleX11(struct __window_h *, struct __window_h_window *, const char *);
+WININT int __win_x11_window_set_title(struct __window_h *, struct __window_h_window *, const char *);
 
-WININT int __winCreateContextX11(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+WININT int __win_x11_context_create(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
 
-WININT int __winDestroyContextX11(struct __window_h *, struct __window_h_context *);
+WININT int __win_x11_context_destroy(struct __window_h *, struct __window_h_context *);
 
-WININT int __winCreateCursorX11(struct __window_h *, struct __window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
+WININT int __win_x11_cursor_create(struct __window_h *, struct __window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
 
-WININT int __winDestroyCursorX11(struct __window_h *, struct __window_h_cursor *);
+WININT int __win_x11_cursor_destroy(struct __window_h *, struct __window_h_cursor *);
 
-WININT int __winGetCursorPositionX11(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+WININT int __win_x11_cursor_get_position(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
 
-WININT int __winSetCursorPositionX11(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_cursor_set_position(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
 
-WININT int __winGetCursorModeX11(struct __window_h *, struct __window_h_window *, uint32_t *);
+WININT int __win_x11_cursor_get_mode(struct __window_h *, struct __window_h_window *, uint32_t *);
 
-WININT int __winSetCursorModeX11(struct __window_h *, struct __window_h_window *, const uint32_t);
+WININT int __win_x11_cursor_set_mode(struct __window_h *, struct __window_h_window *, const uint32_t);
 
 WININT int __winGetCursorRawMotionX11(struct __window_h *, struct __window_h_window *, uint8_t *);
 
 WININT int __winSetCursorRawMotionX11(struct __window_h *, struct __window_h_window *, const uint8_t);
 
-WININT int __winPollEventsX11(struct __window_h *);
+WININT int __win_x11_event_poll(struct __window_h *);
 
-WININT int __winWaitEventsX11(struct __window_h *);
+WININT int __win_x11_event_wait(struct __window_h *);
 
-WININT int __winCopyX11(struct __window_h *, const uint32_t, const void *, const size_t);
+WININT int __win_x11_copy(struct __window_h *, const uint32_t, const void *, const size_t);
 
-WININT int __winPasteX11(struct __window_h *, const uint32_t, void **, size_t *);
+WININT int __win_x11_paste(struct __window_h *, const uint32_t, void **, size_t *);
 
 /* internal functions (definitions) */
 
@@ -7578,7 +7578,7 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
 }
 
 
-WININT int __winCopyX11(struct __window_h *lib, const uint32_t selection, const void *data, const size_t size) {
+WININT int __win_x11_copy(struct __window_h *lib, const uint32_t selection, const void *data, const size_t size) {
     /* null-check */
     if (!lib) { return (0); }
     
@@ -7864,7 +7864,7 @@ WININT int __winHandleSelectionX11(struct __window_h *lib, XEvent *xevent) {
 
 /* window.h API (declarations) */
 
-WININT int __winInitX11(struct __window_h *lib) {
+WININT int __win_x11_init(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -7931,7 +7931,7 @@ WININT int __winInitX11(struct __window_h *lib) {
 }
 
 
-WININT int __winLoadX11(struct __window_h *lib) {
+WININT int __win_x11_load(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
     if (lib->x11) { return (1); }
@@ -8869,7 +8869,7 @@ WININT int __winLoadX11(struct __window_h *lib) {
 }
 
 
-WININT int __winQuitX11(struct __window_h *lib) {
+WININT int __win_x11_quit(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -8886,7 +8886,7 @@ WININT int __winQuitX11(struct __window_h *lib) {
 }
 
 
-WININT int __winUnloadX11(struct __window_h *lib) {
+WININT int __win_x11_unload(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -8912,7 +8912,7 @@ WININT int __winUnloadX11(struct __window_h *lib) {
 }
 
 
-WININT int __winCreateWindowX11(struct __window_h *lib, struct __window_h_window *win, const size_t width, const size_t height, const char *title) {
+WININT int __win_x11_window_create(struct __window_h *lib, struct __window_h_window *win, const size_t width, const size_t height, const char *title) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9015,7 +9015,7 @@ WININT int __winCreateWindowX11(struct __window_h *lib, struct __window_h_window
 }
 
 
-WININT int __winDestroyWindowX11(struct __window_h *lib, struct __window_h_window *win) {
+WININT int __win_x11_window_destroy(struct __window_h *lib, struct __window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9032,7 +9032,7 @@ WININT int __winDestroyWindowX11(struct __window_h *lib, struct __window_h_windo
 }
 
 
-WININT int __winMapWindowX11(struct __window_h *lib, struct __window_h_window *win) {
+WININT int __win_x11_window_map(struct __window_h *lib, struct __window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9046,7 +9046,7 @@ WININT int __winMapWindowX11(struct __window_h *lib, struct __window_h_window *w
 }
 
 
-WININT int __winUnwindow_mapX11(struct __window_h *lib, struct __window_h_window *win) {
+WININT int __win_x11_window_unmap(struct __window_h *lib, struct __window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9060,7 +9060,7 @@ WININT int __winUnwindow_mapX11(struct __window_h *lib, struct __window_h_window
 }
 
 
-WININT int __winGetWindowSizeX11(struct __window_h *lib, struct __window_h_window *win, size_t *w_ptr, size_t *h_ptr) {
+WININT int __win_x11_window_get_size(struct __window_h *lib, struct __window_h_window *win, size_t *w_ptr, size_t *h_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9081,7 +9081,7 @@ WININT int __winGetWindowSizeX11(struct __window_h *lib, struct __window_h_windo
 }
 
 
-WININT int __winSetWindowSizeX11(struct __window_h *lib, struct __window_h_window *win, const size_t w, const size_t h) {
+WININT int __win_x11_window_set_size(struct __window_h *lib, struct __window_h_window *win, const size_t w, const size_t h) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9097,7 +9097,7 @@ WININT int __winSetWindowSizeX11(struct __window_h *lib, struct __window_h_windo
 }
 
 
-WININT int __winSetWindowMinSizeX11(struct __window_h *lib, struct __window_h_window *win, const size_t w, const size_t h) {
+WININT int __win_x11_window_set_size_min(struct __window_h *lib, struct __window_h_window *win, const size_t w, const size_t h) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9122,7 +9122,7 @@ WININT int __winSetWindowMinSizeX11(struct __window_h *lib, struct __window_h_wi
 }
 
 
-WININT int __winSetWindowMaxSizeX11(struct __window_h *lib, struct __window_h_window *win, const size_t w, const size_t h) {
+WININT int __win_x11_window_set_size_max(struct __window_h *lib, struct __window_h_window *win, const size_t w, const size_t h) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9147,7 +9147,7 @@ WININT int __winSetWindowMaxSizeX11(struct __window_h *lib, struct __window_h_wi
 }
 
 
-WININT int __winGetWindowPositionX11(struct __window_h *lib, struct __window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
+WININT int __win_x11_window_get_position(struct __window_h *lib, struct __window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9168,7 +9168,7 @@ WININT int __winGetWindowPositionX11(struct __window_h *lib, struct __window_h_w
 }
 
 
-WININT int __winSetWindowPositionX11(struct __window_h *lib, struct __window_h_window *win, const size_t x, const size_t y) {
+WININT int __win_x11_window_set_position(struct __window_h *lib, struct __window_h_window *win, const size_t x, const size_t y) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9184,7 +9184,7 @@ WININT int __winSetWindowPositionX11(struct __window_h *lib, struct __window_h_w
 }
 
 
-WININT int __winGetWindowTitleX11(struct __window_h *lib, struct __window_h_window *win, char **t_ptr) {
+WININT int __win_x11_window_get_title(struct __window_h *lib, struct __window_h_window *win, char **t_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9199,7 +9199,7 @@ WININT int __winGetWindowTitleX11(struct __window_h *lib, struct __window_h_wind
 }
 
 
-WININT int __winSetWindowTitleX11(struct __window_h *lib, struct __window_h_window *win, const char *t) {
+WININT int __win_x11_window_set_title(struct __window_h *lib, struct __window_h_window *win, const char *t) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9214,7 +9214,7 @@ WININT int __winSetWindowTitleX11(struct __window_h *lib, struct __window_h_wind
 }
 
 
-WININT int __winCreateContextX11(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
+WININT int __win_x11_context_create(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -9241,7 +9241,7 @@ WININT int __winCreateContextX11(struct __window_h *lib, struct __window_h_conte
 }
 
 
-WININT int __winDestroyContextX11(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_x11_context_destroy(struct __window_h *lib, struct __window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -9257,7 +9257,7 @@ WININT int __winDestroyContextX11(struct __window_h *lib, struct __window_h_cont
 }
 
 
-WININT int __winCreateCursorX11(struct __window_h *lib, struct __window_h_cursor *cur, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
+WININT int __win_x11_cursor_create(struct __window_h *lib, struct __window_h_cursor *cur, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
     /* null-check */
     if (!lib) { return (0); }
     if (!cur) { return (0); }
@@ -9335,7 +9335,7 @@ WININT int __winCreateCursorX11(struct __window_h *lib, struct __window_h_cursor
 }
 
 
-WININT int __winDestroyCursorX11(struct __window_h *lib, struct __window_h_cursor *cur) {
+WININT int __win_x11_cursor_destroy(struct __window_h *lib, struct __window_h_cursor *cur) {
     /* null-check */
     if (!lib) { return (0); }
     if (!cur) { return (0); }
@@ -9352,7 +9352,7 @@ WININT int __winDestroyCursorX11(struct __window_h *lib, struct __window_h_curso
 }
 
 
-WININT int __winGetCursorPositionX11(struct __window_h *lib, struct __window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
+WININT int __win_x11_cursor_get_position(struct __window_h *lib, struct __window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9380,7 +9380,7 @@ WININT int __winGetCursorPositionX11(struct __window_h *lib, struct __window_h_w
 }
 
 
-WININT int __winSetCursorPositionX11(struct __window_h *lib, struct __window_h_window *win, const size_t x, const size_t y) {
+WININT int __win_x11_cursor_set_position(struct __window_h *lib, struct __window_h_window *win, const size_t x, const size_t y) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9396,7 +9396,7 @@ WININT int __winSetCursorPositionX11(struct __window_h *lib, struct __window_h_w
 }
 
 
-WININT int __winGetCursorModeX11(struct __window_h *lib, struct __window_h_window *win, uint32_t *m_ptr) {
+WININT int __win_x11_cursor_get_mode(struct __window_h *lib, struct __window_h_window *win, uint32_t *m_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9411,7 +9411,7 @@ WININT int __winGetCursorModeX11(struct __window_h *lib, struct __window_h_windo
 }
 
 
-WININT int __winSetCursorModeX11(struct __window_h *lib, struct __window_h_window *win, const uint32_t mode) {
+WININT int __win_x11_cursor_set_mode(struct __window_h *lib, struct __window_h_window *win, const uint32_t mode) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9555,7 +9555,7 @@ WININT int __winSetCursorRawMotionX11(struct __window_h *lib, struct __window_h_
 }
 
 
-WININT int __winPollEventsX11(struct __window_h *lib) {
+WININT int __win_x11_event_poll(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -9575,7 +9575,7 @@ WININT int __winPollEventsX11(struct __window_h *lib) {
 }
 
 
-WININT int __winWaitEventsX11(struct __window_h *lib) {
+WININT int __win_x11_event_wait(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -9584,7 +9584,7 @@ WININT int __winWaitEventsX11(struct __window_h *lib) {
 }
 
 
-WININT int __winPasteX11(struct __window_h *lib, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
+WININT int __win_x11_paste(struct __window_h *lib, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     
@@ -10606,46 +10606,46 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
     
     /* library functions */
 
-    platform->init = __winInitX11;
-    platform->load = __winLoadX11;
-    platform->quit = __winQuitX11;
-    platform->unload = __winUnloadX11;
-    platform->window_create = __winCreateWindowX11;
-    platform->window_destroy = __winDestroyWindowX11;
-    platform->window_map = __winMapWindowX11;
-    platform->window_unmap = __winUnwindow_mapX11;
-    platform->window_get_size = __winGetWindowSizeX11;
-    platform->window_set_size = __winSetWindowSizeX11;
-    platform->window_set_size_min = __winSetWindowMinSizeX11;
-    platform->window_set_size_max = __winSetWindowMaxSizeX11;
-    platform->window_get_position = __winGetWindowPositionX11;
-    platform->window_set_position = __winSetWindowPositionX11;
-    platform->window_get_title = __winGetWindowTitleX11;
-    platform->window_set_title = __winSetWindowTitleX11;
+    platform->init = __win_x11_init;
+    platform->load = __win_x11_load;
+    platform->quit = __win_x11_quit;
+    platform->unload = __win_x11_unload;
+    platform->window_create = __win_x11_window_create;
+    platform->window_destroy = __win_x11_window_destroy;
+    platform->window_map = __win_x11_window_map;
+    platform->window_unmap = __win_x11_window_unmap;
+    platform->window_get_size = __win_x11_window_get_size;
+    platform->window_set_size = __win_x11_window_set_size;
+    platform->window_set_size_min = __win_x11_window_set_size_min;
+    platform->window_set_size_max = __win_x11_window_set_size_max;
+    platform->window_get_position = __win_x11_window_get_position;
+    platform->window_set_position = __win_x11_window_set_position;
+    platform->window_get_title = __win_x11_window_get_title;
+    platform->window_set_title = __win_x11_window_set_title;
 
     /* context functions */
 
-    platform->context_create = __winCreateContextX11;
-    platform->context_destroy = __winDestroyContextX11;
+    platform->context_create = __win_x11_context_create;
+    platform->context_destroy = __win_x11_context_destroy;
 
     /* cursor functions */
 
-    platform->cursor_create = __winCreateCursorX11;
-    platform->cursor_destroy = __winDestroyCursorX11;
-    platform->cursor_get_position = __winGetCursorPositionX11;
-    platform->cursor_set_position = __winSetCursorPositionX11;
-    platform->getCursorMode = __winGetCursorModeX11;
-    platform->cursor_set_mode = __winSetCursorModeX11;
+    platform->cursor_create = __win_x11_cursor_create;
+    platform->cursor_destroy = __win_x11_cursor_destroy;
+    platform->cursor_get_position = __win_x11_cursor_get_position;
+    platform->cursor_set_position = __win_x11_cursor_set_position;
+    platform->getCursorMode = __win_x11_cursor_get_mode;
+    platform->cursor_set_mode = __win_x11_cursor_set_mode;
 
     /* event functions */
 
-    platform->event_poll = __winPollEventsX11;
-    platform->event_wait = __winWaitEventsX11;
+    platform->event_poll = __win_x11_event_poll;
+    platform->event_wait = __win_x11_event_wait;
 
     /* clipboard functions */
     
-    platform->copy = __winCopyX11;
-    platform->paste = __winPasteX11;
+    platform->copy = __win_x11_copy;
+    platform->paste = __win_x11_paste;
 
 # else
 # endif
