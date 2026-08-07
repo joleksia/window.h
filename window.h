@@ -796,27 +796,27 @@ typedef void *context_t;
 typedef void *cursor_t;
 
 
-typedef struct eventCommon_s eventCommon_t;
+typedef struct event_common_s event_common_t;
 
-struct eventCommon_s {
+struct event_common_s {
     uint32_t type;
     uint64_t time;
     window_t window;
 };
 
 
-typedef struct eventQuit_s eventQuit_t;
+typedef struct event_quit_s event_quit_t;
 
-struct eventQuit_s {
+struct event_quit_s {
     uint32_t type;
     uint64_t time;
     window_t window;
 };
 
 
-typedef struct eventMouse_s eventMouse_t;
+typedef struct event_mouse_s event_mouse_t;
 
-struct eventMouse_s {
+struct event_mouse_s {
     uint32_t type;
     uint64_t time;
     window_t window;
@@ -838,18 +838,18 @@ struct eventMouse_s {
 };
 
 
-typedef struct eventMouseDevice_s eventMouseDevice_t;
+typedef struct event_mouseDevice_s event_mouseDevice_t;
 
-struct eventMouseDevice_s {
+struct event_mouseDevice_s {
     uint32_t type;
     uint64_t time;
     window_t window;
 };
 
 
-typedef struct eventKeyboard_s eventKeyboard_t;
+typedef struct event_keyboard_s event_keyboard_t;
 
-struct eventKeyboard_s {
+struct event_keyboard_s {
     uint32_t type;
     uint64_t time;
     window_t window;
@@ -863,18 +863,18 @@ struct eventKeyboard_s {
 };
 
 
-typedef struct eventKeyboardDevice_s eventKeyboardDevice_t;
+typedef struct event_keyboardDevice_s event_keyboardDevice_t;
 
-struct eventKeyboardDevice_s {
+struct event_keyboardDevice_s {
     uint32_t type;
     uint64_t time;
     window_t window;
 };
 
 
-typedef struct eventWindow_s eventWindow_t;
+typedef struct event_window_s event_window_t;
 
-struct eventWindow_s {
+struct event_window_s {
     uint32_t type;
     uint64_t time;
     window_t window;
@@ -884,9 +884,9 @@ struct eventWindow_s {
 };
 
 
-typedef struct eventSelection_s eventSelection_t;
+typedef struct event_selection_s event_selection_t;
 
-struct eventSelection_s {
+struct event_selection_s {
     uint32_t type;
     uint64_t time;
     window_t window;
@@ -901,12 +901,12 @@ typedef union event_u event_t;
 
 union event_u {
     uint32_t type;
-    eventCommon_t       common;
-    eventQuit_t         quit;
-    eventMouse_t        mouse;
-    eventKeyboard_t     keyboard;
-    eventWindow_t       window;
-    eventSelection_t    clipboard;
+    event_common_t      common;
+    event_quit_t        quit;
+    event_mouse_t       mouse;
+    event_keyboard_t    keyboard;
+    event_window_t      window;
+    event_selection_t   clipboard;
 };
 
 
@@ -1085,42 +1085,42 @@ WINDEF int win_time_wait(uint64_t);
 /* window.h definition layer */
 /* {{{ */
 
-/* __window_h_event: event queue struct */
-struct __window_h_event;
+/* _window_h_event: event queue struct */
+struct _window_h_event;
 
-/* __window_h_selection: copy'n'paste selection struct */
-struct __window_h_selection;
+/* _window_h_selection: copy'n'paste selection struct */
+struct _window_h_selection;
 
-/* __window_h_platform: platform structure containing API callbacks */
-struct __window_h_platform;
+/* _window_h_platform: platform structure containing API callbacks */
+struct _window_h_platform;
 
-/* __window_h_hints: window and context configuration hints */
-struct __window_h_hints;
+/* _window_h_hints: window and context configuration hints */
+struct _window_h_hints;
 
-/* __window_h_error: library's error struct */
-struct __window_h_error;
+/* _window_h_error: library's error struct */
+struct _window_h_error;
 
-/* __window_h_window: generic, type-agnostic window struct */
-struct __window_h_window;
+/* _window_h_window: generic, type-agnostic window struct */
+struct _window_h_window;
 
 /* __context_h_context: generic, type-agnostic context struct */
-struct __window_h_context;
+struct _window_h_context;
 
 /* __cursor_h_cursor: generic, type-agnostic cursor struct */
-struct __window_h_cursor;
+struct _window_h_cursor;
 
 
-/* __window_h: global window.h struct */
-struct __window_h;
+/* _window_h: global window.h struct */
+struct _window_h;
 
 
-struct __window_h_event {
+struct _window_h_event {
     void *next;
     event_t event;
 };
 
 
-struct __window_h_selection {
+struct _window_h_selection {
     struct {
         void  *data;
         size_t size;
@@ -1138,98 +1138,98 @@ struct __window_h_selection {
 };
 
 
-struct __window_h_platform {
+struct _window_h_platform {
     uint32_t id; /* ID of the platform */
    
     /* library functions */
 
-    int (*init) (struct __window_h *);
-    int (*load) (struct __window_h *);
-    int (*quit) (struct __window_h *);
-    int (*unload) (struct __window_h *);
+    int (*init) (struct _window_h *);
+    int (*load) (struct _window_h *);
+    int (*quit) (struct _window_h *);
+    int (*unload) (struct _window_h *);
 
     /* window functions */
 
-    int (*window_create) (struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
-    int (*window_destroy) (struct __window_h *, struct __window_h_window *);
-    int (*window_update_flags) (struct __window_h *, struct __window_h_window *);
-    int (*window_map) (struct __window_h *, struct __window_h_window *);
-    int (*window_unmap) (struct __window_h *, struct __window_h_window *);
-    int (*window_get_size) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
-    int (*window_set_size) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*window_set_size_min) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*window_set_size_max) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*window_get_position) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
-    int (*window_set_position) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*window_get_title) (struct __window_h *, struct __window_h_window *, char **);
-    int (*window_set_title) (struct __window_h *, struct __window_h_window *, const char *);
+    int (*window_create) (struct _window_h *, struct _window_h_window *, const size_t, const size_t, const char *);
+    int (*window_destroy) (struct _window_h *, struct _window_h_window *);
+    int (*window_update_flags) (struct _window_h *, struct _window_h_window *);
+    int (*window_map) (struct _window_h *, struct _window_h_window *);
+    int (*window_unmap) (struct _window_h *, struct _window_h_window *);
+    int (*window_get_size) (struct _window_h *, struct _window_h_window *, size_t *, size_t *);
+    int (*window_set_size) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+    int (*window_set_size_min) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+    int (*window_set_size_max) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+    int (*window_get_position) (struct _window_h *, struct _window_h_window *, size_t *, size_t *);
+    int (*window_set_position) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+    int (*window_get_title) (struct _window_h *, struct _window_h_window *, char **);
+    int (*window_set_title) (struct _window_h *, struct _window_h_window *, const char *);
 
     /* context functions */
 
-    int (*context_create) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
-    int (*context_destroy) (struct __window_h *, struct __window_h_context *);
+    int (*context_create) (struct _window_h *, struct _window_h_context *, struct _window_h_window *);
+    int (*context_destroy) (struct _window_h *, struct _window_h_context *);
 
     /* cursor functions */
 
-    int (*cursor_create) (struct __window_h *, struct __window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
-    int (*cursor_destroy) (struct __window_h *, struct __window_h_cursor *);
-    int (*cursor_get_position) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
-    int (*cursor_set_position) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*getCursorMode) (struct __window_h *, struct __window_h_window *, uint32_t *);
-    int (*cursor_set_mode) (struct __window_h *, struct __window_h_window *, const uint32_t);
-    int (*getCursorRawMotion) (struct __window_h *, struct __window_h_window *, uint8_t *);
-    int (*setCursorRawMotion) (struct __window_h *, struct __window_h_window *, const uint8_t);
+    int (*cursor_create) (struct _window_h *, struct _window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
+    int (*cursor_destroy) (struct _window_h *, struct _window_h_cursor *);
+    int (*cursor_get_position) (struct _window_h *, struct _window_h_window *, size_t *, size_t *);
+    int (*cursor_set_position) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+    int (*getCursorMode) (struct _window_h *, struct _window_h_window *, uint32_t *);
+    int (*cursor_set_mode) (struct _window_h *, struct _window_h_window *, const uint32_t);
+    int (*getCursorRawMotion) (struct _window_h *, struct _window_h_window *, uint8_t *);
+    int (*setCursorRawMotion) (struct _window_h *, struct _window_h_window *, const uint8_t);
 
     /* event functions */
 
-    int (*event_poll) (struct __window_h *);
-    int (*event_wait) (struct __window_h *);
+    int (*event_poll) (struct _window_h *);
+    int (*event_wait) (struct _window_h *);
 
     /* clipboard functions */
 
-    int (*copy) (struct __window_h *, const uint32_t, const void *, const size_t);
-    int (*paste) (struct __window_h *, const uint32_t, void **, size_t *);
+    int (*copy) (struct _window_h *, const uint32_t, const void *, const size_t);
+    int (*paste) (struct _window_h *, const uint32_t, void **, size_t *);
 
     /* opengl context functions */
 
-    int (*gl_init) (struct __window_h *, void *);
-    int (*gl_load) (struct __window_h *);
-    int (*gl_unload) (struct __window_h *);
-    int (*gl_context_create) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
-    int (*gl_context_destroy) (struct __window_h *, struct __window_h_context *);
-    int (*gl_make_current) (struct __window_h *, struct __window_h_context *);
-    int (*gl_swap_buffers) (struct __window_h *, struct __window_h_context *);
-    int (*gl_swap_interval) (struct __window_h *, struct __window_h_context *, const int);
-    int (*gl_choose_config) (struct __window_h *);
-    int (*gl_get_visual) (struct __window_h *, int *);
+    int (*gl_init) (struct _window_h *, void *);
+    int (*gl_load) (struct _window_h *);
+    int (*gl_unload) (struct _window_h *);
+    int (*gl_context_create) (struct _window_h *, struct _window_h_context *, struct _window_h_window *);
+    int (*gl_context_destroy) (struct _window_h *, struct _window_h_context *);
+    int (*gl_make_current) (struct _window_h *, struct _window_h_context *);
+    int (*gl_swap_buffers) (struct _window_h *, struct _window_h_context *);
+    int (*gl_swap_interval) (struct _window_h *, struct _window_h_context *, const int);
+    int (*gl_choose_config) (struct _window_h *);
+    int (*gl_get_visual) (struct _window_h *, int *);
 };
 
 
-struct __window_h_error {
-    struct __window_h_error *next;
+struct _window_h_error {
+    struct _window_h_error *next;
     uint32_t code;
 };
 
 
-struct __window_h_window_x11;
+struct _window_h_window_x11;
 
-struct __window_h_window_win32;
+struct _window_h_window_win32;
 
-struct __window_h_window {
+struct _window_h_window {
 
     /* pointer to the 'next' node in linked-list of window */
-    struct __window_h_window *next;
+    struct _window_h_window *next;
 
 
     struct {
         /* 'handle' to this window's context */
-        struct __window_h_context *handle;
+        struct _window_h_context *handle;
     } context;
 
 
     struct {
         /* 'handle' to this window's cursor */
-        struct __window_h_cursor *handle;
+        struct _window_h_cursor *handle;
 
         struct {
             /* cursor 'mode' */
@@ -1245,9 +1245,9 @@ struct __window_h_window {
     uint64_t handle;
 
 
-    struct __window_h_window_x11 *x11;
+    struct _window_h_window_x11 *x11;
 
-    struct __window_h_window_win32 *win32;
+    struct _window_h_window_win32 *win32;
 
 
     /* struct of window attributes */
@@ -1274,21 +1274,21 @@ struct __window_h_window {
 };
 
 
-struct __window_h_context_x11;
+struct _window_h_context_x11;
 
-struct __window_h_context_win32;
+struct _window_h_context_win32;
 
-struct __window_h_context_egl;
+struct _window_h_context_egl;
 
-struct __window_h_context_wgl;
+struct _window_h_context_wgl;
 
-struct __window_h_context {
+struct _window_h_context {
 
     /* pointer to the 'next' node in linked-list of context */
-    struct __window_h_context *next;
+    struct _window_h_context *next;
 
     struct {
-        struct __window_h_window *current;
+        struct _window_h_window *current;
     } window;
 
     struct {
@@ -1297,76 +1297,76 @@ struct __window_h_context {
 
 
     /* WINDOW_API_NATIVE */
-    struct __window_h_context_x11 *x11;
+    struct _window_h_context_x11 *x11;
 
     /* WINDOW_API_NATIVE */
-    struct __window_h_context_win32 *win32;
+    struct _window_h_context_win32 *win32;
 
     /* WINDOW_API_OPENGL */
-    struct __window_h_context_glx *glx;
+    struct _window_h_context_glx *glx;
 
     /* WINDOW_API_OPENGL */
-    struct __window_h_context_egl *egl;
+    struct _window_h_context_egl *egl;
 
     /* WINDOW_API_OPENGL */
-    struct __window_h_context_wgl *wgl;
+    struct _window_h_context_wgl *wgl;
 
 };
 
 
-struct __window_h_cursor_x11;
+struct _window_h_cursor_x11;
 
-struct __window_h_cursor_win32;
+struct _window_h_cursor_win32;
 
-struct __window_h_cursor {
+struct _window_h_cursor {
 
     /* pointer to the 'next' node in linked-list of cursor */
-    struct __window_h_cursor *next;
+    struct _window_h_cursor *next;
 
 
     /* numeric handle to the cursor instance */
     uint64_t handle;
 
 
-    struct __window_h_cursor_x11 *x11;
+    struct _window_h_cursor_x11 *x11;
 
-    struct __window_h_cursor_win32 *win32;
+    struct _window_h_cursor_win32 *win32;
 };
 
 
-struct __window_h_x11;
+struct _window_h_x11;
 
-struct __window_h_win32;
+struct _window_h_win32;
 
-struct __window_h_glx;
+struct _window_h_glx;
 
-struct __window_h_egl;
+struct _window_h_egl;
 
-struct __window_h_wgl;
+struct _window_h_wgl;
 
-struct __window_h {
+struct _window_h {
 
     struct {
         /* linked-list of all the created windows */
-        struct __window_h_window *list;
+        struct _window_h_window *list;
     } window;
 
     struct {
         /* linked-list of all the created contexts */
-        struct __window_h_context *list;
+        struct _window_h_context *list;
     } context;
 
     struct {
         /* linked-list of all the created cursors */
-        struct __window_h_cursor *list;
+        struct _window_h_cursor *list;
 
         /* handle to 'blank' cursor handle */
-        struct __window_h_cursor *blank;
+        struct _window_h_cursor *blank;
     } cursor;
 
     struct {
         /* linked-list'ish queue of events processed by program */
-        struct __window_h_event *queue;
+        struct _window_h_event *queue;
     } event;
 
     struct {
@@ -1414,25 +1414,25 @@ struct __window_h {
     } hints;
 
     /* selections */
-    struct __window_h_selection selection;
+    struct _window_h_selection selection;
 
     /* platform */
-    struct __window_h_platform platform;
+    struct _window_h_platform platform;
 
     /* x11-implementation of window.h */
-    struct __window_h_x11 *x11;
+    struct _window_h_x11 *x11;
 
     /* win32-implementation of window.h */
-    struct __window_h_win32 *win32;
+    struct _window_h_win32 *win32;
 
     /* glx-implementation of window.h */
-    struct __window_h_glx *glx;
+    struct _window_h_glx *glx;
 
     /* egl-implementation of window.h */
-    struct __window_h_egl *egl;
+    struct _window_h_egl *egl;
 
     /* wgl-implementation of window.h */
-    struct __window_h_wgl *wgl;
+    struct _window_h_wgl *wgl;
 
     /* ... */
 
@@ -1793,17 +1793,17 @@ PFN_glXSwapIntervalEXT_PROC glXSwapIntervalEXT_PROC = 0;
 
 /* }}} */
 
-typedef struct __window_h_context_glx *context_t_glx;
+typedef struct _window_h_context_glx *context_t_glx;
 
-struct __window_h_context_glx {
+struct _window_h_context_glx {
     GLXWindow  window;
     GLXContext context;
 };
 
 
-typedef struct __window_h_glx *__window_h_glx;
+typedef struct _window_h_glx *_window_h_glx;
 
-struct __window_h_glx {
+struct _window_h_glx {
     /* handle do shared object */
     void *handle;
 
@@ -2206,17 +2206,17 @@ PFN_eglWaitSync_PROC eglWaitSync_PROC = 0;
 
 /* }}} */
 
-typedef struct __window_h_context_egl *context_t_egl;
+typedef struct _window_h_context_egl *context_t_egl;
 
-struct __window_h_context_egl {
+struct _window_h_context_egl {
     EGLSurface surface;
     EGLContext context;
 };
 
 
-typedef struct __window_h_egl *__window_h_egl;
+typedef struct _window_h_egl *_window_h_egl;
 
-struct __window_h_egl {
+struct _window_h_egl {
     /* handle do shared object */
     void *handle;
 
@@ -2245,18 +2245,18 @@ struct __window_h_egl {
 # if defined (WINDOW_BACKEND_WGL)
 /* {{{ */
 
-typedef struct __window_h_context_wgl *context_t_wgl;
+typedef struct _window_h_context_wgl *context_t_wgl;
 
-struct __window_h_context_wgl {
+struct _window_h_context_wgl {
 
     /* ... */
 
 };
 
 
-typedef struct __window_h_wgl *__window_h_wgl;
+typedef struct _window_h_wgl *_window_h_wgl;
 
-struct __window_h_wgl {
+struct _window_h_wgl {
     /* handle do shared object */
     void *handle;
 
@@ -5587,7 +5587,7 @@ PFN_XIFreeDeviceInfo_PROC XIFreeDeviceInfo_PROC = 0;
 # endif /* WINDOW_X11_EXTENSION_XINPUT2 */
 
 
-struct __window_h_window_x11 {
+struct _window_h_window_x11 {
     /* child / client window handle */
     Window handle;
 
@@ -5596,19 +5596,19 @@ struct __window_h_window_x11 {
 };
 
 
-struct __window_h_context_x11 {
+struct _window_h_context_x11 {
     /* graphics context handle */
     GC handle;
 };
 
 
-struct __window_h_cursor_x11 {
+struct _window_h_cursor_x11 {
     /* cursor handle */
     Cursor handle;
 };
 
 
-struct __window_h_x11 {
+struct _window_h_x11 {
     /* handle do shared object */
     void *handle;
 
@@ -5688,7 +5688,7 @@ struct __window_h_x11 {
 # if defined (WINDOW_BACKEND_WAYLAND)
 /* {{{ */
 
-struct __window_h_window_wl {
+struct _window_h_window_wl {
     struct {
     
         /* ... */
@@ -5700,7 +5700,7 @@ struct __window_h_window_wl {
 };
 
 
-struct __window_h_context_wl {
+struct _window_h_context_wl {
     struct {
     
         /* ... */
@@ -5712,7 +5712,7 @@ struct __window_h_context_wl {
 };
 
 
-struct __window_h_cursor_wl {
+struct _window_h_cursor_wl {
     struct {
     
         /* ... */
@@ -5720,9 +5720,9 @@ struct __window_h_cursor_wl {
     } wl;
 };
 
-typedef struct __window_h_wl *__window_h_wl;
+typedef struct _window_h_wl *_window_h_wl;
 
-struct __window_h_wl {
+struct _window_h_wl {
     /* handle do shared object */
     void *handle;
 
@@ -5742,7 +5742,7 @@ struct __window_h_wl {
 # if defined (WINDOW_PLATFORM_WIN32)
 /* {{{ */
 
-struct __window_h_window_win32 {
+struct _window_h_window_win32 {
     struct {
     
         /* ... */
@@ -5754,7 +5754,7 @@ struct __window_h_window_win32 {
 };
 
 
-struct __window_h_context_win32 {
+struct _window_h_context_win32 {
     struct {
     
         /* ... */
@@ -5766,7 +5766,7 @@ struct __window_h_context_win32 {
 };
 
 
-struct __window_h_cursor_win32 {
+struct _window_h_cursor_win32 {
     struct {
     
         /* ... */
@@ -5774,9 +5774,9 @@ struct __window_h_cursor_win32 {
     } win32;
 };
 
-typedef struct __window_h_win32 *__window_h_win32;
+typedef struct _window_h_win32 *_window_h_win32;
 
-struct __window_h_win32 {
+struct _window_h_win32 {
     /* handle do shared object */
     void *handle;
 
@@ -5798,36 +5798,36 @@ struct __window_h_win32 {
 
 /* internal functions (declarations) */
 
-WININT int __win_glx_init(struct __window_h *, void *);
+WININT int __win_glx_init(struct _window_h *, void *);
 
-WININT int __win_glx_load(struct __window_h *);
+WININT int __win_glx_load(struct _window_h *);
 
-WININT int __win_glx_unload(struct __window_h *);
+WININT int __win_glx_unload(struct _window_h *);
 
-WININT int __win_glx_create_context(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+WININT int __win_glx_create_context(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
 
-WININT int __win_glx_context_destroy(struct __window_h *, struct __window_h_context *);
+WININT int __win_glx_context_destroy(struct _window_h *, struct _window_h_context *);
 
-WININT int __win_glx_make_current(struct __window_h *, struct __window_h_context *);
+WININT int __win_glx_make_current(struct _window_h *, struct _window_h_context *);
 
-WININT int __win_glx_swap_buffers(struct __window_h *, struct __window_h_context *);
+WININT int __win_glx_swap_buffers(struct _window_h *, struct _window_h_context *);
 
-WININT int __win_glx_swap_interval(struct __window_h *, struct __window_h_context *, const int);
+WININT int __win_glx_swap_interval(struct _window_h *, struct _window_h_context *, const int);
 
-WININT void *__win_glx_get_proc_address(struct __window_h *, const char *);
+WININT void *__win_glx_get_proc_address(struct _window_h *, const char *);
 
-WININT int __win_glx_choose_config(struct __window_h *);
+WININT int __win_glx_choose_config(struct _window_h *);
 
-WININT int __win_glx_get_visual(struct __window_h *, int *);
+WININT int __win_glx_get_visual(struct _window_h *, int *);
 
 /* internal functions (definitions) */
 
-WININT int __win_glx_init(struct __window_h *lib, void *display) {
+WININT int __win_glx_init(struct _window_h *lib, void *display) {
     /* null-check */
     if (!lib) { return (0); }
 
     /* references */
-    struct __window_h_glx *glx = lib->glx; 
+    struct _window_h_glx *glx = lib->glx; 
     if (!glx) { return (0); }
 
     /* set 'glx' members */
@@ -5892,13 +5892,13 @@ WININT int __win_glx_init(struct __window_h *lib, void *display) {
 }
 
 
-WININT int __win_glx_load(struct __window_h *lib) {
+WININT int __win_glx_load(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
     if (lib->glx) { return (1); }
     
     /* init-check */
-    struct __window_h_glx *glx = calloc(1, sizeof(struct __window_h_glx));
+    struct _window_h_glx *glx = calloc(1, sizeof(struct _window_h_glx));
     if (!glx) { return (0); }
 
     void *libglx = 0;
@@ -6129,12 +6129,12 @@ WININT int __win_glx_load(struct __window_h *lib) {
 }
 
 
-WININT int __win_glx_unload(struct __window_h *lib) {
+WININT int __win_glx_unload(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
     /* init-check */
-    struct __window_h_glx *glx = lib->glx;
+    struct _window_h_glx *glx = lib->glx;
     if (!glx) { return (0); }
 
     /* release 'glx->attr' members */
@@ -6152,14 +6152,14 @@ WININT int __win_glx_unload(struct __window_h *lib) {
 }
 
 
-WININT int __win_glx_create_context(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
+WININT int __win_glx_create_context(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
     if (!win) { return (0); }
     
     /* alloc new 'glx' object */
-    struct __window_h_context_glx *glx = calloc(1, sizeof(struct __window_h_context_glx));
+    struct _window_h_context_glx *glx = calloc(1, sizeof(struct _window_h_context_glx));
     if (!glx) { return (0); }
 
     /* set 'glx' members */
@@ -6212,7 +6212,7 @@ WININT int __win_glx_create_context(struct __window_h *lib, struct __window_h_co
 }
 
 
-WININT int __win_glx_context_destroy(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_glx_context_destroy(struct _window_h *lib, struct _window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6233,13 +6233,13 @@ WININT int __win_glx_context_destroy(struct __window_h *lib, struct __window_h_c
 }
 
 
-WININT int __win_glx_make_current(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_glx_make_current(struct _window_h *lib, struct _window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
     
     /* references */
-    struct __window_h_context_glx *glx = (struct __window_h_context_glx *) ctx->glx;
+    struct _window_h_context_glx *glx = (struct _window_h_context_glx *) ctx->glx;
     if (!glx) { return (0); }
 
     /* set context.handle */
@@ -6255,13 +6255,13 @@ WININT int __win_glx_make_current(struct __window_h *lib, struct __window_h_cont
 }
 
 
-WININT int __win_glx_swap_buffers(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_glx_swap_buffers(struct _window_h *lib, struct _window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
    
     /* references */
-    struct __window_h_context_glx *glx = (struct __window_h_context_glx *) ctx->glx;
+    struct _window_h_context_glx *glx = (struct _window_h_context_glx *) ctx->glx;
     if (!glx) { return (0); }
     
     /* check if "double-buffering" is enabled */
@@ -6279,13 +6279,13 @@ WININT int __win_glx_swap_buffers(struct __window_h *lib, struct __window_h_cont
 }
 
 
-WININT int __win_glx_swap_interval(struct __window_h *lib, struct __window_h_context *ctx, const int interval) {
+WININT int __win_glx_swap_interval(struct _window_h *lib, struct _window_h_context *ctx, const int interval) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
     
     /* references */
-    struct __window_h_context_glx *glx = (struct __window_h_context_glx *) ctx->glx;
+    struct _window_h_context_glx *glx = (struct _window_h_context_glx *) ctx->glx;
     if (!glx) { return (0); }
 
     /* set swap intervals */
@@ -6296,7 +6296,7 @@ WININT int __win_glx_swap_interval(struct __window_h *lib, struct __window_h_con
 }
 
 
-WININT void *__win_glx_get_proc_address(struct __window_h *lib, const char *proc) {
+WININT void *__win_glx_get_proc_address(struct _window_h *lib, const char *proc) {
     /* null-check */
     if (!lib)  { return (0); }
     if (!proc) { return (0); }
@@ -6306,7 +6306,7 @@ WININT void *__win_glx_get_proc_address(struct __window_h *lib, const char *proc
 }
 
 
-WININT int __win_glx_choose_config(struct __window_h *lib) {
+WININT int __win_glx_choose_config(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -6356,7 +6356,7 @@ WININT int __win_glx_choose_config(struct __window_h *lib) {
 }
 
 
-WININT int __win_glx_get_visual(struct __window_h *lib, int *v_ptr) {
+WININT int __win_glx_get_visual(struct _window_h *lib, int *v_ptr) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -6387,10 +6387,10 @@ WININT int __win_glx_get_visual(struct __window_h *lib, int *v_ptr) {
 # if defined (WINDOW_BACKEND_EGL)
 /* {{{ */
 
-static const struct __window_h_egl_attrmap {
+static const struct _window_h_egl_attrmap {
     uint32_t src;
     uint32_t dst;
-} __window_h_egl_attrmap[] = {
+} _window_h_egl_attrmap[] = {
     
 /* {{{ */
     
@@ -6410,36 +6410,36 @@ static const struct __window_h_egl_attrmap {
 
 /* internal functions (declarations) */
 
-WININT int __win_egl_init(struct __window_h *, void *);
+WININT int __win_egl_init(struct _window_h *, void *);
 
-WININT int __win_egl_load(struct __window_h *);
+WININT int __win_egl_load(struct _window_h *);
 
-WININT int __win_egl_unload(struct __window_h *);
+WININT int __win_egl_unload(struct _window_h *);
 
-WININT int __win_egl_create_context(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+WININT int __win_egl_create_context(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
 
-WININT int __win_egl_context_destroy(struct __window_h *, struct __window_h_context *);
+WININT int __win_egl_context_destroy(struct _window_h *, struct _window_h_context *);
 
-WININT int __win_egl_make_current(struct __window_h *, struct __window_h_context *);
+WININT int __win_egl_make_current(struct _window_h *, struct _window_h_context *);
 
-WININT int __win_egl_swap_buffers(struct __window_h *, struct __window_h_context *);
+WININT int __win_egl_swap_buffers(struct _window_h *, struct _window_h_context *);
 
-WININT int __win_egl_swap_interval(struct __window_h *, struct __window_h_context *, const int);
+WININT int __win_egl_swap_interval(struct _window_h *, struct _window_h_context *, const int);
 
-WININT void *__win_egl_get_proc_address(struct __window_h *, const char *);
+WININT void *__win_egl_get_proc_address(struct _window_h *, const char *);
 
-WININT int __win_egl_choose_config(struct __window_h *);
+WININT int __win_egl_choose_config(struct _window_h *);
 
-WININT int __win_egl_get_visual(struct __window_h *, int *);
+WININT int __win_egl_get_visual(struct _window_h *, int *);
 
 /* internal functions (definitions) */
 
-WININT int __win_egl_init(struct __window_h *lib, void *display) {
+WININT int __win_egl_init(struct _window_h *lib, void *display) {
     /* null-check */
     if (!lib) { return (0); }
 
     /* references */
-    struct __window_h_egl *egl = lib->egl; 
+    struct _window_h_egl *egl = lib->egl; 
     if (!egl) { return (0); }
     if (egl->dpy) { return (1); }
 
@@ -6530,13 +6530,13 @@ WININT int __win_egl_init(struct __window_h *lib, void *display) {
 }
 
 
-WININT int __win_egl_load(struct __window_h *lib) {
+WININT int __win_egl_load(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
     if (lib->egl) { return (1); }
 
     /* init-check */
-    struct __window_h_egl *egl = calloc(1, sizeof(struct __window_h_egl));
+    struct _window_h_egl *egl = calloc(1, sizeof(struct _window_h_egl));
     if (!egl) { return (0); }
 
     void *libegl= 0;
@@ -6610,12 +6610,12 @@ WININT int __win_egl_load(struct __window_h *lib) {
 }
 
 
-WININT int __win_egl_unload(struct __window_h *lib) {
+WININT int __win_egl_unload(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
     /* init-check */
-    struct __window_h_egl *egl = lib->egl;
+    struct _window_h_egl *egl = lib->egl;
     if (!egl) { return (0); }
 
     eglTerminate(egl->dpy);
@@ -6631,14 +6631,14 @@ WININT int __win_egl_unload(struct __window_h *lib) {
 }
 
 
-WININT int __win_egl_create_context(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
+WININT int __win_egl_create_context(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
     if (!win) { return (0); }
 
     /* alloc new 'egl' object */
-    struct __window_h_context_egl *egl = calloc(1, sizeof(struct __window_h_context_egl));
+    struct _window_h_context_egl *egl = calloc(1, sizeof(struct _window_h_context_egl));
     if (!egl) { return (0); }
     
     /* get EGLConfig object */
@@ -6680,7 +6680,7 @@ WININT int __win_egl_create_context(struct __window_h *lib, struct __window_h_co
 }
 
 
-WININT int __win_egl_context_destroy(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_egl_context_destroy(struct _window_h *lib, struct _window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -6701,13 +6701,13 @@ WININT int __win_egl_context_destroy(struct __window_h *lib, struct __window_h_c
 }
 
 
-WININT int __win_egl_make_current(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_egl_make_current(struct _window_h *lib, struct _window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
     
     /* references */
-    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
+    struct _window_h_context_egl *egl = (struct _window_h_context_egl *) ctx->egl;
     if (!egl) { return (0); }
 
     /* set context.handle */
@@ -6724,13 +6724,13 @@ WININT int __win_egl_make_current(struct __window_h *lib, struct __window_h_cont
 }
 
 
-WININT int __win_egl_swap_buffers(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_egl_swap_buffers(struct _window_h *lib, struct _window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
    
     /* references */
-    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
+    struct _window_h_context_egl *egl = (struct _window_h_context_egl *) ctx->egl;
     if (!egl) { return (0); }
 
     /* check if "double-buffering" is enabled */
@@ -6750,13 +6750,13 @@ WININT int __win_egl_swap_buffers(struct __window_h *lib, struct __window_h_cont
 }
 
 
-WININT int __win_egl_swap_interval(struct __window_h *lib, struct __window_h_context *ctx, const int interval) {
+WININT int __win_egl_swap_interval(struct _window_h *lib, struct _window_h_context *ctx, const int interval) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
     
     /* references */
-    struct __window_h_context_egl *egl = (struct __window_h_context_egl *) ctx->egl;
+    struct _window_h_context_egl *egl = (struct _window_h_context_egl *) ctx->egl;
     if (!egl) { return (0); }
 
     /* set swap intervals */
@@ -6769,7 +6769,7 @@ WININT int __win_egl_swap_interval(struct __window_h *lib, struct __window_h_con
 }
 
 
-WININT void *__win_egl_get_proc_address(struct __window_h *lib, const char *proc) {
+WININT void *__win_egl_get_proc_address(struct _window_h *lib, const char *proc) {
     /* null-check */
     if (!lib)  { return (0); }
     if (!proc) { return (0); }
@@ -6779,7 +6779,7 @@ WININT void *__win_egl_get_proc_address(struct __window_h *lib, const char *proc
 }
 
 
-WININT int __win_egl_choose_config(struct __window_h *lib) {
+WININT int __win_egl_choose_config(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -6830,7 +6830,7 @@ WININT int __win_egl_choose_config(struct __window_h *lib) {
 }
 
 
-WININT int __win_egl_get_visual(struct __window_h *lib, int *v_ptr) {
+WININT int __win_egl_get_visual(struct _window_h *lib, int *v_ptr) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -6869,12 +6869,12 @@ WININT int __winUnloadWGL(void);
 
 /* internal functions (definitions) */
 
-WININT int __winLoadWGL(struct __window_h_wgl *wgl) {
+WININT int __winLoadWGL(struct _window_h_wgl *wgl) {
     /* null-check */
     if (!lib->wgl) { return (0); }
     
     /* references */
-    struct __window_h_win32 *win32 = lib->win32; 
+    struct _window_h_win32 *win32 = lib->win32; 
     if (!win32) { return (0); }
 
     /* try to load handle */
@@ -6895,7 +6895,7 @@ WININT int __winLoadWGL(struct __window_h_wgl *wgl) {
 }
 
 
-WININT int __winUnloadWGL(struct __window_h_wgl *wgl) {
+WININT int __winUnloadWGL(struct _window_h_wgl *wgl) {
     /* null-check */
     if (!lib->wgl) { return (0); }
 
@@ -6916,7 +6916,7 @@ WININT int __winUnloadWGL(struct __window_h_wgl *wgl) {
 /* {{{ */
 
 /* keymap layouts base */
-struct __window_h_keymap {
+struct _window_h_keymap {
     uint32_t src;
     uint32_t kc;
     uint32_t ks;
@@ -6927,7 +6927,7 @@ struct __window_h_keymap {
  *      https://en.wikipedia.org/wiki/QWERTY
  *
  * * * * * * * * * * * * * * * * * * * * * * */
-static const struct __window_h_keymap __window_h_keymap_en_us_qwerty[] = {
+static const struct _window_h_keymap _window_h_keymap_en_us_qwerty[] = {
 
 /* {{{ */
 
@@ -7246,85 +7246,85 @@ static const struct __window_h_keymap __window_h_keymap_en_us_qwerty[] = {
 
 /* internal functions (declarations) */
 
-WININT int __winProcessEventX11(struct __window_h *, XEvent *);
+WININT int __winProcessEventX11(struct _window_h *, XEvent *);
 
-WININT int __winGetSelectionX11(struct __window_h *, const Atom, void **, size_t *);
+WININT int __winGetSelectionX11(struct _window_h *, const Atom, void **, size_t *);
 
-WININT int __winSetSelectionX11(struct __window_h *, const Atom, const void *, const size_t);
+WININT int __winSetSelectionX11(struct _window_h *, const Atom, const void *, const size_t);
 
-WININT int __winHandleSelectionX11(struct __window_h *, XEvent *);
+WININT int __winHandleSelectionX11(struct _window_h *, XEvent *);
 
 /* window.h API (declarations) */
 
-WININT int __win_x11_init(struct __window_h *);
+WININT int __win_x11_init(struct _window_h *);
 
-WININT int __win_x11_load(struct __window_h *);
+WININT int __win_x11_load(struct _window_h *);
 
-WININT int __win_x11_quit(struct __window_h *);
+WININT int __win_x11_quit(struct _window_h *);
 
-WININT int __win_x11_unload(struct __window_h *);
+WININT int __win_x11_unload(struct _window_h *);
 
-WININT int __win_x11_window_create(struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
+WININT int __win_x11_window_create(struct _window_h *, struct _window_h_window *, const size_t, const size_t, const char *);
 
-WININT int __win_x11_window_destroy(struct __window_h *, struct __window_h_window *);
+WININT int __win_x11_window_destroy(struct _window_h *, struct _window_h_window *);
 
-WININT int __win_x11_window_map(struct __window_h *, struct __window_h_window *);
+WININT int __win_x11_window_map(struct _window_h *, struct _window_h_window *);
 
-WININT int __win_x11_window_unmap(struct __window_h *, struct __window_h_window *);
+WININT int __win_x11_window_unmap(struct _window_h *, struct _window_h_window *);
 
-WININT int __win_x11_window_get_size(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+WININT int __win_x11_window_get_size(struct _window_h *, struct _window_h_window *, size_t *, size_t *);
 
-WININT int __win_x11_window_set_size(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_window_set_size(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
 
-WININT int __win_x11_window_set_size_min(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_window_set_size_min(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
 
-WININT int __win_x11_window_set_size_max(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_window_set_size_max(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
 
-WININT int __win_x11_window_get_position(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+WININT int __win_x11_window_get_position(struct _window_h *, struct _window_h_window *, size_t *, size_t *);
 
-WININT int __win_x11_window_set_position(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_window_set_position(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
 
-WININT int __win_x11_window_get_title(struct __window_h *, struct __window_h_window *, char **);
+WININT int __win_x11_window_get_title(struct _window_h *, struct _window_h_window *, char **);
 
-WININT int __win_x11_window_set_title(struct __window_h *, struct __window_h_window *, const char *);
+WININT int __win_x11_window_set_title(struct _window_h *, struct _window_h_window *, const char *);
 
-WININT int __win_x11_context_create(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+WININT int __win_x11_context_create(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
 
-WININT int __win_x11_context_destroy(struct __window_h *, struct __window_h_context *);
+WININT int __win_x11_context_destroy(struct _window_h *, struct _window_h_context *);
 
-WININT int __win_x11_cursor_create(struct __window_h *, struct __window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
+WININT int __win_x11_cursor_create(struct _window_h *, struct _window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
 
-WININT int __win_x11_cursor_destroy(struct __window_h *, struct __window_h_cursor *);
+WININT int __win_x11_cursor_destroy(struct _window_h *, struct _window_h_cursor *);
 
-WININT int __win_x11_cursor_get_position(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+WININT int __win_x11_cursor_get_position(struct _window_h *, struct _window_h_window *, size_t *, size_t *);
 
-WININT int __win_x11_cursor_set_position(struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+WININT int __win_x11_cursor_set_position(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
 
-WININT int __win_x11_cursor_get_mode(struct __window_h *, struct __window_h_window *, uint32_t *);
+WININT int __win_x11_cursor_get_mode(struct _window_h *, struct _window_h_window *, uint32_t *);
 
-WININT int __win_x11_cursor_set_mode(struct __window_h *, struct __window_h_window *, const uint32_t);
+WININT int __win_x11_cursor_set_mode(struct _window_h *, struct _window_h_window *, const uint32_t);
 
-WININT int __winGetCursorRawMotionX11(struct __window_h *, struct __window_h_window *, uint8_t *);
+WININT int __winGetCursorRawMotionX11(struct _window_h *, struct _window_h_window *, uint8_t *);
 
-WININT int __winSetCursorRawMotionX11(struct __window_h *, struct __window_h_window *, const uint8_t);
+WININT int __winSetCursorRawMotionX11(struct _window_h *, struct _window_h_window *, const uint8_t);
 
-WININT int __win_x11_event_poll(struct __window_h *);
+WININT int __win_x11_event_poll(struct _window_h *);
 
-WININT int __win_x11_event_wait(struct __window_h *);
+WININT int __win_x11_event_wait(struct _window_h *);
 
-WININT int __win_x11_copy(struct __window_h *, const uint32_t, const void *, const size_t);
+WININT int __win_x11_copy(struct _window_h *, const uint32_t, const void *, const size_t);
 
-WININT int __win_x11_paste(struct __window_h *, const uint32_t, void **, size_t *);
+WININT int __win_x11_paste(struct _window_h *, const uint32_t, void **, size_t *);
 
 /* internal functions (definitions) */
 
-WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
+WININT int __winProcessEventX11(struct _window_h *lib, XEvent *xevent) {
     /* null-check */
     if (!lib)    { return (0); }
     if (!xevent) { return (0); }
     
     /* get 'window_t' from XID */
-    struct __window_h_window *win = lib->window.list;
+    struct _window_h_window *win = lib->window.list;
     while (win) {
         if (win->x11->handle == xevent->xany.window) { break; }
     }
@@ -7527,10 +7527,10 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
              * */
             uint32_t keycode = 0,
                      keysym  = 0;
-            for (size_t i = 0; __window_h_keymap_en_us_qwerty[i].src; i++) {
-                if (keyraw == __window_h_keymap_en_us_qwerty[i].src) {
-                    keycode = __window_h_keymap_en_us_qwerty[i].kc;
-                    keysym  = __window_h_keymap_en_us_qwerty[i].ks;
+            for (size_t i = 0; _window_h_keymap_en_us_qwerty[i].src; i++) {
+                if (keyraw == _window_h_keymap_en_us_qwerty[i].src) {
+                    keycode = _window_h_keymap_en_us_qwerty[i].kc;
+                    keysym  = _window_h_keymap_en_us_qwerty[i].ks;
                     break;
                 }
             }
@@ -7577,12 +7577,12 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
 }
 
 
-WININT int __win_x11_copy(struct __window_h *lib, const uint32_t selection, const void *data, const size_t size) {
+WININT int __win_x11_copy(struct _window_h *lib, const uint32_t selection, const void *data, const size_t size) {
     /* null-check */
     if (!lib) { return (0); }
     
     /* references */
-    struct __window_h_x11 *x11 = lib->x11; 
+    struct _window_h_x11 *x11 = lib->x11; 
     if (!x11) { return (0); }
 
     /* get selection atom */
@@ -7599,7 +7599,7 @@ WININT int __win_x11_copy(struct __window_h *lib, const uint32_t selection, cons
     return (__winSetSelectionX11(lib, atom, data, size));
 }
 
-WININT int __winGetSelectionX11(struct __window_h *lib, const Atom selection, void **d_ptr, size_t *s_ptr) {
+WININT int __winGetSelectionX11(struct _window_h *lib, const Atom selection, void **d_ptr, size_t *s_ptr) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -7671,7 +7671,7 @@ WININT int __winGetSelectionX11(struct __window_h *lib, const Atom selection, vo
 }
 
 
-WININT int __winSetSelectionX11(struct __window_h *lib, const Atom selection, const void *data, const size_t size) {
+WININT int __winSetSelectionX11(struct _window_h *lib, const Atom selection, const void *data, const size_t size) {
     /* null-check */
     if (!lib) { return (0); }
     
@@ -7716,7 +7716,7 @@ WININT int __winSetSelectionX11(struct __window_h *lib, const Atom selection, co
 }
 
 
-WININT int __winHandleSelectionX11(struct __window_h *lib, XEvent *xevent) {
+WININT int __winHandleSelectionX11(struct _window_h *lib, XEvent *xevent) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -7863,12 +7863,12 @@ WININT int __winHandleSelectionX11(struct __window_h *lib, XEvent *xevent) {
 
 /* window.h API (declarations) */
 
-WININT int __win_x11_init(struct __window_h *lib) {
+WININT int __win_x11_init(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
     /* references */
-    struct __window_h_x11 *x11 = lib->x11; 
+    struct _window_h_x11 *x11 = lib->x11; 
     if (!x11) { return (0); }
     
     x11->dpy = XOpenDisplay(0);
@@ -7930,13 +7930,13 @@ WININT int __win_x11_init(struct __window_h *lib) {
 }
 
 
-WININT int __win_x11_load(struct __window_h *lib) {
+WININT int __win_x11_load(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
     if (lib->x11) { return (1); }
 
     /* init-check */
-    struct __window_h_x11 *x11 = calloc(1, sizeof(struct __window_h_x11));
+    struct _window_h_x11 *x11 = calloc(1, sizeof(struct _window_h_x11));
     if (!x11) { return (0); }
 
     void *libx11  = 0;
@@ -8868,12 +8868,12 @@ WININT int __win_x11_load(struct __window_h *lib) {
 }
 
 
-WININT int __win_x11_quit(struct __window_h *lib) {
+WININT int __win_x11_quit(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
     /* references */
-    struct __window_h_x11 *x11 = lib->x11; 
+    struct _window_h_x11 *x11 = lib->x11; 
     if (!x11) { return (0); }
 
     /* close IPC window */
@@ -8885,12 +8885,12 @@ WININT int __win_x11_quit(struct __window_h *lib) {
 }
 
 
-WININT int __win_x11_unload(struct __window_h *lib) {
+WININT int __win_x11_unload(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
     /* init-check */
-    struct __window_h_x11 *x11 = lib->x11;
+    struct _window_h_x11 *x11 = lib->x11;
     if (!x11) { return (0); }
 
     XCloseDisplay(x11->dpy);
@@ -8911,7 +8911,7 @@ WININT int __win_x11_unload(struct __window_h *lib) {
 }
 
 
-WININT int __win_x11_window_create(struct __window_h *lib, struct __window_h_window *win, const size_t width, const size_t height, const char *title) {
+WININT int __win_x11_window_create(struct _window_h *lib, struct _window_h_window *win, const size_t width, const size_t height, const char *title) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -8923,7 +8923,7 @@ WININT int __win_x11_window_create(struct __window_h *lib, struct __window_h_win
     int screen = DefaultScreen(dpy);
 
     /* alloc new 'x11' window object */
-    struct __window_h_window_x11 *x11 = calloc(1, sizeof(struct __window_h_window_x11));
+    struct _window_h_window_x11 *x11 = calloc(1, sizeof(struct _window_h_window_x11));
     if (!x11) { return (0); }
 
     /* get 'depth' and 'visual' */
@@ -9014,7 +9014,7 @@ WININT int __win_x11_window_create(struct __window_h *lib, struct __window_h_win
 }
 
 
-WININT int __win_x11_window_destroy(struct __window_h *lib, struct __window_h_window *win) {
+WININT int __win_x11_window_destroy(struct _window_h *lib, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9031,7 +9031,7 @@ WININT int __win_x11_window_destroy(struct __window_h *lib, struct __window_h_wi
 }
 
 
-WININT int __win_x11_window_map(struct __window_h *lib, struct __window_h_window *win) {
+WININT int __win_x11_window_map(struct _window_h *lib, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9045,7 +9045,7 @@ WININT int __win_x11_window_map(struct __window_h *lib, struct __window_h_window
 }
 
 
-WININT int __win_x11_window_unmap(struct __window_h *lib, struct __window_h_window *win) {
+WININT int __win_x11_window_unmap(struct _window_h *lib, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9059,7 +9059,7 @@ WININT int __win_x11_window_unmap(struct __window_h *lib, struct __window_h_wind
 }
 
 
-WININT int __win_x11_window_get_size(struct __window_h *lib, struct __window_h_window *win, size_t *w_ptr, size_t *h_ptr) {
+WININT int __win_x11_window_get_size(struct _window_h *lib, struct _window_h_window *win, size_t *w_ptr, size_t *h_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9080,7 +9080,7 @@ WININT int __win_x11_window_get_size(struct __window_h *lib, struct __window_h_w
 }
 
 
-WININT int __win_x11_window_set_size(struct __window_h *lib, struct __window_h_window *win, const size_t w, const size_t h) {
+WININT int __win_x11_window_set_size(struct _window_h *lib, struct _window_h_window *win, const size_t w, const size_t h) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9096,7 +9096,7 @@ WININT int __win_x11_window_set_size(struct __window_h *lib, struct __window_h_w
 }
 
 
-WININT int __win_x11_window_set_size_min(struct __window_h *lib, struct __window_h_window *win, const size_t w, const size_t h) {
+WININT int __win_x11_window_set_size_min(struct _window_h *lib, struct _window_h_window *win, const size_t w, const size_t h) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9121,7 +9121,7 @@ WININT int __win_x11_window_set_size_min(struct __window_h *lib, struct __window
 }
 
 
-WININT int __win_x11_window_set_size_max(struct __window_h *lib, struct __window_h_window *win, const size_t w, const size_t h) {
+WININT int __win_x11_window_set_size_max(struct _window_h *lib, struct _window_h_window *win, const size_t w, const size_t h) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9146,7 +9146,7 @@ WININT int __win_x11_window_set_size_max(struct __window_h *lib, struct __window
 }
 
 
-WININT int __win_x11_window_get_position(struct __window_h *lib, struct __window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
+WININT int __win_x11_window_get_position(struct _window_h *lib, struct _window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9167,7 +9167,7 @@ WININT int __win_x11_window_get_position(struct __window_h *lib, struct __window
 }
 
 
-WININT int __win_x11_window_set_position(struct __window_h *lib, struct __window_h_window *win, const size_t x, const size_t y) {
+WININT int __win_x11_window_set_position(struct _window_h *lib, struct _window_h_window *win, const size_t x, const size_t y) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9183,7 +9183,7 @@ WININT int __win_x11_window_set_position(struct __window_h *lib, struct __window
 }
 
 
-WININT int __win_x11_window_get_title(struct __window_h *lib, struct __window_h_window *win, char **t_ptr) {
+WININT int __win_x11_window_get_title(struct _window_h *lib, struct _window_h_window *win, char **t_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9198,7 +9198,7 @@ WININT int __win_x11_window_get_title(struct __window_h *lib, struct __window_h_
 }
 
 
-WININT int __win_x11_window_set_title(struct __window_h *lib, struct __window_h_window *win, const char *t) {
+WININT int __win_x11_window_set_title(struct _window_h *lib, struct _window_h_window *win, const char *t) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9213,14 +9213,14 @@ WININT int __win_x11_window_set_title(struct __window_h *lib, struct __window_h_
 }
 
 
-WININT int __win_x11_context_create(struct __window_h *lib, struct __window_h_context *ctx, struct __window_h_window *win) {
+WININT int __win_x11_context_create(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
     if (!win) { return (0); }
             
     /* alloc new 'x11' object */
-    struct __window_h_context_x11 *x11 = calloc(1, sizeof(struct __window_h_context_x11));
+    struct _window_h_context_x11 *x11 = calloc(1, sizeof(struct _window_h_context_x11));
     if (!x11) { return (0); }
 
     /* create new 'GC' */
@@ -9240,7 +9240,7 @@ WININT int __win_x11_context_create(struct __window_h *lib, struct __window_h_co
 }
 
 
-WININT int __win_x11_context_destroy(struct __window_h *lib, struct __window_h_context *ctx) {
+WININT int __win_x11_context_destroy(struct _window_h *lib, struct _window_h_context *ctx) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -9256,13 +9256,13 @@ WININT int __win_x11_context_destroy(struct __window_h *lib, struct __window_h_c
 }
 
 
-WININT int __win_x11_cursor_create(struct __window_h *lib, struct __window_h_cursor *cur, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
+WININT int __win_x11_cursor_create(struct _window_h *lib, struct _window_h_cursor *cur, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
     /* null-check */
     if (!lib) { return (0); }
     if (!cur) { return (0); }
 
     /* alloc new 'x11' object */
-    struct __window_h_cursor_x11 *x11 = calloc(1, sizeof(struct __window_h_cursor_x11));
+    struct _window_h_cursor_x11 *x11 = calloc(1, sizeof(struct _window_h_cursor_x11));
     if (!x11) { return (0); }
 
 # if defined (WINDOW_X11_EXTENSION_XCURSOR)
@@ -9334,7 +9334,7 @@ WININT int __win_x11_cursor_create(struct __window_h *lib, struct __window_h_cur
 }
 
 
-WININT int __win_x11_cursor_destroy(struct __window_h *lib, struct __window_h_cursor *cur) {
+WININT int __win_x11_cursor_destroy(struct _window_h *lib, struct _window_h_cursor *cur) {
     /* null-check */
     if (!lib) { return (0); }
     if (!cur) { return (0); }
@@ -9351,7 +9351,7 @@ WININT int __win_x11_cursor_destroy(struct __window_h *lib, struct __window_h_cu
 }
 
 
-WININT int __win_x11_cursor_get_position(struct __window_h *lib, struct __window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
+WININT int __win_x11_cursor_get_position(struct _window_h *lib, struct _window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9379,7 +9379,7 @@ WININT int __win_x11_cursor_get_position(struct __window_h *lib, struct __window
 }
 
 
-WININT int __win_x11_cursor_set_position(struct __window_h *lib, struct __window_h_window *win, const size_t x, const size_t y) {
+WININT int __win_x11_cursor_set_position(struct _window_h *lib, struct _window_h_window *win, const size_t x, const size_t y) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9395,7 +9395,7 @@ WININT int __win_x11_cursor_set_position(struct __window_h *lib, struct __window
 }
 
 
-WININT int __win_x11_cursor_get_mode(struct __window_h *lib, struct __window_h_window *win, uint32_t *m_ptr) {
+WININT int __win_x11_cursor_get_mode(struct _window_h *lib, struct _window_h_window *win, uint32_t *m_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9410,7 +9410,7 @@ WININT int __win_x11_cursor_get_mode(struct __window_h *lib, struct __window_h_w
 }
 
 
-WININT int __win_x11_cursor_set_mode(struct __window_h *lib, struct __window_h_window *win, const uint32_t mode) {
+WININT int __win_x11_cursor_set_mode(struct _window_h *lib, struct _window_h_window *win, const uint32_t mode) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9494,7 +9494,7 @@ WININT int __win_x11_cursor_set_mode(struct __window_h *lib, struct __window_h_w
 }
 
 
-WININT int __winGetCursorRawMotionX11(struct __window_h *lib, struct __window_h_window *win, uint8_t *r_ptr) {
+WININT int __winGetCursorRawMotionX11(struct _window_h *lib, struct _window_h_window *win, uint8_t *r_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
@@ -9509,13 +9509,13 @@ WININT int __winGetCursorRawMotionX11(struct __window_h *lib, struct __window_h_
 }
 
 
-WININT int __winSetCursorRawMotionX11(struct __window_h *lib, struct __window_h_window *win, const uint8_t raw) {
+WININT int __winSetCursorRawMotionX11(struct _window_h *lib, struct _window_h_window *win, const uint8_t raw) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
     
     /* references */
-    struct __window_h_x11 *x11 = lib->x11; 
+    struct _window_h_x11 *x11 = lib->x11; 
     if (!x11) { return (0); }
     
     /* init check */
@@ -9554,7 +9554,7 @@ WININT int __winSetCursorRawMotionX11(struct __window_h *lib, struct __window_h_
 }
 
 
-WININT int __win_x11_event_poll(struct __window_h *lib) {
+WININT int __win_x11_event_poll(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -9574,7 +9574,7 @@ WININT int __win_x11_event_poll(struct __window_h *lib) {
 }
 
 
-WININT int __win_x11_event_wait(struct __window_h *lib) {
+WININT int __win_x11_event_wait(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -9583,12 +9583,12 @@ WININT int __win_x11_event_wait(struct __window_h *lib) {
 }
 
 
-WININT int __win_x11_paste(struct __window_h *lib, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
+WININT int __win_x11_paste(struct _window_h *lib, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     
     /* references */
-    struct __window_h_x11 *x11 = lib->x11; 
+    struct _window_h_x11 *x11 = lib->x11; 
     if (!x11) { return (0); }
 
     /* get selection atom */
@@ -9614,13 +9614,13 @@ WININT int __win_x11_paste(struct __window_h *lib, const uint32_t selection, voi
 
 /* internal functions (declarations) */
 
-WININT int __winLoadWayland(struct __window_h_wl *);
+WININT int __winLoadWayland(struct _window_h_wl *);
 
-WININT int __winUnloadWayland(struct __window_h_wl *);
+WININT int __winUnloadWayland(struct _window_h_wl *);
 
 /* internal functions (definitions) */
 
-WININT int __winLoadWayland(struct __window_h_wl *wl) {
+WININT int __winLoadWayland(struct _window_h_wl *wl) {
     /* null-check */
     if (!wl) { return (0); }
 
@@ -9648,13 +9648,13 @@ WININT int __winLoadWayland(struct __window_h_wl *wl) {
 
 /* internal functions (declarations) */
 
-WININT int __winLoadWin32(struct __window_h_win32 *);
+WININT int __winLoadWin32(struct _window_h_win32 *);
 
-WININT int __winUnloadWin32(struct __window_h_win32 *);
+WININT int __winUnloadWin32(struct _window_h_win32 *);
 
 /* internal functions (definitions) */
 
-WININT int __winLoadWin32(struct __window_h_win32 *win32) {
+WININT int __winLoadWin32(struct _window_h_win32 *win32) {
     /* null-check */
     if (!win32) { return (0); }
 
@@ -9680,13 +9680,13 @@ WININT int __winLoadWin32(struct __window_h_win32 *win32) {
 /* {{{ */
 /* platform internal functions */
 
-WININT int __winLoadPlatform(struct __window_h *, struct __window_h_platform *);
+WININT int __winLoadPlatform(struct _window_h *, struct _window_h_platform *);
 
 /* platform functions */
 
 WINDEF int win_init(library_t *result) {
     /* initialize window.h */
-    struct __window_h *lib = calloc(1, sizeof(struct __window_h));
+    struct _window_h *lib = calloc(1, sizeof(struct _window_h));
     if (!lib) { return (0); }
 
     /* set default hints */
@@ -9741,11 +9741,11 @@ WINDEF int win_init(library_t *result) {
 
 WINDEF int win_quit(library_t library) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
 
     /* destroy all the existing cursors */
-    struct __window_h_cursor *cursor = lib->cursor.list;
+    struct _window_h_cursor *cursor = lib->cursor.list;
     while (cursor) {
         void *next = cursor->next;
         win_cursor_destroy(library, cursor);
@@ -9753,7 +9753,7 @@ WINDEF int win_quit(library_t library) {
     }
     
     /* destroy all the existing contexts */
-    struct __window_h_context *context = lib->context.list;
+    struct _window_h_context *context = lib->context.list;
     while (context) {
         void *next = context->next;
         win_context_destroy(library, context);
@@ -9761,7 +9761,7 @@ WINDEF int win_quit(library_t library) {
     }
 
     /* close all the open windows */
-    struct __window_h_window *window = lib->window.list;
+    struct _window_h_window *window = lib->window.list;
     while (window) {
         void *next = window->next;
         win_window_destroy(library, window);
@@ -9769,7 +9769,7 @@ WINDEF int win_quit(library_t library) {
     }
 
     /* release selections */
-    struct __window_h_selection *selection = &lib->selection;
+    struct _window_h_selection *selection = &lib->selection;
     
     /* release 'primary' */
     free(selection->primary.data);
@@ -9811,7 +9811,7 @@ WINDEF int win_quit(library_t library) {
 
 WINDEF int win_set_hints(library_t library, const uint32_t hint, const int32_t value) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     switch (hint) {
@@ -9869,11 +9869,11 @@ WINDEF int win_set_hints(library_t library, const uint32_t hint, const int32_t v
 
 WINDEF int win_window_create(library_t library, window_t *result, const size_t width, const size_t height, const char *title) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     /* alloc new window object */
-    struct __window_h_window *win = calloc(1, sizeof(struct __window_h_window));
+    struct _window_h_window *win = calloc(1, sizeof(struct _window_h_window));
     if (!win) { return (0); }
     
     /* API-specific implementation */
@@ -9909,17 +9909,17 @@ WINDEF int win_window_create(library_t library, window_t *result, const size_t w
 
 WINDEF int win_window_destroy(library_t library, window_t window) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     /* call platform - specific destroy function */
     if (!lib->platform.window_destroy(library, window)) { return (0); }
 
     /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
+    struct _window_h_window *win = (struct _window_h_window *) window;
 
     /* unlink 'win' from 'lib->window.list' */
-    struct __window_h_window **curr = &lib->window.list;
+    struct _window_h_window **curr = &lib->window.list;
     /* case when 'win' is the first node of 'lib->window.list' */
     if (win == (*curr)) {
         lib->window.list = (*curr)->next;
@@ -9944,7 +9944,7 @@ WINDEF int win_window_destroy(library_t library, window_t window) {
 
 WINDEF int win_window_map(library_t library, window_t window) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_map(library, window));
@@ -9952,7 +9952,7 @@ WINDEF int win_window_map(library_t library, window_t window) {
 
 WINDEF int win_window_unmap(library_t library, window_t window) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_unmap(library, window)); 
@@ -9960,7 +9960,7 @@ WINDEF int win_window_unmap(library_t library, window_t window) {
 
 WINDEF int win_window_get_size(library_t library, window_t window, size_t *w_ptr, size_t *h_ptr) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_get_size(library, window, w_ptr, h_ptr)); 
@@ -9968,7 +9968,7 @@ WINDEF int win_window_get_size(library_t library, window_t window, size_t *w_ptr
 
 WINDEF int win_window_set_size(library_t library, window_t window, const size_t w, const size_t h) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_set_size(library, window, w, h)); 
@@ -9976,7 +9976,7 @@ WINDEF int win_window_set_size(library_t library, window_t window, const size_t 
 
 WINDEF int win_window_set_size_min(library_t library, window_t window, const size_t w, const size_t h) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_set_size_min(library, window, w, h)); 
@@ -9984,7 +9984,7 @@ WINDEF int win_window_set_size_min(library_t library, window_t window, const siz
 
 WINDEF int win_window_set_size_max(library_t library, window_t window, const size_t w, const size_t h) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_set_size_max(library, window, w, h)); 
@@ -9992,7 +9992,7 @@ WINDEF int win_window_set_size_max(library_t library, window_t window, const siz
 
 WINDEF int win_window_get_position(library_t library, window_t window, size_t *x_ptr, size_t *y_ptr) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_get_position(library, window, x_ptr, y_ptr)); 
@@ -10000,7 +10000,7 @@ WINDEF int win_window_get_position(library_t library, window_t window, size_t *x
 
 WINDEF int win_window_set_position(library_t library, window_t window, const size_t x, const size_t y) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_set_position(library, window, x, y)); 
@@ -10008,7 +10008,7 @@ WINDEF int win_window_set_position(library_t library, window_t window, const siz
 
 WINDEF int win_window_get_title(library_t library, window_t window, char **t_ptr) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_get_title(library, window, t_ptr)); 
@@ -10016,7 +10016,7 @@ WINDEF int win_window_get_title(library_t library, window_t window, char **t_ptr
 
 WINDEF int win_window_set_title(library_t library, window_t window, const char *t) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.window_set_title(library, window, t)); 
@@ -10027,7 +10027,7 @@ WINDEF int win_window_get_context(library_t library, window_t window, context_t 
     if (!library) { return (0); }
 
     /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
+    struct _window_h_window *win = (struct _window_h_window *) window;
     if (!win) { return (0); }
 
     /* get the context from the 'win' */
@@ -10042,8 +10042,8 @@ WINDEF int win_window_set_context(library_t library, window_t window, context_t 
     if (!library) { return (0); }
     
     /* references */
-    struct __window_h_window  *win = (struct __window_h_window *) window;
-    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    struct _window_h_window  *win = (struct _window_h_window *) window;
+    struct _window_h_context *ctx = (struct _window_h_context *) context;
 
     /* update the internal references in 'win' and 'ctx' */
     win->context.handle = context;
@@ -10057,15 +10057,15 @@ WINDEF int win_window_set_context(library_t library, window_t window, context_t 
 
 WINDEF int win_context_create(library_t library, context_t *result, window_t window) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     /* references */
-    struct __window_h_window *win = (struct __window_h_window *) window;
+    struct _window_h_window *win = (struct _window_h_window *) window;
     if (!win) { return (0); }
     
     /* alloc new cursor object */
-    struct __window_h_context *ctx= calloc(1, sizeof(struct __window_h_context));
+    struct _window_h_context *ctx= calloc(1, sizeof(struct _window_h_context));
     if (!ctx) { return (0); }
     
     /* Context MUST inherit the context from the 'window'!
@@ -10111,10 +10111,10 @@ WINDEF int win_context_create(library_t library, context_t *result, window_t win
 
 WINDEF int win_context_destroy(library_t library, context_t context) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
-    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    struct _window_h_context *ctx = (struct _window_h_context *) context;
     if (!ctx) { return (0); }
     
     /* API-specific implementation */
@@ -10134,7 +10134,7 @@ WINDEF int win_context_destroy(library_t library, context_t context) {
     } 
 
     /* unlink 'ctx' from 'lib->context.list' */
-    struct __window_h_context **curr = &lib->context.list;
+    struct _window_h_context **curr = &lib->context.list;
     /* case when 'ctx' is the first node of 'lib->context.list' */
     if (ctx == (*curr)) {
         lib->context.list = (*curr)->next;
@@ -10159,10 +10159,10 @@ WINDEF int win_context_destroy(library_t library, context_t context) {
 
 WINDEF int win_context_get_window(library_t library, context_t context, window_t *w_ptr) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
-    struct __window_h_context *ctx = (struct __window_h_context *) context;
+    struct _window_h_context *ctx = (struct _window_h_context *) context;
     if (!ctx) { return (0); }
 
     /* get the context from the 'win' */
@@ -10174,12 +10174,12 @@ WINDEF int win_context_get_window(library_t library, context_t context, window_t
 
 WINDEF int win_context_set_window(library_t library, context_t context, window_t window) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     /* references */
-    struct __window_h_context *ctx = (struct __window_h_context *) context;
-    struct __window_h_window  *win = (struct __window_h_window *) window;
+    struct _window_h_context *ctx = (struct _window_h_context *) context;
+    struct _window_h_window  *win = (struct _window_h_window *) window;
 
     /* update the internal references in 'win' and 'ctx' */
     ctx->window.current = window;
@@ -10193,7 +10193,7 @@ WINDEF int win_context_set_window(library_t library, context_t context, window_t
 
 WINDEF int win_gl_make_current(library_t library, context_t context) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.gl_make_current(library, context));
@@ -10201,7 +10201,7 @@ WINDEF int win_gl_make_current(library_t library, context_t context) {
 
 WINDEF int win_gl_swap_buffers(library_t library, context_t context) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.gl_swap_buffers(library, context));
@@ -10209,7 +10209,7 @@ WINDEF int win_gl_swap_buffers(library_t library, context_t context) {
 
 WINDEF int win_gl_swap_interval(library_t library, context_t context, const int interval) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.gl_swap_interval(library, context, interval));
@@ -10242,11 +10242,11 @@ WINDEF void *win_gl_get_proc_address(const char *proc) {
 
 WINDEF int win_cursor_create(library_t library, cursor_t *result, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     /* alloc new cursor object */
-    struct __window_h_cursor *cur = calloc(1, sizeof(struct __window_h_cursor));
+    struct _window_h_cursor *cur = calloc(1, sizeof(struct _window_h_cursor));
     if (!cur) { return (0); }
     
     /* call platform - specific create function */
@@ -10268,17 +10268,17 @@ WINDEF int win_cursor_create(library_t library, cursor_t *result, const uint8_t 
 
 WINDEF int win_cursor_destroy(library_t library, cursor_t cursor) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     /* call platform - specific destroy function */
     if (!lib->platform.cursor_destroy(library, cursor)) { return (0); }
     
     /* references */
-    struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
+    struct _window_h_cursor *cur = (struct _window_h_cursor *) cursor;
 
     /* unlink 'cur' from 'lib->cursor.list' */
-    struct __window_h_cursor **curr = &lib->cursor.list;
+    struct _window_h_cursor **curr = &lib->cursor.list;
     /* case when 'cur' is the first node of 'lib->cursor.list' */
     if (cur == (*curr)) {
         lib->cursor.list = (*curr)->next;
@@ -10303,7 +10303,7 @@ WINDEF int win_cursor_destroy(library_t library, cursor_t cursor) {
 
 WINDEF int win_cursor_get_position(library_t library, window_t window, size_t *x_ptr, size_t *y_ptr) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.cursor_get_position(library, window, x_ptr, y_ptr));
@@ -10311,7 +10311,7 @@ WINDEF int win_cursor_get_position(library_t library, window_t window, size_t *x
 
 WINDEF int win_cursor_set_position(library_t library, window_t window, const size_t x, const size_t y) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.cursor_set_position(library, window, x, y));
@@ -10332,7 +10332,7 @@ WINDEF int win_cursor_set_position_center(library_t library, window_t window) {
 
 WINDEF int win_cursor_get_mode(library_t library, window_t window, uint32_t *m_ptr) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.getCursorMode(library, window, m_ptr));
@@ -10340,7 +10340,7 @@ WINDEF int win_cursor_get_mode(library_t library, window_t window, uint32_t *m_p
 
 WINDEF int win_cursor_set_mode(library_t library, window_t window, const uint32_t mode) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.cursor_set_mode(library, window, mode));
@@ -10349,7 +10349,7 @@ WINDEF int win_cursor_set_mode(library_t library, window_t window, const uint32_
 
 WINDEF int win_cursor_getRawMotion(library_t library, window_t window, uint8_t *r_ptr) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.getCursorRawMotion(library, window, r_ptr));
@@ -10358,7 +10358,7 @@ WINDEF int win_cursor_getRawMotion(library_t library, window_t window, uint8_t *
 
 WINDEF int win_cursor_setRawMotion(library_t library, window_t window, const uint8_t raw) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
    
     return (lib->platform.setCursorRawMotion(library, window, raw));
@@ -10368,7 +10368,7 @@ WINDEF int win_cursor_setRawMotion(library_t library, window_t window, const uin
 
 WINDEF int win_event_poll(library_t library, event_t *event) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     /* flush the event queue */
@@ -10384,7 +10384,7 @@ WINDEF int win_event_poll(library_t library, event_t *event) {
 
 WINDEF int win_event_wait(library_t library, event_t *event) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     /* flush the event queue */
@@ -10400,13 +10400,13 @@ WINDEF int win_event_wait(library_t library, event_t *event) {
 
 WINDEF int win_event_push(library_t library, event_t *event) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
-    struct __window_h_event *eq = lib->event.queue;
+    struct _window_h_event *eq = lib->event.queue;
     /* no events in queue */
     if (!eq) {
-        eq = calloc(1, sizeof(struct __window_h_event));
+        eq = calloc(1, sizeof(struct _window_h_event));
         if (!eq) { return (0); }
 
         eq->next  = 0;
@@ -10419,7 +10419,7 @@ WINDEF int win_event_push(library_t library, event_t *event) {
         while (eq->next) { eq = eq->next; }
 
         /* alloc new event queue member */
-        struct __window_h_event *node = calloc(1, sizeof(struct __window_h_event));
+        struct _window_h_event *node = calloc(1, sizeof(struct _window_h_event));
         if (!node) { return (0); }
 
         node->next  = 0;
@@ -10435,10 +10435,10 @@ WINDEF int win_event_push(library_t library, event_t *event) {
 
 WINDEF int win_event_pop(library_t library, event_t *event) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
-    struct __window_h_event *eq = lib->event.queue;
+    struct _window_h_event *eq = lib->event.queue;
     /* empty event queue */
     if (!eq) {
         *event = (event_t) { 0 };
@@ -10547,12 +10547,12 @@ WINDEF int win_event_send(library_t library, window_t window, uint32_t type, ...
 
 WINDEF int win_event_head(library_t library, event_t *event) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     *event = (event_t) { 0 };
     
-    struct __window_h_event *eq = lib->event.queue;
+    struct _window_h_event *eq = lib->event.queue;
     if (eq) { *event = eq->event; }
 
     /* success */
@@ -10563,7 +10563,7 @@ WINDEF int win_event_head(library_t library, event_t *event) {
 
 WINDEF int win_copy(library_t library, const uint32_t selection, const void *data, const size_t size) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.copy(library, selection, data, size));
@@ -10571,7 +10571,7 @@ WINDEF int win_copy(library_t library, const uint32_t selection, const void *dat
 
 WINDEF int win_paste(library_t library, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
     /* references */
-    struct __window_h *lib = (struct __window_h *) library;
+    struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
     return (lib->platform.paste(library, selection, d_ptr, s_ptr));
@@ -10607,7 +10607,7 @@ WINDEF int win_time_wait(uint64_t ms) {
 
 /* platform internal functions */
 
-WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platform *platform) {
+WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platform *platform) {
     /* null-check */
     if (!library)  { return (0); }
     if (!platform) { return (0); }
