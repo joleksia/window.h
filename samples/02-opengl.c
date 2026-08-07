@@ -5,31 +5,32 @@
 #include "./../window.h"
 
 int main(void) {
-    /* initialize window.h */
+    /* init window.h */
     library_t library = 0;
-    winInit(&library);
+    win_init(&library);
 
     /* set current API as 'OpenGL' */
-    winSetHints(library, WINDOW_CLIENT_API, WINDOW_API_OPENGL);
+    win_set_hints(library, WINDOW_CLIENT_API, WINDOW_API_OPENGL);
 
     /* configure OpenGL hints */
-    winSetHints(library, WINDOW_GL_CONTEXT_VERSION_MAJOR, 1);
-    winSetHints(library, WINDOW_GL_CONTEXT_VERSION_MINOR, 0);
-    winSetHints(library, WINDOW_GL_CONTEXT_PROFILE, WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY);
+    win_set_hints(library, WINDOW_GL_CONTEXT_VERSION_MAJOR, 1);
+    win_set_hints(library, WINDOW_GL_CONTEXT_VERSION_MINOR, 0);
+    win_set_hints(library, WINDOW_GL_CONTEXT_PROFILE, WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
     /* create window */
     window_t window = 0;
-    winCreateWindow(library, &window, 800, 600, "Hello, window.h - Sample 02. OpenGL");
-    if (!window) { winQuit(library); return (1); }
+    win_window_create(library, &window, 800, 600, "Hello, window.h - Sample 02. OpenGL");
+    if (!window) { win_quit(library); return (1); }
 
     /* create context */
     context_t context = 0;
-    winCreateContext(library, &context, window);
-    if (!context) { winQuit(library); return (2); }
+    win_context_create(library, &context, window);
+    if (!context) { win_quit(library); return (2); }
 
-    winMapWindow(library, window);
-    winGLMakeCurrent(library, context);
-    winGLSwapInterval(library, context, 1);
+    /* map window */
+    win_window_map(library, window);
+    win_gl_make_current(library, context);
+    win_gl_swap_interval(library, context, 1);
 
     /* print OpenGL info */
     printf("- Vendor: %s\n", glGetString(GL_VENDOR));
@@ -50,14 +51,14 @@ int main(void) {
             glVertex2f( 0.5,-0.5);
         glEnd();
 
-        if (!winGLSwapBuffers(library, context)) {
-            /* 'winGLSwapBuffers' failed: fall-back to 'glFlush' */
+        if (!win_gl_swap_buffers(library, context)) {
+            /* 'win_gl_swap_buffers' failed: fall-back to 'glFlush' */
             glFlush();
         }
 
         /* poll events */
         event_t event = { 0 };
-        while (winPollEvents(library, &event)) {
+        while (win_event_poll(library, &event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
                     exit = 1;
@@ -71,6 +72,6 @@ int main(void) {
     }
 
     /* quit */
-    winQuit(library);
+    win_quit(library);
     return (0);
 }
