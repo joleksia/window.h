@@ -968,7 +968,7 @@ WINDEF int win_gl_swap_buffers(library_t, context_t);
 
 WINDEF int win_gl_swap_interval(library_t, context_t, const int);
 
-WINDEF void *win_gl_get_proc_address(library_t, const char *);
+WINDEF void *win_gl_get_proc_address(const char *);
 
 /* cursor functions */
 
@@ -1200,7 +1200,6 @@ struct __window_h_platform {
     int (*gl_make_current) (struct __window_h *, struct __window_h_context *);
     int (*gl_swap_buffers) (struct __window_h *, struct __window_h_context *);
     int (*gl_swap_interval) (struct __window_h *, struct __window_h_context *, const int);
-    void *(*gl_get_proc_address) (struct __window_h *, const char *);
     int (*gl_choose_config) (struct __window_h *);
     int (*gl_get_visual) (struct __window_h *, int *);
 };
@@ -10216,12 +10215,27 @@ WINDEF int win_gl_swap_interval(library_t library, context_t context, const int 
     return (lib->platform.gl_swap_interval(library, context, interval));
 }
 
-WINDEF void *win_gl_get_proc_address(library_t library, const char *proc) { 
-    /* references */
-    struct __window_h *lib = (struct __window_h *) library;
-    if (!lib) { return (0); }
+WINDEF void *win_gl_get_proc_address(const char *proc) {
+
+# if defined (WINDOW_BACKEND_GLX)
+    /* attempt to load 'proc' using 'glXGetProcAddress' */
+    if (glXGetProcAddress_PROC) { return (glXGetProcAddress((const uint8_t *) proc)); }
     
-    return (lib->platform.gl_get_proc_address(library, proc));
+    /* attempt to load 'proc' using 'glXGetProcAddressARB' */
+    if (glXGetProcAddressARB_PROC) { return (glXGetProcAddressARB((const uint8_t *) proc)); }
+
+# elif defined (WINDOW_BACKEND_EGL)
+    /* attempt to load 'proc' using 'eglGetProcAddress' */
+    if (eglGetProcAddress_PROC) { return (eglGetProcAddress(proc)); }
+
+# elif defined (WINDOW_BACKEND_WGL)
+    /* attempt to load 'proc' using 'wglGetProcAddress' */
+    if (wglGetProcAddress_PROC) { return (wglGetProcAddress(proc)); }
+
+# endif
+
+    /* failure */
+    return (0);
 }
 
 /* cursor functions */
@@ -10662,7 +10676,6 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
     platform->gl_make_current = __win_glx_make_current;
     platform->gl_swap_buffers = __win_glx_swap_buffers;
     platform->gl_swap_interval = __win_glx_swap_interval;
-    platform->gl_get_proc_address = __win_glx_get_proc_address;
     platform->gl_choose_config = __win_glx_choose_config;
     platform->gl_get_visual = __win_glx_get_visual;
 
@@ -10678,7 +10691,6 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
     platform->gl_make_current = __win_egl_make_current;
     platform->gl_swap_buffers = __win_egl_swap_buffers;
     platform->gl_swap_interval = __win_egl_swap_interval;
-    platform->gl_get_proc_address = __win_egl_get_proc_address;
     platform->gl_choose_config = __win_egl_choose_config;
     platform->gl_get_visual = __win_egl_get_visual;
 
@@ -10694,7 +10706,6 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
     platform->gl_make_current = __win_wgl_make_current;
     platform->gl_swap_buffers = __win_wgl_swap_buffers;
     platform->gl_swap_interval = __win_wgl_swap_interval;
-    platform->gl_get_proc_address = __win_wgl_get_proc_address;
 
 # endif
     
