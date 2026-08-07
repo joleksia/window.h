@@ -10686,15 +10686,15 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
     
     /* opengl context functions */
 
-    platform->gl_init = __winInitWGL;
-    platform->gl_load = __winLoadWGL;
-    platform->gl_unload = __winUnloadWGL;
-    platform->gl_context_create = __winCreateContextWGL;
-    platform->gl_context_destroy = __winDestroyContextWGL;
-    platform->gl_make_current = __winMakeCurrentWGL;
-    platform->gl_swap_buffers = __winSwapBuffersWGL;
-    platform->gl_swap_interval = __winSwapIntervalWGL;
-    platform->gl_get_proc_address = __winGetProcAddressWGL;
+    platform->gl_init = __win_wgl_init;
+    platform->gl_load = __win_wgl_load;
+    platform->gl_unload = __win_wgl_unload;
+    platform->gl_context_create = __win_wgl_context_create;
+    platform->gl_context_destroy = __win_wgl_context_destroy;
+    platform->gl_make_current = __win_wgl_make_current;
+    platform->gl_swap_buffers = __win_wgl_swap_buffers;
+    platform->gl_swap_interval = __win_wgl_swap_interval;
+    platform->gl_get_proc_address = __win_wgl_get_proc_address;
 
 # endif
     
