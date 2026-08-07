@@ -1,6 +1,5 @@
 #include <stdio.h>
 #
-#define WINDOW_X11_EXTENSION_XINPUT2
 #define WINDOW_IMPLEMENTATION
 #include "./../window.h"
 
