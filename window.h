@@ -912,111 +912,105 @@ union event_u {
 
 /* platform functions */
 
-WINDEF int winInit(library_t *);
+WINDEF int win_init(library_t *);
 
-WINDEF int winQuit(library_t);
+WINDEF int win_quit(library_t);
 
-WINDEF int winSetHints(library_t, const uint32_t, const int32_t);
+WINDEF int win_set_hints(library_t, const uint32_t, const int32_t);
 
 /* windowing functions */
 
-WINDEF int winCreateWindow(library_t, window_t *, const size_t, const size_t, const char *);
+WINDEF int win_window_create(library_t, window_t *, const size_t, const size_t, const char *);
 
-WINDEF int winDestroyWindow(library_t, window_t);
+WINDEF int win_window_destroy(library_t, window_t);
 
-WINDEF int winSetWindowFlags(library_t, window_t, const uint32_t);
+WINDEF int win_window_set_attributes(library_t, window_t, const uint32_t);
 
-WINDEF int winToggleWindowFlags(library_t, window_t, const uint32_t);
+WINDEF int win_window_map(library_t, window_t);
 
-WINDEF int winMapWindow(library_t, window_t);
+WINDEF int win_window_unmap(library_t, window_t);
 
-WINDEF int winUnmapWindow(library_t, window_t);
+WINDEF int win_window_get_size(library_t, window_t, size_t *, size_t *);
 
-WINDEF int winGetWindowSize(library_t, window_t, size_t *, size_t *);
+WINDEF int win_window_set_size(library_t, window_t, const size_t, const size_t);
 
-WINDEF int winSetWindowSize(library_t, window_t, const size_t, const size_t);
+WINDEF int win_window_set_size_min(library_t, window_t, const size_t, const size_t);
 
-WINDEF int winSetWindowMinSize(library_t, window_t, const size_t, const size_t);
+WINDEF int win_window_set_size_max(library_t, window_t, const size_t, const size_t);
 
-WINDEF int winSetWindowMaxSize(library_t, window_t, const size_t, const size_t);
+WINDEF int win_window_get_position(library_t, window_t, size_t *, size_t *);
 
-WINDEF int winGetWindowPosition(library_t, window_t, size_t *, size_t *);
+WINDEF int win_window_set_position(library_t, window_t, const size_t, const size_t);
 
-WINDEF int winSetWindowPosition(library_t, window_t, const size_t, const size_t);
+WINDEF int win_window_get_title(library_t, window_t, char **);
 
-WINDEF int winGetWindowTitle(library_t, window_t, char **);
+WINDEF int win_window_set_title(library_t, window_t, const char *);
 
-WINDEF int winSetWindowTitle(library_t, window_t, const char *);
+WINDEF int win_window_get_context(library_t, window_t, context_t *);
 
-WINDEF int winGetWindowContext(library_t, window_t, context_t *);
-
-WINDEF int winSetWindowContext(library_t, window_t, context_t);
+WINDEF int win_window_set_context(library_t, window_t, context_t);
 
 /* context functions */
 
-WINDEF int winCreateContext(library_t, context_t *, window_t);
+WINDEF int win_context_create(library_t, context_t *, window_t);
 
-WINDEF int winDestroyContext(library_t, context_t);
+WINDEF int win_context_destroy(library_t, context_t);
 
-WINDEF int winGetContextWindow(library_t, context_t, window_t *);
+WINDEF int win_context_get_window(library_t, context_t, window_t *);
 
-WINDEF int winSetContextWindow(library_t, context_t, window_t);
+WINDEF int win_context_set_window(library_t, context_t, window_t);
 
 /* opengl context functions */
 
-WINDEF int winGLMakeCurrent(library_t, context_t);
+WINDEF int win_gl_make_current(library_t, context_t);
 
-WINDEF int winGLSwapBuffers(library_t, context_t);
+WINDEF int win_gl_swap_buffers(library_t, context_t);
 
-WINDEF int winGLSwapInterval(library_t, context_t, const int);
+WINDEF int win_gl_swap_interval(library_t, context_t, const int);
 
-WINDEF void *winGLGetProcAddress(library_t, const char *);
+WINDEF void *win_gl_get_proc_address(library_t, const char *);
 
 /* cursor functions */
 
-WINDEF int winCreateCursor(library_t, cursor_t *, const uint8_t *, const size_t, const size_t, const int, const int);
+WINDEF int win_cursor_create(library_t, cursor_t *, const uint8_t *, const size_t, const size_t, const int, const int);
 
-WINDEF int winDestroyCursor(library_t, cursor_t);
+WINDEF int win_cursor_destroy(library_t, cursor_t);
 
-WINDEF int winGetCursorPosition(library_t, window_t, size_t *, size_t *);
+WINDEF int win_cursor_get_position(library_t, window_t, size_t *, size_t *);
 
-WINDEF int winSetCursorPosition(library_t, window_t, const size_t, const size_t);
+WINDEF int win_cursor_set_position(library_t, window_t, const size_t, const size_t);
 
-WINDEF int winSetCursorPositionCenter(library_t, window_t);
+WINDEF int win_cursor_set_position_center(library_t, window_t);
 
-WINDEF int winGetCursorMode(library_t, window_t, uint32_t *);
+WINDEF int win_cursor_get_mode(library_t, window_t, uint32_t *);
 
-WINDEF int winSetCursorMode(library_t, window_t, const uint32_t);
-
-WINDEF int winGetCursorRawMotion(library_t, window_t, uint8_t *);
-
-WINDEF int winSetCursorRawMotion(library_t, window_t, const uint8_t);
+WINDEF int win_cursor_set_mode(library_t, window_t, const uint32_t);
 
 /* event functions */
 
-WINDEF int winPollEvents(library_t, event_t *);
+WINDEF int win_event_poll(library_t, event_t *);
 
-WINDEF int winWaitEvents(library_t, event_t *);
+WINDEF int win_event_wait(library_t, event_t *);
 
-WINDEF int winPushEvent(library_t, event_t *);
+WINDEF int win_event_push(library_t, event_t *);
 
-WINDEF int winPopEvent(library_t, event_t *);
+WINDEF int win_event_pop(library_t, event_t *);
 
-WINDEF int winSendEvent(library_t, window_t, uint32_t, ...);
+WINDEF int win_event_send(library_t, window_t, uint32_t, ...);
 
-WINDEF int winPeekEvent(library_t, event_t *);
+WINDEF int win_event_head(library_t, event_t *);
 
 /* clipboard functions */
 
-WINDEF int winCopy(library_t, const uint32_t, const void *, const size_t);
+WINDEF int win_copy(library_t, const uint32_t, const void *, const size_t);
 
-WINDEF int winPaste(library_t, const uint32_t, void **, size_t *);
+WINDEF int win_paste(library_t, const uint32_t, void **, size_t *);
 
 /* timing functions */
 
-WINDEF uint64_t winGetTime(void);
+WINDEF uint64_t win_time_get(void);
 
-WINDEF int winWaitTime(uint64_t);
+WINDEF int win_time_wait(uint64_t);
 
 #endif /* _window_h_ */
 #
@@ -1161,14 +1155,14 @@ struct __window_h_platform {
     int (*updateWindowFlags) (struct __window_h *, struct __window_h_window *);
     int (*mapWindow) (struct __window_h *, struct __window_h_window *);
     int (*unmapWindow) (struct __window_h *, struct __window_h_window *);
-    int (*getWindowSize) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
-    int (*setWindowSize) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*setWindowMinSize) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*setWindowMaxSize) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*getWindowPosition) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
-    int (*setWindowPosition) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*getWindowTitle) (struct __window_h *, struct __window_h_window *, char **);
-    int (*setWindowTitle) (struct __window_h *, struct __window_h_window *, const char *);
+    int (*get_windowSize) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+    int (*set_windowSize) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+    int (*set_windowMinSize) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+    int (*set_windowMaxSize) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+    int (*get_windowPosition) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+    int (*set_windowPosition) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+    int (*get_windowTitle) (struct __window_h *, struct __window_h_window *, char **);
+    int (*set_windowTitle) (struct __window_h *, struct __window_h_window *, const char *);
 
     /* context functions */
 
@@ -7350,7 +7344,7 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
 
                 /* WINDOW_EVENT_QUIT */
                 if (data == lib->x11->WM_DELETE_WINDOW) {
-                    winSendEvent(lib, win, WINDOW_EVENT_QUIT);
+                    win_event_send(lib, win, WINDOW_EVENT_QUIT);
                 }
             }
 
@@ -7361,39 +7355,39 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
         } break;
 
         case (CreateNotify): {
-            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_CREATE, win, 0, 0); 
+            win_event_send(lib, win, WINDOW_EVENT_WINDOW_CREATE, win, 0, 0); 
         } break;
 
         case (DestroyNotify): {
-            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_DESTROY, win, 0, 0); 
+            win_event_send(lib, win, WINDOW_EVENT_WINDOW_DESTROY, win, 0, 0); 
         } break;
 
         case (MapNotify): {
             /* update attribute */
             win->attrib.mapped = 1;
 
-            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_MAP, win, 0, 0); 
+            win_event_send(lib, win, WINDOW_EVENT_WINDOW_MAP, win, 0, 0); 
         } break;
 
         case (UnmapNotify): {
             /* update attribute */
             win->attrib.mapped = 0;
 
-            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_UNMAP, win, 0, 0); 
+            win_event_send(lib, win, WINDOW_EVENT_WINDOW_UNMAP, win, 0, 0); 
         } break;
 
         case (EnterNotify): {
             /* update attribute */
             win->attrib.focused = 1;
 
-            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_ENTER, win, 0, 0); 
+            win_event_send(lib, win, WINDOW_EVENT_WINDOW_ENTER, win, 0, 0); 
         } break;
 
         case (LeaveNotify): {
             /* update attribute */
             win->attrib.focused = 0;
 
-            winSendEvent(lib, win, WINDOW_EVENT_WINDOW_LEAVE, win, 0, 0);
+            win_event_send(lib, win, WINDOW_EVENT_WINDOW_LEAVE, win, 0, 0);
         } break;
 
         case (ConfigureNotify): {
@@ -7405,7 +7399,7 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
             ) {
                 win->attrib.siz_x = xconfigure.width;
                 win->attrib.siz_y = xconfigure.height;
-                winSendEvent(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attrib.siz_x,
+                win_event_send(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attrib.siz_x,
                                                                    win->attrib.siz_y);
             }
             
@@ -7415,7 +7409,7 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
             ) {
                 win->attrib.pos_x = xconfigure.x;
                 win->attrib.pos_y = xconfigure.y;
-                winSendEvent(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attrib.pos_x,
+                win_event_send(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attrib.pos_x,
                                                                    win->attrib.pos_y);
             }
         } break;
@@ -7481,7 +7475,7 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
             uint32_t x = xmotion.x,
                      y = xmotion.y;
 
-            winSendEvent(lib, win, WINDOW_EVENT_MOUSE_MOTION, x, 0, y, 0);
+            win_event_send(lib, win, WINDOW_EVENT_MOUSE_MOTION, x, 0, y, 0);
         } break;
 
         case (ButtonPress):
@@ -7497,7 +7491,7 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
                     case (3): { btn = WINDOW_BUTTON_RIGHT;  } break; /* right */
                 }
                 uint8_t state = xbutton.type == ButtonPress ? 1 : 0;
-                winSendEvent(lib, win, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
+                win_event_send(lib, win, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
             }
             
             /* WINDOW_EVENT_MOUSE_SCROLL */
@@ -7508,14 +7502,14 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
                 else if (xbutton.button == 5) { scroll_y = -1; }
                 else if (xbutton.button == 6) { scroll_x =  1; }
                 else if (xbutton.button == 7) { scroll_x = -1; }
-                winSendEvent(lib, win, WINDOW_EVENT_MOUSE_SCROLL, scroll_x, scroll_y);
+                win_event_send(lib, win, WINDOW_EVENT_MOUSE_SCROLL, scroll_x, scroll_y);
             }
             
             /* WINDOW_EVENT_MOUSE_BUTTON */
             else {
                 uint8_t btn   = xbutton.button - Button1 - 4,
                         state = xbutton.type == ButtonPress ? 1 : 0;
-                winSendEvent(lib, win, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
+                win_event_send(lib, win, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
             }
         } break;
 
@@ -7558,22 +7552,22 @@ WININT int __winProcessEventX11(struct __window_h *lib, XEvent *xevent) {
             /* get keyboard press/release state */
             uint8_t state = xkey.type == KeyPress ? 1 : 0;
 
-            winSendEvent(lib, win, WINDOW_EVENT_KEYBOARD_KEY, keysym, keycode, keymod, keyraw, state, 0);
+            win_event_send(lib, win, WINDOW_EVENT_KEYBOARD_KEY, keysym, keycode, keymod, keyraw, state, 0);
         } break;
 
         case (SelectionRequest): {
             /* process selections */
             if (__winHandleSelectionX11(lib, xevent)) {
-                winSendEvent(lib, win, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
-                                                                        lib->selection.clipboard.size);
+                win_event_send(lib, win, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
+                                                                       lib->selection.clipboard.size);
             }
         } break;
 
         case (SelectionNotify): {
             /* process selections */
             if (__winHandleSelectionX11(lib, xevent)) {
-                winSendEvent(lib, win, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
-                                                                       lib->selection.clipboard.size);
+                win_event_send(lib, win, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
+                                                                      lib->selection.clipboard.size);
             }
         } break;
 
@@ -9433,12 +9427,10 @@ WININT int __winSetCursorModeX11(struct __window_h *lib, struct __window_h_windo
             case (WINDOW_CURSOR_MODE_NORMAL):
             case (WINDOW_CURSOR_MODE_CAPTURED):
             case (WINDOW_CURSOR_MODE_HIDDEN): {
-                winSetCursorRawMotion(lib, win, 0);
             } break;
 
             case (WINDOW_CURSOR_MODE_CENTERED):
             case (WINDOW_CURSOR_MODE_DISABLED): {
-                winSetCursorRawMotion(lib, win, 1);
             } break;
         }
 
@@ -9694,7 +9686,7 @@ WININT int __winLoadPlatform(struct __window_h *, struct __window_h_platform *);
 
 /* platform functions */
 
-WINDEF int winInit(library_t *result) {
+WINDEF int win_init(library_t *result) {
     /* initialize window.h */
     struct __window_h *lib = calloc(1, sizeof(struct __window_h));
     if (!lib) { return (0); }
@@ -9738,7 +9730,7 @@ WINDEF int winInit(library_t *result) {
 
     /* create blank cursor handle */
     const uint8_t data[16 * 16 * 4] = { 0 };
-    if (!winCreateCursor(lib, (cursor_t *) &lib->cursor.blank, data, 16, 16, 0, 0)) {
+    if (!win_cursor_create(lib, (cursor_t *) &lib->cursor.blank, data, 16, 16, 0, 0)) {
         free(lib);
         return (0);
     }
@@ -9749,7 +9741,7 @@ WINDEF int winInit(library_t *result) {
 }
 
 
-WINDEF int winQuit(library_t library) {
+WINDEF int win_quit(library_t library) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -9758,7 +9750,7 @@ WINDEF int winQuit(library_t library) {
     struct __window_h_cursor *cursor = lib->cursor.list;
     while (cursor) {
         void *next = cursor->next;
-        winDestroyCursor(library, cursor);
+        win_cursor_destroy(library, cursor);
         cursor = next;
     }
     
@@ -9766,7 +9758,7 @@ WINDEF int winQuit(library_t library) {
     struct __window_h_context *context = lib->context.list;
     while (context) {
         void *next = context->next;
-        winDestroyContext(library, context);
+        win_context_destroy(library, context);
         context = next;
     }
 
@@ -9774,7 +9766,7 @@ WINDEF int winQuit(library_t library) {
     struct __window_h_window *window = lib->window.list;
     while (window) {
         void *next = window->next;
-        winDestroyWindow(library, window);
+        win_window_destroy(library, window);
         window = next;
     }
 
@@ -9799,7 +9791,7 @@ WINDEF int winQuit(library_t library) {
     /* flush event queue */
     event_t event = { 0 };
     do {
-        winPopEvent(library, &event);
+        win_event_pop(library, &event);
     } while (event.type);
     
     /* call platform - specific quit function */
@@ -9819,7 +9811,7 @@ WINDEF int winQuit(library_t library) {
 }
 
 
-WINDEF int winSetHints(library_t library, const uint32_t hint, const int32_t value) {
+WINDEF int win_set_hints(library_t library, const uint32_t hint, const int32_t value) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -9877,7 +9869,7 @@ WINDEF int winSetHints(library_t library, const uint32_t hint, const int32_t val
 
 /* windowing functions */
 
-WINDEF int winCreateWindow(library_t library, window_t *result, const size_t width, const size_t height, const char *title) {
+WINDEF int win_window_create(library_t library, window_t *result, const size_t width, const size_t height, const char *title) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -9917,7 +9909,7 @@ WINDEF int winCreateWindow(library_t library, window_t *result, const size_t wid
     return (1);
 }
 
-WINDEF int winDestroyWindow(library_t library, window_t window) {
+WINDEF int win_window_destroy(library_t library, window_t window) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -9952,7 +9944,7 @@ WINDEF int winDestroyWindow(library_t library, window_t window) {
     return (1);
 }
 
-WINDEF int winMapWindow(library_t library, window_t window) {
+WINDEF int win_window_map(library_t library, window_t window) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -9960,7 +9952,7 @@ WINDEF int winMapWindow(library_t library, window_t window) {
     return (lib->platform.mapWindow(library, window));
 }
 
-WINDEF int winUnmapWindow(library_t library, window_t window) {
+WINDEF int win_window_unmap(library_t library, window_t window) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -9968,71 +9960,71 @@ WINDEF int winUnmapWindow(library_t library, window_t window) {
     return (lib->platform.unmapWindow(library, window)); 
 }
 
-WINDEF int winGetWindowSize(library_t library, window_t window, size_t *w_ptr, size_t *h_ptr) {
+WINDEF int win_window_get_size(library_t library, window_t window, size_t *w_ptr, size_t *h_ptr) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.getWindowSize(library, window, w_ptr, h_ptr)); 
+    return (lib->platform.get_windowSize(library, window, w_ptr, h_ptr)); 
 }
 
-WINDEF int winSetWindowSize(library_t library, window_t window, const size_t w, const size_t h) {
+WINDEF int win_window_set_size(library_t library, window_t window, const size_t w, const size_t h) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.setWindowSize(library, window, w, h)); 
+    return (lib->platform.set_windowSize(library, window, w, h)); 
 }
 
-WINDEF int winSetWindowMinSize(library_t library, window_t window, const size_t w, const size_t h) {
+WINDEF int win_window_set_size_min(library_t library, window_t window, const size_t w, const size_t h) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.setWindowMinSize(library, window, w, h)); 
+    return (lib->platform.set_windowMinSize(library, window, w, h)); 
 }
 
-WINDEF int winSetWindowMaxSize(library_t library, window_t window, const size_t w, const size_t h) {
+WINDEF int win_window_set_size_max(library_t library, window_t window, const size_t w, const size_t h) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.setWindowMaxSize(library, window, w, h)); 
+    return (lib->platform.set_windowMaxSize(library, window, w, h)); 
 }
 
-WINDEF int winGetWindowPosition(library_t library, window_t window, size_t *x_ptr, size_t *y_ptr) {
+WINDEF int win_window_get_position(library_t library, window_t window, size_t *x_ptr, size_t *y_ptr) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.getWindowPosition(library, window, x_ptr, y_ptr)); 
+    return (lib->platform.get_windowPosition(library, window, x_ptr, y_ptr)); 
 }
 
-WINDEF int winSetWindowPosition(library_t library, window_t window, const size_t x, const size_t y) {
+WINDEF int win_window_set_position(library_t library, window_t window, const size_t x, const size_t y) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.setWindowPosition(library, window, x, y)); 
+    return (lib->platform.set_windowPosition(library, window, x, y)); 
 }
 
-WINDEF int winGetWindowTitle(library_t library, window_t window, char **t_ptr) {
+WINDEF int win_window_get_title(library_t library, window_t window, char **t_ptr) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.getWindowTitle(library, window, t_ptr)); 
+    return (lib->platform.get_windowTitle(library, window, t_ptr)); 
 }
 
-WINDEF int winSetWindowTitle(library_t library, window_t window, const char *t) {
+WINDEF int win_window_set_title(library_t library, window_t window, const char *t) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.setWindowTitle(library, window, t)); 
+    return (lib->platform.set_windowTitle(library, window, t)); 
 }
 
-WINDEF int winGetWindowContext(library_t library, window_t window, context_t *c_ptr) {
+WINDEF int win_window_get_context(library_t library, window_t window, context_t *c_ptr) {
     /* null-check */
     if (!library) { return (0); }
 
@@ -10047,7 +10039,7 @@ WINDEF int winGetWindowContext(library_t library, window_t window, context_t *c_
     return (1);
 }
 
-WINDEF int winSetWindowContext(library_t library, window_t window, context_t context) {
+WINDEF int win_window_set_context(library_t library, window_t window, context_t context) {
     /* null-check */
     if (!library) { return (0); }
     
@@ -10065,7 +10057,7 @@ WINDEF int winSetWindowContext(library_t library, window_t window, context_t con
 
 /* context functions */
 
-WINDEF int winCreateContext(library_t library, context_t *result, window_t window) {
+WINDEF int win_context_create(library_t library, context_t *result, window_t window) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10106,7 +10098,7 @@ WINDEF int winCreateContext(library_t library, context_t *result, window_t windo
     } 
 
     /* set the context ownership */
-    winSetContextWindow(lib, ctx, win);
+    win_context_set_window(lib, ctx, win);
 
     /* add the result to the 'lib->context.list' linked list */
     ctx->next = lib->context.list;
@@ -10119,7 +10111,7 @@ WINDEF int winCreateContext(library_t library, context_t *result, window_t windo
     return (1);
 }
 
-WINDEF int winDestroyContext(library_t library, context_t context) {
+WINDEF int win_context_destroy(library_t library, context_t context) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10167,7 +10159,7 @@ WINDEF int winDestroyContext(library_t library, context_t context) {
     return (1);
 }
 
-WINDEF int winGetContextWindow(library_t library, context_t context, window_t *w_ptr) {
+WINDEF int win_context_get_window(library_t library, context_t context, window_t *w_ptr) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10182,7 +10174,7 @@ WINDEF int winGetContextWindow(library_t library, context_t context, window_t *w
     return (1);
 }
 
-WINDEF int winSetContextWindow(library_t library, context_t context, window_t window) {
+WINDEF int win_context_set_window(library_t library, context_t context, window_t window) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10192,7 +10184,7 @@ WINDEF int winSetContextWindow(library_t library, context_t context, window_t wi
     struct __window_h_window  *win = (struct __window_h_window *) window;
 
     /* update the internal references in 'win' and 'ctx' */
-    ctx->window.current  = window;
+    ctx->window.current = window;
     win->context.handle = context;
 
     /* success */
@@ -10201,7 +10193,7 @@ WINDEF int winSetContextWindow(library_t library, context_t context, window_t wi
 
 /* opengl context functions */
 
-WINDEF int winGLMakeCurrent(library_t library, context_t context) {
+WINDEF int win_gl_make_current(library_t library, context_t context) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10209,7 +10201,7 @@ WINDEF int winGLMakeCurrent(library_t library, context_t context) {
     return (lib->platform.makeCurrentGL(library, context));
 }
 
-WINDEF int winGLSwapBuffers(library_t library, context_t context) {
+WINDEF int win_gl_swap_buffers(library_t library, context_t context) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10217,7 +10209,7 @@ WINDEF int winGLSwapBuffers(library_t library, context_t context) {
     return (lib->platform.swapBuffersGL(library, context));
 }
 
-WINDEF int winGLSwapInterval(library_t library, context_t context, const int interval) {
+WINDEF int win_gl_swap_interval(library_t library, context_t context, const int interval) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10225,7 +10217,7 @@ WINDEF int winGLSwapInterval(library_t library, context_t context, const int int
     return (lib->platform.swapIntervalGL(library, context, interval));
 }
 
-WINDEF void *winGLGetProcAddress(library_t library, const char *proc) { 
+WINDEF void *win_gl_get_proc_address(library_t library, const char *proc) { 
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10235,7 +10227,7 @@ WINDEF void *winGLGetProcAddress(library_t library, const char *proc) {
 
 /* cursor functions */
 
-WINDEF int winCreateCursor(library_t library, cursor_t *result, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
+WINDEF int win_cursor_create(library_t library, cursor_t *result, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10261,7 +10253,7 @@ WINDEF int winCreateCursor(library_t library, cursor_t *result, const uint8_t *d
     return (1);
 }
 
-WINDEF int winDestroyCursor(library_t library, cursor_t cursor) {
+WINDEF int win_cursor_destroy(library_t library, cursor_t cursor) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10296,7 +10288,7 @@ WINDEF int winDestroyCursor(library_t library, cursor_t cursor) {
     return (1);
 }
 
-WINDEF int winGetCursorPosition(library_t library, window_t window, size_t *x_ptr, size_t *y_ptr) {
+WINDEF int win_cursor_get_position(library_t library, window_t window, size_t *x_ptr, size_t *y_ptr) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10304,7 +10296,7 @@ WINDEF int winGetCursorPosition(library_t library, window_t window, size_t *x_pt
     return (lib->platform.getCursorPosition(library, window, x_ptr, y_ptr));
 }
 
-WINDEF int winSetCursorPosition(library_t library, window_t window, const size_t x, const size_t y) {
+WINDEF int win_cursor_set_position(library_t library, window_t window, const size_t x, const size_t y) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10312,20 +10304,20 @@ WINDEF int winSetCursorPosition(library_t library, window_t window, const size_t
     return (lib->platform.setCursorPosition(library, window, x, y));
 }
 
-WINDEF int winSetCursorPositionCenter(library_t library, window_t window) {
+WINDEF int win_cursor_set_position_center(library_t library, window_t window) {
     /* 'result' exit-code */
     int result = 1;
    
     /* get the window size */
     size_t w, h;
-    result = winGetWindowSize(library, window, &w, &h);
+    result = win_window_get_size(library, window, &w, &h);
 
     /* set the cursor to the middle of the window */
-    result = winSetCursorPosition(library, window, w / 2, h / 2);
+    result = win_cursor_set_position(library, window, w / 2, h / 2);
     return (result);
 }
 
-WINDEF int winGetCursorMode(library_t library, window_t window, uint32_t *m_ptr) {
+WINDEF int win_cursor_get_mode(library_t library, window_t window, uint32_t *m_ptr) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10333,7 +10325,7 @@ WINDEF int winGetCursorMode(library_t library, window_t window, uint32_t *m_ptr)
     return (lib->platform.getCursorMode(library, window, m_ptr));
 }
 
-WINDEF int winSetCursorMode(library_t library, window_t window, const uint32_t mode) {
+WINDEF int win_cursor_set_mode(library_t library, window_t window, const uint32_t mode) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10342,7 +10334,7 @@ WINDEF int winSetCursorMode(library_t library, window_t window, const uint32_t m
 }
 
 
-WINDEF int winGetCursorRawMotion(library_t library, window_t window, uint8_t *r_ptr) {
+WINDEF int win_cursor_getRawMotion(library_t library, window_t window, uint8_t *r_ptr) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10351,7 +10343,7 @@ WINDEF int winGetCursorRawMotion(library_t library, window_t window, uint8_t *r_
 }
 
 
-WINDEF int winSetCursorRawMotion(library_t library, window_t window, const uint8_t raw) {
+WINDEF int win_cursor_setRawMotion(library_t library, window_t window, const uint8_t raw) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10361,13 +10353,13 @@ WINDEF int winSetCursorRawMotion(library_t library, window_t window, const uint8
 
 /* event functions */
 
-WINDEF int winPollEvents(library_t library, event_t *event) {
+WINDEF int win_event_poll(library_t library, event_t *event) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
     /* flush the event queue */
-    if (winPopEvent(library, event)) { return (1); }
+    if (win_event_pop(library, event)) { return (1); }
 
     /* call platform-specific poll events function */
     lib->platform.pollEvents(library);
@@ -10377,13 +10369,13 @@ WINDEF int winPollEvents(library_t library, event_t *event) {
     return (0);
 }
 
-WINDEF int winWaitEvents(library_t library, event_t *event) {
+WINDEF int win_event_wait(library_t library, event_t *event) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
     /* flush the event queue */
-    if (winPopEvent(library, event)) { return (1); }
+    if (win_event_pop(library, event)) { return (1); }
 
     /* call platform-specific poll events function */
     lib->platform.waitEvents(library);
@@ -10393,7 +10385,7 @@ WINDEF int winWaitEvents(library_t library, event_t *event) {
     return (0);
 }
 
-WINDEF int winPushEvent(library_t library, event_t *event) {
+WINDEF int win_event_push(library_t library, event_t *event) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10428,7 +10420,7 @@ WINDEF int winPushEvent(library_t library, event_t *event) {
     return (1);
 }
 
-WINDEF int winPopEvent(library_t library, event_t *event) {
+WINDEF int win_event_pop(library_t library, event_t *event) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10453,7 +10445,7 @@ WINDEF int winPopEvent(library_t library, event_t *event) {
     return (1);
 }
 
-WINDEF int winSendEvent(library_t library, window_t window, uint32_t type, ...) {
+WINDEF int win_event_send(library_t library, window_t window, uint32_t type, ...) {
     /* null-check */
     if (!library) { return (0); }
 
@@ -10464,7 +10456,7 @@ WINDEF int winSendEvent(library_t library, window_t window, uint32_t type, ...) 
     event.type = type;
 
     /* set event 'common' members */
-    event.common.time = winGetTime();
+    event.common.time = win_time_get();
     event.common.window = window;
 
     /* get the variadic argument list */
@@ -10537,10 +10529,10 @@ WINDEF int winSendEvent(library_t library, window_t window, uint32_t type, ...) 
     va_end(list);
     
     /* return */
-    return (winPushEvent(library, &event));
+    return (win_event_push(library, &event));
 }
 
-WINDEF int winPeekEvent(library_t library, event_t *event) {
+WINDEF int win_event_head(library_t library, event_t *event) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10556,7 +10548,7 @@ WINDEF int winPeekEvent(library_t library, event_t *event) {
 
 /* clipboard functions */
 
-WINDEF int winCopy(library_t library, const uint32_t selection, const void *data, const size_t size) {
+WINDEF int win_copy(library_t library, const uint32_t selection, const void *data, const size_t size) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10564,7 +10556,7 @@ WINDEF int winCopy(library_t library, const uint32_t selection, const void *data
     return (lib->platform.copy(library, selection, data, size));
 }
 
-WINDEF int winPaste(library_t library, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
+WINDEF int win_paste(library_t library, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
     /* references */
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
@@ -10574,7 +10566,7 @@ WINDEF int winPaste(library_t library, const uint32_t selection, void **d_ptr, s
 
 /* timing functions */
 
-WINDEF uint64_t winGetTime(void) {
+WINDEF uint64_t win_time_get(void) {
 
 # if defined (WINDOW_PLATFORM_LINUX) || \
       defined (WINDOW_PLATFORM_APPLE) || \
@@ -10592,11 +10584,11 @@ WINDEF uint64_t winGetTime(void) {
 
 }
 
-WINDEF int winWaitTime(uint64_t ms) {
-    uint64_t t = winGetTime();
+WINDEF int win_time_wait(uint64_t ms) {
+    uint64_t t = win_time_get();
     if (t == 0) { return (0); }
 
-    while ((winGetTime() - t) < ms);
+    while ((win_time_get() - t) < ms);
     return (1);
 }
 
@@ -10623,14 +10615,14 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
     platform->destroyWindow = __winDestroyWindowX11;
     platform->mapWindow = __winMapWindowX11;
     platform->unmapWindow = __winUnmapWindowX11;
-    platform->getWindowSize = __winGetWindowSizeX11;
-    platform->setWindowSize = __winSetWindowSizeX11;
-    platform->setWindowMinSize = __winSetWindowMinSizeX11;
-    platform->setWindowMaxSize = __winSetWindowMaxSizeX11;
-    platform->getWindowPosition = __winGetWindowPositionX11;
-    platform->setWindowPosition = __winSetWindowPositionX11;
-    platform->getWindowTitle = __winGetWindowTitleX11;
-    platform->setWindowTitle = __winSetWindowTitleX11;
+    platform->get_windowSize = __winGetWindowSizeX11;
+    platform->set_windowSize = __winSetWindowSizeX11;
+    platform->set_windowMinSize = __winSetWindowMinSizeX11;
+    platform->set_windowMaxSize = __winSetWindowMaxSizeX11;
+    platform->get_windowPosition = __winGetWindowPositionX11;
+    platform->set_windowPosition = __winSetWindowPositionX11;
+    platform->get_windowTitle = __winGetWindowTitleX11;
+    platform->set_windowTitle = __winSetWindowTitleX11;
 
     /* context functions */
 
