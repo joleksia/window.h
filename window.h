@@ -1150,41 +1150,40 @@ struct __window_h_platform {
 
     /* window functions */
 
-    int (*createWindow) (struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
-    int (*destroyWindow) (struct __window_h *, struct __window_h_window *);
-    int (*updateWindowFlags) (struct __window_h *, struct __window_h_window *);
-    int (*mapWindow) (struct __window_h *, struct __window_h_window *);
-    int (*unmapWindow) (struct __window_h *, struct __window_h_window *);
-    int (*get_windowSize) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
-    int (*set_windowSize) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*set_windowMinSize) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*set_windowMaxSize) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*get_windowPosition) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
-    int (*set_windowPosition) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*get_windowTitle) (struct __window_h *, struct __window_h_window *, char **);
-    int (*set_windowTitle) (struct __window_h *, struct __window_h_window *, const char *);
+    int (*window_create) (struct __window_h *, struct __window_h_window *, const size_t, const size_t, const char *);
+    int (*window_destroy) (struct __window_h *, struct __window_h_window *);
+    int (*window_update_flags) (struct __window_h *, struct __window_h_window *);
+    int (*window_map) (struct __window_h *, struct __window_h_window *);
+    int (*window_unmap) (struct __window_h *, struct __window_h_window *);
+    int (*window_get_size) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+    int (*window_set_size) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+    int (*window_set_size_min) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+    int (*window_set_size_max) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+    int (*window_get_position) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+    int (*window_set_position) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
+    int (*window_get_title) (struct __window_h *, struct __window_h_window *, char **);
+    int (*window_set_title) (struct __window_h *, struct __window_h_window *, const char *);
 
     /* context functions */
 
-    int (*createContext) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
-    int (*destroyContext) (struct __window_h *, struct __window_h_context *);
+    int (*context_create) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+    int (*context_destroy) (struct __window_h *, struct __window_h_context *);
 
     /* cursor functions */
 
-    int (*createCursor) (struct __window_h *, struct __window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
-    int (*destroyCursor) (struct __window_h *, struct __window_h_cursor *);
-    int (*getCursorPosition) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
-    int (*setCursorPosition) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
-    int (*setCursorPositionCenter) (struct __window_h *, struct __window_h_window *);
+    int (*cursor_create) (struct __window_h *, struct __window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
+    int (*cursor_destroy) (struct __window_h *, struct __window_h_cursor *);
+    int (*cursor_get_position) (struct __window_h *, struct __window_h_window *, size_t *, size_t *);
+    int (*cursor_set_position) (struct __window_h *, struct __window_h_window *, const size_t, const size_t);
     int (*getCursorMode) (struct __window_h *, struct __window_h_window *, uint32_t *);
-    int (*setCursorMode) (struct __window_h *, struct __window_h_window *, const uint32_t);
+    int (*cursor_set_mode) (struct __window_h *, struct __window_h_window *, const uint32_t);
     int (*getCursorRawMotion) (struct __window_h *, struct __window_h_window *, uint8_t *);
     int (*setCursorRawMotion) (struct __window_h *, struct __window_h_window *, const uint8_t);
 
     /* event functions */
 
-    int (*pollEvents) (struct __window_h *);
-    int (*waitEvents) (struct __window_h *);
+    int (*event_poll) (struct __window_h *);
+    int (*event_wait) (struct __window_h *);
 
     /* clipboard functions */
 
@@ -1193,17 +1192,17 @@ struct __window_h_platform {
 
     /* opengl context functions */
 
-    int (*initGL) (struct __window_h *, void *);
-    int (*loadGL) (struct __window_h *);
-    int (*unloadGL) (struct __window_h *);
-    int (*createContextGL) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
-    int (*destroyContextGL) (struct __window_h *, struct __window_h_context *);
-    int (*makeCurrentGL) (struct __window_h *, struct __window_h_context *);
-    int (*swapBuffersGL) (struct __window_h *, struct __window_h_context *);
-    int (*swapIntervalGL) (struct __window_h *, struct __window_h_context *, const int);
-    void *(*getProcAddressGL) (struct __window_h *, const char *);
-    int (*chooseConfigGL) (struct __window_h *);
-    int (*getVisualGL) (struct __window_h *, int *);
+    int (*gl_init) (struct __window_h *, void *);
+    int (*gl_load) (struct __window_h *);
+    int (*gl_unload) (struct __window_h *);
+    int (*gl_context_create) (struct __window_h *, struct __window_h_context *, struct __window_h_window *);
+    int (*gl_context_destroy) (struct __window_h *, struct __window_h_context *);
+    int (*gl_make_current) (struct __window_h *, struct __window_h_context *);
+    int (*gl_swap_buffers) (struct __window_h *, struct __window_h_context *);
+    int (*gl_swap_interval) (struct __window_h *, struct __window_h_context *, const int);
+    void *(*gl_get_proc_address) (struct __window_h *, const char *);
+    int (*gl_choose_config) (struct __window_h *);
+    int (*gl_get_visual) (struct __window_h *, int *);
 };
 
 
@@ -3006,9 +3005,9 @@ typedef int (* PFN_XGetTransientForHint_PROC) (Display *, Window, Window *);
 PFN_XGetTransientForHint_PROC XGetTransientForHint_PROC = 0;
 #  define XGetTransientForHint (assert(XGetTransientForHint_PROC != 0), XGetTransientForHint_PROC)
 
-typedef int (* PFN_XGetWMColormapWindows_PROC) (Display *, Window, Window **, int *);
-PFN_XGetWMColormapWindows_PROC XGetWMColormapWindows_PROC = 0;
-#  define XGetWMColormapWindows (assert(XGetWMColormapWindows_PROC != 0), XGetWMColormapWindows_PROC)
+typedef int (* PFN_XGetWMColorwindow_maps_PROC) (Display *, Window, Window **, int *);
+PFN_XGetWMColorwindow_maps_PROC XGetWMColorwindow_maps_PROC = 0;
+#  define XGetWMColorwindow_maps (assert(XGetWMColorwindow_maps_PROC != 0), XGetWMColorwindow_maps_PROC)
 
 typedef int (* PFN_XGetWMProtocols_PROC) (Display *, Window, Atom **, int *);
 PFN_XGetWMProtocols_PROC XGetWMProtocols_PROC = 0;
@@ -3626,9 +3625,9 @@ typedef int (* PFN_XSetTransientForHint_PROC) (Display *, Window, Window);
 PFN_XSetTransientForHint_PROC XSetTransientForHint_PROC = 0;
 #  define XSetTransientForHint (assert(XSetTransientForHint_PROC != 0), XSetTransientForHint_PROC)
 
-typedef int (* PFN_XSetWMColormapWindows_PROC) (Display *, Window, Window *, int);
-PFN_XSetWMColormapWindows_PROC XSetWMColormapWindows_PROC = 0;
-#  define XSetWMColormapWindows (assert(XSetWMColormapWindows_PROC != 0), XSetWMColormapWindows_PROC)
+typedef int (* PFN_XSetWMColorwindow_maps_PROC) (Display *, Window, Window *, int);
+PFN_XSetWMColorwindow_maps_PROC XSetWMColorwindow_maps_PROC = 0;
+#  define XSetWMColorwindow_maps (assert(XSetWMColorwindow_maps_PROC != 0), XSetWMColorwindow_maps_PROC)
 
 typedef int (* PFN_XSetWMProtocols_PROC) (Display *, Window, Atom *, int);
 PFN_XSetWMProtocols_PROC XSetWMProtocols_PROC = 0;
@@ -3754,9 +3753,9 @@ typedef int (* PFN_XUnmapSubwindows_PROC) (Display *, Window);
 PFN_XUnmapSubwindows_PROC XUnmapSubwindows_PROC = 0;
 #  define XUnmapSubwindows (assert(XUnmapSubwindows_PROC != 0), XUnmapSubwindows_PROC)
 
-typedef int (* PFN_XUnmapWindow_PROC) (Display *, Window);
-PFN_XUnmapWindow_PROC XUnmapWindow_PROC = 0;
-#  define XUnmapWindow (assert(XUnmapWindow_PROC != 0), XUnmapWindow_PROC)
+typedef int (* PFN_XUnwindow_map_PROC) (Display *, Window);
+PFN_XUnwindow_map_PROC XUnwindow_map_PROC = 0;
+#  define XUnwindow_map (assert(XUnwindow_map_PROC != 0), XUnwindow_map_PROC)
 
 typedef int (* PFN_XUnregisterIMInstantiateCallback_PROC) (Display *, struct _XrmHashBucketRec *, char *, char *, XIDProc, XPointer);
 PFN_XUnregisterIMInstantiateCallback_PROC XUnregisterIMInstantiateCallback_PROC = 0;
@@ -5804,7 +5803,7 @@ WININT int __winInitGLX(struct __window_h *, void *);
 
 WININT int __winLoadGLX(struct __window_h *);
 
-WININT int __winUnloadGLX(struct __window_h *);
+WININT int __winUngl_loadX(struct __window_h *);
 
 WININT int __winCreateContextGLX(struct __window_h *, struct __window_h_context *, struct __window_h_window *);
 
@@ -6131,7 +6130,7 @@ WININT int __winLoadGLX(struct __window_h *lib) {
 }
 
 
-WININT int __winUnloadGLX(struct __window_h *lib) {
+WININT int __winUngl_loadX(struct __window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -7272,7 +7271,7 @@ WININT int __winDestroyWindowX11(struct __window_h *, struct __window_h_window *
 
 WININT int __winMapWindowX11(struct __window_h *, struct __window_h_window *);
 
-WININT int __winUnmapWindowX11(struct __window_h *, struct __window_h_window *);
+WININT int __winUnwindow_mapX11(struct __window_h *, struct __window_h_window *);
 
 WININT int __winGetWindowSizeX11(struct __window_h *, struct __window_h_window *, size_t *, size_t *);
 
@@ -8140,7 +8139,7 @@ WININT int __winLoadX11(struct __window_h *lib) {
     XGetSelectionOwner_PROC = (PFN_XGetSelectionOwner_PROC) dlsym(libx11, "XGetSelectionOwner");
     XGetSubImage_PROC = (PFN_XGetSubImage_PROC) dlsym(libx11, "XGetSubImage");
     XGetTransientForHint_PROC = (PFN_XGetTransientForHint_PROC) dlsym(libx11, "XGetTransientForHint");
-    XGetWMColormapWindows_PROC = (PFN_XGetWMColormapWindows_PROC) dlsym(libx11, "XGetWMColormapWindows");
+    XGetWMColorwindow_maps_PROC = (PFN_XGetWMColorwindow_maps_PROC) dlsym(libx11, "XGetWMColorwindow_maps");
     XGetWMProtocols_PROC = (PFN_XGetWMProtocols_PROC) dlsym(libx11, "XGetWMProtocols");
     XGetWindowAttributes_PROC = (PFN_XGetWindowAttributes_PROC) dlsym(libx11, "XGetWindowAttributes");
     XGetWindowProperty_PROC = (PFN_XGetWindowProperty_PROC) dlsym(libx11, "XGetWindowProperty");
@@ -8295,7 +8294,7 @@ WININT int __winLoadX11(struct __window_h *lib) {
     XSetTSOrigin_PROC = (PFN_XSetTSOrigin_PROC) dlsym(libx11, "XSetTSOrigin");
     XSetTile_PROC = (PFN_XSetTile_PROC) dlsym(libx11, "XSetTile");
     XSetTransientForHint_PROC = (PFN_XSetTransientForHint_PROC) dlsym(libx11, "XSetTransientForHint");
-    XSetWMColormapWindows_PROC = (PFN_XSetWMColormapWindows_PROC) dlsym(libx11, "XSetWMColormapWindows");
+    XSetWMColorwindow_maps_PROC = (PFN_XSetWMColorwindow_maps_PROC) dlsym(libx11, "XSetWMColorwindow_maps");
     XSetWMProtocols_PROC = (PFN_XSetWMProtocols_PROC) dlsym(libx11, "XSetWMProtocols");
     XSetWindowBackground_PROC = (PFN_XSetWindowBackground_PROC) dlsym(libx11, "XSetWindowBackground");
     XSetWindowBackgroundPixmap_PROC = (PFN_XSetWindowBackgroundPixmap_PROC) dlsym(libx11, "XSetWindowBackgroundPixmap");
@@ -8327,7 +8326,7 @@ WININT int __winLoadX11(struct __window_h *lib) {
     XUnloadFont_PROC = (PFN_XUnloadFont_PROC) dlsym(libx11, "XUnloadFont");
     XUnlockDisplay_PROC = (PFN_XUnlockDisplay_PROC) dlsym(libx11, "XUnlockDisplay");
     XUnmapSubwindows_PROC = (PFN_XUnmapSubwindows_PROC) dlsym(libx11, "XUnmapSubwindows");
-    XUnmapWindow_PROC = (PFN_XUnmapWindow_PROC) dlsym(libx11, "XUnmapWindow");
+    XUnwindow_map_PROC = (PFN_XUnwindow_map_PROC) dlsym(libx11, "XUnwindow_map");
     XUnregisterIMInstantiateCallback_PROC = (PFN_XUnregisterIMInstantiateCallback_PROC) dlsym(libx11, "XUnregisterIMInstantiateCallback");
     XUnsetICFocus_PROC = (PFN_XUnsetICFocus_PROC) dlsym(libx11, "XUnsetICFocus");
     XVaCreateNestedList_PROC = (PFN_XVaCreateNestedList_PROC) dlsym(libx11, "XVaCreateNestedList");
@@ -8936,8 +8935,8 @@ WININT int __winCreateWindowX11(struct __window_h *lib, struct __window_h_window
     ) {
         /* get 'visualid' */
         int visualid = 0;
-        if (!lib->platform.chooseConfigGL(lib) ||
-            !lib->platform.getVisualGL(lib, &visualid)
+        if (!lib->platform.gl_choose_config(lib) ||
+            !lib->platform.gl_get_visual(lib, &visualid)
         ) {
             free(x11); return (0);
         }
@@ -9047,13 +9046,13 @@ WININT int __winMapWindowX11(struct __window_h *lib, struct __window_h_window *w
 }
 
 
-WININT int __winUnmapWindowX11(struct __window_h *lib, struct __window_h_window *win) {
+WININT int __winUnwindow_mapX11(struct __window_h *lib, struct __window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!win) { return (0); }
 
     /* unmap window */
-    XUnmapWindow(lib->x11->dpy,
+    XUnwindow_map(lib->x11->dpy,
                  win->handle);
 
     /* success */
@@ -9801,7 +9800,7 @@ WINDEF int win_quit(library_t library) {
     lib->platform.unload(library);
 
     /* call platform - specific unload OpenGL function */
-    lib->platform.unloadGL(library);
+    lib->platform.gl_unload(library);
 
     /* release 'library' */
     free(library);
@@ -9883,8 +9882,8 @@ WINDEF int win_window_create(library_t library, window_t *result, const size_t w
     switch (win->attrib.api) {
         case (WINDOW_API_OPENGL):
         case (WINDOW_API_OPENGLES): {
-            if (!lib->platform.loadGL(lib) ||
-                !lib->platform.initGL(lib, lib->x11->dpy)
+            if (!lib->platform.gl_load(lib) ||
+                !lib->platform.gl_init(lib, lib->x11->dpy)
             ) {
                 free(win);
                 return (0);
@@ -9893,7 +9892,7 @@ WINDEF int win_window_create(library_t library, window_t *result, const size_t w
     }
 
     /* create window object */
-    if (!lib->platform.createWindow(lib, win, width, height, title)) {
+    if (!lib->platform.window_create(lib, win, width, height, title)) {
         free(win);
         return (0);
     }
@@ -9915,7 +9914,7 @@ WINDEF int win_window_destroy(library_t library, window_t window) {
     if (!lib) { return (0); }
     
     /* call platform - specific destroy function */
-    if (!lib->platform.destroyWindow(library, window)) { return (0); }
+    if (!lib->platform.window_destroy(library, window)) { return (0); }
 
     /* references */
     struct __window_h_window *win = (struct __window_h_window *) window;
@@ -9949,7 +9948,7 @@ WINDEF int win_window_map(library_t library, window_t window) {
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.mapWindow(library, window));
+    return (lib->platform.window_map(library, window));
 }
 
 WINDEF int win_window_unmap(library_t library, window_t window) {
@@ -9957,7 +9956,7 @@ WINDEF int win_window_unmap(library_t library, window_t window) {
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.unmapWindow(library, window)); 
+    return (lib->platform.window_unmap(library, window)); 
 }
 
 WINDEF int win_window_get_size(library_t library, window_t window, size_t *w_ptr, size_t *h_ptr) {
@@ -9965,7 +9964,7 @@ WINDEF int win_window_get_size(library_t library, window_t window, size_t *w_ptr
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.get_windowSize(library, window, w_ptr, h_ptr)); 
+    return (lib->platform.window_get_size(library, window, w_ptr, h_ptr)); 
 }
 
 WINDEF int win_window_set_size(library_t library, window_t window, const size_t w, const size_t h) {
@@ -9973,7 +9972,7 @@ WINDEF int win_window_set_size(library_t library, window_t window, const size_t 
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.set_windowSize(library, window, w, h)); 
+    return (lib->platform.window_set_size(library, window, w, h)); 
 }
 
 WINDEF int win_window_set_size_min(library_t library, window_t window, const size_t w, const size_t h) {
@@ -9981,7 +9980,7 @@ WINDEF int win_window_set_size_min(library_t library, window_t window, const siz
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.set_windowMinSize(library, window, w, h)); 
+    return (lib->platform.window_set_size_min(library, window, w, h)); 
 }
 
 WINDEF int win_window_set_size_max(library_t library, window_t window, const size_t w, const size_t h) {
@@ -9989,7 +9988,7 @@ WINDEF int win_window_set_size_max(library_t library, window_t window, const siz
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.set_windowMaxSize(library, window, w, h)); 
+    return (lib->platform.window_set_size_max(library, window, w, h)); 
 }
 
 WINDEF int win_window_get_position(library_t library, window_t window, size_t *x_ptr, size_t *y_ptr) {
@@ -9997,7 +9996,7 @@ WINDEF int win_window_get_position(library_t library, window_t window, size_t *x
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.get_windowPosition(library, window, x_ptr, y_ptr)); 
+    return (lib->platform.window_get_position(library, window, x_ptr, y_ptr)); 
 }
 
 WINDEF int win_window_set_position(library_t library, window_t window, const size_t x, const size_t y) {
@@ -10005,7 +10004,7 @@ WINDEF int win_window_set_position(library_t library, window_t window, const siz
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.set_windowPosition(library, window, x, y)); 
+    return (lib->platform.window_set_position(library, window, x, y)); 
 }
 
 WINDEF int win_window_get_title(library_t library, window_t window, char **t_ptr) {
@@ -10013,7 +10012,7 @@ WINDEF int win_window_get_title(library_t library, window_t window, char **t_ptr
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.get_windowTitle(library, window, t_ptr)); 
+    return (lib->platform.window_get_title(library, window, t_ptr)); 
 }
 
 WINDEF int win_window_set_title(library_t library, window_t window, const char *t) {
@@ -10021,7 +10020,7 @@ WINDEF int win_window_set_title(library_t library, window_t window, const char *
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.set_windowTitle(library, window, t)); 
+    return (lib->platform.window_set_title(library, window, t)); 
 }
 
 WINDEF int win_window_get_context(library_t library, window_t window, context_t *c_ptr) {
@@ -10080,7 +10079,7 @@ WINDEF int win_context_create(library_t library, context_t *result, window_t win
     /* API-specific implementation */
     switch (ctx->attrib.api) {
         case (WINDOW_API_NATIVE): {
-            if (!lib->platform.createContext(library, ctx, win)) {
+            if (!lib->platform.context_create(library, ctx, win)) {
                 free(ctx);
                 return (0);
             }
@@ -10088,7 +10087,7 @@ WINDEF int win_context_create(library_t library, context_t *result, window_t win
 
         case (WINDOW_API_OPENGL):
         case (WINDOW_API_OPENGLES): {
-            if (!lib->platform.createContextGL(library, ctx, win)) {
+            if (!lib->platform.gl_context_create(library, ctx, win)) {
                 free(ctx);
                 return (0);
             }
@@ -10123,13 +10122,13 @@ WINDEF int win_context_destroy(library_t library, context_t context) {
     switch (ctx->attrib.api) {
         case (WINDOW_API_NATIVE): {
             /* call platform - specific destroy function */
-            if (!lib->platform.destroyContext(library, context)) { return (0); }
+            if (!lib->platform.context_destroy(library, context)) { return (0); }
         } break;
 
         case (WINDOW_API_OPENGL):
         case (WINDOW_API_OPENGLES): {
             /* call platform - specific destroy function */
-            if (!lib->platform.destroyContextGL(library, context)) { return (0); }
+            if (!lib->platform.gl_context_destroy(library, context)) { return (0); }
         } break;
 
         default: { return (0); }
@@ -10198,7 +10197,7 @@ WINDEF int win_gl_make_current(library_t library, context_t context) {
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.makeCurrentGL(library, context));
+    return (lib->platform.gl_make_current(library, context));
 }
 
 WINDEF int win_gl_swap_buffers(library_t library, context_t context) {
@@ -10206,7 +10205,7 @@ WINDEF int win_gl_swap_buffers(library_t library, context_t context) {
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.swapBuffersGL(library, context));
+    return (lib->platform.gl_swap_buffers(library, context));
 }
 
 WINDEF int win_gl_swap_interval(library_t library, context_t context, const int interval) {
@@ -10214,7 +10213,7 @@ WINDEF int win_gl_swap_interval(library_t library, context_t context, const int 
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.swapIntervalGL(library, context, interval));
+    return (lib->platform.gl_swap_interval(library, context, interval));
 }
 
 WINDEF void *win_gl_get_proc_address(library_t library, const char *proc) { 
@@ -10222,7 +10221,7 @@ WINDEF void *win_gl_get_proc_address(library_t library, const char *proc) {
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.getProcAddressGL(library, proc));
+    return (lib->platform.gl_get_proc_address(library, proc));
 }
 
 /* cursor functions */
@@ -10237,7 +10236,7 @@ WINDEF int win_cursor_create(library_t library, cursor_t *result, const uint8_t 
     if (!cur) { return (0); }
     
     /* call platform - specific create function */
-    if (!lib->platform.createCursor(library, cur, data, width, height, xhot, yhot)) {
+    if (!lib->platform.cursor_create(library, cur, data, width, height, xhot, yhot)) {
         free(cur);
         return (0);
     }
@@ -10259,7 +10258,7 @@ WINDEF int win_cursor_destroy(library_t library, cursor_t cursor) {
     if (!lib) { return (0); }
     
     /* call platform - specific destroy function */
-    if (!lib->platform.destroyCursor(library, cursor)) { return (0); }
+    if (!lib->platform.cursor_destroy(library, cursor)) { return (0); }
     
     /* references */
     struct __window_h_cursor *cur = (struct __window_h_cursor *) cursor;
@@ -10293,7 +10292,7 @@ WINDEF int win_cursor_get_position(library_t library, window_t window, size_t *x
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.getCursorPosition(library, window, x_ptr, y_ptr));
+    return (lib->platform.cursor_get_position(library, window, x_ptr, y_ptr));
 }
 
 WINDEF int win_cursor_set_position(library_t library, window_t window, const size_t x, const size_t y) {
@@ -10301,7 +10300,7 @@ WINDEF int win_cursor_set_position(library_t library, window_t window, const siz
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.setCursorPosition(library, window, x, y));
+    return (lib->platform.cursor_set_position(library, window, x, y));
 }
 
 WINDEF int win_cursor_set_position_center(library_t library, window_t window) {
@@ -10330,7 +10329,7 @@ WINDEF int win_cursor_set_mode(library_t library, window_t window, const uint32_
     struct __window_h *lib = (struct __window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.setCursorMode(library, window, mode));
+    return (lib->platform.cursor_set_mode(library, window, mode));
 }
 
 
@@ -10362,7 +10361,7 @@ WINDEF int win_event_poll(library_t library, event_t *event) {
     if (win_event_pop(library, event)) { return (1); }
 
     /* call platform-specific poll events function */
-    lib->platform.pollEvents(library);
+    lib->platform.event_poll(library);
 
     /* this means we don't have any event... */
     *event = (event_t) { 0 };
@@ -10378,7 +10377,7 @@ WINDEF int win_event_wait(library_t library, event_t *event) {
     if (win_event_pop(library, event)) { return (1); }
 
     /* call platform-specific poll events function */
-    lib->platform.waitEvents(library);
+    lib->platform.event_wait(library);
 
     /* this means we don't have any event... */
     *event = (event_t) { 0 };
@@ -10611,38 +10610,37 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
     platform->load = __winLoadX11;
     platform->quit = __winQuitX11;
     platform->unload = __winUnloadX11;
-    platform->createWindow = __winCreateWindowX11;
-    platform->destroyWindow = __winDestroyWindowX11;
-    platform->mapWindow = __winMapWindowX11;
-    platform->unmapWindow = __winUnmapWindowX11;
-    platform->get_windowSize = __winGetWindowSizeX11;
-    platform->set_windowSize = __winSetWindowSizeX11;
-    platform->set_windowMinSize = __winSetWindowMinSizeX11;
-    platform->set_windowMaxSize = __winSetWindowMaxSizeX11;
-    platform->get_windowPosition = __winGetWindowPositionX11;
-    platform->set_windowPosition = __winSetWindowPositionX11;
-    platform->get_windowTitle = __winGetWindowTitleX11;
-    platform->set_windowTitle = __winSetWindowTitleX11;
+    platform->window_create = __winCreateWindowX11;
+    platform->window_destroy = __winDestroyWindowX11;
+    platform->window_map = __winMapWindowX11;
+    platform->window_unmap = __winUnwindow_mapX11;
+    platform->window_get_size = __winGetWindowSizeX11;
+    platform->window_set_size = __winSetWindowSizeX11;
+    platform->window_set_size_min = __winSetWindowMinSizeX11;
+    platform->window_set_size_max = __winSetWindowMaxSizeX11;
+    platform->window_get_position = __winGetWindowPositionX11;
+    platform->window_set_position = __winSetWindowPositionX11;
+    platform->window_get_title = __winGetWindowTitleX11;
+    platform->window_set_title = __winSetWindowTitleX11;
 
     /* context functions */
 
-    platform->createContext = __winCreateContextX11;
-    platform->destroyContext = __winDestroyContextX11;
+    platform->context_create = __winCreateContextX11;
+    platform->context_destroy = __winDestroyContextX11;
 
     /* cursor functions */
 
-    platform->createCursor = __winCreateCursorX11;
-    platform->destroyCursor = __winDestroyCursorX11;
-    platform->getCursorPosition = __winGetCursorPositionX11;
-    platform->setCursorPosition = __winSetCursorPositionX11;
+    platform->cursor_create = __winCreateCursorX11;
+    platform->cursor_destroy = __winDestroyCursorX11;
+    platform->cursor_get_position = __winGetCursorPositionX11;
+    platform->cursor_set_position = __winSetCursorPositionX11;
     platform->getCursorMode = __winGetCursorModeX11;
-    platform->setCursorMode = __winSetCursorModeX11;
-    platform->getCursorRawMotion = __winGetCursorRawMotionX11;
-    platform->setCursorRawMotion = __winSetCursorRawMotionX11;
+    platform->cursor_set_mode = __winSetCursorModeX11;
 
     /* event functions */
 
-    platform->pollEvents = __winPollEventsX11;
+    platform->event_poll = __winPollEventsX11;
+    platform->event_wait = __winWaitEventsX11;
 
     /* clipboard functions */
     
@@ -10656,47 +10654,47 @@ WININT int __winLoadPlatform(struct __window_h *library, struct __window_h_platf
     
     /* opengl context functions */
 
-    platform->initGL = __winInitGLX;
-    platform->loadGL = __winLoadGLX;
-    platform->unloadGL = __winUnloadGLX;
-    platform->createContextGL = __winCreateContextGLX;
-    platform->destroyContextGL = __winDestroyContextGLX;
-    platform->makeCurrentGL = __winMakeCurrentGLX;
-    platform->swapBuffersGL = __winSwapBuffersGLX;
-    platform->swapIntervalGL = __winSwapIntervalGLX;
-    platform->getProcAddressGL = __winGetProcAddressGLX;
-    platform->chooseConfigGL = __winChooseConfigGLX;
-    platform->getVisualGL = __winGetVisualGLX;
+    platform->gl_init = __winInitGLX;
+    platform->gl_load = __winLoadGLX;
+    platform->gl_unload = __winUngl_loadX;
+    platform->gl_context_create = __winCreateContextGLX;
+    platform->gl_context_destroy = __winDestroyContextGLX;
+    platform->gl_make_current = __winMakeCurrentGLX;
+    platform->gl_swap_buffers = __winSwapBuffersGLX;
+    platform->gl_swap_interval = __winSwapIntervalGLX;
+    platform->gl_get_proc_address = __winGetProcAddressGLX;
+    platform->gl_choose_config = __winChooseConfigGLX;
+    platform->gl_get_visual = __winGetVisualGLX;
 
 # elif defined (WINDOW_BACKEND_EGL)
 
     /* opengl context functions */
 
-    platform->initGL = __winInitEGL;
-    platform->loadGL = __winLoadEGL;
-    platform->unloadGL = __winUnloadEGL;
-    platform->createContextGL = __winCreateContextEGL;
-    platform->destroyContextGL = __winDestroyContextEGL;
-    platform->makeCurrentGL = __winMakeCurrentEGL;
-    platform->swapBuffersGL = __winSwapBuffersEGL;
-    platform->swapIntervalGL = __winSwapIntervalEGL;
-    platform->getProcAddressGL = __winGetProcAddressEGL;
-    platform->chooseConfigGL = __winChooseConfigEGL;
-    platform->getVisualGL = __winGetVisualEGL;
+    platform->gl_init = __winInitEGL;
+    platform->gl_load = __winLoadEGL;
+    platform->gl_unload = __winUnloadEGL;
+    platform->gl_context_create = __winCreateContextEGL;
+    platform->gl_context_destroy = __winDestroyContextEGL;
+    platform->gl_make_current = __winMakeCurrentEGL;
+    platform->gl_swap_buffers = __winSwapBuffersEGL;
+    platform->gl_swap_interval = __winSwapIntervalEGL;
+    platform->gl_get_proc_address = __winGetProcAddressEGL;
+    platform->gl_choose_config = __winChooseConfigEGL;
+    platform->gl_get_visual = __winGetVisualEGL;
 
 # elif defined (WINDOW_BACKEND_WGL)
     
     /* opengl context functions */
 
-    platform->initGL = __winInitWGL;
-    platform->loadGL = __winLoadWGL;
-    platform->unloadGL = __winUnloadWGL;
-    platform->createContextGL = __winCreateContextWGL;
-    platform->destroyContextGL = __winDestroyContextWGL;
-    platform->makeCurrentGL = __winMakeCurrentWGL;
-    platform->swapBuffersGL = __winSwapBuffersWGL;
-    platform->swapIntervalGL = __winSwapIntervalWGL;
-    platform->getProcAddressGL = __winGetProcAddressWGL;
+    platform->gl_init = __winInitWGL;
+    platform->gl_load = __winLoadWGL;
+    platform->gl_unload = __winUnloadWGL;
+    platform->gl_context_create = __winCreateContextWGL;
+    platform->gl_context_destroy = __winDestroyContextWGL;
+    platform->gl_make_current = __winMakeCurrentWGL;
+    platform->gl_swap_buffers = __winSwapBuffersWGL;
+    platform->gl_swap_interval = __winSwapIntervalWGL;
+    platform->gl_get_proc_address = __winGetProcAddressWGL;
 
 # endif
     
