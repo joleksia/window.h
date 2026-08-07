@@ -25,28 +25,17 @@ int main(void) {
     /* map window */
     win_window_map(library, window);
 
-    /* set cursor mode */
-
     /* update loop */
     int exit = 0;
     while (!exit) {
+        /* poll events */
         event_t event = { 0 };
         while (win_event_poll(library, &event)) {
-            /* wait for 'quit' event */
-            if (event.type == WINDOW_EVENT_QUIT) { exit = 1; }
-
-            if (event.type == WINDOW_EVENT_KEYBOARD_KEY) {
-                switch (event.keyboard.keycode) {
-                    case (WINDOW_KEYCODE_C): {
-                        win_cursor_set_mode(library, window, WINDOW_CURSOR_MODE_CAPTURED);
-                    } break;
-                    case (WINDOW_KEYCODE_N): {
-                        win_cursor_set_mode(library, window, WINDOW_CURSOR_MODE_NORMAL);
-                    } break;
-                    case (WINDOW_KEYCODE_L): {
-                        win_cursor_set_mode(library, window, WINDOW_CURSOR_MODE_CENTERED);
-                    } break;
-                }
+            switch (event.type) {
+                case (WINDOW_EVENT_QUIT): {
+                    printf("WINDOW_EVENT_QUIT\n");
+                    exit = 1;
+                } break;
             }
         }
     }
