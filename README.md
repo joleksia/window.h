@@ -15,17 +15,22 @@
 int main(void) {
     /* init window.h */
     library_t library = 0;
-    winInit(&library);
-
+    win_init(&library);
+    
+    /* create window */
     window_t window = 0;
-    winCreateWindow(library, &window, 800, 600, "Hello, window.h!");
-    winMapWindow(library, window);
+    win_window_create(library, &window, 800, 600, "Hello, window.h!");
+    if (!window) { win_quit(library); return (1); }
 
+    /* map window */
+    win_window_map(library, window);
+
+    /* update loop */
     int exit = 0;
     while (!exit) {
         /* poll events */
         event_t event = { 0 };
-        while (winPollEvents(library, &event)) {
+        while (win_event_poll(library, &event)) {
             switch (event.type) {
                 case (WINDOW_EVENT_QUIT): {
                     printf("WINDOW_EVENT_QUIT\n");
@@ -35,15 +40,11 @@ int main(void) {
         }
     }
 
-    /* quit window.h */
-    winQuit(library);
+    /* quit */
+    win_quit(library);
     return (0);
 }
 ```
-
-It provides a simple interface for creating and manipulating windows on the screen and serves as a great
-learning resource for discovering how large windowing libraries, such as `SDL`, `GLFW`, `RGFW`, `SFML` etc.
-deals with windowing.
 
 ## Contributions
 
@@ -64,6 +65,7 @@ Resources used in this project:
 - [EGL Reference Pages](https://registry.khronos.org/EGL/sdk/docs/man/)
 
 Specific resources used in this project:
+- [MaJerle/c-code-style](https://github.com/MaJerle/c-code-style)
 - [Create an OpenGL context using Xlib and EGL](https://gist.github.com/pedrominicz/2d81559c5fb66d23d6bb627570956605)
 - [RGFW Under the Hood: OpenGL context creation](https://github.com/ColleagueRiley/OpenGL-Context-Creation)
 - [exebook/x11clipboard](https://github.com/exebook/x11clipboard)
