@@ -9392,23 +9392,8 @@ WININT int __win_x11_cursor_set_mode(struct _window_h *lib, struct _window_h_win
     if (!lib) { return (0); }
     if (!win) { return (0); }
 
-    /* update 'win->cursor' members */
-    win->cursor.attrib.mode = mode;
-
     /* only execute if window is focused */
     if (win->attrib.focused) {
-        /* enable / disable raw mouse motion */
-        switch (mode) {
-            case (WINDOW_CURSOR_MODE_NORMAL):
-            case (WINDOW_CURSOR_MODE_CAPTURED):
-            case (WINDOW_CURSOR_MODE_HIDDEN): {
-            } break;
-
-            case (WINDOW_CURSOR_MODE_CENTERED):
-            case (WINDOW_CURSOR_MODE_DISABLED): {
-            } break;
-        }
-
         /* grab / ungrab the cursor */
         switch (mode) {
             case (WINDOW_CURSOR_MODE_NORMAL):
@@ -9468,66 +9453,6 @@ WININT int __win_x11_cursor_set_mode(struct _window_h *lib, struct _window_h_win
     
     /* success */
     return (1);
-}
-
-
-WININT int __winGetCursorRawMotionX11(struct _window_h *lib, struct _window_h_window *win, uint8_t *r_ptr) {
-    /* null-check */
-    if (!lib) { return (0); }
-    if (!win) { return (0); }
-
-    /* return result */
-    if (r_ptr) {
-        *r_ptr = win->cursor.attrib.raw;
-    }
-    
-    /* success */
-    return (1);
-}
-
-
-WININT int __winSetCursorRawMotionX11(struct _window_h *lib, struct _window_h_window *win, const uint8_t raw) {
-    /* null-check */
-    if (!lib) { return (0); }
-    if (!win) { return (0); }
-    
-    /* references */
-    struct _window_h_x11 *x11 = lib->x11; 
-    if (!x11) { return (0); }
-    
-    /* init check */
-    if (!lib->x11->xinput.handle) { return (0); }
-   
-# if defined (WINDOW_X11_EXTENSION_XINPUT2)
-
-    unsigned char mask[XIMaskLen(XI_RawMotion)] = { 0 };
-    
-    XIEventMask xi_event_mask = {
-        .deviceid = XIAllMasterDevices,
-        .mask_len = sizeof(mask),
-        .mask     = mask
-    };
-
-    /* only for 'raw motion' */
-    if (raw) {
-        XISetMask(mask, XI_RawMotion);
-    }
-
-    XISelectEvents(lib->x11->dpy,
-                   lib->x11->root,
-                   &xi_event_mask, 1);
-
-    /* set 'window->cursor' members */
-    win->cursor.attrib.raw = raw;
-
-    /* success */
-    return (1);
-
-# endif /* WINDOW_X11_EXTENSION_XINPUT2 */
-
-    /* failure */
-    (void) raw;
-    return (0);
 }
 
 
@@ -10342,26 +10267,11 @@ WINDEF int win_cursor_set_mode(library_t library, window_t window, const uint32_
     /* references */
     struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
+
+    /* update 'win->cursor' members */
+    win->cursor.attrib.mode = mode;
     
     return (lib->platform.cursor_set_mode(library, window, mode));
-}
-
-
-WINDEF int win_cursor_getRawMotion(library_t library, window_t window, uint8_t *r_ptr) {
-    /* references */
-    struct _window_h *lib = (struct _window_h *) library;
-    if (!lib) { return (0); }
-    
-    return (lib->platform.getCursorRawMotion(library, window, r_ptr));
-}
-
-
-WINDEF int win_cursor_setRawMotion(library_t library, window_t window, const uint8_t raw) {
-    /* references */
-    struct _window_h *lib = (struct _window_h *) library;
-    if (!lib) { return (0); }
-   
-    return (lib->platform.setCursorRawMotion(library, window, raw));
 }
 
 /* event functions */
