@@ -7576,29 +7576,6 @@ WININT int __winProcessEventX11(struct _window_h *lib, XEvent *xevent) {
     return (1);
 }
 
-
-WININT int __win_x11_copy(struct _window_h *lib, const uint32_t selection, const void *data, const size_t size) {
-    /* null-check */
-    if (!lib) { return (0); }
-    
-    /* references */
-    struct _window_h_x11 *x11 = lib->x11; 
-    if (!x11) { return (0); }
-
-    /* get selection atom */
-    Atom atom = 0;
-    switch (selection) {
-        case (WINDOW_SELECTION_PRIMARY):   { atom = XA_PRIMARY;     } break;
-        case (WINDOW_SELECTION_SECONDARY): { atom = XA_SECONDARY;   } break;
-        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->CLIPBOARD; } break;
-
-        /* ... */
-        default: { return (0); }
-    }
-
-    return (__winSetSelectionX11(lib, atom, data, size));
-}
-
 WININT int __winGetSelectionX11(struct _window_h *lib, const Atom selection, void **d_ptr, size_t *s_ptr) {
     /* null-check */
     if (!lib) { return (0); }
@@ -9580,6 +9557,29 @@ WININT int __win_x11_event_wait(struct _window_h *lib) {
 
     /* success */
     return (1);
+}
+
+
+WININT int __win_x11_copy(struct _window_h *lib, const uint32_t selection, const void *data, const size_t size) {
+    /* null-check */
+    if (!lib) { return (0); }
+    
+    /* references */
+    struct _window_h_x11 *x11 = lib->x11; 
+    if (!x11) { return (0); }
+
+    /* get selection atom */
+    Atom atom = 0;
+    switch (selection) {
+        case (WINDOW_SELECTION_PRIMARY):   { atom = XA_PRIMARY;     } break;
+        case (WINDOW_SELECTION_SECONDARY): { atom = XA_SECONDARY;   } break;
+        case (WINDOW_SELECTION_CLIPBOARD): { atom = x11->CLIPBOARD; } break;
+
+        /* ... */
+        default: { return (0); }
+    }
+
+    return (__winSetSelectionX11(lib, atom, data, size));
 }
 
 
