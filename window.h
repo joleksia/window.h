@@ -1175,10 +1175,7 @@ struct _window_h_platform {
     int (*cursor_destroy) (struct _window_h *, struct _window_h_cursor *);
     int (*cursor_get_position) (struct _window_h *, struct _window_h_window *, size_t *, size_t *);
     int (*cursor_set_position) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
-    int (*getCursorMode) (struct _window_h *, struct _window_h_window *, uint32_t *);
     int (*cursor_set_mode) (struct _window_h *, struct _window_h_window *, const uint32_t);
-    int (*getCursorRawMotion) (struct _window_h *, struct _window_h_window *, uint8_t *);
-    int (*setCursorRawMotion) (struct _window_h *, struct _window_h_window *, const uint8_t);
 
     /* event functions */
 
@@ -7246,13 +7243,13 @@ static const struct _window_h_keymap _window_h_keymap_en_us_qwerty[] = {
 
 /* internal functions (declarations) */
 
-WININT int __winProcessEventX11(struct _window_h *, XEvent *);
+WININT int __win_x11_event_process(struct _window_h *, XEvent *);
 
-WININT int __winGetSelectionX11(struct _window_h *, const Atom, void **, size_t *);
+WININT int __win_x11_selection_get(struct _window_h *, const Atom, void **, size_t *);
 
-WININT int __winSetSelectionX11(struct _window_h *, const Atom, const void *, const size_t);
+WININT int __win_x11_selection_set(struct _window_h *, const Atom, const void *, const size_t);
 
-WININT int __winHandleSelectionX11(struct _window_h *, XEvent *);
+WININT int __win_x11_selection_handle(struct _window_h *, XEvent *);
 
 /* window.h API (declarations) */
 
@@ -7304,10 +7301,6 @@ WININT int __win_x11_cursor_get_mode(struct _window_h *, struct _window_h_window
 
 WININT int __win_x11_cursor_set_mode(struct _window_h *, struct _window_h_window *, const uint32_t);
 
-WININT int __winGetCursorRawMotionX11(struct _window_h *, struct _window_h_window *, uint8_t *);
-
-WININT int __winSetCursorRawMotionX11(struct _window_h *, struct _window_h_window *, const uint8_t);
-
 WININT int __win_x11_event_poll(struct _window_h *);
 
 WININT int __win_x11_event_wait(struct _window_h *);
@@ -7318,7 +7311,7 @@ WININT int __win_x11_paste(struct _window_h *, const uint32_t, void **, size_t *
 
 /* internal functions (definitions) */
 
-WININT int __winProcessEventX11(struct _window_h *lib, XEvent *xevent) {
+WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
     /* null-check */
     if (!lib)    { return (0); }
     if (!xevent) { return (0); }
@@ -7555,7 +7548,7 @@ WININT int __winProcessEventX11(struct _window_h *lib, XEvent *xevent) {
 
         case (SelectionRequest): {
             /* process selections */
-            if (__winHandleSelectionX11(lib, xevent)) {
+            if (__win_x11_selection_handle(lib, xevent)) {
                 win_event_send(lib, win, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
                                                                        lib->selection.clipboard.size);
             }
@@ -7563,7 +7556,7 @@ WININT int __winProcessEventX11(struct _window_h *lib, XEvent *xevent) {
 
         case (SelectionNotify): {
             /* process selections */
-            if (__winHandleSelectionX11(lib, xevent)) {
+            if (__win_x11_selection_handle(lib, xevent)) {
                 win_event_send(lib, win, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
                                                                       lib->selection.clipboard.size);
             }
@@ -7576,7 +7569,7 @@ WININT int __winProcessEventX11(struct _window_h *lib, XEvent *xevent) {
     return (1);
 }
 
-WININT int __winGetSelectionX11(struct _window_h *lib, const Atom selection, void **d_ptr, size_t *s_ptr) {
+WININT int __win_x11_selection_get(struct _window_h *lib, const Atom selection, void **d_ptr, size_t *s_ptr) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -7635,7 +7628,7 @@ WININT int __winGetSelectionX11(struct _window_h *lib, const Atom selection, voi
              xevent.type != SelectionRequest);
 
     /* perform round-trip */
-    if (!__winHandleSelectionX11(lib, &xevent)) { return (0); }
+    if (!__win_x11_selection_handle(lib, &xevent)) { return (0); }
 
     /* copy the selection data to 'str' */
     if (!*data) { return (0); }
@@ -7648,7 +7641,7 @@ WININT int __winGetSelectionX11(struct _window_h *lib, const Atom selection, voi
 }
 
 
-WININT int __winSetSelectionX11(struct _window_h *lib, const Atom selection, const void *data, const size_t size) {
+WININT int __win_x11_selection_set(struct _window_h *lib, const Atom selection, const void *data, const size_t size) {
     /* null-check */
     if (!lib) { return (0); }
     
@@ -7693,7 +7686,7 @@ WININT int __winSetSelectionX11(struct _window_h *lib, const Atom selection, con
 }
 
 
-WININT int __winHandleSelectionX11(struct _window_h *lib, XEvent *xevent) {
+WININT int __win_x11_selection_handle(struct _window_h *lib, XEvent *xevent) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -9410,18 +9403,6 @@ WININT int __win_x11_cursor_set_mode(struct _window_h *lib, struct _window_h_win
                              win->x11->handle, None, CurrentTime);
             } break;
         }
-
-        /* cursor confinement */
-        switch (mode) {
-            case (WINDOW_CURSOR_MODE_NORMAL):
-            case (WINDOW_CURSOR_MODE_CAPTURED):
-            case (WINDOW_CURSOR_MODE_HIDDEN): {
-            } break;
-
-            case (WINDOW_CURSOR_MODE_CENTERED):
-            case (WINDOW_CURSOR_MODE_DISABLED): {
-            } break;
-        }
     }
 
     /* set cursor visibility */
@@ -9468,7 +9449,7 @@ WININT int __win_x11_event_poll(struct _window_h *lib) {
         XNextEvent(lib->x11->dpy, &xevent);
 
         /* process upcoming events */
-        __winProcessEventX11(lib, &xevent);
+        __win_x11_event_process(lib, &xevent);
     }
 
     /* success */
@@ -9504,7 +9485,7 @@ WININT int __win_x11_copy(struct _window_h *lib, const uint32_t selection, const
         default: { return (0); }
     }
 
-    return (__winSetSelectionX11(lib, atom, data, size));
+    return (__win_x11_selection_set(lib, atom, data, size));
 }
 
 
@@ -9527,7 +9508,7 @@ WININT int __win_x11_paste(struct _window_h *lib, const uint32_t selection, void
         default: { return (0); }
     }
 
-    return (__winGetSelectionX11(lib, atom, d_ptr, s_ptr));
+    return (__win_x11_selection_get(lib, atom, d_ptr, s_ptr));
 }
 
 /* }}} */
