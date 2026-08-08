@@ -2,7 +2,7 @@
 #include <GL/gl.h>
 #
 #define WINDOW_IMPLEMENTATION
-#include "./../window.h"
+#include "./../../window.h"
 
 int main(void) {
     /* init window.h */

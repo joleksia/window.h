@@ -5,26 +5,26 @@ MK_ROOT	= $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 
 # ========
 
-# compiler
-CC = cc
-
-# compiler flags
-CFLAGS = -Wall -Wextra -Werror -std=c99 -ggdb3
-
-# ========
-
 .PHONY : all
 
 all :
-	-$(CC) $(CFLAGS) -o $(MK_ROOT)00-compile.out $(MK_ROOT)00-compile.c
-	-$(CC) $(CFLAGS) -o $(MK_ROOT)01-basic.out   $(MK_ROOT)01-basic.c
-	-$(CC) $(CFLAGS) -o $(MK_ROOT)02-opengl.out  $(MK_ROOT)02-opengl.c -lGL
+	@# samples: X11
+	-make -C $(MK_ROOT)/x11   all SRCS=01-basic.c
+	-make -C $(MK_ROOT)/win32 all SRCS=01-basic.c
+	
+	@# samples: win32
+	-make -C $(MK_ROOT)/x11   all SRCS=02-opengl.c
+	-make -C $(MK_ROOT)/win32 all SRCS=02-opengl.c
 
 .PHONY : clean
 
 clean :
-	rm -f $(MK_ROOT)00-compile.out
-	rm -f $(MK_ROOT)01-basic.out
-	rm -f $(MK_ROOT)02-opengl.out
+	@# samples: X11
+	-make -C $(MK_ROOT)/x11   clean SRCS=01-basic.c
+	-make -C $(MK_ROOT)/win32 clean SRCS=01-basic.c
+	
+	@# samples: win32
+	-make -C $(MK_ROOT)/x11   clean SRCS=02-opengl.c
+	-make -C $(MK_ROOT)/win32 clean SRCS=02-opengl.c
 
 # ========
