@@ -35,6 +35,19 @@ int main(void) {
                     printf("WINDOW_EVENT_QUIT\n");
                     exit = 1;
                 } break;
+
+                case (WINDOW_EVENT_KEYBOARD_KEY): {
+                    if (event.keyboard.keycode == WINDOW_KEYCODE_N) {
+                        win_cursor_set_mode(library, window, WINDOW_CURSOR_MODE_NORMAL);
+                    }
+                    else if (event.keyboard.keycode == WINDOW_KEYCODE_L) {
+                        win_cursor_set_mode(library, window, WINDOW_CURSOR_MODE_CENTERED);
+                    }
+                } break;
+
+                case (WINDOW_EVENT_MOUSE_MOTION): {
+                    printf("motion: %d %d\n", event.mouse.motion.x, event.mouse.motion.y);
+                } break;
             }
         }
     }

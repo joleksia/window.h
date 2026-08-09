@@ -822,8 +822,8 @@ struct event_mouse_s {
     window_t window;
 
     struct {
-        int32_t x, xrel;
-        int32_t y, yrel;
+        int32_t x;
+        int32_t y;
     } motion;
 
     struct {
@@ -1229,11 +1229,23 @@ struct _window_h_window {
         struct _window_h_cursor *handle;
 
         struct {
+            /* delta accumulation vector */
+            struct {
+                int32_t x;
+                int32_t y;
+            } accum;
+
+            /* last position vector */
+            struct {
+                int32_t x;
+                int32_t y;
+            } last;
+
             /* cursor 'mode' */
             uint32_t mode;
 
-            /* 'raw' cursor motion boolean */
-            uint8_t raw;
+            /* 'warp' pending boolean */
+            uint8_t warp;
         } attrib;
     } cursor;
 
@@ -1249,9 +1261,17 @@ struct _window_h_window {
 
     /* struct of window attributes */
     struct {
-        size_t siz_x, siz_y;
-
-        size_t pos_x, pos_y;
+        /* window frame size vector */
+        struct {
+            int32_t x;
+            int32_t y;
+        } size;
+        
+        /* window frame position vector */
+        struct {
+            int32_t x;
+            int32_t y;
+        } position ;
 
         uint32_t api;
 
@@ -7385,23 +7405,23 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
             XConfigureEvent xconfigure = xevent->xconfigure;
             
             /* WINDOW_EVENT_WINDOW_RESIZE */
-            if (xconfigure.width  != (int) win->attrib.siz_x ||
-                xconfigure.height != (int) win->attrib.siz_y
+            if (xconfigure.width  != (int) win->attrib.size.x ||
+                xconfigure.height != (int) win->attrib.size.y
             ) {
-                win->attrib.siz_x = xconfigure.width;
-                win->attrib.siz_y = xconfigure.height;
-                win_event_send(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attrib.siz_x,
-                                                                   win->attrib.siz_y);
+                win->attrib.size.x = xconfigure.width;
+                win->attrib.size.y = xconfigure.height;
+                win_event_send(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attrib.size.x,
+                                                                     win->attrib.size.y);
             }
             
             /* WINDOW_EVENT_WINDOW_MOTION */
-            if (xconfigure.x != (int) win->attrib.pos_x ||
-                xconfigure.y != (int) win->attrib.pos_y
+            if (xconfigure.x != (int) win->attrib.position.x ||
+                xconfigure.y != (int) win->attrib.position.y
             ) {
-                win->attrib.pos_x = xconfigure.x;
-                win->attrib.pos_y = xconfigure.y;
-                win_event_send(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attrib.pos_x,
-                                                                   win->attrib.pos_y);
+                win->attrib.position.x = xconfigure.x;
+                win->attrib.position.y = xconfigure.y;
+                win_event_send(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attrib.position.x,
+                                                                     win->attrib.position.y);
             }
         } break;
 
@@ -7466,7 +7486,38 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
             uint32_t x = xmotion.x,
                      y = xmotion.y;
 
-            win_event_send(lib, win, WINDOW_EVENT_MOUSE_MOTION, x, 0, y, 0);
+            /* get the window size */
+            size_t win_w = 0,
+                   win_h = 0;
+            win_window_get_size(lib, win, &win_w, &win_h);
+
+            /* absorb pending warp */
+            if (win->cursor.attrib.warp) {
+                if (x == win_w / 2 &&
+                    y == win_h / 2
+                ) {
+                    win->cursor.attrib.warp = 0;
+                    win->cursor.attrib.last.x = x;
+                    win->cursor.attrib.last.y = y;
+                    break;
+                }
+            }
+
+            /* centered/disabled cursor */
+            if (win->cursor.attrib.mode == WINDOW_CURSOR_MODE_CENTERED ||
+                win->cursor.attrib.mode == WINDOW_CURSOR_MODE_DISABLED
+            ) {
+                int32_t delta_x = x - win->cursor.attrib.last.x,
+                        delta_y = y - win->cursor.attrib.last.y;
+
+                win->cursor.attrib.accum.x += delta_x;
+                win->cursor.attrib.accum.y += delta_y;
+                win->cursor.attrib.last.x = x;
+                win->cursor.attrib.last.y = y;
+                break;
+            }
+
+            win_event_send(lib, win, WINDOW_EVENT_MOUSE_MOTION, x, y);
         } break;
 
         case (ButtonPress):
@@ -9452,6 +9503,34 @@ WININT int __win_x11_event_poll(struct _window_h *lib) {
         __win_x11_event_process(lib, &xevent);
     }
 
+    /* get the centered/disabled cursor window */
+    struct _window_h_window *win = lib->window.list;
+    while (win) {
+        /* centered/disabled window found */
+        if (win->cursor.attrib.mode == WINDOW_CURSOR_MODE_CENTERED ||
+            win->cursor.attrib.mode == WINDOW_CURSOR_MODE_DISABLED
+        ) {
+            if (win->cursor.attrib.accum.x != 0 ||
+                win->cursor.attrib.accum.y != 0
+            ) {
+                win_event_send(lib, win, WINDOW_EVENT_MOUSE_MOTION, win->cursor.attrib.accum.x,
+                                                                    win->cursor.attrib.accum.y);
+
+                win->cursor.attrib.accum.x = win->cursor.attrib.accum.y = 0;
+            }
+
+            win_cursor_set_position_center(lib, win);
+            win->cursor.attrib.warp = 1;
+
+            /* break from the loop */
+            break;
+        }
+
+        /* otherwise, get to the next window */
+        win = win->next;
+    }
+
+
     /* success */
     return (1);
 }
@@ -10241,13 +10320,23 @@ WINDEF int win_cursor_get_mode(library_t library, window_t window, uint32_t *m_p
     struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
     
-    return (lib->platform.getCursorMode(library, window, m_ptr));
+    struct _window_h_window *win = (struct _window_h_window *) window;
+    if (!win) { return (0); }
+    
+    /* return the result */
+    if (m_ptr) { *m_ptr = win->cursor.attrib.mode; }
+
+    /* success */
+    return (1);
 }
 
 WINDEF int win_cursor_set_mode(library_t library, window_t window, const uint32_t mode) {
     /* references */
     struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
+    
+    struct _window_h_window *win = (struct _window_h_window *) window;
+    if (!win) { return (0); }
 
     /* update 'win->cursor' members */
     win->cursor.attrib.mode = mode;
@@ -10373,10 +10462,8 @@ WINDEF int win_event_send(library_t library, window_t window, uint32_t type, ...
         /* Mouse events */
 
         case (WINDOW_EVENT_MOUSE_MOTION): {
-            event.mouse.motion.x    = va_arg(list, int32_t);
-            event.mouse.motion.xrel = va_arg(list, int32_t);
-            event.mouse.motion.y    = va_arg(list, int32_t);
-            event.mouse.motion.yrel = va_arg(list, int32_t);
+            event.mouse.motion.x = va_arg(list, int32_t);
+            event.mouse.motion.y = va_arg(list, int32_t);
         } break;
 
         case (WINDOW_EVENT_MOUSE_BUTTON): {
@@ -10539,7 +10626,6 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->cursor_destroy = __win_x11_cursor_destroy;
     platform->cursor_get_position = __win_x11_cursor_get_position;
     platform->cursor_set_position = __win_x11_cursor_set_position;
-    platform->getCursorMode = __win_x11_cursor_get_mode;
     platform->cursor_set_mode = __win_x11_cursor_set_mode;
 
     /* event functions */
