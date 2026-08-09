@@ -104,8 +104,6 @@
 #   /* pick Win32 by default */
 #   define WINDOW_BACKEND_WIN32 3
 #  endif
-#
-#  error /* platform not supported right now */
 # /* }}} */
 #
 # /* "apple" platform preprocessor */
@@ -1344,6 +1342,9 @@ struct _window_h_egl;
 struct _window_h_wgl;
 
 struct _window_h {
+
+    /* connection handle */
+    void *handle;
 
     struct {
         /* linked-list of all the created windows */
@@ -4689,7 +4690,7 @@ PFN_XkbXlibControlsImplemented_PROC XkbXlibControlsImplemented_PROC = 0;
 /* }}} */
 
 struct _window_h_window_x11 {
-    /* child / client window handle */
+    /* client window handle */
     Window handle;
 
     /* X11 visual object */
@@ -4829,50 +4830,31 @@ struct _window_h_wl {
 /* {{{ */
 
 struct _window_h_window_win32 {
-    struct {
-    
-        /* ... */
-
-    } win32;
-
-    /* ... */
-
+    /* client window handle */
+    HWND handle;
 };
 
 
 struct _window_h_context_win32 {
-    struct {
-    
-        /* ... */
-
-    } win32;
-
     /* ... */
-
 };
 
 
 struct _window_h_cursor_win32 {
-    struct {
-    
-        /* ... */
-
-    } win32;
+    /* ... */
 };
 
 typedef struct _window_h_win32 *_window_h_win32;
 
 struct _window_h_win32 {
     /* handle do shared object */
-    void *handle;
+    HANDLE handle;
 
-    struct {
+    /* main connection handle */
+    HANDLE hinstance;
     
-        /* ... */
-
-    } win32;
-
-    /* ... */
+    /* main root window handle*/
+    HANDLE root;
 };
 
 /* }}} */
@@ -5946,54 +5928,6 @@ WININT int __win_egl_get_visual(struct _window_h *lib, int *v_ptr) {
 # /* WINDOW_BACKEND_WGL - WGL implementation layer */
 # if defined (WINDOW_BACKEND_WGL)
 /* {{{ */
-
-/* internal functions (declarations) */
-
-WININT int __winLoadWGL(void);
-
-WININT int __winUnloadWGL(void);
-
-/* internal functions (definitions) */
-
-WININT int __winLoadWGL(struct _window_h_wgl *wgl) {
-    /* null-check */
-    if (!lib->wgl) { return (0); }
-    
-    /* references */
-    struct _window_h_win32 *win32 = lib->win32; 
-    if (!win32) { return (0); }
-
-    /* try to load handle */
-    void *handle = 0;
-    {
-        /* ... */
-    }
-
-    /* ... */
-
-    /* set 'lib->wgl->handle' member */ 
-    lib->wgl->handle = handle;
-   
-    /* ... */
-
-    /* success */
-    return (1);
-}
-
-
-WININT int __winUnloadWGL(struct _window_h_wgl *wgl) {
-    /* null-check */
-    if (!lib->wgl) { return (0); }
-
-    /* ... */
-
-    /* release 'wgl' */
-    free(wgl);
-
-    /* success */
-    return (1);
-}
-
 /* }}} */
 # endif /* WINDOW_BACKEND_WGL */
 #
@@ -7014,6 +6948,9 @@ WININT int __win_x11_init(struct _window_h *lib) {
     x11->CLIPBOARD = XInternAtom(x11->dpy, "CLIPBOARD", False);
 
     x11->UTF8_STRING = XInternAtom(x11->dpy, "UTF8_STRING", False);
+
+    /* set the 'lib' members */
+    lib->handle = (void *) x11->dpy;
 
     /* success */
     return (1);
@@ -8372,28 +8309,82 @@ WININT int __winLoadWayland(struct _window_h_wl *wl) {
 # if defined (WINDOW_PLATFORM_WIN32)
 /* {{{ */
 
-/* internal functions (declarations) */
+/* window.h API (declarations) */
 
-WININT int __winLoadWin32(struct _window_h_win32 *);
+WININT int __win_win32_init(struct _window_h *);
 
-WININT int __winUnloadWin32(struct _window_h_win32 *);
+WININT int __win_win32_load(struct _window_h *);
+
+WININT int __win_win32_quit(struct _window_h *);
+
+WININT int __win_win32_unload(struct _window_h *);
 
 /* internal functions (definitions) */
 
-WININT int __winLoadWin32(struct _window_h_win32 *win32) {
+/* window.h API (declarations) */
+
+WININT int __win_win32_init(struct _window_h *lib) {
     /* null-check */
+    if (!lib) { return (0); }
+
+    /* references */
+    struct _window_h_win32 *win32 = lib->win32; 
+    if (!win32) { return (0); }
+    
+    win32->hinstance = GetModuleHandle(0);
+    if (!win32->hinstance) { return (0); }
+
+    win32->root = GetAncestor(win32->hinstance, 0);
+    if (!win32->root) { return (0); }
+
+    /* set the 'lib' members */
+    lib->handle = (void *) win32->hinstance;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_load(struct _window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (lib->win32) { return (1); }
+
+    /* init-check */
+    struct _window_h_win32 *win32 = calloc(1, sizeof(struct _window_h_win32));
     if (!win32) { return (0); }
 
-    /* try to load handle */
-    void *handle  = 0;
-    {
-        /* ... */
-    }
+    /* return the result */
+    lib->win32 = win32;
+    
+    /* success */
+    return (1);
+}
 
-    /* ... */
 
-    /* set 'win32->user32' member */ 
-    win32->user32 = handle;
+WININT int __win_win32_quit(struct _window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* references */
+    struct _window_h_win32 *win32 = lib->win32; 
+    if (!win32) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_unload(struct _window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* init-check */
+    struct _window_h_win32 *win32 = lib->win32;
+    if (!win32) { return (0); }
+
+    /* release 'win32' */
+    free(win32);
 
     /* success */
     return (1);
@@ -8608,7 +8599,7 @@ WINDEF int win_window_create(library_t library, window_t *result, const size_t w
         case (WINDOW_API_OPENGL):
         case (WINDOW_API_OPENGLES): {
             if (!lib->platform.gl_load(lib) ||
-                !lib->platform.gl_init(lib, lib->x11->dpy)
+                !lib->platform.gl_init(lib, lib->handle)
             ) {
                 free(win);
                 return (0);
@@ -8956,7 +8947,8 @@ WINDEF void *win_gl_get_proc_address(const char *proc) {
 
 # elif defined (WINDOW_BACKEND_WGL)
     /* attempt to load 'proc' using 'wglGetProcAddress' */
-    if (wglGetProcAddress_PROC) { return (wglGetProcAddress(proc)); }
+    (void) proc;
+    // if (wglGetProcAddress_PROC) { return (wglGetProcAddress(proc)); }
 
 # endif
 
@@ -9310,8 +9302,9 @@ WINDEF uint64_t win_time_get(void) {
 
     return (t.tv_sec * 1000 + t.tv_usec / 1000);
 # elif defined (WINDOW_PLATFORM_WIN32)
-
-
+    SYSTEMTIME  systemtime;
+    GetSystemTime(&systemtime);
+    return (systemtime.wMilliseconds);
 # endif
 
 }
@@ -9379,6 +9372,19 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->copy = __win_x11_copy;
     platform->paste = __win_x11_paste;
 
+# elif defined (WINDOW_BACKEND_WIN32)
+
+    /* select API function callbacks */
+    
+    platform->id = WINDOW_BACKEND_WIN32;
+    
+    /* library functions */
+
+    platform->init = __win_win32_init;
+    platform->load = __win_win32_load;
+    platform->quit = __win_win32_quit;
+    platform->unload = __win_win32_unload;
+
 # else
 # endif
 
@@ -9415,7 +9421,7 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
 # elif defined (WINDOW_BACKEND_WGL)
     
     /* opengl context functions */
-
+/*
     platform->gl_init = __win_wgl_init;
     platform->gl_load = __win_wgl_load;
     platform->gl_unload = __win_wgl_unload;
@@ -9424,7 +9430,7 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->gl_make_current = __win_wgl_make_current;
     platform->gl_swap_buffers = __win_wgl_swap_buffers;
     platform->gl_swap_interval = __win_wgl_swap_interval;
-
+*/
 # endif
     
     /* success */
