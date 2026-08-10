@@ -8359,6 +8359,22 @@ WININT int __win_win32_window_map(struct _window_h *, struct _window_h_window *)
 
 WININT int __win_win32_window_unmap(struct _window_h *, struct _window_h_window *);
 
+WININT int __win_win32_window_get_size(struct _window_h *, struct _window_h_window *, size_t *, size_t *);
+
+WININT int __win_win32_window_set_size(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+
+WININT int __win_win32_window_set_size_min(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+
+WININT int __win_win32_window_set_size_max(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+
+WININT int __win_win32_window_get_position(struct _window_h *, struct _window_h_window *, size_t *, size_t *);
+
+WININT int __win_win32_window_set_position(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+
+WININT int __win_win32_window_get_title(struct _window_h *, struct _window_h_window *, char **);
+
+WININT int __win_win32_window_set_title(struct _window_h *, struct _window_h_window *, const char *);
+
 WININT int __win_win32_context_create(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
 
 WININT int __win_win32_context_destroy(struct _window_h *, struct _window_h_context *);
@@ -8586,6 +8602,143 @@ WININT int __win_win32_window_unmap(struct _window_h *lib, struct _window_h_wind
 
     /* hide window */
     ShowWindow(win->win32->handle, SW_HIDE);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_window_get_size(struct _window_h *lib, struct _window_h_window *win, size_t *w_ptr, size_t *h_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* get window rect */
+    RECT rect = { 0 };
+    if (!GetWindowRect(win->win32->handle, &rect)) { return (0); }
+
+    /* return values */
+    if (w_ptr) { *w_ptr = rect.right - rect.left; }
+    if (h_ptr) { *h_ptr = rect.bottom - rect.top; }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_window_set_size(struct _window_h *lib, struct _window_h_window *win, const size_t w, const size_t h) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* resize window */
+    SetWindowPos(win->win32->handle,
+                 0, 0, 0,
+                 w, h,
+                 SWP_FRAMECHANGED | WS_VISIBLE);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_window_set_size_min(struct _window_h *lib, struct _window_h_window *win, const size_t w, const size_t h) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* ... */
+    (void) w;
+    (void) h;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_window_set_size_max(struct _window_h *lib, struct _window_h_window *win, const size_t w, const size_t h) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* ... */
+    (void) w;
+    (void) h;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_window_get_position(struct _window_h *lib, struct _window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* get window rect */
+    RECT rect = { 0 };
+    if (!GetWindowRect(win->win32->handle, &rect)) { return (0); }
+
+    /* return values */
+    if (x_ptr) { *x_ptr = rect.left; }
+    if (y_ptr) { *y_ptr = rect.top;  }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_window_set_position(struct _window_h *lib, struct _window_h_window *win, const size_t x, const size_t y) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* move window */
+    SetWindowPos(win->win32->handle,
+                 0,
+                 x, y,
+                 0, 0,
+                 SWP_FRAMECHANGED | WS_VISIBLE);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_window_get_title(struct _window_h *lib, struct _window_h_window *win, char **t_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* get the length of the window title */
+    int length = GetWindowTextLengthA(win->win32->handle);
+
+    /* alloc 'result' */
+    char *result = calloc(length + 1, sizeof(char));
+    if (!result) { return (0); }
+
+    /* query for window title */
+    if (GetWindowText(win->win32->handle, result, length + 1) != length) {
+        return (0);
+    }
+    
+    /* return 'result' */
+    if (t_ptr) {
+        *t_ptr = result;
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_window_set_title(struct _window_h *lib, struct _window_h_window *win, const char *t) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* set window title */
+    SetWindowTextA(win->win32->handle, t);
 
     /* success */
     return (1);
@@ -9708,6 +9861,14 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->window_destroy = __win_win32_window_destroy;
     platform->window_map = __win_win32_window_map;
     platform->window_unmap = __win_win32_window_unmap;
+    platform->window_get_size = __win_win32_window_get_size;
+    platform->window_set_size = __win_win32_window_set_size;
+    platform->window_set_size_min = __win_win32_window_set_size_min;
+    platform->window_set_size_max = __win_win32_window_set_size_max;
+    platform->window_get_position = __win_win32_window_get_position;
+    platform->window_set_position = __win_win32_window_set_position;
+    platform->window_get_title = __win_win32_window_get_title;
+    platform->window_set_title = __win_win32_window_set_title;
     
     /* context functions */
 
