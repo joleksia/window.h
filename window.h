@@ -227,6 +227,8 @@ enum {
     WINDOW_BUTTON_LEFT,
     WINDOW_BUTTON_RIGHT,
     WINDOW_BUTTON_MIDDLE,
+    WINDOW_BUTTON_4,
+    WINDOW_BUTTON_5,
     /* ... */
 };
 
@@ -836,15 +838,6 @@ struct event_mouse_s {
 };
 
 
-typedef struct event_mouseDevice_s event_mouseDevice_t;
-
-struct event_mouseDevice_s {
-    uint32_t type;
-    uint64_t time;
-    window_t window;
-};
-
-
 typedef struct event_keyboard_s event_keyboard_t;
 
 struct event_keyboard_s {
@@ -858,15 +851,6 @@ struct event_keyboard_s {
     uint32_t keyraw;
     uint8_t  state;
     uint8_t  repeat;
-};
-
-
-typedef struct event_keyboardDevice_s event_keyboardDevice_t;
-
-struct event_keyboardDevice_s {
-    uint32_t type;
-    uint64_t time;
-    window_t window;
 };
 
 
@@ -8395,6 +8379,7 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
     
     /* get the 'lib' object */    
     struct _window_h *lib = (struct _window_h *) GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    if (!lib) { return (DefWindowProc(hWnd, uMsg, wParam, lParam)); }
 
     /* get the window object */
     struct _window_h_window *win = lib->window.list;
@@ -8444,6 +8429,111 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
             win->attrib.position.y = HIWORD(lParam);
             win_event_send(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attrib.position.x,
                                                                  win->attrib.position.y);
+        } break;
+
+        case (WM_MOUSEMOVE): {
+            uint32_t x = LOWORD(lParam),
+                     y = HIWORD(lParam);
+
+            /* get the window size */
+            size_t win_w = 0,
+                   win_h = 0;
+            win_window_get_size(lib, win, &win_w, &win_h);
+
+            /* absorb pending warp */
+            if (win->cursor.attrib.warp) {
+                if (x == win_w / 2 &&
+                    y == win_h / 2
+                ) {
+                    win->cursor.attrib.warp = 0;
+                    win->cursor.attrib.last.x = x;
+                    win->cursor.attrib.last.y = y;
+                    break;
+                }
+            }
+
+            /* centered/disabled cursor */
+            if (win->cursor.attrib.mode == WINDOW_CURSOR_MODE_CENTERED ||
+                win->cursor.attrib.mode == WINDOW_CURSOR_MODE_DISABLED
+            ) {
+                int32_t delta_x = x - win->cursor.attrib.last.x,
+                        delta_y = y - win->cursor.attrib.last.y;
+
+                win->cursor.attrib.accum.x += delta_x;
+                win->cursor.attrib.accum.y += delta_y;
+                win->cursor.attrib.last.x = x;
+                win->cursor.attrib.last.y = y;
+                break;
+            }
+
+            win_event_send(lib, win, WINDOW_EVENT_MOUSE_MOTION, x, y);
+        } break;
+
+        case (WM_LBUTTONDOWN):
+        case (WM_RBUTTONDOWN):
+        case (WM_MBUTTONDOWN):
+        case (WM_XBUTTONDOWN):
+        case (WM_LBUTTONUP):
+        case (WM_RBUTTONUP):
+        case (WM_MBUTTONUP):
+        case (WM_XBUTTONUP): {
+            /* get the 'btn' */
+            uint8_t btn = 0;
+            switch (uMsg) {
+                case (WM_LBUTTONDOWN):
+                case (WM_LBUTTONUP): { btn = WINDOW_BUTTON_LEFT; } break;
+                
+                case (WM_RBUTTONDOWN):
+                case (WM_RBUTTONUP): { btn = WINDOW_BUTTON_RIGHT; } break;
+                
+                case (WM_MBUTTONDOWN):
+                case (WM_MBUTTONUP): { btn = WINDOW_BUTTON_MIDDLE; } break;
+
+                default: {
+                    switch (GET_XBUTTON_WPARAM(wParam)) {
+                        case (XBUTTON1): { btn = WINDOW_BUTTON_4; } break;
+                        case (XBUTTON2): { btn = WINDOW_BUTTON_5; } break;
+                    }
+                } break;
+            }
+
+            /* get the 'state' */
+            uint8_t state = 0;
+            switch (uMsg) {
+                case (WM_LBUTTONDOWN):
+                case (WM_RBUTTONDOWN):
+                case (WM_MBUTTONDOWN):
+                case (WM_XBUTTONDOWN): { state = 1; } break;
+
+                case (WM_LBUTTONUP):
+                case (WM_RBUTTONUP):
+                case (WM_MBUTTONUP):
+                case (WM_XBUTTONUP): { state = 0; } break;
+            }
+
+            win_event_send(lib, win, WINDOW_EVENT_MOUSE_BUTTON, btn, state);
+        } break;
+
+        case (WM_MOUSEWHEEL):
+        case (WM_MOUSEHWHEEL): {
+            /* get the scroll value */
+            int16_t scroll = (SHORT) HIWORD(wParam);
+
+            /* get the scroll horz/vert values */
+            int32_t scroll_x = 0,
+                    scroll_y = 0;
+            switch (uMsg) {
+                case (WM_MOUSEHWHEEL): {
+                    if (scroll > 0) { scroll_x =  1; }
+                    else            { scroll_x = -1; }
+                } break;
+                
+                case (WM_MOUSEWHEEL): {
+                    if (scroll > 0) { scroll_y =  1; }
+                    else            { scroll_y = -1; }
+                } break;
+            }
+            win_event_send(lib, win, WINDOW_EVENT_MOUSE_SCROLL, scroll_x, scroll_y);
         } break;
 
         default: { result = DefWindowProc(hWnd, uMsg, wParam, lParam); } break;
