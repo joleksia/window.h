@@ -31,7 +31,7 @@ SRCS = # ...
 
 # ========
 
-TARGET = $(SRCS:.c=.out) 
+TARGET = $(SRCS:.c=.exe) 
 
 # ========
 
