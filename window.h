@@ -4836,13 +4836,16 @@ struct _window_h_window_win32 {
 
 
 struct _window_h_context_win32 {
-    /* ... */
+    /* device context handle */
+    HDC handle;
 };
 
 
 struct _window_h_cursor_win32 {
-    /* ... */
+    /* cursor handle */
+    HCURSOR handle;
 };
+
 
 typedef struct _window_h_win32 *_window_h_win32;
 
@@ -6374,8 +6377,6 @@ WININT int __win_x11_cursor_destroy(struct _window_h *, struct _window_h_cursor 
 WININT int __win_x11_cursor_get_position(struct _window_h *, struct _window_h_window *, size_t *, size_t *);
 
 WININT int __win_x11_cursor_set_position(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
-
-WININT int __win_x11_cursor_get_mode(struct _window_h *, struct _window_h_window *, uint32_t *);
 
 WININT int __win_x11_cursor_set_mode(struct _window_h *, struct _window_h_window *, const uint32_t);
 
@@ -8149,21 +8150,6 @@ WININT int __win_x11_cursor_set_position(struct _window_h *lib, struct _window_h
 }
 
 
-WININT int __win_x11_cursor_get_mode(struct _window_h *lib, struct _window_h_window *win, uint32_t *m_ptr) {
-    /* null-check */
-    if (!lib) { return (0); }
-    if (!win) { return (0); }
-
-    /* return result */
-    if (m_ptr) {
-        *m_ptr = win->cursor.attrib.mode;
-    }
-    
-    /* success */
-    return (1);
-}
-
-
 WININT int __win_x11_cursor_set_mode(struct _window_h *lib, struct _window_h_window *win, const uint32_t mode) {
     /* null-check */
     if (!lib) { return (0); }
@@ -8383,7 +8369,19 @@ WININT int __win_win32_cursor_create(struct _window_h *, struct _window_h_cursor
 
 WININT int __win_win32_cursor_destroy(struct _window_h *, struct _window_h_cursor *);
 
+WININT int __win_win32_cursor_get_position(struct _window_h *, struct _window_h_window *, size_t *, size_t *);
+
+WININT int __win_win32_cursor_set_position(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+
+WININT int __win_win32_cursor_set_mode(struct _window_h *, struct _window_h_window *, const uint32_t);
+
 WININT int __win_win32_event_poll(struct _window_h *);
+
+WININT int __win_win32_event_wait(struct _window_h *);
+
+WININT int __win_win32_copy(struct _window_h *, const uint32_t, const void *, const size_t);
+
+WININT int __win_win32_paste(struct _window_h *, const uint32_t, void **, size_t *);
 
 /* internal functions (definitions) */
 
@@ -8613,7 +8611,7 @@ WININT int __win_win32_window_get_size(struct _window_h *lib, struct _window_h_w
     if (!lib) { return (0); }
     if (!win) { return (0); }
 
-    /* get window rect */
+    /* get window 'rect' */
     RECT rect = { 0 };
     if (!GetWindowRect(win->win32->handle, &rect)) { return (0); }
 
@@ -8675,7 +8673,7 @@ WININT int __win_win32_window_get_position(struct _window_h *lib, struct _window
     if (!lib) { return (0); }
     if (!win) { return (0); }
 
-    /* get window rect */
+    /* get window 'rect' */
     RECT rect = { 0 };
     if (!GetWindowRect(win->win32->handle, &rect)) { return (0); }
 
@@ -8781,18 +8779,23 @@ WININT int __win_win32_cursor_create(struct _window_h *lib, struct _window_h_cur
     if (!lib) { return (0); }
     if (!cur) { return (0); }
 
-    (void) data;
-    (void) width;
-    (void) height;
-    (void) xhot;
-    (void) yhot;
 
     /* alloc new 'win32' object */
     struct _window_h_cursor_win32 *win32 = calloc(1, sizeof(struct _window_h_cursor_win32));
     if (!win32) { return (0); }
 
+    /* create cursor 'handle' */
+    HCURSOR handle = CreateCursor(0,
+                                  xhot, yhot,
+                                  width, height,
+                                  data, 0);
+
     /* return the result */
+    win32->handle = handle; 
     cur->win32 = win32;
+
+    /* set the 'cur' members */
+    cur->handle = (uintptr_t) handle;
 
     /* success */
     return (1);
@@ -8804,9 +8807,107 @@ WININT int __win_win32_cursor_destroy(struct _window_h *lib, struct _window_h_cu
     if (!lib) { return (0); }
     if (!cur) { return (0); }
 
+    /* release 'cursor' */
+    DestroyCursor(cur->win32->handle);
+
     /* release 'win32' */
     free(cur->win32);
 
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_cursor_get_position(struct _window_h *lib, struct _window_h_window *win, size_t *x_ptr, size_t *y_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* get cursor 'point' */
+    POINT point = { 0 };
+    GetCursorPos(&point);
+
+    /* return values */
+    if (x_ptr) { *x_ptr = point.x; }
+    if (y_ptr) { *y_ptr = point.y; }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_cursor_set_position(struct _window_h *lib, struct _window_h_window *win, const size_t x, const size_t y) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* get window position */
+    size_t win_x = 0,
+           win_y = 0;
+    win_window_get_position(lib, win, &win_x, &win_y);
+
+    /* set cursor position */
+    SetCursorPos(win_x + x,
+                 win_y + y);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_cursor_set_mode(struct _window_h *lib, struct _window_h_window *win, const uint32_t mode) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* only execute if window is focused */
+    if (win->attrib.focused) {
+        /* get window position */
+        size_t win_x = 0,
+               win_y = 0;
+        win_window_get_position(lib, win, &win_x, &win_y);
+        
+        /* get window size */
+        size_t win_w = 0,
+               win_h = 0;
+        win_window_get_size(lib, win, &win_w, &win_h);
+
+        /* get clip 'rect' */
+        RECT rect = { 0 };
+        rect.left = win_x;
+        rect.top  = win_y;
+        rect.right  = win_x + win_w;
+        rect.bottom = win_h + win_h;
+
+        /* grab / ungrab the cursor */
+        switch (mode) {
+            case (WINDOW_CURSOR_MODE_NORMAL):
+            case (WINDOW_CURSOR_MODE_HIDDEN): {
+                ClipCursor(0);
+            } break;
+
+            case (WINDOW_CURSOR_MODE_CENTERED):
+            case (WINDOW_CURSOR_MODE_CAPTURED):
+            case (WINDOW_CURSOR_MODE_DISABLED): {
+                ClipCursor(&rect);
+            } break;
+        }
+    }
+
+    /* set cursor visibility */
+    switch (mode) {
+        case (WINDOW_CURSOR_MODE_NORMAL):
+        case (WINDOW_CURSOR_MODE_CAPTURED):
+        case (WINDOW_CURSOR_MODE_CENTERED): {
+            ShowCursor(1);
+        } break;
+
+        case (WINDOW_CURSOR_MODE_HIDDEN):
+        case (WINDOW_CURSOR_MODE_DISABLED): {
+            ShowCursor(0);
+        } break;
+    }
+    
     /* success */
     return (1);
 }
@@ -8829,6 +8930,52 @@ WININT int __win_win32_event_poll(struct _window_h *lib) {
     /* success */
     return (1);
 }
+
+
+WININT int __win_win32_event_wait(struct _window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_copy(struct _window_h *lib, const uint32_t selection, const void *data, const size_t size) {
+    /* null-check */
+    if (!lib) { return (0); }
+    
+    /* references */
+    struct _window_h_win32 *win32 = lib->win32; 
+    if (!win32) { return (0); }
+
+    /* ... */
+    (void) selection;
+    (void) data;
+    (void) size;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_win32_paste(struct _window_h *lib, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
+    /* null-check */
+    if (!lib) { return (0); }
+    
+    /* references */
+    struct _window_h_win32 *win32 = lib->win32; 
+    if (!win32) { return (0); }
+
+    /* ... */
+    (void) selection;
+    (void) d_ptr;
+    (void) s_ptr;
+
+    /* success */
+    return (1);
+}
+
 
 /* }}} */
 # endif /* WINDOW_BACKEND_WIN32 */
@@ -9879,6 +10026,9 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
 
     platform->cursor_create = __win_win32_cursor_create;
     platform->cursor_destroy = __win_win32_cursor_destroy;
+    platform->cursor_get_position = __win_win32_cursor_get_position;
+    platform->cursor_set_position = __win_win32_cursor_set_position;
+    platform->cursor_set_mode = __win_win32_cursor_set_mode;
 
     /* event functions */
 
