@@ -1210,7 +1210,7 @@ struct _window_h_window {
 
             /* 'warp' pending boolean */
             uint8_t warp;
-        } attrib;
+        } attr;
     } cursor;
 
 
@@ -1250,7 +1250,7 @@ struct _window_h_window {
         uint8_t minimized;
 
         uint8_t fullscreen;
-    } attrib;
+    } attr;
 
 };
 
@@ -1274,7 +1274,7 @@ struct _window_h_context {
 
     struct {
         uint32_t api;
-    } attrib;
+    } attr;
 
 
     /* WINDOW_API_NATIVE */
@@ -2229,22 +2229,221 @@ struct _window_h_egl {
 # if defined (WINDOW_BACKEND_WGL)
 /* {{{ */
 
+/* {{{ */
+#  define WGL_VERSION_1_0 1
+#  define WGL_FONT_LINES 0
+#  define WGL_FONT_POLYGONS 1
+#  define WGL_SWAP_MAIN_PLANE 0x00000001
+#  define WGL_SWAP_OVERLAY1 0x00000002
+#  define WGL_SWAP_OVERLAY2 0x00000004
+#  define WGL_SWAP_OVERLAY3 0x00000008
+#  define WGL_SWAP_OVERLAY4 0x00000010
+#  define WGL_SWAP_OVERLAY5 0x00000020
+#  define WGL_SWAP_OVERLAY6 0x00000040
+#  define WGL_SWAP_OVERLAY7 0x00000080
+#  define WGL_SWAP_OVERLAY8 0x00000100
+#  define WGL_SWAP_OVERLAY9 0x00000200
+#  define WGL_SWAP_OVERLAY10 0x00000400
+#  define WGL_SWAP_OVERLAY11 0x00000800
+#  define WGL_SWAP_OVERLAY12 0x00001000
+#  define WGL_SWAP_OVERLAY13 0x00002000
+#  define WGL_SWAP_OVERLAY14 0x00004000
+#  define WGL_SWAP_OVERLAY15 0x00008000
+#  define WGL_SWAP_UNDERLAY1 0x00010000
+#  define WGL_SWAP_UNDERLAY2 0x00020000
+#  define WGL_SWAP_UNDERLAY3 0x00040000
+#  define WGL_SWAP_UNDERLAY4 0x00080000
+#  define WGL_SWAP_UNDERLAY5 0x00100000
+#  define WGL_SWAP_UNDERLAY6 0x00200000
+#  define WGL_SWAP_UNDERLAY7 0x00400000
+#  define WGL_SWAP_UNDERLAY8 0x00800000
+#  define WGL_SWAP_UNDERLAY9 0x01000000
+#  define WGL_SWAP_UNDERLAY10 0x02000000
+#  define WGL_SWAP_UNDERLAY11 0x04000000
+#  define WGL_SWAP_UNDERLAY12 0x08000000
+#  define WGL_SWAP_UNDERLAY13 0x10000000
+#  define WGL_SWAP_UNDERLAY14 0x20000000
+#  define WGL_SWAP_UNDERLAY15 0x40000000
+#
+#  define WGL_ARB_context_create 1
+#  define WGL_CONTEXT_DEBUG_BIT_ARB 0x00000001
+#  define WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB 0x00000002
+#  define WGL_CONTEXT_MAJOR_VERSION_ARB 0x2091
+#  define WGL_CONTEXT_MINOR_VERSION_ARB 0x2092
+#  define WGL_CONTEXT_LAYER_PLANE_ARB 0x2093
+#  define WGL_CONTEXT_FLAGS_ARB 0x2094
+#  define ERROR_INVALID_VERSION_ARB 0x2095
+#
+#  define WGL_ARB_context_create_profile 1
+#  define WGL_CONTEXT_PROFILE_MASK_ARB 0x9126
+#  define WGL_CONTEXT_CORE_PROFILE_BIT_ARB 0x00000001
+#  define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+#  define ERROR_INVALID_PROFILE_ARB 0x2096
+#
+#  define WGL_ARB_pixel_format 1
+#  define WGL_NUMBER_PIXEL_FORMATS_ARB 0x2000
+#  define WGL_DRAW_TO_WINDOW_ARB 0x2001
+#  define WGL_DRAW_TO_BITMAP_ARB 0x2002
+#  define WGL_ACCELERATION_ARB 0x2003
+#  define WGL_NEED_PALETTE_ARB 0x2004
+#  define WGL_NEED_SYSTEM_PALETTE_ARB 0x2005
+#  define WGL_SWAP_LAYER_BUFFERS_ARB 0x2006
+#  define WGL_SWAP_METHOD_ARB 0x2007
+#  define WGL_NUMBER_OVERLAYS_ARB 0x2008
+#  define WGL_NUMBER_UNDERLAYS_ARB 0x2009
+#  define WGL_TRANSPARENT_ARB 0x200a
+#  define WGL_TRANSPARENT_RED_VALUE_ARB 0x2037
+#  define WGL_TRANSPARENT_GREEN_VALUE_ARB 0x2038
+#  define WGL_TRANSPARENT_BLUE_VALUE_ARB 0x2039
+#  define WGL_TRANSPARENT_ALPHA_VALUE_ARB 0x203a
+#  define WGL_TRANSPARENT_INDEX_VALUE_ARB 0x203b
+#  define WGL_SHARE_DEPTH_ARB 0x200c
+#  define WGL_SHARE_STENCIL_ARB 0x200d
+#  define WGL_SHARE_ACCUM_ARB 0x200e
+#  define WGL_SUPPORT_GDI_ARB 0x200f
+#  define WGL_SUPPORT_OPENGL_ARB 0x2010
+#  define WGL_DOUBLE_BUFFER_ARB 0x2011
+#  define WGL_STEREO_ARB 0x2012
+#  define WGL_PIXEL_TYPE_ARB 0x2013
+#  define WGL_COLOR_BITS_ARB 0x2014
+#  define WGL_RED_BITS_ARB 0x2015
+#  define WGL_RED_SHIFT_ARB 0x2016
+#  define WGL_GREEN_BITS_ARB 0x2017
+#  define WGL_GREEN_SHIFT_ARB 0x2018
+#  define WGL_BLUE_BITS_ARB 0x2019
+#  define WGL_BLUE_SHIFT_ARB 0x201a
+#  define WGL_ALPHA_BITS_ARB 0x201b
+#  define WGL_ALPHA_SHIFT_ARB 0x201c
+#  define WGL_ACCUM_BITS_ARB 0x201d
+#  define WGL_ACCUM_RED_BITS_ARB 0x201e
+#  define WGL_ACCUM_GREEN_BITS_ARB 0x201f
+#  define WGL_ACCUM_BLUE_BITS_ARB 0x2020
+#  define WGL_ACCUM_ALPHA_BITS_ARB 0x2021
+#  define WGL_DEPTH_BITS_ARB 0x2022
+#  define WGL_STENCIL_BITS_ARB 0x2023
+#  define WGL_AUX_BUFFERS_ARB 0x2024
+#  define WGL_NO_ACCELERATION_ARB 0x2025
+#  define WGL_GENERIC_ACCELERATION_ARB 0x2026
+#  define WGL_FULL_ACCELERATION_ARB 0x2027
+#  define WGL_SWAP_EXCHANGE_ARB 0x2028
+#  define WGL_SWAP_COPY_ARB 0x2029
+#  define WGL_SWAP_UNDEFINED_ARB 0x202a
+#  define WGL_TYPE_RGBA_ARB 0x202b
+#  define WGL_TYPE_COLORINDEX_ARB 0x202c
+
+/* }}} */
+/* {{{ */
+
+typedef BOOL (WINAPI * PFN_wglCopyContext_PROC) (HGLRC, HGLRC, UINT);
+PFN_wglCopyContext_PROC wglCopyContext_PROC = 0;
+#  define wglCopyContext (assert(wglCopyContext_PROC != 0), wglCopyContext_PROC)
+
+typedef HGLRC (WINAPI * PFN_wglCreateContext_PROC) (HDC);
+PFN_wglCreateContext_PROC wglCreateContext_PROC = 0;
+#  define wglCreateContext (assert(wglCreateContext_PROC != 0), wglCreateContext_PROC)
+
+typedef HGLRC (WINAPI * PFN_wglCreateLayerContext_PROC) (HDC, int);
+PFN_wglCreateLayerContext_PROC wglCreateLayerContext_PROC = 0;
+#  define wglCreateLayerContext (assert(wglCreateLayerContext_PROC != 0), wglCreateLayerContext_PROC)
+
+typedef BOOL (WINAPI * PFN_wglDeleteContext_PROC) (HGLRC);
+PFN_wglDeleteContext_PROC wglDeleteContext_PROC = 0;
+#  define wglDeleteContext (assert(wglDeleteContext_PROC != 0), wglDeleteContext_PROC)
+
+typedef BOOL (WINAPI * PFN_wglDescribeLayerPlane_PROC) (HDC, int, int, UINT, const LAYERPLANEDESCRIPTOR *);
+PFN_wglDescribeLayerPlane_PROC wglDescribeLayerPlane_PROC = 0;
+#  define wglDescribeLayerPlane (assert(wglDescribeLayerPlane_PROC != 0), wglDescribeLayerPlane_PROC)
+
+typedef HGLRC (WINAPI * PFN_wglGetCurrentContext_PROC) (void);
+PFN_wglGetCurrentContext_PROC wglGetCurrentContext_PROC = 0;
+#  define wglGetCurrentContext (assert(wglGetCurrentContext_PROC != 0), wglGetCurrentContext_PROC)
+
+typedef HDC (WINAPI * PFN_wglGetCurrentDC_PROC) (void);
+PFN_wglGetCurrentDC_PROC wglGetCurrentDC_PROC = 0;
+#  define wglGetCurrentDC (assert(wglGetCurrentDC_PROC != 0), wglGetCurrentDC_PROC)
+
+typedef int (WINAPI * PFN_wglGetLayerPaletteEntries_PROC) (HDC, int, int, int, const COLORREF *);
+PFN_wglGetLayerPaletteEntries_PROC wglGetLayerPaletteEntries_PROC = 0;
+#  define wglGetLayerPaletteEntries (assert(wglGetLayerPaletteEntries_PROC != 0), wglGetLayerPaletteEntries_PROC)
+
+typedef PROC (WINAPI * PFN_wglGetProcAddress_PROC) (LPCSTR);
+PFN_wglGetProcAddress_PROC wglGetProcAddress_PROC = 0;
+#  define wglGetProcAddress (assert(wglGetProcAddress_PROC != 0), wglGetProcAddress_PROC)
+
+typedef BOOL (WINAPI * PFN_wglMakeCurrent_PROC) (HDC, HGLRC);
+PFN_wglMakeCurrent_PROC wglMakeCurrent_PROC = 0;
+#  define wglMakeCurrent (assert(wglMakeCurrent_PROC != 0), wglMakeCurrent_PROC)
+
+typedef BOOL (WINAPI * PFN_wglRealizeLayerPalette_PROC) (HDC, int, BOOL);
+PFN_wglRealizeLayerPalette_PROC wglRealizeLayerPalette_PROC = 0;
+#  define wglRealizeLayerPalette (assert(wglRealizeLayerPalette_PROC != 0), wglRealizeLayerPalette_PROC)
+
+typedef int (WINAPI * PFN_wglSetLayerPaletteEntries_PROC) (HDC, int, int, int, const COLORREF *);
+PFN_wglSetLayerPaletteEntries_PROC wglSetLayerPaletteEntries_PROC = 0;
+#  define wglSetLayerPaletteEntries (assert(wglSetLayerPaletteEntries_PROC != 0), wglSetLayerPaletteEntries_PROC)
+
+typedef BOOL (WINAPI * PFN_wglShareLists_PROC) (HGLRC, HGLRC);
+PFN_wglShareLists_PROC wglShareLists_PROC = 0;
+#  define wglShareLists (assert(wglShareLists_PROC != 0), wglShareLists_PROC)
+
+typedef BOOL (WINAPI * PFN_wglSwapLayerBuffers_PROC) (HDC, UINT);
+PFN_wglSwapLayerBuffers_PROC wglSwapLayerBuffers_PROC = 0;
+#  define wglSwapLayerBuffers (assert(wglSwapLayerBuffers_PROC != 0), wglSwapLayerBuffers_PROC)
+
+typedef BOOL (WINAPI * PFN_wglGetPixelFormatAttribivARB_PROC) (HDC, int, int, UINT, const int *, int *);
+PFN_wglGetPixelFormatAttribivARB_PROC wglGetPixelFormatAttribivARB_PROC = 0;
+#  define wglGetPixelFormatAttribivARB (assert(wglGetPixelFormatAttribivARB_PROC != 0), wglGetPixelFormatAttribivARB_PROC)
+
+typedef BOOL (WINAPI * PFN_wglGetPixelFormatAttribfvARB_PROC) (HDC, int, int, UINT, const int *, FLOAT *);
+PFN_wglGetPixelFormatAttribfvARB_PROC wglGetPixelFormatAttribfvARB_PROC = 0;
+#  define wglGetPixelFormatAttribfvARB (assert(wglGetPixelFormatAttribfvARB_PROC != 0), wglGetPixelFormatAttribfvARB_PROC)
+
+typedef BOOL (WINAPI * PFN_wglChoosePixelFormatARB_PROC) (HDC, const int *, const FLOAT *, UINT, int *, UINT *);
+PFN_wglChoosePixelFormatARB_PROC wglChoosePixelFormatARB_PROC = 0;
+#  define wglChoosePixelFormatARB (assert(wglChoosePixelFormatARB_PROC != 0), wglChoosePixelFormatARB_PROC)
+
+typedef HGLRC (WINAPI * PFN_wglCreateContextAttribsARB_PROC) (HDC, HGLRC, const int *);
+PFN_wglCreateContextAttribsARB_PROC wglCreateContextAttribsARB_PROC = 0;
+#  define wglCreateContextAttribsARB (assert(wglCreateContextAttribsARB_PROC != 0), wglCreateContextAttribsARB_PROC)
+
+typedef BOOL (WINAPI * PFN_wglSwapIntervalEXT_PROC) (int);
+PFN_wglSwapIntervalEXT_PROC wglSwapIntervalEXT_PROC = 0;
+#  define wglSwapIntervalEXT (assert(wglSwapIntervalEXT_PROC != 0), wglSwapIntervalEXT_PROC)
+
+typedef int (WINAPI * PFN_wglGetSwapIntervalEXT_PROC) (void);
+PFN_wglGetSwapIntervalEXT_PROC wglGetSwapIntervalEXT_PROC = 0;
+#  define wglGetSwapIntervalEXT (assert(wglGetSwapIntervalEXT_PROC != 0), wglGetSwapIntervalEXT_PROC)
+
+/* }}} */
+
 typedef struct _window_h_context_wgl *context_t_wgl;
 
 struct _window_h_context_wgl {
-
-    /* ... */
-
+    /* device context handle */
+    HDC dc;
+    
+    /* OpenGL rendering context handle */
+    HGLRC glrc;
 };
 
 
 typedef struct _window_h_wgl *_window_h_wgl;
 
 struct _window_h_wgl {
-    /* handle do shared object */
-    void *handle;
+    struct {
+        HMODULE handle;
+    } opengl32;
 
-    /* ... */
+    /* best pixel format */
+    int format;
+
+    struct {
+        /* context hints */
+        int *context;
+        
+        /* config hints */
+        int *config;
+    } attr;
 };
 
 /* }}} */
@@ -4839,6 +5038,9 @@ struct _window_h_win32 {
 
     /* window class object */
     WNDCLASS wndclass;
+
+    /* inter-process communication window handle */
+    HWND ipc;
 };
 
 /* }}} */
@@ -4856,7 +5058,7 @@ WININT int __win_glx_load(struct _window_h *);
 
 WININT int __win_glx_unload(struct _window_h *);
 
-WININT int __win_glx_create_context(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
+WININT int __win_glx_context_create(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
 
 WININT int __win_glx_context_destroy(struct _window_h *, struct _window_h_context *);
 
@@ -4888,7 +5090,7 @@ WININT int __win_glx_init(struct _window_h *lib, void *display) {
     /* set 'glx->attr' members */
     int attr_config[] = {
         GLX_FBCONFIG_ID,                GLX_DONT_CARE,
-        GLX_BUFFER_SIZE,                0,
+        GLX_BUFFER_SIZE,                lib->hints.gl.red + lib->hints.gl.green + lib->hints.gl.blue,
         GLX_LEVEL,                      0,
         GLX_DOUBLEBUFFER,               lib->hints.gl.dblbuf,
         GLX_STEREO,                     False,
@@ -4955,7 +5157,7 @@ WININT int __win_glx_load(struct _window_h *lib) {
 
     void *libglx = 0;
     {
-        const char  *names[] = { "libGLX.so", "libGLX.so.0, libGLX.so.0.0.0", 0 };
+        const char *names[] = { "libGLX.so", "libGLX.so.0, libGLX.so.0.0.0", 0 };
         for (const char **name = names; *name; name++) {
             libglx = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
             if (libglx) { break; }
@@ -5204,7 +5406,7 @@ WININT int __win_glx_unload(struct _window_h *lib) {
 }
 
 
-WININT int __win_glx_create_context(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
+WININT int __win_glx_context_create(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -5468,7 +5670,7 @@ WININT int __win_egl_load(struct _window_h *);
 
 WININT int __win_egl_unload(struct _window_h *);
 
-WININT int __win_egl_create_context(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
+WININT int __win_egl_context_create(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
 
 WININT int __win_egl_context_destroy(struct _window_h *, struct _window_h_context *);
 
@@ -5593,7 +5795,7 @@ WININT int __win_egl_load(struct _window_h *lib) {
 
     void *libegl= 0;
     {
-        const char  *names[] = { "libEGL.so", "libEGL.so.1, libEGL.so.1.1.0", 0 };
+        const char *names[] = { "libEGL.so", "libEGL.so.1, libEGL.so.1.1.0", 0 };
         for (const char **name = names; *name; name++) {
             libegl = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
             if (libegl) { break; }
@@ -5683,7 +5885,7 @@ WININT int __win_egl_unload(struct _window_h *lib) {
 }
 
 
-WININT int __win_egl_create_context(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
+WININT int __win_egl_context_create(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
@@ -5921,17 +6123,69 @@ WININT int __win_wgl_load(struct _window_h *);
 
 WININT int __win_wgl_unload(struct _window_h *);
 
+WININT int __win_wgl_context_create(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
+
+WININT int __win_wgl_context_destroy(struct _window_h *, struct _window_h_context *);
+
+WININT int __win_wgl_make_current(struct _window_h *, struct _window_h_context *);
+
+WININT int __win_wgl_swap_buffers(struct _window_h *, struct _window_h_context *);
+
+WININT int __win_wgl_swap_interval(struct _window_h *, struct _window_h_context *, const int);
+
+WININT void *__win_wgl_get_proc_address(struct _window_h *, const char *);
+
 /* internal functions (definitions) */
 
 WININT int __win_wgl_init(struct _window_h *lib, void *display) {
     /* null-check */
     if (!lib) { return (0); }
 
+    /* unused: kept for consistency with GLX/EGL */
+    (void) display;
+
     /* references */
     struct _window_h_wgl *wgl = lib->wgl; 
     if (!wgl) { return (0); }
+    
+    /* set 'wgl->attr' members */
+    int attr_config[] = {
+        WGL_DRAW_TO_WINDOW_ARB,             1,
+        WGL_SUPPORT_OPENGL_ARB,             1,
+        WGL_DOUBLE_BUFFER_ARB,              lib->hints.gl.dblbuf,
+        WGL_STEREO_ARB,                     0,
+        WGL_PIXEL_TYPE_ARB,                 WGL_TYPE_RGBA_ARB,
+        WGL_COLOR_BITS_ARB,                 lib->hints.gl.red + lib->hints.gl.green + lib->hints.gl.blue,
+        WGL_RED_BITS_ARB,                   lib->hints.gl.red,
+        WGL_GREEN_BITS_ARB,                 lib->hints.gl.green,
+        WGL_BLUE_BITS_ARB,                  lib->hints.gl.blue,
+        WGL_ALPHA_BITS_ARB,                 lib->hints.gl.alpha,
+        WGL_DEPTH_BITS_ARB,                 lib->hints.gl.depth,
+        WGL_STENCIL_BITS_ARB,               lib->hints.gl.stencil,
+        WGL_AUX_BUFFERS_ARB,                0,
 
-    (void) display;
+        /* ... */
+
+        0, 0
+    };
+
+    wgl->attr.config = calloc(64, sizeof(int));
+    if (!wgl->attr.config) { return (0); }
+    if (!memcpy(wgl->attr.config, attr_config, sizeof(attr_config))) { return (0); }
+    
+
+    int attr_context[] = {
+        WGL_CONTEXT_MAJOR_VERSION_ARB,  lib->hints.gl.major,
+        WGL_CONTEXT_MINOR_VERSION_ARB,  lib->hints.gl.minor,
+        WGL_CONTEXT_PROFILE_MASK_ARB,   lib->hints.gl.profile,
+        /* ... */
+
+        0, 0
+    };
+
+    wgl->attr.context = calloc(64, sizeof(int));
+    if (!wgl->attr.context) { return (0); }
+    if (!memcpy(wgl->attr.context, attr_context, sizeof(attr_context))) { return (0); }
 
     /* success */
     return (1);
@@ -5946,6 +6200,91 @@ WININT int __win_wgl_load(struct _window_h *lib) {
     /* init-check */
     struct _window_h_wgl *wgl = calloc(1, sizeof(struct _window_h_wgl));
     if (!wgl) { return (0); }
+    
+    HMODULE opengl32 = 0;
+    {
+        const char *names[] = { "opengl32.dll", 0 };
+        for (const char **name = names; *name; name++) {
+            opengl32 = LoadLibraryA(*name);
+            if (opengl32) { break; }
+        }
+
+        /* check if opengl32 loaded */
+        if (!opengl32) { return (0); }
+    }
+   
+    /* {{{ */
+    /* load 'wglGetProcAddress'... */
+    wglGetProcAddress_PROC = (HANDLE) GetProcAddress(opengl32, "wglGetProcAddress");
+
+    /* ...and a few other functions... */
+    wglCreateContext_PROC = (HANDLE) GetProcAddress(opengl32, "wglCreateContext");
+    wglDeleteContext_PROC = (HANDLE) GetProcAddress(opengl32, "wglDeleteContext");
+    wglMakeCurrent_PROC = (HANDLE) GetProcAddress(opengl32, "wglMakeCurrent");
+    wglCopyContext_PROC = (HANDLE) GetProcAddress(opengl32, "wglCopyContext");
+    wglCreateLayerContext_PROC = (HANDLE) GetProcAddress(opengl32, "wglCreateLayerContext");
+    wglDescribeLayerPlane_PROC = (HANDLE) GetProcAddress(opengl32, "wglDescribeLayerPlane");
+    wglGetCurrentContext_PROC = (HANDLE) GetProcAddress(opengl32, "wglGetCurrentContext");
+    wglGetCurrentDC_PROC = (HANDLE) GetProcAddress(opengl32, "wglGetCurrentDC");
+    wglGetLayerPaletteEntries_PROC = (HANDLE) GetProcAddress(opengl32, "wglGetLayerPaletteEntries");
+    wglRealizeLayerPalette_PROC = (HANDLE) GetProcAddress(opengl32, "wglRealizeLayerPalette");
+    wglSetLayerPaletteEntries_PROC = (HANDLE) GetProcAddress(opengl32, "wglSetLayerPaletteEntries");
+    wglShareLists_PROC = (HANDLE) GetProcAddress(opengl32, "wglShareLists");
+    wglSwapLayerBuffers_PROC = (HANDLE) GetProcAddress(opengl32, "wglSwapLayerBuffers");
+
+    /* ...create dummy context handle... */
+    HANDLE dummy_dc  = GetDC(lib->win32->ipc);
+
+    PIXELFORMATDESCRIPTOR pfd = {
+        .nSize = sizeof(pfd),
+        .nVersion = 1,
+        .dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        .iPixelType = PFD_TYPE_RGBA,
+        .cColorBits = 32,
+        .cRedBits = 8,
+        .cRedShift = 0,
+        .cGreenBits = 8,
+        .cGreenShift = 0,
+        .cBlueBits = 8,
+        .cBlueShift = 0,
+        .cAlphaBits = 8,
+        .cAlphaShift = 0,
+        .cAccumBits = 0,
+        .cAccumRedBits = 0,
+        .cAccumGreenBits = 0,
+        .cAccumBlueBits = 0,
+        .cAccumAlphaBits = 0,
+        .cDepthBits = 32,
+        .cStencilBits = 8,
+        .cAuxBuffers = 0,
+        .iLayerType = 0,
+        .bReserved = 0,
+        .dwLayerMask = PFD_MAIN_PLANE,
+        .dwVisibleMask = 0,
+        .dwDamageMask = 0,
+    };
+
+    int pf = ChoosePixelFormat(dummy_dc, &pfd);
+    SetPixelFormat(dummy_dc, pf, &pfd);
+
+    HGLRC dummy_glrc = wglCreateContext(dummy_dc);
+    wglMakeCurrent(dummy_dc, dummy_glrc);
+
+    /* ...and load the rest of the WGL using the setup! */
+    wglGetPixelFormatAttribivARB_PROC = (HANDLE) wglGetProcAddress("wglGetPixelFormatAttribivARB");
+    wglGetPixelFormatAttribfvARB_PROC = (HANDLE) wglGetProcAddress("wglGetPixelFormatAttribfvARB");
+    wglChoosePixelFormatARB_PROC = (HANDLE) wglGetProcAddress("wglChoosePixelFormatARB");
+    wglCreateContextAttribsARB_PROC = (HANDLE) wglGetProcAddress("wglCreateContextAttribsARB");
+    wglSwapIntervalEXT_PROC = (HANDLE) wglGetProcAddress("wglSwapIntervalEXT");
+    wglGetSwapIntervalEXT_PROC = (HANDLE) wglGetProcAddress("wglGetSwapIntervalEXT");
+    
+    /* lastly, release dummy handles */
+    wglMakeCurrent(dummy_dc, 0);
+    wglDeleteContext(dummy_glrc);
+    ReleaseDC(lib->win32->ipc, dummy_dc);
+
+    /* }}} */
+    wgl->opengl32.handle = opengl32;
 
     /* return the result */
     lib->wgl = wgl;
@@ -5963,11 +6302,209 @@ WININT int __win_wgl_unload(struct _window_h *lib) {
     struct _window_h_wgl *wgl = lib->wgl;
     if (!wgl) { return (0); }
 
+    /* release 'wgl->attr' members */
+    if (wgl->attr.config)  { free(wgl->attr.config),  wgl->attr.config = 0;  }
+    if (wgl->attr.context) { free(wgl->attr.context), wgl->attr.context = 0; }
+
+    /* release WGL modules */
+    FreeLibrary(wgl->opengl32.handle), wgl->opengl32.handle = 0;
+
     /* release 'wgl' */
     free(wgl);
 
     /* success */
     return (1);
+}
+
+
+WININT int __win_wgl_context_create(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    if (!win) { return (0); }
+
+    /* win32 window must be mapped onto the screen while creating the WGL context */
+    int mapped = 0;
+    if (!win->attr.mapped) {
+        mapped = win_window_map(lib, win);
+    }
+    
+    /* alloc new 'wgl' object */
+    struct _window_h_context_wgl *wgl = calloc(1, sizeof(struct _window_h_context_wgl));
+    if (!wgl) { return (0); }
+
+    /* get the new 'DC' */
+    wgl->dc = GetDC(win->win32->handle);
+    if (!wgl->dc) {
+        free(wgl);
+        return (0);
+    }
+
+    /* get the pixel 'format' */
+    PIXELFORMATDESCRIPTOR pfd = {
+        .nSize = sizeof(pfd),
+        .nVersion = 1,
+        .dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        .iPixelType = PFD_TYPE_RGBA,
+        .cColorBits = 32,
+        .cRedBits = 8,
+        .cRedShift = 0,
+        .cGreenBits = 8,
+        .cGreenShift = 0,
+        .cBlueBits = 8,
+        .cBlueShift = 0,
+        .cAlphaBits = 8,
+        .cAlphaShift = 0,
+        .cAccumBits = 0,
+        .cAccumRedBits = 0,
+        .cAccumGreenBits = 0,
+        .cAccumBlueBits = 0,
+        .cAccumAlphaBits = 0,
+        .cDepthBits = 32,
+        .cStencilBits = 8,
+        .cAuxBuffers = 0,
+        .iLayerType = 0,
+        .bReserved = 0,
+        .dwLayerMask = PFD_MAIN_PLANE,
+        .dwVisibleMask = 0,
+        .dwDamageMask = 0,
+    };
+
+    int format = 0;
+    UINT num_formats = 0;
+    wglChoosePixelFormatARB(wgl->dc, lib->wgl->attr.config, 0, 1, &format, &num_formats);
+    if (!num_formats) {
+        wchar_t buf[256];
+        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+               NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+               buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+        printf("%ls\n", buf);
+        free(wgl);
+        return (0);
+    }
+
+    DescribePixelFormat(wgl->dc, format, sizeof(pfd), &pfd);
+    if (!SetPixelFormat(wgl->dc, format, &pfd)) {
+        wchar_t buf[256];
+        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+               NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+               buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+        printf("%ls\n", buf);
+        free(wgl);
+        return (0);
+    }
+
+    /* create new 'GLRC' */
+    wgl->glrc = wglCreateContextAttribsARB(wgl->dc, 0, lib->wgl->attr.context);
+    if (!wgl->glrc) {
+        wchar_t buf[256];
+        FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+               NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+               buf, (sizeof(buf) / sizeof(wchar_t)), NULL);
+        printf("%ls\n", buf);
+        free(wgl);
+        return (0);
+    }
+
+    /* return 'wgl' object */
+    ctx->wgl = wgl;
+
+    /* lastly, unmap the window if it was mapped manually here */
+    if (mapped) {
+        win_window_unmap(lib, win);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_wgl_context_destroy(struct _window_h *lib, struct _window_h_context *ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+
+    /* release 'glrc' members */
+    wglMakeCurrent(ctx->wgl->dc, 0);
+    wglDeleteContext(ctx->wgl->glrc);
+    
+    /* release 'dc' members */
+    ReleaseDC(ctx->window.current->win32->handle, ctx->wgl->dc);
+
+    /* release 'wgl' */
+    free(ctx->wgl);
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_wgl_make_current(struct _window_h *lib, struct _window_h_context *ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    
+    /* references */
+    struct _window_h_context_wgl *wgl = (struct _window_h_context_wgl *) ctx->wgl;
+    if (!wgl) { return (0); }
+
+    /* set context.handle */
+    if (!wglMakeCurrent(wgl->dc,
+                        wgl->glrc)
+    ) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_wgl_swap_buffers(struct _window_h *lib, struct _window_h_context *ctx) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+   
+    /* references */
+    struct _window_h_context_wgl *wgl = (struct _window_h_context_wgl *) ctx->wgl;
+    if (!wgl) { return (0); }
+
+    /* swap buffers */
+    if (!SwapBuffers(wgl->dc)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_wgl_swap_interval(struct _window_h *lib, struct _window_h_context *ctx, const int interval) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!ctx) { return (0); }
+    
+    /* references */
+    struct _window_h_context_wgl *wgl = (struct _window_h_context_wgl *) ctx->wgl;
+    if (!wgl) { return (0); }
+
+    /* set swap intervals */
+    if (!wglSwapIntervalEXT(interval)) {
+        return (0);
+    }
+
+    /* success */
+    return (1);
+}
+
+
+WININT void *__win_wgl_get_proc_address(struct _window_h *lib, const char *proc) {
+    /* null-check */
+    if (!lib)  { return (0); }
+    if (!proc) { return (0); }
+    
+    /* success */
+    return (wglGetProcAddress(proc));
 }
 
 /* }}} */
@@ -6418,28 +6955,28 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
 
         case (MapNotify): {
             /* update attribute */
-            win->attrib.mapped = 1;
+            win->attr.mapped = 1;
 
             win_event_send(lib, win, WINDOW_EVENT_WINDOW_MAP, win, 0, 0); 
         } break;
 
         case (UnmapNotify): {
             /* update attribute */
-            win->attrib.mapped = 0;
+            win->attr.mapped = 0;
 
             win_event_send(lib, win, WINDOW_EVENT_WINDOW_UNMAP, win, 0, 0); 
         } break;
 
         case (EnterNotify): {
             /* update attribute */
-            win->attrib.focused = 1;
+            win->attr.focused = 1;
 
             win_event_send(lib, win, WINDOW_EVENT_WINDOW_ENTER, win, 0, 0); 
         } break;
 
         case (LeaveNotify): {
             /* update attribute */
-            win->attrib.focused = 0;
+            win->attr.focused = 0;
 
             win_event_send(lib, win, WINDOW_EVENT_WINDOW_LEAVE, win, 0, 0);
         } break;
@@ -6448,23 +6985,23 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
             XConfigureEvent xconfigure = xevent->xconfigure;
             
             /* WINDOW_EVENT_WINDOW_RESIZE */
-            if (xconfigure.width  != (int) win->attrib.size.x ||
-                xconfigure.height != (int) win->attrib.size.y
+            if (xconfigure.width  != (int) win->attr.size.x ||
+                xconfigure.height != (int) win->attr.size.y
             ) {
-                win->attrib.size.x = xconfigure.width;
-                win->attrib.size.y = xconfigure.height;
-                win_event_send(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attrib.size.x,
-                                                                     win->attrib.size.y);
+                win->attr.size.x = xconfigure.width;
+                win->attr.size.y = xconfigure.height;
+                win_event_send(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attr.size.x,
+                                                                     win->attr.size.y);
             }
             
             /* WINDOW_EVENT_WINDOW_MOTION */
-            if (xconfigure.x != (int) win->attrib.position.x ||
-                xconfigure.y != (int) win->attrib.position.y
+            if (xconfigure.x != (int) win->attr.position.x ||
+                xconfigure.y != (int) win->attr.position.y
             ) {
-                win->attrib.position.x = xconfigure.x;
-                win->attrib.position.y = xconfigure.y;
-                win_event_send(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attrib.position.x,
-                                                                     win->attrib.position.y);
+                win->attr.position.x = xconfigure.x;
+                win->attr.position.y = xconfigure.y;
+                win_event_send(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attr.position.x,
+                                                                     win->attr.position.y);
             }
         } break;
 
@@ -6501,19 +7038,19 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
                 for (size_t i = 0; i < (size_t) nitems_return; i++) {
                     /* _NET_WM_STAET_FULLSCREEN */
                     if (states[i] == lib->x11->_NET_WM_STATE_FULLSCREEN) {
-                        win->attrib.fullscreen = !win->attrib.fullscreen;
+                        win->attr.fullscreen = !win->attr.fullscreen;
                     }
                     
                     /* _NET_WM_STATE_HIDDEN */
                     else if (states[i] == lib->x11->_NET_WM_STATE_HIDDEN) {
-                        win->attrib.minimized = !win->attrib.minimized;
+                        win->attr.minimized = !win->attr.minimized;
                     }
                     
                     /* _NET_WM_STATE_MAXIMIZED */
                     else if (states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_VERT ||
                              states[i] == lib->x11->_NET_WM_STATE_MAXIMIZED_HORZ
                     ) {
-                        win->attrib.maximized = !win->attrib.maximized;
+                        win->attr.maximized = !win->attr.maximized;
                     }
                 }
 
@@ -6535,28 +7072,28 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
             win_window_get_size(lib, win, &win_w, &win_h);
 
             /* absorb pending warp */
-            if (win->cursor.attrib.warp) {
+            if (win->cursor.attr.warp) {
                 if (x == win_w / 2 &&
                     y == win_h / 2
                 ) {
-                    win->cursor.attrib.warp = 0;
-                    win->cursor.attrib.last.x = x;
-                    win->cursor.attrib.last.y = y;
+                    win->cursor.attr.warp = 0;
+                    win->cursor.attr.last.x = x;
+                    win->cursor.attr.last.y = y;
                     break;
                 }
             }
 
             /* centered/disabled cursor */
-            if (win->cursor.attrib.mode == WINDOW_CURSOR_MODE_CENTERED ||
-                win->cursor.attrib.mode == WINDOW_CURSOR_MODE_DISABLED
+            if (win->cursor.attr.mode == WINDOW_CURSOR_MODE_CENTERED ||
+                win->cursor.attr.mode == WINDOW_CURSOR_MODE_DISABLED
             ) {
-                int32_t delta_x = x - win->cursor.attrib.last.x,
-                        delta_y = y - win->cursor.attrib.last.y;
+                int32_t delta_x = x - win->cursor.attr.last.x,
+                        delta_y = y - win->cursor.attr.last.y;
 
-                win->cursor.attrib.accum.x += delta_x;
-                win->cursor.attrib.accum.y += delta_y;
-                win->cursor.attrib.last.x = x;
-                win->cursor.attrib.last.y = y;
+                win->cursor.attr.accum.x += delta_x;
+                win->cursor.attr.accum.y += delta_y;
+                win->cursor.attr.last.x = x;
+                win->cursor.attr.last.y = y;
                 break;
             }
 
@@ -7698,8 +8235,8 @@ WININT int __win_x11_window_create(struct _window_h *lib, struct _window_h_windo
     /* get 'depth' and 'visual' */
     Visual *visual = 0;
     int depth = 0;
-    if (win->attrib.api == WINDOW_API_OPENGL ||
-        win->attrib.api == WINDOW_API_OPENGLES
+    if (win->attr.api == WINDOW_API_OPENGL ||
+        win->attr.api == WINDOW_API_OPENGLES
     ) {
         /* get 'visualid' */
         int visualid = 0;
@@ -8140,7 +8677,7 @@ WININT int __win_x11_cursor_set_mode(struct _window_h *lib, struct _window_h_win
     if (!win) { return (0); }
 
     /* only execute if window is focused */
-    if (win->attrib.focused) {
+    if (win->attr.focused) {
         /* grab / ungrab the cursor */
         switch (mode) {
             case (WINDOW_CURSOR_MODE_NORMAL):
@@ -8408,7 +8945,7 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
             /* only handle for 'ShowWindow' function call */
             if (lParam) {
                 /* update attribute */
-                win->attrib.mapped = wParam; /* wParam == 0: window is hidden
+                win->attr.mapped = wParam; /* wParam == 0: window is hidden
                                               * wParam == 1: window is shown 
                                               * */
 
@@ -8418,17 +8955,17 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
         } break;
 
         case (WM_SIZE): {
-            win->attrib.size.x = LOWORD(lParam);
-            win->attrib.size.y = HIWORD(lParam);
-            win_event_send(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attrib.size.x,
-                                                                 win->attrib.size.y);
+            win->attr.size.x = LOWORD(lParam);
+            win->attr.size.y = HIWORD(lParam);
+            win_event_send(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attr.size.x,
+                                                                 win->attr.size.y);
         } break;
 
         case (WM_MOVE): {
-            win->attrib.position.x = LOWORD(lParam);
-            win->attrib.position.y = HIWORD(lParam);
-            win_event_send(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attrib.position.x,
-                                                                 win->attrib.position.y);
+            win->attr.position.x = LOWORD(lParam);
+            win->attr.position.y = HIWORD(lParam);
+            win_event_send(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attr.position.x,
+                                                                 win->attr.position.y);
         } break;
 
         case (WM_MOUSEMOVE): {
@@ -8441,28 +8978,28 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
             win_window_get_size(lib, win, &win_w, &win_h);
 
             /* absorb pending warp */
-            if (win->cursor.attrib.warp) {
+            if (win->cursor.attr.warp) {
                 if (x == win_w / 2 &&
                     y == win_h / 2
                 ) {
-                    win->cursor.attrib.warp = 0;
-                    win->cursor.attrib.last.x = x;
-                    win->cursor.attrib.last.y = y;
+                    win->cursor.attr.warp = 0;
+                    win->cursor.attr.last.x = x;
+                    win->cursor.attr.last.y = y;
                     break;
                 }
             }
 
             /* centered/disabled cursor */
-            if (win->cursor.attrib.mode == WINDOW_CURSOR_MODE_CENTERED ||
-                win->cursor.attrib.mode == WINDOW_CURSOR_MODE_DISABLED
+            if (win->cursor.attr.mode == WINDOW_CURSOR_MODE_CENTERED ||
+                win->cursor.attr.mode == WINDOW_CURSOR_MODE_DISABLED
             ) {
-                int32_t delta_x = x - win->cursor.attrib.last.x,
-                        delta_y = y - win->cursor.attrib.last.y;
+                int32_t delta_x = x - win->cursor.attr.last.x,
+                        delta_y = y - win->cursor.attr.last.y;
 
-                win->cursor.attrib.accum.x += delta_x;
-                win->cursor.attrib.accum.y += delta_y;
-                win->cursor.attrib.last.x = x;
-                win->cursor.attrib.last.y = y;
+                win->cursor.attr.accum.x += delta_x;
+                win->cursor.attr.accum.y += delta_y;
+                win->cursor.attr.last.x = x;
+                win->cursor.attr.last.y = y;
                 break;
             }
 
@@ -8544,7 +9081,6 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
 }
 
 /* window.h API (declarations) */
-
 WININT int __win_win32_init(struct _window_h *lib) {
     /* null-check */
     if (!lib) { return (0); }
@@ -8558,6 +9094,20 @@ WININT int __win_win32_init(struct _window_h *lib) {
     win32->wndclass.lpfnWndProc = __win_win32_event_process;
     win32->wndclass.lpszClassName = "Sample Window Class";
     RegisterClass(&win32->wndclass);
+
+    /* create 'ipc' window */
+    win32->ipc = CreateWindowEx(0,
+                                win32->wndclass.lpszClassName,
+                                0,
+                                WS_OVERLAPPEDWINDOW,
+                                CW_USEDEFAULT,
+                                CW_USEDEFAULT,
+                                0,
+                                0,
+                                0,
+                                0,
+                                0,
+                                lib);
 
     /* success */
     return (1);
@@ -8588,6 +9138,9 @@ WININT int __win_win32_quit(struct _window_h *lib) {
     /* references */
     struct _window_h_win32 *win32 = lib->win32; 
     if (!win32) { return (0); }
+
+    /* close IPC window */
+    DestroyWindow(win32->ipc);
 
     /* success */
     return (1);
@@ -8843,6 +9396,13 @@ WININT int __win_win32_context_create(struct _window_h *lib, struct _window_h_co
     struct _window_h_context_win32 *win32 = calloc(1, sizeof(struct _window_h_context_win32));
     if (!win32) { return (0); }
 
+    /* create new 'DC' */
+    win32->handle = GetDC(win->win32->handle);
+    if (!win32->handle) {
+        free(win32);
+        return (0);
+    }
+
     /* return 'win32' object */
     ctx->win32 = win32;
 
@@ -8855,6 +9415,14 @@ WININT int __win_win32_context_destroy(struct _window_h *lib, struct _window_h_c
     /* null-check */
     if (!lib) { return (0); }
     if (!ctx) { return (0); }
+
+    /* get 'win' reference */
+    struct _window_h_window *win;
+    win_context_get_window(lib, ctx, (window_t *) &win);
+    
+    /* release DC 'handle' */
+    ReleaseDC(win->win32->handle,
+              ctx->win32->handle);
 
     /* release 'win32' */
     free(ctx->win32);
@@ -8951,7 +9519,7 @@ WININT int __win_win32_cursor_set_mode(struct _window_h *lib, struct _window_h_w
     if (!win) { return (0); }
 
     /* only execute if window is focused */
-    if (win->attrib.focused) {
+    if (win->attr.focused) {
         /* get window position */
         size_t win_x = 0,
                win_y = 0;
@@ -9271,8 +9839,8 @@ WINDEF int win_window_create(library_t library, window_t *result, const size_t w
     if (!win) { return (0); }
     
     /* API-specific implementation */
-    win->attrib.api = lib->hints.api;
-    switch (win->attrib.api) {
+    win->attr.api = lib->hints.api;
+    switch (win->attr.api) {
         case (WINDOW_API_OPENGL):
         case (WINDOW_API_OPENGLES): {
             if (!lib->platform.gl_load(lib) ||
@@ -9467,10 +10035,10 @@ WINDEF int win_context_create(library_t library, context_t *result, window_t win
      * Window and Context must have the same API and in-between their creation
      * 'WINDOW_CLIENT_API' hint can change.
      * */
-    ctx->attrib.api = win->attrib.api;
+    ctx->attr.api = win->attr.api;
     
     /* API-specific implementation */
-    switch (ctx->attrib.api) {
+    switch (ctx->attr.api) {
         case (WINDOW_API_NATIVE): {
             if (!lib->platform.context_create(library, ctx, win)) {
                 free(ctx);
@@ -9512,7 +10080,7 @@ WINDEF int win_context_destroy(library_t library, context_t context) {
     if (!ctx) { return (0); }
     
     /* API-specific implementation */
-    switch (ctx->attrib.api) {
+    switch (ctx->attr.api) {
         case (WINDOW_API_NATIVE): {
             /* call platform - specific destroy function */
             if (!lib->platform.context_destroy(library, context)) { return (0); }
@@ -9734,7 +10302,7 @@ WINDEF int win_cursor_get_mode(library_t library, window_t window, uint32_t *m_p
     if (!win) { return (0); }
     
     /* return the result */
-    if (m_ptr) { *m_ptr = win->cursor.attrib.mode; }
+    if (m_ptr) { *m_ptr = win->cursor.attr.mode; }
 
     /* success */
     return (1);
@@ -9749,7 +10317,7 @@ WINDEF int win_cursor_set_mode(library_t library, window_t window, const uint32_
     if (!win) { return (0); }
 
     /* update 'win->cursor' members */
-    win->cursor.attrib.mode = mode;
+    win->cursor.attr.mode = mode;
     
     return (lib->platform.cursor_set_mode(library, window, mode));
 }
@@ -9771,20 +10339,20 @@ WINDEF int win_event_poll(library_t library, event_t *event) {
     struct _window_h_window *win = lib->window.list;
     while (win) {
         /* centered/disabled window found */
-        if (win->cursor.attrib.mode == WINDOW_CURSOR_MODE_CENTERED ||
-            win->cursor.attrib.mode == WINDOW_CURSOR_MODE_DISABLED
+        if (win->cursor.attr.mode == WINDOW_CURSOR_MODE_CENTERED ||
+            win->cursor.attr.mode == WINDOW_CURSOR_MODE_DISABLED
         ) {
-            if (win->cursor.attrib.accum.x != 0 ||
-                win->cursor.attrib.accum.y != 0
+            if (win->cursor.attr.accum.x != 0 ||
+                win->cursor.attr.accum.y != 0
             ) {
-                win_event_send(lib, win, WINDOW_EVENT_MOUSE_MOTION, win->cursor.attrib.accum.x,
-                                                                    win->cursor.attrib.accum.y);
+                win_event_send(lib, win, WINDOW_EVENT_MOUSE_MOTION, win->cursor.attr.accum.x,
+                                                                    win->cursor.attr.accum.y);
 
-                win->cursor.attrib.accum.x = win->cursor.attrib.accum.y = 0;
+                win->cursor.attr.accum.x = win->cursor.attr.accum.y = 0;
             }
 
             win_cursor_set_position_center(lib, win);
-            win->cursor.attrib.warp = 1;
+            win->cursor.attr.warp = 1;
 
             /* break from the loop */
             break;
@@ -10134,7 +10702,7 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->gl_init = __win_glx_init;
     platform->gl_load = __win_glx_load;
     platform->gl_unload = __win_glx_unload;
-    platform->gl_context_create = __win_glx_create_context;
+    platform->gl_context_create = __win_glx_context_create;
     platform->gl_context_destroy = __win_glx_context_destroy;
     platform->gl_make_current = __win_glx_make_current;
     platform->gl_swap_buffers = __win_glx_swap_buffers;
@@ -10149,7 +10717,7 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->gl_init = __win_egl_init;
     platform->gl_load = __win_egl_load;
     platform->gl_unload = __win_egl_unload;
-    platform->gl_context_create = __win_egl_create_context;
+    platform->gl_context_create = __win_egl_context_create;
     platform->gl_context_destroy = __win_egl_context_destroy;
     platform->gl_make_current = __win_egl_make_current;
     platform->gl_swap_buffers = __win_egl_swap_buffers;
@@ -10163,13 +10731,12 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->gl_init = __win_wgl_init;
     platform->gl_load = __win_wgl_load;
     platform->gl_unload = __win_wgl_unload;
-/*
     platform->gl_context_create = __win_wgl_context_create;
     platform->gl_context_destroy = __win_wgl_context_destroy;
     platform->gl_make_current = __win_wgl_make_current;
     platform->gl_swap_buffers = __win_wgl_swap_buffers;
     platform->gl_swap_interval = __win_wgl_swap_interval;
-*/
+
 # endif
     
     /* success */

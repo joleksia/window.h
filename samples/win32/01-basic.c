@@ -13,14 +13,14 @@ int main(void) {
 
     /* create window */
     window_t window = 0;
-    win_window_create(library, &window, 800, 600, "Hello, window.h - Sample 01. Basic");
+    win_window_create(library, &window, 800, 600, "Hello, window.h - Win32 sample");
     if (!window) { win_quit(library); return (1); }
-// 
-//     /* create context */
-//     context_t context = 0;
-//     win_context_create(library, &context, window);
-//     if (!context) { win_quit(library); return (2); }
-// 
+
+    /* create context */
+    context_t context = 0;
+    win_context_create(library, &context, window);
+    if (!context) { win_quit(library); return (2); }
+
     /* map window */
     win_window_map(library, window);
 
