@@ -8946,8 +8946,8 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
             if (lParam) {
                 /* update attribute */
                 win->attr.mapped = wParam; /* wParam == 0: window is hidden
-                                              * wParam == 1: window is shown 
-                                              * */
+                                            * wParam == 1: window is shown 
+                                            * */
 
                 win_event_send(lib, win, wParam ? WINDOW_EVENT_WINDOW_MAP :
                                                   WINDOW_EVENT_WINDOW_UNMAP, 0, 0); 
@@ -8966,6 +8966,15 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
             win->attr.position.y = HIWORD(lParam);
             win_event_send(lib, win, WINDOW_EVENT_WINDOW_MOTION, win->attr.position.x,
                                                                  win->attr.position.y);
+        } break;
+
+        case (WM_SETFOCUS):
+        case (WM_KILLFOCUS): {
+            /* update attribute */
+            win->attr.focused = (uMsg == WM_SETFOCUS ? 1 : 0);
+
+            win_event_send(lib, win, win->attr.focused ? WINDOW_EVENT_WINDOW_ENTER :
+                                                         WINDOW_EVENT_WINDOW_LEAVE, 0, 0); 
         } break;
 
         case (WM_MOUSEMOVE): {
@@ -9090,6 +9099,7 @@ WININT int __win_win32_init(struct _window_h *lib) {
     if (!win32) { return (0); }
 
     /* register new window class */
+    win32->wndclass.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
     win32->wndclass.hInstance = 0; 
     win32->wndclass.lpfnWndProc = __win_win32_event_process;
     win32->wndclass.lpszClassName = "Sample Window Class";
