@@ -5033,8 +5033,9 @@ struct _window_h_cursor_win32 {
 typedef struct _window_h_win32 *_window_h_win32;
 
 struct _window_h_win32 {
-    /* handle do shared object */
-    HMODULE handle;
+    struct {
+        HMODULE handle;
+    } gdi32;
 
     /* window class object */
     WNDCLASS wndclass;
@@ -7543,9 +7544,9 @@ WININT int __win_x11_load(struct _window_h *lib) {
     struct _window_h_x11 *x11 = calloc(1, sizeof(struct _window_h_x11));
     if (!x11) { return (0); }
 
-    void *libx11  = 0;
+    void *libx11 = 0;
     {
-        const char  *names[] = { "libX11.so", "libX11.so.6", "libX11.so.6.4.0", 0 };
+        const char *names[] = { "libX11.so", "libX11.so.6", "libX11.so.6.4.0", 0 };
         for (const char **name = names; *name; name++) {
             libx11 = dlopen(*name, RTLD_LAZY | RTLD_LOCAL);
             if (libx11) { break; }
@@ -9161,6 +9162,25 @@ WININT int __win_win32_load(struct _window_h *lib) {
     struct _window_h_win32 *win32 = calloc(1, sizeof(struct _window_h_win32));
     if (!win32) { return (0); }
 
+    HMODULE gdi32 = 0;
+    {
+        const char *names[] = { "gdi32.dll", 0 }; 
+        for (const char **name = names; *name; name++) {
+            gdi32 = LoadLibraryA(*name); 
+            if (gdi32) { break; }
+        }
+
+        /* check if gdi32 is loaded */
+        if (!gdi32) {
+            return (0);
+        }
+    }
+
+    /* {{{ */
+    /* }}} */
+
+    win32->gdi32.handle = gdi32;
+
     /* return the result */
     lib->win32 = win32;
     
@@ -9192,6 +9212,9 @@ WININT int __win_win32_unload(struct _window_h *lib) {
     /* init-check */
     struct _window_h_win32 *win32 = lib->win32;
     if (!win32) { return (0); }
+
+    /* release 'win32' modules */
+    if (win32->gdi32.handle) { FreeLibrary(win32->gdi32.handle); win32->gdi32.handle = 0; }
 
     /* release 'win32' */
     free(win32);
