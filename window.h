@@ -8955,6 +8955,27 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
         } break;
 
         case (WM_SIZE): {
+            /* these booleans will be used for event sending */
+            uint8_t maxim = win->attr.maximized,
+                    minim = win->attr.minimized;
+
+            /* check if window was 'maximized' or 'minimized' */
+            switch (wParam) {
+                case (SIZE_MAXIMIZED): { win->attr.maximized = 1; } break;
+                case (SIZE_MINIMIZED): { win->attr.minimized = 1; } break;
+
+                /* restore states */
+                default: {
+                    win->attr.maximized = 0;
+                    win->attr.minimized = 0;
+                } break;
+            }
+
+            /* send 'maximize' or 'minimize' events */
+            if      (win->attr.maximized && !maxim) { win_event_send(lib, win, WINDOW_EVENT_WINDOW_MAXIMIZE); }
+            else if (win->attr.minimized && !minim) { win_event_send(lib, win, WINDOW_EVENT_WINDOW_MINIMIZE); }
+
+            /* send 'resize' event */
             win->attr.size.x = LOWORD(lParam);
             win->attr.size.y = HIWORD(lParam);
             win_event_send(lib, win, WINDOW_EVENT_WINDOW_RESIZE, win->attr.size.x,
@@ -9082,7 +9103,14 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
             win_event_send(lib, win, WINDOW_EVENT_MOUSE_SCROLL, scroll_x, scroll_y);
         } break;
 
-        default: { result = DefWindowProc(hWnd, uMsg, wParam, lParam); } break;
+        case (WM_KEYDOWN):
+        case (WM_KEYUP): {
+
+        } break;
+
+        default: {
+            result = DefWindowProc(hWnd, uMsg, wParam, lParam);
+        } break;
     }
 
     /* return 'result' */
