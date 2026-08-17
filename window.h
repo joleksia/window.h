@@ -778,6 +778,27 @@ enum {
 
 
 enum {
+    WINDOW_ATTRIBUTE_NONE = 0,
+
+    /* window attributes */
+    WINDOW_ATTRIBUTE_WINDOW,
+    WINDOW_ATTRIBUTE_WINDOW_API,
+    WINDOW_ATTRIBUTE_WINDOW_MAPPED,
+    WINDOW_ATTRIBUTE_WINDOW_RESIZABLE,
+    WINDOW_ATTRIBUTE_WINDOW_FOCUSED,
+    WINDOW_ATTRIBUTE_WINDOW_MAXIMIZED,
+    WINDOW_ATTRIBUTE_WINDOW_MINIMIZED,
+    WINDOW_ATTRIBUTE_WINDOW_FULLSCREEN,
+
+    /* context attributes */
+    WINDOW_ATTRIBUTE_CONTEXT,
+    WINDOW_ATTRIBUTE_CONTEXT_API,
+
+    /* ... */
+};
+
+
+enum {
     WINDOW_SELECTION_PRIMARY = 1,
     WINDOW_SELECTION_SECONDARY,
     WINDOW_SELECTION_CLIPBOARD
@@ -932,6 +953,8 @@ WINDEF int win_window_get_context(library_t, window_t, context_t *);
 
 WINDEF int win_window_set_context(library_t, window_t, context_t);
 
+WINDEF int win_window_get_attribute(library_t, window_t, const uint32_t, uint32_t *);
+
 /* context functions */
 
 WINDEF int win_context_create(library_t, context_t *, window_t);
@@ -941,6 +964,8 @@ WINDEF int win_context_destroy(library_t, context_t);
 WINDEF int win_context_get_window(library_t, context_t, window_t *);
 
 WINDEF int win_context_set_window(library_t, context_t, window_t);
+
+WINDEF int win_context_get_attribute(library_t, context_t, const uint32_t, uint32_t *);
 
 /* opengl context functions */
 
@@ -1007,8 +1032,8 @@ WINDEF int win_time_wait(uint64_t);
 #
 # /* include unix headers */
 # if defined (WINDOW_PLATFORM_LINUX) || \
-      defined (WINDOW_PLATFORM_APPLE) || \
-      defined (WINDOW_PLATFORM_BSD)
+     defined (WINDOW_PLATFORM_APPLE) || \
+     defined (WINDOW_PLATFORM_BSD)
 #  include <dlfcn.h>
 #  include <unistd.h>
 #  include <sys/time.h>
@@ -5012,6 +5037,27 @@ struct _window_h_wl {
 # if defined (WINDOW_BACKEND_WIN32)
 /* {{{ */
 
+/* gdi32 */
+/* {{{ */
+
+typedef int (WINAPI * PFN_ChoosePixelFormat_PROC) (HDC, CONST PIXELFORMATDESCRIPTOR *);
+PFN_ChoosePixelFormat_PROC ChoosePixelFormat_PROC = 0;
+#  define ChoosePixelFormat ChoosePixelFormat_PROC
+
+typedef int (WINAPI * PFN_DescribePixelFormat_PROC) (HDC, int, UINT, LPPIXELFORMATDESCRIPTOR);
+PFN_DescribePixelFormat_PROC DescribePixelFormat_PROC = 0;
+#  define DescribePixelFormat DescribePixelFormat_PROC
+
+typedef WINBOOL (WINAPI * PFN_SetPixelFormat_PROC) (HDC, int, CONST PIXELFORMATDESCRIPTOR *);
+PFN_SetPixelFormat_PROC SetPixelFormat_PROC = 0;
+#  define SetPixelFormat SetPixelFormat_PROC
+
+typedef WINBOOL (WINAPI * PFN_SwapBuffers_PROC) (HDC);
+PFN_SwapBuffers_PROC SwapBuffers_PROC = 0;
+#  define SwapBuffers SwapBuffers_PROC
+
+/* }}} */
+
 struct _window_h_window_win32 {
     /* client window handle */
     HWND handle;
@@ -6968,6 +7014,9 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
             win_event_send(lib, win, WINDOW_EVENT_WINDOW_UNMAP, win, 0, 0); 
         } break;
 
+        /* TODO:
+         *  When launched, app doesn't set 'win->attr.focused' to '1' if the window was already focused
+         * */
         case (EnterNotify): {
             /* update attribute */
             win->attr.focused = 1;
@@ -8943,16 +8992,13 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
         } break;
 
         case (WM_SHOWWINDOW): {
-            /* only handle for 'ShowWindow' function call */
-            if (lParam) {
-                /* update attribute */
-                win->attr.mapped = wParam; /* wParam == 0: window is hidden
-                                            * wParam == 1: window is shown 
-                                            * */
+            /* update attribute */
+            win->attr.mapped = wParam; /* wParam == 0: window is hidden
+                                        * wParam == 1: window is shown 
+                                        * */
 
-                win_event_send(lib, win, wParam ? WINDOW_EVENT_WINDOW_MAP :
-                                                  WINDOW_EVENT_WINDOW_UNMAP, 0, 0); 
-            }
+            win_event_send(lib, win, wParam ? WINDOW_EVENT_WINDOW_MAP :
+                                              WINDOW_EVENT_WINDOW_UNMAP, 0, 0); 
         } break;
 
         case (WM_SIZE): {
@@ -9177,6 +9223,12 @@ WININT int __win_win32_load(struct _window_h *lib) {
     }
 
     /* {{{ */
+    
+    ChoosePixelFormat_PROC = (HANDLE) GetProcAddress(gdi32, "ChoosePixelFormat");
+    DescribePixelFormat_PROC = (HANDLE) GetProcAddress(gdi32, "DescribePixelFormat");
+    SetPixelFormat_PROC = (HANDLE) GetProcAddress(gdi32, "SetPixelFormat");
+    SwapBuffers_PROC = (HANDLE) GetProcAddress(gdi32, "SwapBuffers");
+    
     /* }}} */
 
     win32->gdi32.handle = gdi32;
@@ -10076,6 +10128,32 @@ WINDEF int win_window_set_context(library_t library, window_t window, context_t 
     return (1);
 }
 
+
+WINDEF int win_window_get_attribute(library_t library, window_t window, const uint32_t attrib, uint32_t *ptr) {
+    /* null-check */
+    if (!library) { return (0); }
+
+    /* references */
+    struct _window_h_window *win = (struct _window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* return the 'attrib' */
+    switch (attrib) {
+        case (WINDOW_ATTRIBUTE_WINDOW_API): { if (ptr) { *ptr = win->attr.api; } } break;
+        case (WINDOW_ATTRIBUTE_WINDOW_MAPPED): { if (ptr) { *ptr = win->attr.mapped; } } break;
+        case (WINDOW_ATTRIBUTE_WINDOW_RESIZABLE): { if (ptr) { *ptr = win->attr.resizable; } } break;
+        case (WINDOW_ATTRIBUTE_WINDOW_FOCUSED): { if (ptr) { *ptr = win->attr.focused; } } break;
+        case (WINDOW_ATTRIBUTE_WINDOW_MAXIMIZED): { if (ptr) { *ptr = win->attr.maximized; } } break;
+        case (WINDOW_ATTRIBUTE_WINDOW_MINIMIZED): { if (ptr) { *ptr = win->attr.minimized; } } break;
+        case (WINDOW_ATTRIBUTE_WINDOW_FULLSCREEN): { if (ptr) { *ptr = win->attr.fullscreen; } } break;
+
+        default: { return (0); }
+    }
+
+    /* success */
+    return (1);
+}
+
 /* context functions */
 
 WINDEF int win_context_create(library_t library, context_t *result, window_t window) {
@@ -10260,6 +10338,28 @@ WINDEF void *win_gl_get_proc_address(const char *proc) {
 
     /* failure */
     return (0);
+}
+
+/* TODO
+ * */
+WINDEF int win_context_get_attribute(library_t library, context_t context, const uint32_t attrib, uint32_t *ptr) {
+    /* null-check */
+    if (!library) { return (0); }
+
+    /* references */
+    struct _window_h_context *ctx = (struct _window_h_context *) context;
+    if (!ctx) { return (0); }
+
+    /* return the 'attrib' */
+    switch (attrib) {
+        case (WINDOW_ATTRIBUTE_CONTEXT_API): { if (ptr) { *ptr = ctx->attr.api; } } break;
+
+        default: { return (0); }
+    }
+
+
+    /* success */
+    return (1);
 }
 
 /* cursor functions */
