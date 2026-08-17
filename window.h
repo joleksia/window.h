@@ -233,12 +233,9 @@ enum {
 };
 
 
-/* WINDOW_KEYCODE:
- *  Physical keyboard representation.
- *
- *  This keycode layout follows the "HID Usage Tables FOR Universal Serial Bus (USB)" (Version 1.21):
- *      https://usb.org/sites/default/files/hut1_21.pdf
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/* Physical keyboard representation.
+ *  SOURCE: https://usb.org/sites/default/files/hut1_21.pdf
+ * */
 enum {
     WINDOW_KEYCODE_NONE = 0x0000,
 
@@ -483,9 +480,8 @@ enum {
 };
 
 
-/* WINDOW_KEYSYM:
- *  Virtual keyboard representation.
- * * * * * * * * * * * * * * * * * * */
+/* Virtual keyboard representation.
+ * */
 # define WINDOW_KEYSYM_KEYCODE_MASK (1 << 30)
 # define WINDOW_KEYCODE_TO_KEYSYM(i) ((i) | WINDOW_KEYSYM_KEYCODE_MASK)
 enum {
@@ -493,11 +489,7 @@ enum {
    
 /* {{{ */
 
-/*
- *  ASCII-compliant keysym table
- *
- * * * * * * * * * * * * * * * * */
-
+    /* ASCII-compliant */
     WINDOW_KEYSYM_BACKSPACE = 0x0008,
     WINDOW_KEYSYM_TAB = 0x0009,
     WINDOW_KEYSYM_RETURN = 0x000d,
@@ -599,11 +591,7 @@ enum {
     WINDOW_KEYSYM_TILDE = 0x007e,
     WINDOW_KEYSYM_DELETE = 0x007f,
 
-/*
- *  ASCII-extended keysym table
- *
- * * * * * * * * * * * * * * * * */
-
+    /* ASCII-extended keysym table */
     WINDOW_KEYSYM_CAPSLOCK = WINDOW_KEYCODE_TO_KEYSYM(WINDOW_KEYCODE_CAPSLOCK),
     WINDOW_KEYSYM_F1 = WINDOW_KEYCODE_TO_KEYSYM(WINDOW_KEYCODE_F1),
     WINDOW_KEYSYM_F2 = WINDOW_KEYCODE_TO_KEYSYM(WINDOW_KEYCODE_F2),
@@ -661,23 +649,26 @@ enum {
 };
 
 
-/* WINDOW_KEYMOD:
- *  Valid key modifiers (solo + combined)
- * * * * * * * * * * * * * * * * * * * * */
+/* Valid key modifiers (solo + combined)
+ * */
 enum {
     WINDOW_KEYMOD_NONE = 0x0000,
+    
     WINDOW_KEYMOD_LEFTCTRL = 0x0001,
     WINDOW_KEYMOD_LEFTSHIFT = 0x0002,
     WINDOW_KEYMOD_LEFTALT = 0x0004,
     WINDOW_KEYMOD_LEFTGUI = 0x0008,
+    
     WINDOW_KEYMOD_RIGHTCTRL = 0x0010,
     WINDOW_KEYMOD_RIGHTSHIFT = 0x0020,
     WINDOW_KEYMOD_RIGHTALT = 0x0010,
     WINDOW_KEYMOD_RIGHTGUI = 0x0020,
+    
     WINDOW_KEYMOD_NUMLOCK = 0x0100,
     WINDOW_KEYMOD_SCROLLLOCK = 0x0200,
     WINDOW_KEYMOD_MODE = 0x0400,
     WINDOW_KEYMOD_CAPSLOCK = 0x0800,
+    
     WINDOW_KEYMOD_CTRL = (WINDOW_KEYMOD_LEFTCTRL | WINDOW_KEYMOD_RIGHTCTRL),
     WINDOW_KEYMOD_SHIFT = (WINDOW_KEYMOD_LEFTSHIFT | WINDOW_KEYMOD_RIGHTSHIFT),
     WINDOW_KEYMOD_ALT = (WINDOW_KEYMOD_LEFTALT | WINDOW_KEYMOD_RIGHTALT),
@@ -688,31 +679,29 @@ enum {
 };
 
 
-enum {
-    WINDOW_CURSOR_MODE_NORMAL = 0,
-    WINDOW_CURSOR_MODE_HIDDEN,
-    WINDOW_CURSOR_MODE_CAPTURED,
-    WINDOW_CURSOR_MODE_CENTERED,
-    WINDOW_CURSOR_MODE_DISABLED,
-};
-
-
+/* Event masks
+ * */
 enum {
 
     WINDOW_EVENT_NONE = 0,
+
     WINDOW_EVENT_QUIT = 0x1000,
+    
     WINDOW_EVENT_MOUSE = 0x2000,
     WINDOW_EVENT_MOUSE_MOTION,
     WINDOW_EVENT_MOUSE_BUTTON,
     WINDOW_EVENT_MOUSE_SCROLL,
+    
     WINDOW_EVENT_MOUSE_DEVICE = 0x2500,
     WINDOW_EVENT_MOUSE_ADDED,
     WINDOW_EVENT_MOUSE_REMOVED,
+    
     WINDOW_EVENTBOARD = 0x3000,
     WINDOW_EVENT_KEYBOARD_KEY,
     WINDOW_EVENT_KEYBOARD_DEVICE = 0x3500,
     WINDOW_EVENT_KEYBOARD_ADDED,
     WINDOW_EVENT_KEYBOARD_REMOVED,
+    
     WINDOW_EVENT_WINDOW = 0x4000,
     WINDOW_EVENT_WINDOW_CREATE,
     WINDOW_EVENT_WINDOW_DESTROY,
@@ -725,6 +714,7 @@ enum {
     WINDOW_EVENT_WINDOW_MAXIMIZE,
     WINDOW_EVENT_WINDOW_MINIMIZE,
     WINDOW_EVENT_WINDOW_FULLSCREEN,
+    
     WINDOW_EVENT_SELECTION = 0x5000,
     WINDOW_EVENT_SELECTION_COPY,
     WINDOW_EVENT_SELECTION_WRITE = WINDOW_EVENT_SELECTION_COPY,
@@ -738,9 +728,11 @@ enum {
 };
 
 
+/* Client API configuration 
+ * */
 enum {
     
-    WINDOW_CLIENT_API = 0x00000010,
+    WINDOW_CLIENT_API = 0x1000,
     WINDOW_API_NATIVE,
     WINDOW_API_OPENGL,
     WINDOW_API_OPENGLES,
@@ -753,22 +745,56 @@ enum {
 };
 
 
+/* Client window configuration 
+ * */
 enum {
-    WINDOW_GL_NONE = 0,
 
+    /* - if 0: window should not be resiable
+     * - if 1: window should be resizable
+     * */
+    WINDOW_CLIENT_RESIZE,
+
+    /* - if 0: window should not be minimized
+     * - if 1: window should be minimized
+     * */
+    WINDOW_CLIENT_MINIMIZED,
+    
+    /* - if 0: window should not be maximized
+     * - if 1: window should be maximized
+     * */
+    WINDOW_CLIENT_MAXIMIZED,
+    
+    /* - if 0: window should not be fullscreen
+     * - if 1: window should be fullscreen
+     * */
+    WINDOW_CLIENT_FULLSCREEN,
+    
+    /* - if 0: window should not have decorations
+     * - if 1: window should have decorations
+     * */
+    WINDOW_CLIENT_DECORATION,
+
+    /* ... */
+
+};
+
+
+/* Client OpenGL configuration 
+ * */
+enum {
+
+    /* framebuffer configuration */
     WINDOW_GL_RED,
     WINDOW_GL_GREEN,
     WINDOW_GL_BLUE,
     WINDOW_GL_ALPHA,
     WINDOW_GL_DEPTH,
     WINDOW_GL_STENCIL,
-    
     WINDOW_GL_DOUBLEBUFFER,
-
     WINDOW_GL_CONTEXT_VERSION_MAJOR,
     WINDOW_GL_CONTEXT_VERSION_MINOR,
    
-    /* 'WINDOW_GL_CONTEXT_PROFILE_' values matches how GLX, EGL and WGL match their 'CORE' and 'COMPATIBILITY' profiles */
+    /* context configuration */
     WINDOW_GL_CONTEXT_PROFILE,
     WINDOW_GL_CONTEXT_PROFILE_CORE          = 0x00000001,
     WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY = 0x00000002,
@@ -777,27 +803,18 @@ enum {
 };
 
 
+/* Cursor movement configuration
+ * */
 enum {
-    WINDOW_ATTRIBUTE_NONE = 0,
+    WINDOW_CURSOR_NORMAL = 0,
+    WINDOW_CURSOR_CAPTURED,
+    WINDOW_CURSOR_CENTERED,
 
-    /* window attributes */
-    WINDOW_ATTRIBUTE_WINDOW,
-    WINDOW_ATTRIBUTE_WINDOW_API,
-    WINDOW_ATTRIBUTE_WINDOW_MAPPED,
-    WINDOW_ATTRIBUTE_WINDOW_RESIZABLE,
-    WINDOW_ATTRIBUTE_WINDOW_FOCUSED,
-    WINDOW_ATTRIBUTE_WINDOW_MAXIMIZED,
-    WINDOW_ATTRIBUTE_WINDOW_MINIMIZED,
-    WINDOW_ATTRIBUTE_WINDOW_FULLSCREEN,
-
-    /* context attributes */
-    WINDOW_ATTRIBUTE_CONTEXT,
-    WINDOW_ATTRIBUTE_CONTEXT_API,
-
-    /* ... */
 };
 
 
+/* Client selections
+ * */
 enum {
     WINDOW_SELECTION_PRIMARY = 1,
     WINDOW_SELECTION_SECONDARY,
@@ -913,7 +930,7 @@ union event_u {
 };
 
 
-/* platform functions */
+/* library functions */
 
 WINDEF int win_init(library_t *);
 
@@ -954,10 +971,6 @@ WINDEF int win_window_get_context(library_t, window_t, context_t *);
 WINDEF int win_window_set_context(library_t, window_t, context_t);
 
 WINDEF int win_window_get_attribute(library_t, window_t, const uint32_t, uint32_t *);
-
-/* TODO: implement
- * */
-WINDEF int win_window_set_attribute(library_t, window_t, const uint32_t, const uint32_t);
 
 /* context functions */
 
@@ -1043,7 +1056,7 @@ WINDEF int win_time_wait(uint64_t);
 #  include <sys/time.h>
 #
 # /* include win32 headers */
-# elif defined (WINDOW_BACKEND_WIN32)
+# elif defined (WINDOW_PLATFORM_WIN32)
 #  include <windows.h>
 #
 # else
@@ -7141,9 +7154,7 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
             }
 
             /* centered/disabled cursor */
-            if (win->cursor.attr.mode == WINDOW_CURSOR_MODE_CENTERED ||
-                win->cursor.attr.mode == WINDOW_CURSOR_MODE_DISABLED
-            ) {
+            if (win->cursor.attr.mode == WINDOW_CURSOR_CENTERED) {
                 int32_t delta_x = x - win->cursor.attr.last.x,
                         delta_y = y - win->cursor.attr.last.y;
 
@@ -8795,47 +8806,18 @@ WININT int __win_x11_cursor_set_mode(struct _window_h *lib, struct _window_h_win
     if (win->attr.focused) {
         /* grab / ungrab the cursor */
         switch (mode) {
-            case (WINDOW_CURSOR_MODE_NORMAL):
-            case (WINDOW_CURSOR_MODE_HIDDEN): {
+            case (WINDOW_CURSOR_NORMAL): {
                 XUngrabPointer(lib->x11->dpy, CurrentTime);
             } break;
 
-            case (WINDOW_CURSOR_MODE_CENTERED):
-            case (WINDOW_CURSOR_MODE_CAPTURED):
-            case (WINDOW_CURSOR_MODE_DISABLED): {
+            case (WINDOW_CURSOR_CENTERED):
+            case (WINDOW_CURSOR_CAPTURED): {
                 XGrabPointer(lib->x11->dpy, win->x11->handle, True,
                              ButtonPressMask | ButtonReleaseMask | PointerMotionMask,
                              GrabModeAsync, GrabModeAsync,
                              win->x11->handle, None, CurrentTime);
             } break;
         }
-    }
-
-    /* set cursor visibility */
-    switch (mode) {
-        case (WINDOW_CURSOR_MODE_NORMAL):
-        case (WINDOW_CURSOR_MODE_CAPTURED):
-        case (WINDOW_CURSOR_MODE_CENTERED): {
-            /* define 'win' cursor as it's 'cursor.handle' */
-            if (win->cursor.handle) {
-                XDefineCursor(lib->x11->dpy,
-                              win->x11->handle,
-                              win->cursor.handle->x11->handle);
-            }
-            /* otherwise, undefine the cursor */
-            else {
-                XUndefineCursor(lib->x11->dpy,
-                                win->x11->handle);
-            }
-
-        } break;
-
-        case (WINDOW_CURSOR_MODE_HIDDEN):
-        case (WINDOW_CURSOR_MODE_DISABLED): {
-            XDefineCursor(lib->x11->dpy,
-                          win->x11->handle,
-                          lib->cursor.blank->x11->handle);
-        } break;
     }
     
     /* success */
@@ -9134,9 +9116,7 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
             }
 
             /* centered/disabled cursor */
-            if (win->cursor.attr.mode == WINDOW_CURSOR_MODE_CENTERED ||
-                win->cursor.attr.mode == WINDOW_CURSOR_MODE_DISABLED
-            ) {
+            if (win->cursor.attr.mode == WINDOW_CURSOR_CENTERED) {
                 int32_t delta_x = x - win->cursor.attr.last.x,
                         delta_y = y - win->cursor.attr.last.y;
 
@@ -9735,50 +9715,35 @@ WININT int __win_win32_cursor_set_mode(struct _window_h *lib, struct _window_h_w
 
     /* only execute if window is focused */
     if (win->attr.focused) {
-        /* get window position */
-        size_t win_x = 0,
-               win_y = 0;
-        win_window_get_position(lib, win, &win_x, &win_y);
-        
-        /* get window size */
-        size_t win_w = 0,
-               win_h = 0;
-        win_window_get_size(lib, win, &win_w, &win_h);
-
-        /* get clip 'rect' */
-        RECT rect = { 0 };
-        rect.left = win_x;
-        rect.top  = win_y;
-        rect.right  = win_x + win_w;
-        rect.bottom = win_h + win_h;
-
         /* grab / ungrab the cursor */
         switch (mode) {
-            case (WINDOW_CURSOR_MODE_NORMAL):
-            case (WINDOW_CURSOR_MODE_HIDDEN): {
+            case (WINDOW_CURSOR_NORMAL): {
                 ClipCursor(0);
             } break;
 
-            case (WINDOW_CURSOR_MODE_CENTERED):
-            case (WINDOW_CURSOR_MODE_CAPTURED):
-            case (WINDOW_CURSOR_MODE_DISABLED): {
+            case (WINDOW_CURSOR_CENTERED):
+            case (WINDOW_CURSOR_CAPTURED): {
+                /* get window position */
+                size_t win_x = 0,
+                       win_y = 0;
+                win_window_get_position(lib, win, &win_x, &win_y);
+                
+                /* get window size */
+                size_t win_w = 0,
+                       win_h = 0;
+                win_window_get_size(lib, win, &win_w, &win_h);
+
+                /* get clip 'rect' */
+                RECT rect = { 0 };
+                rect.left = win_x;
+                rect.top  = win_y;
+                rect.right  = win_x + win_w;
+                rect.bottom = win_h + win_h;
+
+                /* clip the cursor to the 'rect' */
                 ClipCursor(&rect);
             } break;
         }
-    }
-
-    /* set cursor visibility */
-    switch (mode) {
-        case (WINDOW_CURSOR_MODE_NORMAL):
-        case (WINDOW_CURSOR_MODE_CAPTURED):
-        case (WINDOW_CURSOR_MODE_CENTERED): {
-            ShowCursor(1);
-        } break;
-
-        case (WINDOW_CURSOR_MODE_HIDDEN):
-        case (WINDOW_CURSOR_MODE_DISABLED): {
-            ShowCursor(0);
-        } break;
     }
     
     /* success */
@@ -10247,13 +10212,11 @@ WINDEF int win_window_get_attribute(library_t library, window_t window, const ui
 
     /* return the 'attrib' */
     switch (attrib) {
-        case (WINDOW_ATTRIBUTE_WINDOW_API): { if (ptr) { *ptr = win->attr.api; } } break;
-        case (WINDOW_ATTRIBUTE_WINDOW_MAPPED): { if (ptr) { *ptr = win->attr.mapped; } } break;
-        case (WINDOW_ATTRIBUTE_WINDOW_RESIZABLE): { if (ptr) { *ptr = win->attr.resizable; } } break;
-        case (WINDOW_ATTRIBUTE_WINDOW_FOCUSED): { if (ptr) { *ptr = win->attr.focused; } } break;
-        case (WINDOW_ATTRIBUTE_WINDOW_MAXIMIZED): { if (ptr) { *ptr = win->attr.maximized; } } break;
-        case (WINDOW_ATTRIBUTE_WINDOW_MINIMIZED): { if (ptr) { *ptr = win->attr.minimized; } } break;
-        case (WINDOW_ATTRIBUTE_WINDOW_FULLSCREEN): { if (ptr) { *ptr = win->attr.fullscreen; } } break;
+        case (WINDOW_CLIENT_API): { if (ptr) { *ptr = win->attr.api; } } break;
+        case (WINDOW_CLIENT_RESIZE): { if (ptr) { *ptr = win->attr.resizable; } } break;
+        case (WINDOW_CLIENT_MINIMIZED): { if (ptr) { *ptr = win->attr.minimized; } } break;
+        case (WINDOW_CLIENT_MAXIMIZED): { if (ptr) { *ptr = win->attr.maximized; } } break;
+        case (WINDOW_CLIENT_FULLSCREEN): { if (ptr) { *ptr = win->attr.fullscreen; } } break;
 
         default: { return (0); }
     }
@@ -10460,7 +10423,7 @@ WINDEF int win_context_get_attribute(library_t library, context_t context, const
 
     /* return the 'attrib' */
     switch (attrib) {
-        case (WINDOW_ATTRIBUTE_CONTEXT_API): { if (ptr) { *ptr = ctx->attr.api; } } break;
+        case (WINDOW_CLIENT_API): { if (ptr) { *ptr = ctx->attr.api; } } break;
 
         default: { return (0); }
     }
@@ -10604,13 +10567,11 @@ WINDEF int win_event_poll(library_t library, event_t *event) {
     /* call platform-specific poll events function */
     lib->platform.event_poll(library);
 
-    /* get the centered/disabled cursor window */
+    /* get the centered cursor window */
     struct _window_h_window *win = lib->window.list;
     while (win) {
-        /* centered/disabled window found */
-        if (win->cursor.attr.mode == WINDOW_CURSOR_MODE_CENTERED ||
-            win->cursor.attr.mode == WINDOW_CURSOR_MODE_DISABLED
-        ) {
+        /* centered cursor window found */
+        if (win->cursor.attr.mode == WINDOW_CURSOR_CENTERED) {
             if (win->cursor.attr.accum.x != 0 ||
                 win->cursor.attr.accum.y != 0
             ) {
