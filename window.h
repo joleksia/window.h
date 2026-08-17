@@ -749,8 +749,8 @@ enum {
  * */
 enum {
 
-    /* - if 0: window should not be resiable
-     * - if 1: window should be resizable
+    /* - if 0: window should not resize
+     * - if 1: window should resize
      * */
     WINDOW_CLIENT_RESIZE,
 
@@ -966,11 +966,13 @@ WINDEF int win_window_get_title(library_t, window_t, char **);
 
 WINDEF int win_window_set_title(library_t, window_t, const char *);
 
+WINDEF int win_window_get_attribute(library_t, window_t, const uint32_t, uint32_t *);
+
 WINDEF int win_window_get_context(library_t, window_t, context_t *);
 
-WINDEF int win_window_set_context(library_t, window_t, context_t);
+WINDEF int win_window_get_cursor(library_t, window_t, cursor_t *);
 
-WINDEF int win_window_get_attribute(library_t, window_t, const uint32_t, uint32_t *);
+WINDEF int win_window_set_cursor(library_t, window_t, cursor_t);
 
 /* context functions */
 
@@ -979,8 +981,6 @@ WINDEF int win_context_create(library_t, context_t *, window_t);
 WINDEF int win_context_destroy(library_t, context_t);
 
 WINDEF int win_context_get_window(library_t, context_t, window_t *);
-
-WINDEF int win_context_set_window(library_t, context_t, window_t);
 
 WINDEF int win_context_get_attribute(library_t, context_t, const uint32_t, uint32_t *);
 
@@ -1005,6 +1005,8 @@ WINDEF int win_cursor_get_position(library_t, window_t, size_t *, size_t *);
 WINDEF int win_cursor_set_position(library_t, window_t, const size_t, const size_t);
 
 WINDEF int win_cursor_set_position_center(library_t, window_t);
+
+WINDEF int win_cursor_set_visible(library_t, window_t, const uint8_t);
 
 WINDEF int win_cursor_get_mode(library_t, window_t, uint32_t *);
 
@@ -1167,9 +1169,9 @@ struct _window_h_platform {
     int (*window_set_size_max) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
     int (*window_get_position) (struct _window_h *, struct _window_h_window *, size_t *, size_t *);
     int (*window_set_position) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+    int (*window_set_attribute) (struct _window_h *, struct _window_h_window *);
     int (*window_get_title) (struct _window_h *, struct _window_h_window *, char **);
     int (*window_set_title) (struct _window_h *, struct _window_h_window *, const char *);
-    int (*window_set_attribute) (struct _window_h *, struct _window_h_window *);
 
     /* context functions */
 
@@ -1182,6 +1184,7 @@ struct _window_h_platform {
     int (*cursor_destroy) (struct _window_h *, struct _window_h_cursor *);
     int (*cursor_get_position) (struct _window_h *, struct _window_h_window *, size_t *, size_t *);
     int (*cursor_set_position) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+    int (*cursor_set_visible) (struct _window_h *, struct _window_h_window *, const uint8_t);
     int (*cursor_set_mode) (struct _window_h *, struct _window_h_window *, const uint32_t);
 
     /* event functions */
@@ -1253,6 +1256,9 @@ struct _window_h_window {
 
             /* 'warp' pending boolean */
             uint8_t warp;
+
+            /* 'visible' boolean */
+            uint8_t visible;
         } attr;
     } cursor;
 
@@ -1284,7 +1290,9 @@ struct _window_h_window {
 
         uint8_t mapped;
 
-        uint8_t resizable;
+        uint8_t resize;
+
+        uint8_t decorations;
 
         uint8_t focused;
 
@@ -1312,7 +1320,7 @@ struct _window_h_context {
     struct _window_h_context *next;
 
     struct {
-        struct _window_h_window *current;
+        struct _window_h_window *handle;
     } window;
 
     struct {
@@ -1400,11 +1408,11 @@ struct _window_h {
         uint32_t api;
 
         struct {
-            /* resizable boolean */
+            /* 'resize' boolean */
             uint8_t resize;
         
-            /* decorations boolean */
-            uint8_t decor;
+            /* 'decorations' boolean */
+            uint8_t decorations;
         } window;
 
         struct {
@@ -1438,6 +1446,14 @@ struct _window_h {
             /* OpenGL 'profile' */
             uint8_t profile;
         } gl;
+
+        struct {
+            /* 'mode' enumerator */
+            uint32_t mode;
+
+            /* 'visible' boolean */
+            uint8_t visible;
+        } cursor;
     } hints;
 
     /* selections */
@@ -6494,7 +6510,7 @@ WININT int __win_wgl_context_destroy(struct _window_h *lib, struct _window_h_con
     wglDeleteContext(ctx->wgl->glrc);
     
     /* release 'dc' members */
-    ReleaseDC(ctx->window.current->win32->handle, ctx->wgl->dc);
+    ReleaseDC(ctx->window.handle->win32->handle, ctx->wgl->dc);
 
     /* release 'wgl' */
     free(ctx->wgl);
@@ -6965,6 +6981,8 @@ WININT int __win_x11_cursor_destroy(struct _window_h *, struct _window_h_cursor 
 WININT int __win_x11_cursor_get_position(struct _window_h *, struct _window_h_window *, size_t *, size_t *);
 
 WININT int __win_x11_cursor_set_position(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+
+WININT int __win_x11_cursor_set_visible(struct _window_h *, struct _window_h_window *, const uint8_t);
 
 WININT int __win_x11_cursor_set_mode(struct _window_h *, struct _window_h_window *, const uint32_t);
 
@@ -8593,7 +8611,7 @@ WININT int __win_x11_window_set_attribute(struct _window_h *lib, struct _window_
     if (!win) { return (0); }
 
     /* WINDOW_ATTRIBUTE_WINDOW_RESIZABLE */
-    if (win->attr.resizable) {
+    if (win->attr.resize) {
         /* get window manager hints */
         XSizeHints hints_return = { 0 };
         long supplied_return = 0;
@@ -8797,6 +8815,37 @@ WININT int __win_x11_cursor_set_position(struct _window_h *lib, struct _window_h
 }
 
 
+WININT int __win_x11_cursor_set_visible(struct _window_h *lib, struct _window_h_window *win, const uint8_t visible) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* show cursor */
+    if (visible) {
+        /* define 'win' cursor as it's 'cursor.handle' */
+        if (win->cursor.handle) {
+            XDefineCursor(lib->x11->dpy,
+                          win->x11->handle,
+                          win->cursor.handle->x11->handle);
+        }
+        /* otherwise, undefine the cursor */
+        else {
+            XUndefineCursor(lib->x11->dpy,
+                            win->x11->handle);
+        }
+    }
+    /* hide cursor */
+    else {
+        XDefineCursor(lib->x11->dpy,
+                      win->x11->handle,
+                      lib->cursor.blank->x11->handle);
+    }
+    
+    /* success */
+    return (1);
+}
+
+
 WININT int __win_x11_cursor_set_mode(struct _window_h *lib, struct _window_h_window *win, const uint32_t mode) {
     /* null-check */
     if (!lib) { return (0); }
@@ -8992,6 +9041,8 @@ WININT int __win_win32_cursor_destroy(struct _window_h *, struct _window_h_curso
 WININT int __win_win32_cursor_get_position(struct _window_h *, struct _window_h_window *, size_t *, size_t *);
 
 WININT int __win_win32_cursor_set_position(struct _window_h *, struct _window_h_window *, const size_t, const size_t);
+
+WININT int __win_win32_cursor_set_visible(struct _window_h *, struct _window_h_window *, const uint8_t);
 
 WININT int __win_win32_cursor_set_mode(struct _window_h *, struct _window_h_window *, const uint32_t);
 
@@ -9552,7 +9603,7 @@ WININT int __win_win32_window_set_attribute(struct _window_h *lib, struct _windo
     if (!win) { return (0); }
 
     /* WINDOW_ATTRIBUTE_WINDOW_RESIZABLE */
-    if (win->attr.resizable) {
+    if (win->attr.resize) {
         /* get window styles */
         LONG styles = GetWindowLong(win->win32->handle, GWL_STYLE);
 
@@ -9708,6 +9759,25 @@ WININT int __win_win32_cursor_set_position(struct _window_h *lib, struct _window
 }
 
 
+WININT int __win_win32_cursor_set_visible(struct _window_h *lib, struct _window_h_window *win, const uint8_t visible) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* show cursor */
+    if (visible) {
+        ShowCursor(1);
+    }
+    /* hide cursor */
+    else {
+        ShowCursor(0);
+    }
+    
+    /* success */
+    return (1);
+}
+
+
 WININT int __win_win32_cursor_set_mode(struct _window_h *lib, struct _window_h_window *win, const uint32_t mode) {
     /* null-check */
     if (!lib) { return (0); }
@@ -9822,7 +9892,7 @@ WININT int __win_win32_paste(struct _window_h *lib, const uint32_t selection, vo
 /* {{{ */
 /* platform internal functions */
 
-WININT int __winLoadPlatform(struct _window_h *, struct _window_h_platform *);
+WININT int __win_platform_load(struct _window_h *, struct _window_h_platform *);
 
 /* platform functions */
 
@@ -9836,7 +9906,7 @@ WINDEF int win_init(library_t *result) {
     
     /* set default 'window' hints */
     lib->hints.window.resize = 0;
-    lib->hints.window.decor  = 1;
+    lib->hints.window.decorations = 1;
 
     /* set default 'gl' hints */
     lib->hints.gl.red     = 8;
@@ -9850,8 +9920,12 @@ WINDEF int win_init(library_t *result) {
     lib->hints.gl.minor   = 0;
     lib->hints.gl.profile = WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY;
 
+    /* set default 'cursor' hints */
+    lib->hints.cursor.mode    = WINDOW_CURSOR_NORMAL;
+    lib->hints.cursor.visible = 1;
+
     /* load window.h platform */
-    if (!__winLoadPlatform(lib, &lib->platform)) {
+    if (!__win_platform_load(lib, &lib->platform)) {
         free(lib);
         return (0);
     }
@@ -10032,6 +10106,10 @@ WINDEF int win_window_create(library_t library, window_t *result, const size_t w
         } break;
     }
 
+    /* TODO:
+     *  Copy the rest of window-specific hints to window attributes
+     * */
+
     /* create window object */
     if (!lib->platform.window_create(lib, win, width, height, title)) {
         free(win);
@@ -10170,6 +10248,29 @@ WINDEF int win_window_set_title(library_t library, window_t window, const char *
     return (lib->platform.window_set_title(library, window, t)); 
 }
 
+WINDEF int win_window_get_attribute(library_t library, window_t window, const uint32_t attrib, uint32_t *ptr) {
+    /* null-check */
+    if (!library) { return (0); }
+
+    /* references */
+    struct _window_h_window *win = (struct _window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* return the 'attrib' */
+    switch (attrib) {
+        case (WINDOW_CLIENT_API): { if (ptr) { *ptr = win->attr.api; } } break;
+        case (WINDOW_CLIENT_RESIZE): { if (ptr) { *ptr = win->attr.resize; } } break;
+        case (WINDOW_CLIENT_MINIMIZED): { if (ptr) { *ptr = win->attr.minimized; } } break;
+        case (WINDOW_CLIENT_MAXIMIZED): { if (ptr) { *ptr = win->attr.maximized; } } break;
+        case (WINDOW_CLIENT_FULLSCREEN): { if (ptr) { *ptr = win->attr.fullscreen; } } break;
+
+        default: { return (0); }
+    }
+
+    /* success */
+    return (1);
+}
+
 WINDEF int win_window_get_context(library_t library, window_t window, context_t *c_ptr) {
     /* null-check */
     if (!library) { return (0); }
@@ -10185,24 +10286,7 @@ WINDEF int win_window_get_context(library_t library, window_t window, context_t 
     return (1);
 }
 
-WINDEF int win_window_set_context(library_t library, window_t window, context_t context) {
-    /* null-check */
-    if (!library) { return (0); }
-    
-    /* references */
-    struct _window_h_window  *win = (struct _window_h_window *) window;
-    struct _window_h_context *ctx = (struct _window_h_context *) context;
-
-    /* update the internal references in 'win' and 'ctx' */
-    win->context.handle = context;
-    ctx->window.current  = window;
-
-    /* success */
-    return (1);
-}
-
-
-WINDEF int win_window_get_attribute(library_t library, window_t window, const uint32_t attrib, uint32_t *ptr) {
+WINDEF int win_window_get_cursor(library_t library, window_t window, cursor_t *c_ptr) {
     /* null-check */
     if (!library) { return (0); }
 
@@ -10210,16 +10294,25 @@ WINDEF int win_window_get_attribute(library_t library, window_t window, const ui
     struct _window_h_window *win = (struct _window_h_window *) window;
     if (!win) { return (0); }
 
-    /* return the 'attrib' */
-    switch (attrib) {
-        case (WINDOW_CLIENT_API): { if (ptr) { *ptr = win->attr.api; } } break;
-        case (WINDOW_CLIENT_RESIZE): { if (ptr) { *ptr = win->attr.resizable; } } break;
-        case (WINDOW_CLIENT_MINIMIZED): { if (ptr) { *ptr = win->attr.minimized; } } break;
-        case (WINDOW_CLIENT_MAXIMIZED): { if (ptr) { *ptr = win->attr.maximized; } } break;
-        case (WINDOW_CLIENT_FULLSCREEN): { if (ptr) { *ptr = win->attr.fullscreen; } } break;
+    /* get the cursor from the 'win' */
+    if (c_ptr) { *c_ptr = win->cursor.handle; }
 
-        default: { return (0); }
-    }
+    /* success */
+    return (1);
+}
+
+/* TODO:
+ *  This function should probably get some care if it comes to backend-side of assigning cursor to window
+ * */
+WINDEF int win_window_set_cursor(library_t library, window_t window, cursor_t cursor) {
+    /* null-check */
+    if (!library) { return (0); }
+    
+    /* references */
+    struct _window_h_window *win = (struct _window_h_window *) window;
+
+    /* update the internal references in 'win' */
+    win->cursor.handle = cursor;
 
     /* success */
     return (1);
@@ -10268,7 +10361,8 @@ WINDEF int win_context_create(library_t library, context_t *result, window_t win
     } 
 
     /* set the context ownership */
-    win_context_set_window(lib, ctx, win);
+    ctx->window.handle  = win;
+    win->context.handle = ctx;
 
     /* add the result to the 'lib->context.list' linked list */
     ctx->next = lib->context.list;
@@ -10338,24 +10432,7 @@ WINDEF int win_context_get_window(library_t library, context_t context, window_t
     if (!ctx) { return (0); }
 
     /* get the context from the 'win' */
-    if (w_ptr) { *w_ptr = ctx->window.current; }
-
-    /* success */
-    return (1);
-}
-
-WINDEF int win_context_set_window(library_t library, context_t context, window_t window) {
-    /* references */
-    struct _window_h *lib = (struct _window_h *) library;
-    if (!lib) { return (0); }
-    
-    /* references */
-    struct _window_h_context *ctx = (struct _window_h_context *) context;
-    struct _window_h_window  *win = (struct _window_h_window *) window;
-
-    /* update the internal references in 'win' and 'ctx' */
-    ctx->window.current = window;
-    win->context.handle = context;
+    if (w_ptr) { *w_ptr = ctx->window.handle; }
 
     /* success */
     return (1);
@@ -10411,8 +10488,7 @@ WINDEF void *win_gl_get_proc_address(const char *proc) {
     return (0);
 }
 
-/* TODO
- * */
+
 WINDEF int win_context_get_attribute(library_t library, context_t context, const uint32_t attrib, uint32_t *ptr) {
     /* null-check */
     if (!library) { return (0); }
@@ -10523,6 +10599,21 @@ WINDEF int win_cursor_set_position_center(library_t library, window_t window) {
     /* set the cursor to the middle of the window */
     result = win_cursor_set_position(library, window, w / 2, h / 2);
     return (result);
+}
+
+WINDEF int win_cursor_set_visible(library_t library, window_t window, const uint8_t state) {
+    /* references */
+    struct _window_h *lib = (struct _window_h *) library;
+    if (!lib) { return (0); }
+    
+    struct _window_h_window *win = (struct _window_h_window *) window;
+    if (!win) { return (0); }
+
+    /* update 'win->cursor' members */
+    win->cursor.attr.visible = state;
+    
+    return (lib->platform.cursor_set_visible(library, window, state));
+
 }
 
 WINDEF int win_cursor_get_mode(library_t library, window_t window, uint32_t *m_ptr) {
@@ -10821,7 +10912,7 @@ WINDEF int win_time_wait(uint64_t ms) {
 
 /* platform internal functions */
 
-WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platform *platform) {
+WININT int __win_platform_load(struct _window_h *library, struct _window_h_platform *platform) {
     /* null-check */
     if (!library)  { return (0); }
     if (!platform) { return (0); }
@@ -10851,9 +10942,9 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->window_set_size_max = __win_x11_window_set_size_max;
     platform->window_get_position = __win_x11_window_get_position;
     platform->window_set_position = __win_x11_window_set_position;
+    platform->window_set_attribute = __win_x11_window_set_attribute;
     platform->window_get_title = __win_x11_window_get_title;
     platform->window_set_title = __win_x11_window_set_title;
-    platform->window_set_attribute = __win_x11_window_set_attribute;
 
     /* context functions */
 
@@ -10866,6 +10957,7 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->cursor_destroy = __win_x11_cursor_destroy;
     platform->cursor_get_position = __win_x11_cursor_get_position;
     platform->cursor_set_position = __win_x11_cursor_set_position;
+    platform->cursor_set_visible = __win_x11_cursor_set_visible;
     platform->cursor_set_mode = __win_x11_cursor_set_mode;
 
     /* event functions */
@@ -10903,9 +10995,9 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->window_set_size_max = __win_win32_window_set_size_max;
     platform->window_get_position = __win_win32_window_get_position;
     platform->window_set_position = __win_win32_window_set_position;
+    platform->window_set_attribute = __win_win32_window_set_attribute;
     platform->window_get_title = __win_win32_window_get_title;
     platform->window_set_title = __win_win32_window_set_title;
-    platform->window_set_attribute = __win_win32_window_set_attribute;
     
     /* context functions */
 
@@ -10918,6 +11010,7 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->cursor_destroy = __win_win32_cursor_destroy;
     platform->cursor_get_position = __win_win32_cursor_get_position;
     platform->cursor_set_position = __win_win32_cursor_set_position;
+    platform->cursor_set_visible = __win_win32_cursor_set_visible;
     platform->cursor_set_mode = __win_win32_cursor_set_mode;
 
     /* event functions */
