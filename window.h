@@ -955,6 +955,10 @@ WINDEF int win_window_set_context(library_t, window_t, context_t);
 
 WINDEF int win_window_get_attribute(library_t, window_t, const uint32_t, uint32_t *);
 
+/* TODO: implement
+ * */
+WINDEF int win_window_set_attribute(library_t, window_t, const uint32_t, const uint32_t);
+
 /* context functions */
 
 WINDEF int win_context_create(library_t, context_t *, window_t);
@@ -1152,6 +1156,7 @@ struct _window_h_platform {
     int (*window_set_position) (struct _window_h *, struct _window_h_window *, const size_t, const size_t);
     int (*window_get_title) (struct _window_h *, struct _window_h_window *, char **);
     int (*window_set_title) (struct _window_h *, struct _window_h_window *, const char *);
+    int (*window_set_attribute) (struct _window_h *, struct _window_h_window *);
 
     /* context functions */
 
@@ -6934,6 +6939,8 @@ WININT int __win_x11_window_get_title(struct _window_h *, struct _window_h_windo
 
 WININT int __win_x11_window_set_title(struct _window_h *, struct _window_h_window *, const char *);
 
+WININT int __win_x11_window_set_attribute(struct _window_h *, struct _window_h_window *);
+
 WININT int __win_x11_context_create(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
 
 WININT int __win_x11_context_destroy(struct _window_h *, struct _window_h_context *);
@@ -8569,6 +8576,64 @@ WININT int __win_x11_window_set_title(struct _window_h *lib, struct _window_h_wi
 }
 
 
+WININT int __win_x11_window_set_attribute(struct _window_h *lib, struct _window_h_window *win) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* WINDOW_ATTRIBUTE_WINDOW_RESIZABLE */
+    if (win->attr.resizable) {
+        /* get window manager hints */
+        XSizeHints hints_return = { 0 };
+        long supplied_return = 0;
+        XGetWMNormalHints(lib->x11->dpy,
+                          win->x11->handle,
+                          &hints_return,
+                          &supplied_return);
+
+        /* unset 'PMinSize' and 'PMaxSize' bits */
+        hints_return.flags &= ~PMinSize;
+        hints_return.flags &= ~PMaxSize;
+        
+        /* set window manager hints */
+        XSetWMNormalHints(lib->x11->dpy,
+                          win->x11->handle,
+                          &hints_return);
+    } else {
+        /* get current window size */
+        size_t win_w = 0,
+               win_h = 0;
+        win_window_get_size(lib, win, &win_w, &win_h);
+
+        /* get window manager hints */
+        XSizeHints hints_return = { 0 };
+        long supplied_return = 0;
+        XGetWMNormalHints(lib->x11->dpy,
+                          win->x11->handle,
+                          &hints_return,
+                          &supplied_return);
+
+        /* set 'PMinSize' and 'PMaxSize' bits */
+        hints_return.flags |= PMinSize;
+        hints_return.flags |= PMaxSize;
+
+        /* set the 'min' and 'max' size hints */
+        hints_return.min_width  = hints_return.max_width  = win_w;
+        hints_return.min_height = hints_return.max_height = win_h;
+        
+        /* set window manager hints */
+        XSetWMNormalHints(lib->x11->dpy,
+                          win->x11->handle,
+                          &hints_return);
+    }
+
+    /* ... */
+
+    /* success */
+    return (1);
+}
+
+
 WININT int __win_x11_context_create(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
@@ -8931,6 +8996,8 @@ WININT int __win_win32_window_set_position(struct _window_h *, struct _window_h_
 WININT int __win_win32_window_get_title(struct _window_h *, struct _window_h_window *, char **);
 
 WININT int __win_win32_window_set_title(struct _window_h *, struct _window_h_window *, const char *);
+
+WININT int __win_win32_window_set_attribute(struct _window_h *, struct _window_h_window *);
 
 WININT int __win_win32_context_create(struct _window_h *, struct _window_h_context *, struct _window_h_window *);
 
@@ -9499,6 +9566,41 @@ WININT int __win_win32_window_set_title(struct _window_h *lib, struct _window_h_
 }
 
 
+WININT int __win_win32_window_set_attribute(struct _window_h *lib, struct _window_h_window *win) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!win) { return (0); }
+
+    /* WINDOW_ATTRIBUTE_WINDOW_RESIZABLE */
+    if (win->attr.resizable) {
+        /* get window styles */
+        LONG styles = GetWindowLong(win->win32->handle, GWL_STYLE);
+
+        /* set 'WS_SIZEBOX' and 'WS_THICKFRAME' bits */
+        styles |= WS_SIZEBOX;
+        styles |= WS_THICKFRAME;
+
+        /* set window styles */
+        SetWindowLong(win->win32->handle, GWL_STYLE, styles);
+    } else {
+        /* get window styles */
+        LONG styles = GetWindowLong(win->win32->handle, GWL_STYLE);
+
+        /* unset 'WS_SIZEBOX' and 'WS_THICKFRAME' bits */
+        styles &= ~WS_SIZEBOX;
+        styles &= ~WS_THICKFRAME;
+
+        /* set window styles */
+        SetWindowLong(win->win32->handle, GWL_STYLE, styles);
+    }
+
+    /* ... */
+
+    /* success */
+    return (1);
+}
+
+
 WININT int __win_win32_context_create(struct _window_h *lib, struct _window_h_context *ctx, struct _window_h_window *win) {
     /* null-check */
     if (!lib) { return (0); }
@@ -9967,6 +10069,12 @@ WINDEF int win_window_create(library_t library, window_t *result, const size_t w
 
     /* create window object */
     if (!lib->platform.window_create(lib, win, width, height, title)) {
+        free(win);
+        return (0);
+    }
+
+    /* perform attributes roundtrip */
+    if (!lib->platform.window_set_attribute(lib, win)) {
         free(win);
         return (0);
     }
@@ -10784,6 +10892,7 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->window_set_position = __win_x11_window_set_position;
     platform->window_get_title = __win_x11_window_get_title;
     platform->window_set_title = __win_x11_window_set_title;
+    platform->window_set_attribute = __win_x11_window_set_attribute;
 
     /* context functions */
 
@@ -10835,6 +10944,7 @@ WININT int __winLoadPlatform(struct _window_h *library, struct _window_h_platfor
     platform->window_set_position = __win_win32_window_set_position;
     platform->window_get_title = __win_win32_window_get_title;
     platform->window_set_title = __win_win32_window_set_title;
+    platform->window_set_attribute = __win_win32_window_set_attribute;
     
     /* context functions */
 
