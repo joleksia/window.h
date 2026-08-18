@@ -6612,11 +6612,9 @@ struct _window_h_keymap {
     uint32_t ks;
 };
 
-/*
- *  en-US QWERTY layout:
- *      https://en.wikipedia.org/wiki/QWERTY
- *
- * * * * * * * * * * * * * * * * * * * * * * */
+/* en-US QWERTY layout:
+ *  https://en.wikipedia.org/wiki/QWERTY
+ * */
 static const struct _window_h_keymap _window_h_keymap_en_us_qwerty[] = {
 
 /* {{{ */
@@ -6639,7 +6637,7 @@ static const struct _window_h_keymap _window_h_keymap_en_us_qwerty[] = {
 
     /* '4' / '$' */
     { XK_4, WINDOW_KEYCODE_4, WINDOW_KEYSYM_4 },
-    { XK_dollar, WINDOW_KEYCODE_5, WINDOW_KEYSYM_DOLLAR },
+    { XK_dollar, WINDOW_KEYCODE_4, WINDOW_KEYSYM_DOLLAR },
 
     /* '5' / '%' */
     { XK_5, WINDOW_KEYCODE_5, WINDOW_KEYSYM_5 },
@@ -6825,7 +6823,7 @@ static const struct _window_h_keymap _window_h_keymap_en_us_qwerty[] = {
     { XK_question, WINDOW_KEYCODE_SLASH, WINDOW_KEYSYM_QUESTION },
 
     /* Right Shift */
-    { XK_Shift_R, WINDOW_KEYCODE_RIGHTCTRL, WINDOW_KEYSYM_RIGHTCTRL },
+    { XK_Shift_R, WINDOW_KEYCODE_RIGHTSHIFT, WINDOW_KEYSYM_RIGHTSHIFT },
 
     /* Left Control */
     { XK_Control_L, WINDOW_KEYCODE_LEFTCTRL, WINDOW_KEYSYM_LEFTCTRL },
@@ -9031,6 +9029,335 @@ WININT int __winLoadWayland(struct _window_h_wl *wl) {
 # if defined (WINDOW_BACKEND_WIN32)
 /* {{{ */
 
+/* keymap layouts base */
+struct _window_h_keymap {
+    uint32_t src;
+    uint32_t kc;
+    uint32_t ks;
+};
+
+/* en-US QWERTY layout:
+ *  https://en.wikipedia.org/wiki/QWERTY
+ *  https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+ * */
+static const struct _window_h_keymap _window_h_keymap_en_us_qwerty[] = {
+ 
+/* {{{ */
+ 
+    /* '`' / '~' */
+    { VK_OEM_3, WINDOW_KEYCODE_GRAVE, WINDOW_KEYSYM_GRAVE },
+    { VK_OEM_3, WINDOW_KEYCODE_GRAVE, WINDOW_KEYSYM_TILDE },
+ 
+    /* '1' / '!' */
+    { 0x31, WINDOW_KEYCODE_1, WINDOW_KEYSYM_1 },
+    { 0x31, WINDOW_KEYCODE_1, WINDOW_KEYSYM_EXCLAIM },
+ 
+    /* '2' / '@' */
+    { 0x32, WINDOW_KEYCODE_2, WINDOW_KEYSYM_2 },
+    { 0x32, WINDOW_KEYCODE_2, WINDOW_KEYSYM_AT },
+ 
+    /* '3' / '#' */
+    { 0x33, WINDOW_KEYCODE_3, WINDOW_KEYSYM_3 },
+    { 0x33, WINDOW_KEYCODE_3, WINDOW_KEYSYM_HASH },
+ 
+    /* '4' / '$' */
+    { 0x34, WINDOW_KEYCODE_4, WINDOW_KEYSYM_4 },
+    { 0x34, WINDOW_KEYCODE_4, WINDOW_KEYSYM_DOLLAR }, /* fixed: was KEYCODE_5 */
+ 
+    /* '5' / '%' */
+    { 0x35, WINDOW_KEYCODE_5, WINDOW_KEYSYM_5 },
+    { 0x35, WINDOW_KEYCODE_5, WINDOW_KEYSYM_PERCENT },
+ 
+    /* '6' / '^' */
+    { 0x36, WINDOW_KEYCODE_6, WINDOW_KEYSYM_6 },
+    { 0x36, WINDOW_KEYCODE_6, WINDOW_KEYSYM_CARET },
+ 
+    /* '7' / '&' */
+    { 0x37, WINDOW_KEYCODE_7, WINDOW_KEYSYM_7 },
+    { 0x37, WINDOW_KEYCODE_7, WINDOW_KEYSYM_AMPERSAND },
+ 
+    /* '8' / '*' */
+    { 0x38, WINDOW_KEYCODE_8, WINDOW_KEYSYM_8 },
+    { 0x38, WINDOW_KEYCODE_8, WINDOW_KEYSYM_ASTERISK },
+ 
+    /* '9' / '(' */
+    { 0x39, WINDOW_KEYCODE_9, WINDOW_KEYSYM_9 },
+    { 0x39, WINDOW_KEYCODE_9, WINDOW_KEYSYM_OPENPAREN },
+ 
+    /* '0' / ')' */
+    { 0x30, WINDOW_KEYCODE_0, WINDOW_KEYSYM_0 },
+    { 0x30, WINDOW_KEYCODE_0, WINDOW_KEYSYM_CLOSEPAREN },
+ 
+    /* '-' / '_' */
+    { VK_OEM_MINUS, WINDOW_KEYCODE_MINUS, WINDOW_KEYSYM_MINUS },
+    { VK_OEM_MINUS, WINDOW_KEYCODE_MINUS, WINDOW_KEYSYM_UNDERSCORE },
+ 
+    /* '=' / '+' */
+    { VK_OEM_PLUS, WINDOW_KEYCODE_EQUAL, WINDOW_KEYSYM_EQUAL },
+    { VK_OEM_PLUS, WINDOW_KEYCODE_EQUAL, WINDOW_KEYSYM_PLUS },
+ 
+    /* '\b' */
+    { VK_BACK, WINDOW_KEYCODE_BACKSPACE, WINDOW_KEYSYM_BACKSPACE },
+ 
+    /* '\t' */
+    { VK_TAB, WINDOW_KEYCODE_TAB, WINDOW_KEYSYM_TAB },
+ 
+    /* 'Q' / 'q' */
+    { 0x51, WINDOW_KEYCODE_Q, WINDOW_KEYSYM_Q },
+    { 0x51, WINDOW_KEYCODE_Q, WINDOW_KEYSYM_LOWER_Q },
+ 
+    /* 'W' / 'w' */
+    { 0x57, WINDOW_KEYCODE_W, WINDOW_KEYSYM_W },
+    { 0x57, WINDOW_KEYCODE_W, WINDOW_KEYSYM_LOWER_W },
+ 
+    /* 'E' / 'e' */
+    { 0x45, WINDOW_KEYCODE_E, WINDOW_KEYSYM_E },
+    { 0x45, WINDOW_KEYCODE_E, WINDOW_KEYSYM_LOWER_E },
+ 
+    /* 'R' / 'r' */
+    { 0x52, WINDOW_KEYCODE_R, WINDOW_KEYSYM_R },
+    { 0x52, WINDOW_KEYCODE_R, WINDOW_KEYSYM_LOWER_R },
+ 
+    /* 'T' / 't' */
+    { 0x54, WINDOW_KEYCODE_T, WINDOW_KEYSYM_T },
+    { 0x54, WINDOW_KEYCODE_T, WINDOW_KEYSYM_LOWER_T },
+ 
+    /* 'Y' / 'y' */
+    { 0x59, WINDOW_KEYCODE_Y, WINDOW_KEYSYM_Y },
+    { 0x59, WINDOW_KEYCODE_Y, WINDOW_KEYSYM_LOWER_Y },
+ 
+    /* 'U' / 'u' */
+    { 0x55, WINDOW_KEYCODE_U, WINDOW_KEYSYM_U },
+    { 0x55, WINDOW_KEYCODE_U, WINDOW_KEYSYM_LOWER_U },
+ 
+    /* 'I' / 'i' */
+    { 0x49, WINDOW_KEYCODE_I, WINDOW_KEYSYM_I },
+    { 0x49, WINDOW_KEYCODE_I, WINDOW_KEYSYM_LOWER_I },
+ 
+    /* 'O' / 'o' */
+    { 0x4f, WINDOW_KEYCODE_O, WINDOW_KEYSYM_O },
+    { 0x4f, WINDOW_KEYCODE_O, WINDOW_KEYSYM_LOWER_O },
+ 
+    /* 'P' / 'p' */
+    { 0x50, WINDOW_KEYCODE_P, WINDOW_KEYSYM_P },
+    { 0x50, WINDOW_KEYCODE_P, WINDOW_KEYSYM_LOWER_P },
+ 
+    /* '[' / '{' */
+    { VK_OEM_4, WINDOW_KEYCODE_OPENBRACKET, WINDOW_KEYSYM_OPENBRACKET },
+    { VK_OEM_4, WINDOW_KEYCODE_OPENBRACKET, WINDOW_KEYSYM_OPENCURLY },
+ 
+    /* ']' / '}' */
+    { VK_OEM_6, WINDOW_KEYCODE_CLOSEBRACKET, WINDOW_KEYSYM_CLOSEBRACKET },
+    { VK_OEM_6, WINDOW_KEYCODE_CLOSEBRACKET, WINDOW_KEYSYM_CLOSECURLY },
+ 
+    /* '\' / '|' */
+    { VK_OEM_5, WINDOW_KEYCODE_BACKSLASH, WINDOW_KEYSYM_BACKSLASH },
+    { VK_OEM_5, WINDOW_KEYCODE_BACKSLASH, WINDOW_KEYSYM_PIPE },
+ 
+    /* Caps-Lock */
+    { VK_CAPITAL, WINDOW_KEYCODE_CAPSLOCK, WINDOW_KEYSYM_CAPSLOCK },
+ 
+    /* 'A' / 'a' */
+    { 0x41, WINDOW_KEYCODE_A, WINDOW_KEYSYM_A },
+    { 0x41, WINDOW_KEYCODE_A, WINDOW_KEYSYM_LOWER_A },
+ 
+    /* 'S' / 's' */
+    { 0x53, WINDOW_KEYCODE_S, WINDOW_KEYSYM_S },
+    { 0x53, WINDOW_KEYCODE_S, WINDOW_KEYSYM_LOWER_S },
+ 
+    /* 'D' / 'd' */
+    { 0x44, WINDOW_KEYCODE_D, WINDOW_KEYSYM_D },
+    { 0x44, WINDOW_KEYCODE_D, WINDOW_KEYSYM_LOWER_D },
+ 
+    /* 'F' / 'f' */
+    { 0x46, WINDOW_KEYCODE_F, WINDOW_KEYSYM_F },
+    { 0x46, WINDOW_KEYCODE_F, WINDOW_KEYSYM_LOWER_F },
+ 
+    /* 'G' / 'g' */
+    { 0x47, WINDOW_KEYCODE_G, WINDOW_KEYSYM_G },
+    { 0x47, WINDOW_KEYCODE_G, WINDOW_KEYSYM_LOWER_G },
+ 
+    /* 'H' / 'h' */
+    { 0x48, WINDOW_KEYCODE_H, WINDOW_KEYSYM_H },
+    { 0x48, WINDOW_KEYCODE_H, WINDOW_KEYSYM_LOWER_H },
+ 
+    /* 'J' / 'j' */
+    { 0x4a, WINDOW_KEYCODE_J, WINDOW_KEYSYM_J },
+    { 0x4a, WINDOW_KEYCODE_J, WINDOW_KEYSYM_LOWER_J },
+ 
+    /* 'K' / 'k' */
+    { 0x4b, WINDOW_KEYCODE_K, WINDOW_KEYSYM_K },
+    { 0x4b, WINDOW_KEYCODE_K, WINDOW_KEYSYM_LOWER_K },
+ 
+    /* 'L' / 'l' */
+    { 0x4c, WINDOW_KEYCODE_L, WINDOW_KEYSYM_L },
+    { 0x4c, WINDOW_KEYCODE_L, WINDOW_KEYSYM_LOWER_L },
+ 
+    /* ';' / ':' */
+    { VK_OEM_1, WINDOW_KEYCODE_SEMICOLON, WINDOW_KEYSYM_SEMICOLON },
+    { VK_OEM_1, WINDOW_KEYCODE_SEMICOLON, WINDOW_KEYSYM_COLON },
+ 
+    /* '\'' / '\"' */
+    { VK_OEM_7, WINDOW_KEYCODE_QUOTE, WINDOW_KEYSYM_QUOTE },
+    { VK_OEM_7, WINDOW_KEYCODE_QUOTE, WINDOW_KEYSYM_DOUBLEQUOTE },
+ 
+    /* '\r' */
+    { VK_RETURN, WINDOW_KEYCODE_RETURN, WINDOW_KEYSYM_RETURN },
+ 
+    /* Left Shift */
+    { VK_LSHIFT, WINDOW_KEYCODE_LEFTSHIFT, WINDOW_KEYSYM_LEFTSHIFT },
+ 
+    /* 'Z' / 'z' */
+    { 0x5a, WINDOW_KEYCODE_Z, WINDOW_KEYSYM_Z },
+    { 0x5a, WINDOW_KEYCODE_Z, WINDOW_KEYSYM_LOWER_Z },
+ 
+    /* 'X' / 'x' */
+    { 0x58, WINDOW_KEYCODE_X, WINDOW_KEYSYM_X },
+    { 0x58, WINDOW_KEYCODE_X, WINDOW_KEYSYM_LOWER_X },
+ 
+    /* 'C' / 'c' */
+    { 0x43, WINDOW_KEYCODE_C, WINDOW_KEYSYM_C },
+    { 0x43, WINDOW_KEYCODE_C, WINDOW_KEYSYM_LOWER_C },
+ 
+    /* 'V' / 'v' */
+    { 0x56, WINDOW_KEYCODE_V, WINDOW_KEYSYM_V },
+    { 0x56, WINDOW_KEYCODE_V, WINDOW_KEYSYM_LOWER_V },
+ 
+    /* 'B' / 'b' */
+    { 0x42, WINDOW_KEYCODE_B, WINDOW_KEYSYM_B },
+    { 0x42, WINDOW_KEYCODE_B, WINDOW_KEYSYM_LOWER_B },
+ 
+    /* 'N' / 'n' */
+    { 0x4e, WINDOW_KEYCODE_N, WINDOW_KEYSYM_N },
+    { 0x4e, WINDOW_KEYCODE_N, WINDOW_KEYSYM_LOWER_N },
+ 
+    /* 'M' / 'm' */
+    { 0x4d, WINDOW_KEYCODE_M, WINDOW_KEYSYM_M },
+    { 0x4d, WINDOW_KEYCODE_M, WINDOW_KEYSYM_LOWER_M },
+ 
+    /* ',' / '<' */
+    { VK_OEM_COMMA, WINDOW_KEYCODE_COMMA, WINDOW_KEYSYM_COMMA },
+    { VK_OEM_COMMA, WINDOW_KEYCODE_COMMA, WINDOW_KEYSYM_LESS },
+ 
+    /* '.' / '>' */
+    { VK_OEM_PERIOD, WINDOW_KEYCODE_PERIOD, WINDOW_KEYSYM_PERIOD },
+    { VK_OEM_PERIOD, WINDOW_KEYCODE_PERIOD, WINDOW_KEYSYM_GREATER },
+ 
+    /* '/' / '?' */
+    { VK_OEM_2, WINDOW_KEYCODE_SLASH, WINDOW_KEYSYM_SLASH },
+    { VK_OEM_2, WINDOW_KEYCODE_SLASH, WINDOW_KEYSYM_QUESTION },
+ 
+    /* Right Shift */
+    { VK_RSHIFT, WINDOW_KEYCODE_RIGHTSHIFT, WINDOW_KEYSYM_RIGHTSHIFT }, /* fixed: was RIGHTCTRL */
+ 
+    /* Left Control */
+    { VK_LCONTROL, WINDOW_KEYCODE_LEFTCTRL, WINDOW_KEYSYM_LEFTCTRL },
+ 
+    /* Left Home/GUI */
+    { VK_LWIN, WINDOW_KEYCODE_LEFTGUI, WINDOW_KEYSYM_LEFTGUI },
+ 
+    /* Left Alt */
+    { VK_LMENU, WINDOW_KEYCODE_LEFTALT, WINDOW_KEYSYM_LEFTALT },
+ 
+    /* ' ' */
+    { VK_SPACE, WINDOW_KEYCODE_SPACE, WINDOW_KEYSYM_SPACE },
+ 
+    /* Right Alt */
+    { VK_RMENU, WINDOW_KEYCODE_RIGHTALT, WINDOW_KEYSYM_RIGHTALT },
+ 
+    /* Right Home/GUI */
+    { VK_RWIN, WINDOW_KEYCODE_RIGHTGUI, WINDOW_KEYSYM_RIGHTGUI },
+ 
+    /* Right Control */
+    { VK_RCONTROL, WINDOW_KEYCODE_RIGHTCTRL, WINDOW_KEYSYM_RIGHTCTRL },
+ 
+    /* Escape */
+    { VK_ESCAPE, WINDOW_KEYCODE_ESCAPE, WINDOW_KEYSYM_ESCAPE },
+ 
+    /* F1 */
+    { VK_F1, WINDOW_KEYCODE_F1, WINDOW_KEYSYM_F1 },
+ 
+    /* F2 */
+    { VK_F2, WINDOW_KEYCODE_F2, WINDOW_KEYSYM_F2 },
+ 
+    /* F3 */
+    { VK_F3, WINDOW_KEYCODE_F3, WINDOW_KEYSYM_F3 },
+ 
+    /* F4 */
+    { VK_F4, WINDOW_KEYCODE_F4, WINDOW_KEYSYM_F4 },
+ 
+    /* F5 */
+    { VK_F5, WINDOW_KEYCODE_F5, WINDOW_KEYSYM_F5 },
+ 
+    /* F6 */
+    { VK_F6, WINDOW_KEYCODE_F6, WINDOW_KEYSYM_F6 },
+ 
+    /* F7 */
+    { VK_F7, WINDOW_KEYCODE_F7, WINDOW_KEYSYM_F7 },
+ 
+    /* F8 */
+    { VK_F8, WINDOW_KEYCODE_F8, WINDOW_KEYSYM_F8 },
+ 
+    /* F9 */
+    { VK_F9, WINDOW_KEYCODE_F9, WINDOW_KEYSYM_F9 },
+ 
+    /* F10 */
+    { VK_F10, WINDOW_KEYCODE_F10, WINDOW_KEYSYM_F10 },
+ 
+    /* F11 */
+    { VK_F11, WINDOW_KEYCODE_F11, WINDOW_KEYSYM_F11 },
+ 
+    /* F12 */
+    { VK_F12, WINDOW_KEYCODE_F12, WINDOW_KEYSYM_F12 },
+ 
+    /* Print-Screen */
+    { VK_SNAPSHOT, WINDOW_KEYCODE_PRINTSCREEN, WINDOW_KEYSYM_PRINTSCREEN },
+ 
+    /* Scroll-Lock */
+    { VK_SCROLL, WINDOW_KEYCODE_SCROLLLOCK, WINDOW_KEYSYM_SCROLLLOCK },
+ 
+    /* Pause */
+    { VK_PAUSE, WINDOW_KEYCODE_PAUSE, WINDOW_KEYSYM_PAUSE },
+ 
+    /* Insert */
+    { VK_INSERT, WINDOW_KEYCODE_INSERT, WINDOW_KEYSYM_INSERT },
+ 
+    /* Home */
+    { VK_HOME, WINDOW_KEYCODE_HOME, WINDOW_KEYSYM_HOME },
+ 
+    /* Page-Up */
+    { VK_PRIOR, WINDOW_KEYCODE_PAGEUP, WINDOW_KEYSYM_PAGEUP },
+ 
+    /* Delete */
+    { VK_DELETE, WINDOW_KEYCODE_DELETE, WINDOW_KEYSYM_DELETE },
+ 
+    /* End */
+    { VK_END, WINDOW_KEYCODE_END, WINDOW_KEYSYM_END },
+ 
+    /* Page-Down */
+    { VK_NEXT, WINDOW_KEYCODE_PAGEDOWN, WINDOW_KEYSYM_PAGEDOWN },
+ 
+    /* Up */
+    { VK_UP, WINDOW_KEYCODE_UP, WINDOW_KEYSYM_UP },
+ 
+    /* Left */
+    { VK_LEFT, WINDOW_KEYCODE_LEFT, WINDOW_KEYSYM_LEFT },
+ 
+    /* Down */
+    { VK_DOWN, WINDOW_KEYCODE_DOWN, WINDOW_KEYSYM_DOWN },
+ 
+    /* Right */
+    { VK_RIGHT, WINDOW_KEYCODE_RIGHT, WINDOW_KEYSYM_RIGHT },
+ 
+    /* ... */
+ 
+    { 0, 0, 0 }
+ 
+/* }}} */
+ 
+};
+
+
 /* internal functions (declarations) */
 
 LRESULT CALLBACK __win_win32_event_process(HWND, UINT, WPARAM, LPARAM);
@@ -9289,9 +9616,42 @@ LRESULT CALLBACK __win_win32_event_process(HWND hWnd, UINT uMsg, WPARAM wParam, 
             win_event_send(lib, win, WINDOW_EVENT_MOUSE_SCROLL, scroll_x, scroll_y);
         } break;
 
+        /* TODO:
+         *  Heavy-test the correctness of this logic...
+         * */
         case (WM_KEYDOWN):
         case (WM_KEYUP): {
+            /* get the keyboard modes mask */
+            uint32_t keymod = 0;
+            if ((GetKeyState(VK_LWIN) | GetKeyState(VK_RWIN)) & 0x8000) { keymod |= WINDOW_KEYMOD_GUI; }
+            if (GetKeyState(VK_SHIFT)   & 0x8000) { keymod |= WINDOW_KEYMOD_SHIFT; }
+            if (GetKeyState(VK_CONTROL) & 0x8000) { keymod |= WINDOW_KEYMOD_CTRL; }
+            if (GetKeyState(VK_MENU)    & 0x8000) { keymod |= WINDOW_KEYMOD_ALT; }
+            if (GetKeyState(VK_NUMLOCK) & 1) { keymod |= WINDOW_KEYMOD_NUMLOCK; }
+            if (GetKeyState(VK_CAPITAL) & 1) { keymod |= WINDOW_KEYMOD_CAPSLOCK; }
+            
+            /* Iterate over the keymap to find the matching mapping.
+             * As of now we're only processing en-US QWERTY keymap with latin symbols.
+             * Other keyboard layout's might not work. However, there're some foudnations
+             * to implement layout switching which *might* make it available to layout-switch!
+             * */
+            uint32_t keycode = 0,
+                     keysym  = 0;
+            for (size_t i = 0; _window_h_keymap_en_us_qwerty[i].src; i++) {
+                /* TODO:
+                 *  Find a way to handle shifting correctly
+                 * */
+                if (wParam == _window_h_keymap_en_us_qwerty[i].src) {
+                    keycode = _window_h_keymap_en_us_qwerty[i].kc;
+                    keysym  = _window_h_keymap_en_us_qwerty[i].ks;
+                    break;
+                }
+            }
+            
+            /* get keyboard press/release state */
+            uint8_t state = (uMsg == WM_KEYDOWN ? 1 : 0);
 
+            win_event_send(lib, win, WINDOW_EVENT_KEYBOARD_KEY, keysym, keycode, keymod, wParam, state, 0);
         } break;
 
         default: {
