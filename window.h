@@ -9678,10 +9678,6 @@ WININT int __win_win32_window_set_attribute(struct _window_h *lib, struct _windo
 
         /* set window styles */
         SetWindowLong(win->win32->handle, GWL_STYLE, styles);
-
-        /* (optional) show scrollbar */
-        ShowScrollBar(win->win32->handle, SB_VERT, 1);
-        ShowScrollBar(win->win32->handle, SB_HORZ, 1);
     } else {
         /* get window styles */
         LONG styles = GetWindowLong(win->win32->handle, GWL_STYLE);
@@ -9691,10 +9687,6 @@ WININT int __win_win32_window_set_attribute(struct _window_h *lib, struct _windo
 
         /* set window styles */
         SetWindowLong(win->win32->handle, GWL_STYLE, styles);
-
-        /* (optional) hide scrollbar */
-        ShowScrollBar(win->win32->handle, SB_VERT, 0);
-        ShowScrollBar(win->win32->handle, SB_HORZ, 0);
     }
 
     /* ... */
