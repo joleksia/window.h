@@ -19,7 +19,7 @@ int main(void) {
 
     /* create window */
     window_t window = 0;
-    win_window_create(library, &window, 800, 600, "Hello, window.h - Sample 02. OpenGL");
+    win_window_create(library, &window, 800, 600, "Hello, window.h - X11 sample - OpenGL Context");
     if (!window) { win_quit(library); return (1); }
 
     /* create context */
