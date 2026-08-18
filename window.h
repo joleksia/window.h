@@ -733,12 +733,12 @@ enum {
 enum {
     
     WINDOW_CLIENT_API = 0x1000,
-    WINDOW_API_NATIVE,
-    WINDOW_API_OPENGL,
-    WINDOW_API_OPENGLES,
-    WINDOW_API_VULKAN,
-    WINDOW_API_DIRECTX,
-    WINDOW_API_METAL,
+    WINDOW_API_NATIVE = 0x1001,
+    WINDOW_API_OPENGL = 0x1002,
+    WINDOW_API_OPENGLES = 0x1003,
+    WINDOW_API_VULKAN = 0x1004,
+    WINDOW_API_DIRECTX = 0x1005,
+    WINDOW_API_METAL = 0x1006,
 
     /* ... */
 
@@ -752,27 +752,27 @@ enum {
     /* - if 0: window should not resize
      * - if 1: window should resize
      * */
-    WINDOW_CLIENT_RESIZE,
+    WINDOW_CLIENT_RESIZE = 0x2001,
 
     /* - if 0: window should not be minimized
      * - if 1: window should be minimized
      * */
-    WINDOW_CLIENT_MINIMIZED,
+    WINDOW_CLIENT_MINIMIZED = 0x2002,
     
     /* - if 0: window should not be maximized
      * - if 1: window should be maximized
      * */
-    WINDOW_CLIENT_MAXIMIZED,
+    WINDOW_CLIENT_MAXIMIZED = 0x2003,
     
     /* - if 0: window should not be fullscreen
      * - if 1: window should be fullscreen
      * */
-    WINDOW_CLIENT_FULLSCREEN,
+    WINDOW_CLIENT_FULLSCREEN = 0x2004,
     
     /* - if 0: window should not have decorations
      * - if 1: window should have decorations
      * */
-    WINDOW_CLIENT_DECORATION,
+    WINDOW_CLIENT_DECORATIONS = 0x2005,
 
     /* ... */
 
@@ -783,21 +783,22 @@ enum {
  * */
 enum {
 
-    /* framebuffer configuration */
-    WINDOW_GL_RED,
-    WINDOW_GL_GREEN,
-    WINDOW_GL_BLUE,
-    WINDOW_GL_ALPHA,
-    WINDOW_GL_DEPTH,
-    WINDOW_GL_STENCIL,
-    WINDOW_GL_DOUBLEBUFFER,
-    WINDOW_GL_CONTEXT_VERSION_MAJOR,
-    WINDOW_GL_CONTEXT_VERSION_MINOR,
+    /* config configuration */
+    WINDOW_GL_RED = 0x3001,
+    WINDOW_GL_GREEN = 0x3002,
+    WINDOW_GL_BLUE = 0x3003,
+    WINDOW_GL_ALPHA = 0x3004,
+    WINDOW_GL_DEPTH = 0x3005,
+    WINDOW_GL_STENCIL = 0x3006,
+    WINDOW_GL_DOUBLEBUFFER = 0x3007,
    
     /* context configuration */
-    WINDOW_GL_CONTEXT_PROFILE,
-    WINDOW_GL_CONTEXT_PROFILE_CORE          = 0x00000001,
+    WINDOW_GL_CONTEXT_PROFILE = 0x3101,
+    WINDOW_GL_CONTEXT_PROFILE_CORE = 0x00000001,
     WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY = 0x00000002,
+    
+    WINDOW_GL_CONTEXT_VERSION_MAJOR = 0x3102,
+    WINDOW_GL_CONTEXT_VERSION_MINOR = 0x3103,
     
     /* ... */
 };
@@ -1288,19 +1289,19 @@ struct _window_h_window {
 
         uint32_t api;
 
-        uint8_t mapped;
-
         uint8_t resize;
-
-        uint8_t decorations;
-
-        uint8_t focused;
-
-        uint8_t maximized;
 
         uint8_t minimized;
 
+        uint8_t maximized;
+
         uint8_t fullscreen;
+
+        uint8_t decorations;
+
+        uint8_t mapped;
+
+        uint8_t focused;
     } attr;
 
 };
@@ -1410,6 +1411,15 @@ struct _window_h {
         struct {
             /* 'resize' boolean */
             uint8_t resize;
+
+            /* 'minimized' boolean */
+            uint8_t minimized;
+
+            /* 'maximized' boolean */
+            uint8_t maximized;
+
+            /* 'fullscreen' boolean */
+            uint8_t fullscreen;
         
             /* 'decorations' boolean */
             uint8_t decorations;
@@ -4965,16 +4975,13 @@ struct _window_h_x11 {
     /* inter-process communication window handle */
     Window ipc;
 
-    /* SOURCE: https://xorg.freedesktop.org/releases/X11R7.6/doc/xorg-docs/specs/ICCCM/icccm.html#wm_protocols_property
-     * */
+    /* SOURCE: https://xorg.freedesktop.org/releases/X11R7.6/doc/xorg-docs/specs/ICCCM/icccm.html#wm_protocols_property */
     Atom WM_PROTOCOLS;
 
-    /* SOURCE: https://xorg.freedesktop.org/releases/X11R7.6/doc/xorg-docs/specs/ICCCM/icccm.html#window_deletion
-     * */
+    /* SOURCE: https://xorg.freedesktop.org/releases/X11R7.6/doc/xorg-docs/specs/ICCCM/icccm.html#window_deletion */
     Atom WM_DELETE_WINDOW;
 
-    /* SOURCE: https://specifications.freedesktop.org/wm/latest/ar01s05.html#id-1.6.8
-     * */
+    /* SOURCE: https://specifications.freedesktop.org/wm/latest/ar01s05.html#id-1.6.8 */
     Atom _NET_WM_STATE;
 
     Atom _NET_WM_STATE_MODAL;
@@ -5002,6 +5009,9 @@ struct _window_h_x11 {
     Atom _NET_WM_STATE_DEMANDS_ATTENTION;
     
     Atom _NET_WM_STATE_FOCUSED;
+
+    /* SOURCE: https://linux.die.net/man/3/vendorshell */
+    Atom _MOTIF_WM_HINTS;
 
     Atom TARGETS;
     
@@ -7605,6 +7615,8 @@ WININT int __win_x11_init(struct _window_h *lib) {
     x11->_NET_WM_STATE_DEMANDS_ATTENTION = XInternAtom(x11->dpy, "_NET_WM_STATE_DEMANDS_ATTENTION", False);
 
     x11->_NET_WM_STATE_FOCUSED = XInternAtom(x11->dpy, "_NET_WM_STATE_FOCUSED", False);
+    
+    x11->_MOTIF_WM_HINTS = XInternAtom(x11->dpy, "_MOTIF_WM_HINTS", False);
 
     x11->TARGETS = XInternAtom(x11->dpy, "TARGETS", False);
 
@@ -8610,12 +8622,16 @@ WININT int __win_x11_window_set_attribute(struct _window_h *lib, struct _window_
     if (!lib) { return (0); }
     if (!win) { return (0); }
 
-    /* WINDOW_ATTRIBUTE_WINDOW_RESIZABLE */
+    /* references */
+    struct _window_h_x11 *x11 = lib->x11; 
+    if (!x11) { return (0); }
+
+    /* WINDOW_CLIENT_RESIZE */
     if (win->attr.resize) {
         /* get window manager hints */
         XSizeHints hints_return = { 0 };
         long supplied_return = 0;
-        XGetWMNormalHints(lib->x11->dpy,
+        XGetWMNormalHints(x11->dpy,
                           win->x11->handle,
                           &hints_return,
                           &supplied_return);
@@ -8625,7 +8641,7 @@ WININT int __win_x11_window_set_attribute(struct _window_h *lib, struct _window_
         hints_return.flags &= ~PMaxSize;
         
         /* set window manager hints */
-        XSetWMNormalHints(lib->x11->dpy,
+        XSetWMNormalHints(x11->dpy,
                           win->x11->handle,
                           &hints_return);
     } else {
@@ -8637,7 +8653,7 @@ WININT int __win_x11_window_set_attribute(struct _window_h *lib, struct _window_
         /* get window manager hints */
         XSizeHints hints_return = { 0 };
         long supplied_return = 0;
-        XGetWMNormalHints(lib->x11->dpy,
+        XGetWMNormalHints(x11->dpy,
                           win->x11->handle,
                           &hints_return,
                           &supplied_return);
@@ -8651,9 +8667,34 @@ WININT int __win_x11_window_set_attribute(struct _window_h *lib, struct _window_
         hints_return.min_height = hints_return.max_height = win_h;
         
         /* set window manager hints */
-        XSetWMNormalHints(lib->x11->dpy,
+        XSetWMNormalHints(x11->dpy,
                           win->x11->handle,
                           &hints_return);
+    }
+
+    /* ... */
+    
+    /* WINDOW_CLIENT_DECORATIONS */
+    if (win->attr.decorations) {
+        long mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = 1;
+        XChangeProperty(x11->dpy,
+                        win->x11->handle,
+                        x11->_MOTIF_WM_HINTS,
+                        x11->_MOTIF_WM_HINTS,
+                        32, PropModeReplace,
+                        (uint8_t *) mwmhints, 8);
+    } else {
+        long mwmhints[8] = { 0 };
+        mwmhints[0] = (1L << 1);
+        mwmhints[2] = 0; 
+        XChangeProperty(x11->dpy,
+                        win->x11->handle,
+                        x11->_MOTIF_WM_HINTS,
+                        x11->_MOTIF_WM_HINTS,
+                        32, PropModeReplace,
+                        (uint8_t *) mwmhints, 8);
     }
 
     /* ... */
@@ -9626,6 +9667,37 @@ WININT int __win_win32_window_set_attribute(struct _window_h *lib, struct _windo
     }
 
     /* ... */
+    
+    /* WINDOW_CLIENT_DECORATIONS */
+    if (win->attr.decorations) {
+        /* get window styles */
+        LONG styles = GetWindowLong(win->win32->handle, GWL_STYLE);
+
+        /* set 'WS_CAPTION' bit */
+        styles |= WS_CAPTION;
+
+        /* set window styles */
+        SetWindowLong(win->win32->handle, GWL_STYLE, styles);
+
+        /* (optional) show scrollbar */
+        ShowScrollBar(win->win32->handle, SB_VERT, 1);
+        ShowScrollBar(win->win32->handle, SB_HORZ, 1);
+    } else {
+        /* get window styles */
+        LONG styles = GetWindowLong(win->win32->handle, GWL_STYLE);
+
+        /* unset 'WS_CAPTION' bit */
+        styles &= ~WS_CAPTION;
+
+        /* set window styles */
+        SetWindowLong(win->win32->handle, GWL_STYLE, styles);
+
+        /* (optional) hide scrollbar */
+        ShowScrollBar(win->win32->handle, SB_VERT, 0);
+        ShowScrollBar(win->win32->handle, SB_HORZ, 0);
+    }
+
+    /* ... */
 
     /* success */
     return (1);
@@ -9906,22 +9978,25 @@ WINDEF int win_init(library_t *result) {
     
     /* set default 'window' hints */
     lib->hints.window.resize = 0;
+    lib->hints.window.minimized = 0;
+    lib->hints.window.maximized = 0;
+    lib->hints.window.fullscreen = 0;
     lib->hints.window.decorations = 1;
 
     /* set default 'gl' hints */
-    lib->hints.gl.red     = 8;
-    lib->hints.gl.green   = 8;
-    lib->hints.gl.blue    = 8;
-    lib->hints.gl.alpha   = 8;
-    lib->hints.gl.depth   = 24;
+    lib->hints.gl.red = 8;
+    lib->hints.gl.green = 8;
+    lib->hints.gl.blue = 8;
+    lib->hints.gl.alpha = 8;
+    lib->hints.gl.depth = 24;
     lib->hints.gl.stencil = 8;
-    lib->hints.gl.dblbuf  = 1;
-    lib->hints.gl.major   = 1;
-    lib->hints.gl.minor   = 0;
+    lib->hints.gl.dblbuf = 1;
+    lib->hints.gl.major = 1;
+    lib->hints.gl.minor = 0;
     lib->hints.gl.profile = WINDOW_GL_CONTEXT_PROFILE_COMPATIBILITY;
 
     /* set default 'cursor' hints */
-    lib->hints.cursor.mode    = WINDOW_CURSOR_NORMAL;
+    lib->hints.cursor.mode = WINDOW_CURSOR_NORMAL;
     lib->hints.cursor.visible = 1;
 
     /* load window.h platform */
@@ -10031,8 +10106,31 @@ WINDEF int win_set_hints(library_t library, const uint32_t hint, const int32_t v
     if (!lib) { return (0); }
     
     switch (hint) {
+        /* client API hints */
         case (WINDOW_CLIENT_API): { lib->hints.api = value; } break;
+        
+        /* client window hints */
+        case (WINDOW_CLIENT_RESIZE): {
+            lib->hints.window.resize = value;
+        } break;
+        
+        case (WINDOW_CLIENT_MINIMIZED): {
+            lib->hints.window.minimized = value;
+        } break;
+        
+        case (WINDOW_CLIENT_MAXIMIZED): {
+            lib->hints.window.maximized = value;
+        } break;
+        
+        case (WINDOW_CLIENT_FULLSCREEN): {
+            lib->hints.window.fullscreen = value;
+        } break;
+        
+        case (WINDOW_CLIENT_DECORATIONS): {
+            lib->hints.window.decorations = value;
+        } break;
 
+        /* client OpenGL config hints */
         case (WINDOW_GL_RED): {
             lib->hints.gl.red = value;
         } break;
@@ -10061,6 +10159,7 @@ WINDEF int win_set_hints(library_t library, const uint32_t hint, const int32_t v
             lib->hints.gl.dblbuf = value;
         } break;
 
+        /* client OpenGL context hints */
         case (WINDOW_GL_CONTEXT_VERSION_MAJOR): {
             lib->hints.gl.major = value;
         } break;
@@ -10106,21 +10205,25 @@ WINDEF int win_window_create(library_t library, window_t *result, const size_t w
         } break;
     }
 
-    /* TODO:
-     *  Copy the rest of window-specific hints to window attributes
-     * */
-
     /* create window object */
     if (!lib->platform.window_create(lib, win, width, height, title)) {
         free(win);
         return (0);
     }
 
-    /* perform attributes roundtrip */
+    /* copy 'lib' hints to 'win' attributes... */
+    win->attr.resize = lib->hints.window.resize;
+    win->attr.decorations = lib->hints.window.decorations;
+
+    /* ...and perform attributes roundtrip */
     if (!lib->platform.window_set_attribute(lib, win)) {
         free(win);
         return (0);
     }
+
+    /* set this 'win' cursor visibility and mode based on 'lib' hints */
+    win_cursor_set_visible(lib, win, lib->hints.cursor.visible);
+    win_cursor_set_mode(lib, win, lib->hints.cursor.mode);
 
     /* add the result to the 'lib->window.list' linked list */
     win->next = lib->window.list;
@@ -10258,11 +10361,29 @@ WINDEF int win_window_get_attribute(library_t library, window_t window, const ui
 
     /* return the 'attrib' */
     switch (attrib) {
+        /* client API hints */
         case (WINDOW_CLIENT_API): { if (ptr) { *ptr = win->attr.api; } } break;
-        case (WINDOW_CLIENT_RESIZE): { if (ptr) { *ptr = win->attr.resize; } } break;
-        case (WINDOW_CLIENT_MINIMIZED): { if (ptr) { *ptr = win->attr.minimized; } } break;
-        case (WINDOW_CLIENT_MAXIMIZED): { if (ptr) { *ptr = win->attr.maximized; } } break;
-        case (WINDOW_CLIENT_FULLSCREEN): { if (ptr) { *ptr = win->attr.fullscreen; } } break;
+        
+        /* client window hints */
+        case (WINDOW_CLIENT_RESIZE): {
+            if (ptr) { *ptr = win->attr.resize; }
+        } break;
+        
+        case (WINDOW_CLIENT_MINIMIZED): {
+            if (ptr) { *ptr = win->attr.minimized; }
+        } break;
+        
+        case (WINDOW_CLIENT_MAXIMIZED): {
+            if (ptr) { *ptr = win->attr.maximized; }
+        } break;
+        
+        case (WINDOW_CLIENT_FULLSCREEN): {
+            if (ptr) { *ptr = win->attr.fullscreen; }
+        } break;
+        
+        case (WINDOW_CLIENT_DECORATIONS): {
+            if (ptr) { *ptr = win->attr.decorations; }
+        } break;
 
         default: { return (0); }
     }
@@ -10499,6 +10620,7 @@ WINDEF int win_context_get_attribute(library_t library, context_t context, const
 
     /* return the 'attrib' */
     switch (attrib) {
+        /* client API hints */
         case (WINDOW_CLIENT_API): { if (ptr) { *ptr = ctx->attr.api; } } break;
 
         default: { return (0); }
