@@ -13,7 +13,7 @@ int main(void) {
 
     /* create window */
     window_t window = 0;
-    win_window_create(library, &window, 800, 600, "Hello, window.h - Sample 01. Basic");
+    win_window_create(library, &window, 800, 600, "Hello, window.h - X11 sample");
     if (!window) { win_quit(library); return (1); }
 
     /* create context */
@@ -34,19 +34,6 @@ int main(void) {
                 case (WINDOW_EVENT_QUIT): {
                     printf("WINDOW_EVENT_QUIT\n");
                     exit = 1;
-                } break;
-
-                case (WINDOW_EVENT_KEYBOARD_KEY): {
-                    if (event.keyboard.keycode == WINDOW_KEYCODE_N) {
-                        win_cursor_set_mode(library, window, WINDOW_CURSOR_MODE_NORMAL);
-                    }
-                    else if (event.keyboard.keycode == WINDOW_KEYCODE_L) {
-                        win_cursor_set_mode(library, window, WINDOW_CURSOR_MODE_CENTERED);
-                    }
-                } break;
-
-                case (WINDOW_EVENT_MOUSE_MOTION): {
-                    printf("motion: %d %d\n", event.mouse.motion.x, event.mouse.motion.y);
                 } break;
             }
         }

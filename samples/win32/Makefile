@@ -12,7 +12,7 @@ CC = x86_64-w64-mingw32-gcc
 CFLAGS = -Wall -Wextra -Werror -std=c99 -ggdb3
 
 # linker files
-LFLAGS = -lopengl32 -lgdi32
+LFLAGS = -lopengl32
 
 # linker directories
 LDFLAGS = # ...
@@ -31,7 +31,7 @@ SRCS = # ...
 
 # ========
 
-TARGET = $(SRCS:.c=.out) 
+TARGET = $(SRCS:.c=.exe) 
 
 # ========
 

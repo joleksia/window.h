@@ -19,7 +19,7 @@ int main(void) {
 
     /* create window */
     window_t window = 0;
-    win_window_create(library, &window, 800, 600, "Hello, window.h - Sample 02. OpenGL");
+    win_window_create(library, &window, 800, 600, "Hello, window.h - Win32 sample - OpenGL Context");
     if (!window) { win_quit(library); return (1); }
 
     /* create context */
@@ -36,7 +36,6 @@ int main(void) {
     printf("- Vendor: %s\n", glGetString(GL_VENDOR));
     printf("- Version: %s\n", glGetString(GL_VERSION));
     printf("- Renderer: %s\n", glGetString(GL_RENDERER));
-    printf("- GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     /* update-render loop */
     int exit = 0;

@@ -26,6 +26,6 @@ remove :
 .PHONY : samples
 
 samples :
-	make -C $(MK_ROOT)samples/
+	make -C $(MK_ROOT)samples
 
 # ========

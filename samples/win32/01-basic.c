@@ -13,7 +13,7 @@ int main(void) {
 
     /* create window */
     window_t window = 0;
-    win_window_create(library, &window, 800, 600, "Hello, window.h - Sample 01. Basic");
+    win_window_create(library, &window, 800, 600, "Hello, window.h - Win32 sample");
     if (!window) { win_quit(library); return (1); }
 
     /* create context */
