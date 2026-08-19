@@ -10281,10 +10281,62 @@ WININT int __win_win32_copy(struct _window_h *lib, const uint32_t selection, con
     struct _window_h_win32 *win32 = lib->win32; 
     if (!win32) { return (0); }
 
-    /* ... */
-    (void) selection;
-    (void) data;
-    (void) size;
+    /* unsupported selections by win32... */
+    if (selection == WINDOW_SELECTION_PRIMARY ||
+        selection == WINDOW_SELECTION_SECONDARY
+    ) {
+        return (0);
+    }
+
+    /* get global selection data */
+    void  **d_ptr = &lib->selection.clipboard.data;
+    size_t *s_ptr = &lib->selection.clipboard.size;
+
+    /* alloc new clipboard 'object' */
+    HANDLE object = GlobalAlloc(GMEM_MOVEABLE, ((size + 1) / sizeof(char)) * sizeof(WCHAR));
+    if (!object) {
+        return (0);
+    }
+
+    /* new clipboard 'object' 'buffer' */
+    WCHAR *buffer = GlobalLock(object);
+    if (!buffer) {
+        GlobalFree(object);
+        return (0);
+    }
+
+    MultiByteToWideChar(CP_UTF8, 0, data, -1, buffer, (size + 1) / sizeof(char));
+    GlobalUnlock(object);
+
+    /* try to open clipboard */ 
+    int retry = 0;
+    while (!OpenClipboard(lib->win32->ipc)) {
+        Sleep(1);
+        retry++;
+
+        /* after 3 retries return error */
+        if (retry >= 3) {
+            GlobalFree(object);
+            return (0);
+        }
+    }
+
+    /* empty and set new clipboard data */
+    EmptyClipboard();
+    SetClipboardData(CF_UNICODETEXT, object);
+
+    /* and store 'data' and 'size' in global selection */
+    free(*d_ptr);
+    *d_ptr = calloc(size + 1, sizeof(char));
+    *d_ptr = memcpy(*d_ptr, data, size);
+    *s_ptr = size;
+
+    /* operation finished: close clipboard */
+    CloseClipboard();
+    
+    /* send 'copy' event */
+    win_event_send(lib, 0, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
+                                                           lib->selection.clipboard.size);
 
     /* success */
     return (1);
@@ -10299,10 +10351,63 @@ WININT int __win_win32_paste(struct _window_h *lib, const uint32_t selection, vo
     struct _window_h_win32 *win32 = lib->win32; 
     if (!win32) { return (0); }
 
-    /* ... */
-    (void) selection;
-    (void) d_ptr;
-    (void) s_ptr;
+    /* unsupported selections by win32... */
+    if (selection == WINDOW_SELECTION_PRIMARY ||
+        selection == WINDOW_SELECTION_SECONDARY
+    ) {
+        return (0);
+    }
+
+    /* get global selection data */
+    void  **data = &lib->selection.clipboard.data;
+    size_t *size = &lib->selection.clipboard.size;
+
+    /* try to open clipboard */ 
+    int retry = 0;
+    while (!OpenClipboard(lib->win32->ipc)) {
+        Sleep(1);
+        retry++;
+
+        /* after 3 retries return error */
+        if (retry >= 3) {
+            return (0);
+        }
+    }
+
+    /* get clipboard data 'object' */
+    HANDLE object = GetClipboardData(CF_UNICODETEXT);
+    if (!object) {
+        CloseClipboard();
+        return (0);
+    }
+
+    WCHAR *buffer = GlobalLock(object);
+    if (!buffer) {
+        CloseClipboard();
+        return (0);
+    }
+
+    /* check if 'buffer' has any data in it */
+    size_t bsize = wcstombs(0, buffer, 0);
+    if (bsize) {
+        /* if so, proceed to 'paste' */
+        free(*data);
+        *size = bsize;
+        *data = calloc(*size + 1, sizeof(char));
+        wcstombs(*data, buffer, *size + 1);
+
+        /* and return the result */
+        *d_ptr = *data;
+        *s_ptr = *size;
+    }
+
+    /* operation finished: close clipboard */
+    GlobalUnlock(buffer);
+    CloseClipboard();
+    
+    /* send 'paste' event */
+    win_event_send(lib, 0, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
+                                                          lib->selection.clipboard.size);
 
     /* success */
     return (1);
@@ -11490,6 +11595,12 @@ WININT int __win_platform_load(struct _window_h *library, struct _window_h_platf
     /* event functions */
 
     platform->event_poll = __win_win32_event_poll;
+    platform->event_wait = __win_win32_event_wait;
+
+    /* clipboard functions */
+    
+    platform->copy = __win_win32_copy;
+    platform->paste = __win_win32_paste;
 
 # else
 # endif
