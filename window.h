@@ -7060,21 +7060,13 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
             win_event_send(lib, win, WINDOW_EVENT_WINDOW_UNMAP, win, 0, 0); 
         } break;
 
-        /* TODO:
-         *  When launched, app doesn't set 'win->attr.focused' to '1' if the window was already focused
-         * */
-        case (EnterNotify): {
+        case (FocusIn):
+        case (FocusOut): {
             /* update attribute */
-            win->attr.focused = 1;
+            win->attr.focused = (xevent->type == FocusIn ? 1 : 0);
 
-            win_event_send(lib, win, WINDOW_EVENT_WINDOW_ENTER, win, 0, 0); 
-        } break;
-
-        case (LeaveNotify): {
-            /* update attribute */
-            win->attr.focused = 0;
-
-            win_event_send(lib, win, WINDOW_EVENT_WINDOW_LEAVE, win, 0, 0);
+            win_event_send(lib, win, win->attr.focused ? WINDOW_EVENT_WINDOW_ENTER :
+                                                         WINDOW_EVENT_WINDOW_LEAVE, 0, 0); 
         } break;
 
         case (ConfigureNotify): {
