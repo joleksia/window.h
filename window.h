@@ -219,6 +219,12 @@
 #
 # include <stddef.h>
 # include <stdint.h>
+#
+# if defined (__cplusplus)
+
+extern "C" {
+
+# endif
 
 /* inputs */
 
@@ -1039,6 +1045,12 @@ WINDEF uint64_t win_time_get(void);
 
 WINDEF int win_time_wait(uint64_t);
 
+# if defined (__cplusplus)
+
+}
+
+# endif
+#
 #endif /* _window_h_ */
 #
 #if defined (WINDOW_IMPLEMENTATION)
@@ -1089,6 +1101,12 @@ WINDEF int win_time_wait(uint64_t);
 #
 # else
 #  error /* invalid backend */
+# endif
+#
+# if defined (__cplusplus)
+
+extern "C" {
+
 # endif
 
 /* window.h definition layer */
@@ -11755,4 +11773,10 @@ WININT int __win_platform_load(struct _window_h *library, struct _window_h_platf
 
 /* }}} */
 
+# if defined (__cplusplus)
+
+}
+
+# endif
+#
 #endif /* WINDOW_IMPLEMENTATION */
