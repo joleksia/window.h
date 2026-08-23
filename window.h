@@ -477,9 +477,9 @@ enum {
     WINDOW_KEYCODE_RIGHTALT = 0x00e6,
     WINDOW_KEYCODE_RIGHTGUI = 0x00e7,
 
-/* }}} */
-
     /* 0x00e8 - 0xffff: reserved */
+
+/* }}} */
 
     /* ... */
 
@@ -652,6 +652,8 @@ enum {
 
 /* }}} */
 
+    /* ... */
+
 };
 
 
@@ -659,6 +661,8 @@ enum {
  * */
 enum {
     WINDOW_KEYMOD_NONE = 0x0000,
+
+/* {{{ */
     
     WINDOW_KEYMOD_LEFTCTRL = 0x0001,
     WINDOW_KEYMOD_LEFTSHIFT = 0x0002,
@@ -680,6 +684,8 @@ enum {
     WINDOW_KEYMOD_ALT = (WINDOW_KEYMOD_LEFTALT | WINDOW_KEYMOD_RIGHTALT),
     WINDOW_KEYMOD_GUI = (WINDOW_KEYMOD_LEFTGUI | WINDOW_KEYMOD_RIGHTGUI),
     
+/* }}} */
+
     /* ... */
 
 };
@@ -688,8 +694,9 @@ enum {
 /* Event masks
  * */
 enum {
-
     WINDOW_EVENT_NONE = 0,
+
+/* {{{ */
 
     WINDOW_EVENT_QUIT = 0x1000,
     
@@ -731,13 +738,20 @@ enum {
     /* ... */
 
     WINDOW_EVENT_USER = 0xf000,
+    
+/* }}} */
+
+    /* ... */
+
 };
 
 
 /* Client API configuration 
  * */
 enum {
-    
+   
+/* {{{ */
+
     WINDOW_CLIENT_API = 0x1000,
     WINDOW_API_NATIVE = 0x1001,
     WINDOW_API_OPENGL = 0x1002,
@@ -745,6 +759,8 @@ enum {
     WINDOW_API_VULKAN = 0x1004,
     WINDOW_API_DIRECTX = 0x1005,
     WINDOW_API_METAL = 0x1006,
+
+/* }}} */
 
     /* ... */
 
@@ -754,6 +770,8 @@ enum {
 /* Client window configuration 
  * */
 enum {
+   
+/* {{{ */
 
     /* - if 0: window should not resize
      * - if 1: window should resize
@@ -780,6 +798,8 @@ enum {
      * */
     WINDOW_CLIENT_DECORATIONS = 0x2005,
 
+/* }}} */
+
     /* ... */
 
 };
@@ -788,6 +808,8 @@ enum {
 /* Client OpenGL configuration 
  * */
 enum {
+
+/* {{{ */
 
     /* config configuration */
     WINDOW_GL_RED = 0x3001,
@@ -805,6 +827,8 @@ enum {
     
     WINDOW_GL_CONTEXT_VERSION_MAJOR = 0x3102,
     WINDOW_GL_CONTEXT_VERSION_MINOR = 0x3103,
+
+/* }}} */
     
     /* ... */
 };
@@ -813,9 +837,14 @@ enum {
 /* Cursor movement configuration
  * */
 enum {
+
+/* {{{ */
+
     WINDOW_CURSOR_NORMAL = 0,
     WINDOW_CURSOR_CAPTURED,
     WINDOW_CURSOR_CENTERED,
+
+/* }}} */
 
 };
 
@@ -823,9 +852,14 @@ enum {
 /* Client selections
  * */
 enum {
+
+/* {{{ */
+
     WINDOW_SELECTION_PRIMARY = 1,
     WINDOW_SELECTION_SECONDARY,
     WINDOW_SELECTION_CLIPBOARD
+
+/* }}} */
 };
 
 
@@ -841,103 +875,83 @@ typedef void *context_t;
 typedef void *cursor_t;
 
 
-typedef struct event_common_s event_common_t;
-
-struct event_common_s {
-    uint32_t type;
-    uint64_t time;
-    window_t window;
-};
-
-
-typedef struct event_quit_s event_quit_t;
-
-struct event_quit_s {
-    uint32_t type;
-    uint64_t time;
-    window_t window;
-};
-
-
-typedef struct event_mouse_s event_mouse_t;
-
-struct event_mouse_s {
-    uint32_t type;
-    uint64_t time;
-    window_t window;
-
-    struct {
-        int32_t x;
-        int32_t y;
-    } motion;
-
-    struct {
-        uint8_t btn;
-        uint8_t state;
-    } input;
-
-    struct {
-        int32_t x;
-        int32_t y;
-    } scroll;
-};
-
-
-typedef struct event_keyboard_s event_keyboard_t;
-
-struct event_keyboard_s {
-    uint32_t type;
-    uint64_t time;
-    window_t window;
-    
-    uint32_t keysym;
-    uint32_t keycode;
-    uint32_t keymod;
-    uint32_t keyraw;
-    uint8_t  state;
-    uint8_t  repeat;
-};
-
-
-typedef struct event_window_s event_window_t;
-
-struct event_window_s {
-    uint32_t type;
-    uint64_t time;
-    window_t window;
-
-    uint32_t data1;
-    uint32_t data2;
-};
-
-
-typedef struct event_selection_s event_selection_t;
-
-struct event_selection_s {
-    uint32_t type;
-    uint64_t time;
-    window_t window;
-
-    void  *data;
-    size_t size;
-    uint32_t selection;
-};
-
-
 typedef union event_u event_t;
 
 union event_u {
-    uint32_t type;
-    event_common_t      common;
-    event_quit_t        quit;
-    event_mouse_t       mouse;
-    event_keyboard_t    keyboard;
-    event_window_t      window;
-    event_selection_t   clipboard;
+    uint64_t type;
+    
+    struct {
+        uint64_t type;
+        uint64_t time;
+        window_t window;
+    } common;
+    
+    struct {
+        uint64_t type;
+        uint64_t time;
+        window_t window;
+    } quit;
+
+    struct {
+        uint64_t type;
+        uint64_t time;
+        window_t window;
+
+        struct {
+            int32_t x;
+            int32_t y;
+        } motion;
+
+        struct {
+            uint8_t btn;
+            uint8_t state;
+        } input;
+
+        struct {
+            int32_t x;
+            int32_t y;
+        } scroll;
+    } mouse;
+
+    struct {
+        uint64_t type;
+        uint64_t time;
+        window_t window;
+
+        struct {
+            uint32_t sym;
+            uint32_t code;
+            uint32_t mod;
+            uint32_t raw;
+        } key;        
+        
+        uint8_t  state;
+        uint8_t  repeat;
+    } keyboard;
+
+    struct {
+        uint64_t type;
+        uint64_t time;
+        window_t window;
+
+        uint32_t data1;
+        uint32_t data2;
+    } window;
+
+    struct {
+        uint64_t type;
+        uint64_t time;
+        window_t window;
+
+        uint8_t *data;
+        uint64_t size;
+        uint32_t selection;
+    } selection;
 };
 
 
 /* library functions */
+/* {{{ */
 
 WINDEF int win_init(library_t *);
 
@@ -945,7 +959,10 @@ WINDEF int win_quit(library_t);
 
 WINDEF int win_set_hints(library_t, const uint32_t, const int32_t);
 
+/* }}} */
+
 /* windowing functions */
+/* {{{ */
 
 WINDEF int win_window_create(library_t, window_t *, const size_t, const size_t, const char *);
 
@@ -981,7 +998,10 @@ WINDEF int win_window_get_cursor(library_t, window_t, cursor_t *);
 
 WINDEF int win_window_set_cursor(library_t, window_t, cursor_t);
 
+/* }}} */
+
 /* context functions */
+/* {{{ */
 
 WINDEF int win_context_create(library_t, context_t *, window_t);
 
@@ -991,7 +1011,10 @@ WINDEF int win_context_get_window(library_t, context_t, window_t *);
 
 WINDEF int win_context_get_attribute(library_t, context_t, const uint32_t, uint32_t *);
 
+/* }}} */
+
 /* opengl context functions */
+/* {{{ */
 
 WINDEF int win_gl_make_current(library_t, context_t);
 
@@ -1001,7 +1024,10 @@ WINDEF int win_gl_swap_interval(library_t, context_t, const int);
 
 WINDEF void *win_gl_get_proc_address(const char *);
 
+/* }}} */
+
 /* cursor functions */
+/* {{{ */
 
 WINDEF int win_cursor_create(library_t, cursor_t *, const uint8_t *, const size_t, const size_t, const int, const int);
 
@@ -1019,7 +1045,10 @@ WINDEF int win_cursor_get_mode(library_t, window_t, uint32_t *);
 
 WINDEF int win_cursor_set_mode(library_t, window_t, const uint32_t);
 
+/* }}} */
+
 /* event functions */
+/* {{{ */
 
 WINDEF int win_event_poll(library_t, event_t *);
 
@@ -1033,17 +1062,25 @@ WINDEF int win_event_send(library_t, window_t, uint32_t, ...);
 
 WINDEF int win_event_head(library_t, event_t *);
 
+/* }}} */
+
 /* clipboard functions */
+/* {{{ */
 
-WINDEF int win_copy(library_t, const uint32_t, const void *, const size_t);
+WINDEF int win_copy(library_t, const uint32_t, const uint8_t *, const uint64_t);
 
-WINDEF int win_paste(library_t, const uint32_t, void **, size_t *);
+WINDEF int win_paste(library_t, const uint32_t, uint8_t **, uint64_t *);
+
+/* }}} */
 
 /* timing functions */
+/* {{{ */
 
 WINDEF uint64_t win_time_get(void);
 
 WINDEF int win_time_wait(uint64_t);
+
+/* }}} */
 
 # if defined (__cplusplus)
 
@@ -1142,25 +1179,25 @@ struct _window_h;
 
 
 struct _window_h_event {
-    void *next;
+    struct _window_h_event *next;
     event_t event;
 };
 
 
 struct _window_h_selection {
     struct {
-        void  *data;
-        size_t size;
+        uint8_t *data;
+        uint64_t size;
     } primary;
     
     struct {
-        void  *data;
-        size_t size;
+        uint8_t *data;
+        uint64_t size;
     } secondary;
     
     struct {
-        void  *data;
-        size_t size;
+        uint8_t *data;
+        uint64_t size;
     } clipboard;
 };
 
@@ -1219,8 +1256,8 @@ struct _window_h_platform {
 
     /* clipboard functions */
 
-    int (*copy) (struct _window_h *, const uint32_t, const void *, const size_t);
-    int (*paste) (struct _window_h *, const uint32_t, void **, size_t *);
+    int (*copy) (struct _window_h *, const uint32_t, const uint8_t *, const uint64_t);
+    int (*paste) (struct _window_h *, const uint32_t, uint8_t **, uint64_t *);
 
     /* opengl context functions */
 
@@ -6303,7 +6340,7 @@ WININT int __win_wgl_load(struct _window_h *lib) {
     {
         const char *names[] = { "opengl32.dll", 0 };
         for (const char **name = names; *name; name++) {
-            opengl32 = lib->platform.dlopen(*name);
+            opengl32 = (HMODULE) lib->platform.dlopen(*name);
             if (opengl32) { break; }
         }
 
@@ -6943,9 +6980,9 @@ static const struct _window_h_keymap _window_h_keymap_en_us_qwerty[] = {
 
 WININT int __win_x11_event_process(struct _window_h *, XEvent *);
 
-WININT int __win_x11_selection_get(struct _window_h *, const Atom, void **, size_t *);
+WININT int __win_x11_selection_get(struct _window_h *, const Atom, uint8_t **, uint64_t *);
 
-WININT int __win_x11_selection_set(struct _window_h *, const Atom, const void *, const size_t);
+WININT int __win_x11_selection_set(struct _window_h *, const Atom, const uint8_t *, const uint64_t);
 
 WININT int __win_x11_selection_handle(struct _window_h *, XEvent *);
 
@@ -7011,9 +7048,9 @@ WININT int __win_x11_event_poll(struct _window_h *);
 
 WININT int __win_x11_event_wait(struct _window_h *);
 
-WININT int __win_x11_copy(struct _window_h *, const uint32_t, const void *, const size_t);
+WININT int __win_x11_copy(struct _window_h *, const uint32_t, const uint8_t *, const uint64_t);
 
-WININT int __win_x11_paste(struct _window_h *, const uint32_t, void **, size_t *);
+WININT int __win_x11_paste(struct _window_h *, const uint32_t, uint8_t **, uint64_t *);
 
 /* internal functions (definitions) */
 
@@ -7279,16 +7316,54 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
         case (SelectionRequest): {
             /* process selections */
             if (__win_x11_selection_handle(lib, xevent)) {
-                win_event_send(lib, win, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
-                                                                       lib->selection.clipboard.size);
+                /* get selection data */
+                uint8_t *data = 0;
+                uint64_t size = 0;
+                uint32_t selection = 0;
+                if (selection == XA_PRIMARY) {
+                    data = lib->selection.primary.data;
+                    size = lib->selection.primary.size;
+                    selection = WINDOW_SELECTION_PRIMARY;
+                }
+                else if (selection == XA_SECONDARY) {
+                    data = lib->selection.secondary.data;
+                    size = lib->selection.secondary.size;
+                    selection = WINDOW_SELECTION_SECONDARY;
+                }
+                else if (selection == lib->x11->CLIPBOARD) {
+                    data = lib->selection.clipboard.data;
+                    size = lib->selection.clipboard.size;
+                    selection = WINDOW_SELECTION_CLIPBOARD;
+                }
+
+                win_event_send(lib, win, WINDOW_EVENT_SELECTION_WRITE, data, size, selection);
             }
         } break;
 
         case (SelectionNotify): {
             /* process selections */
             if (__win_x11_selection_handle(lib, xevent)) {
-                win_event_send(lib, win, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
-                                                                      lib->selection.clipboard.size);
+                /* get selection data */
+                uint8_t *data = 0;
+                uint64_t size = 0;
+                uint32_t selection = 0;
+                if (selection == XA_PRIMARY) {
+                    data = lib->selection.primary.data;
+                    size = lib->selection.primary.size;
+                    selection = WINDOW_SELECTION_PRIMARY;
+                }
+                else if (selection == XA_SECONDARY) {
+                    data = lib->selection.secondary.data;
+                    size = lib->selection.secondary.size;
+                    selection = WINDOW_SELECTION_SECONDARY;
+                }
+                else if (selection == lib->x11->CLIPBOARD) {
+                    data = lib->selection.clipboard.data;
+                    size = lib->selection.clipboard.size;
+                    selection = WINDOW_SELECTION_CLIPBOARD;
+                }
+
+                win_event_send(lib, win, WINDOW_EVENT_SELECTION_READ, data, size, selection);
             }
         } break;
 
@@ -7299,7 +7374,7 @@ WININT int __win_x11_event_process(struct _window_h *lib, XEvent *xevent) {
     return (1);
 }
 
-WININT int __win_x11_selection_get(struct _window_h *lib, const Atom selection, void **d_ptr, size_t *s_ptr) {
+WININT int __win_x11_selection_get(struct _window_h *lib, const Atom selection, uint8_t **d_ptr, uint64_t *s_ptr) {
     /* null-check */
     if (!lib) { return (0); }
 
@@ -7312,8 +7387,8 @@ WININT int __win_x11_selection_get(struct _window_h *lib, const Atom selection, 
     Atom UTF8_STRING = lib->x11->UTF8_STRING;
 
     /* get globally-stored selection data */
-    void  **data = 0;
-    size_t *size = 0;
+    uint8_t **data = 0;
+    uint64_t *size = 0;
     if (selection == XA_PRIMARY) {
         data = &lib->selection.primary.data;
         size = &lib->selection.primary.size;
@@ -7331,8 +7406,8 @@ WININT int __win_x11_selection_get(struct _window_h *lib, const Atom selection, 
     /* check if we're the 'selection' owner */
     if (XGetSelectionOwner(dpy, selection) == ipc) {
         /* if so, save some time and straight-up return the string */
-        *d_ptr = calloc(*size + 1, sizeof(char));
-        *d_ptr = memcpy(*d_ptr, *data, *size);
+        *d_ptr = (uint8_t *) calloc(*size + 1, sizeof(uint8_t));
+        *d_ptr = (uint8_t *) memcpy(*d_ptr, *data, *size);
         *s_ptr = *size;
         return (1);
     }
@@ -7362,8 +7437,8 @@ WININT int __win_x11_selection_get(struct _window_h *lib, const Atom selection, 
 
     /* copy the selection data to 'str' */
     if (!*data) { return (0); }
-    *d_ptr = calloc(*size + 1, sizeof(char));
-    *d_ptr = memcpy(*d_ptr, *data, *size);
+    *d_ptr = (uint8_t *) calloc(*size + 1, sizeof(uint8_t));
+    *d_ptr = (uint8_t *) memcpy(*d_ptr, *data, *size);
     *s_ptr = *size;
 
     /* success */
@@ -7371,7 +7446,7 @@ WININT int __win_x11_selection_get(struct _window_h *lib, const Atom selection, 
 }
 
 
-WININT int __win_x11_selection_set(struct _window_h *lib, const Atom selection, const void *data, const size_t size) {
+WININT int __win_x11_selection_set(struct _window_h *lib, const Atom selection, const uint8_t *data, const uint64_t size) {
     /* null-check */
     if (!lib) { return (0); }
     
@@ -7385,20 +7460,20 @@ WININT int __win_x11_selection_set(struct _window_h *lib, const Atom selection, 
     /* set globally-stored selection data */
     if (selection == XA_PRIMARY) {
         free(lib->selection.primary.data);
-        lib->selection.primary.data = malloc(size);
-        lib->selection.primary.data = memcpy(lib->selection.primary.data, data, size);
+        lib->selection.primary.data = (uint8_t *) malloc(size);
+        lib->selection.primary.data = (uint8_t *) memcpy(lib->selection.primary.data, data, size);
         lib->selection.primary.size = size;
     }
     else if (selection == XA_SECONDARY) {
         free(lib->selection.secondary.data);
-        lib->selection.secondary.data = malloc(size);
-        lib->selection.secondary.data = memcpy(lib->selection.secondary.data, data, size);
+        lib->selection.secondary.data = (uint8_t *) malloc(size);
+        lib->selection.secondary.data = (uint8_t *) memcpy(lib->selection.secondary.data, data, size);
         lib->selection.secondary.size = size;
     }
     else if (selection == CLIPBOARD) {
         free(lib->selection.clipboard.data);
-        lib->selection.clipboard.data = malloc(size);
-        lib->selection.clipboard.data = memcpy(lib->selection.clipboard.data, data, size);
+        lib->selection.clipboard.data = (uint8_t *) malloc(size);
+        lib->selection.clipboard.data = (uint8_t *) memcpy(lib->selection.clipboard.data, data, size);
         lib->selection.clipboard.size = size;
     }
     else { return (0); }
@@ -7510,8 +7585,8 @@ WININT int __win_x11_selection_handle(struct _window_h *lib, XEvent *xevent) {
             if (notify.property == None) { return (0); }
             
             /* get the proper selection string */
-            void  **data = 0;
-            size_t *size = 0;
+            uint8_t **data = 0;
+            uint64_t *size = 0;
             if (notify.selection== XA_PRIMARY) {
                 data = &lib->selection.primary.data;
                 size = &lib->selection.primary.size;
@@ -7545,8 +7620,8 @@ WININT int __win_x11_selection_handle(struct _window_h *lib, XEvent *xevent) {
                 actual_type_return == XA_STRING
             ) {
                 if (*data) { free(*data); }
-                *data = (char *) prop_return;
-                *size = (size_t) nitems_return;
+                *data = prop_return;
+                *size = nitems_return;
                 result = 1;
             }
 
@@ -8978,7 +9053,7 @@ WININT int __win_x11_event_wait(struct _window_h *lib) {
 }
 
 
-WININT int __win_x11_copy(struct _window_h *lib, const uint32_t selection, const void *data, const size_t size) {
+WININT int __win_x11_copy(struct _window_h *lib, const uint32_t selection, const uint8_t *data, const uint64_t size) {
     /* null-check */
     if (!lib) { return (0); }
     
@@ -9001,7 +9076,7 @@ WININT int __win_x11_copy(struct _window_h *lib, const uint32_t selection, const
 }
 
 
-WININT int __win_x11_paste(struct _window_h *lib, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
+WININT int __win_x11_paste(struct _window_h *lib, const uint32_t selection, uint8_t **d_ptr, uint64_t *s_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     
@@ -9459,9 +9534,9 @@ WININT int __win_win32_event_poll(struct _window_h *);
 
 WININT int __win_win32_event_wait(struct _window_h *);
 
-WININT int __win_win32_copy(struct _window_h *, const uint32_t, const void *, const size_t);
+WININT int __win_win32_copy(struct _window_h *, const uint32_t, const uint8_t *, const uint64_t);
 
-WININT int __win_win32_paste(struct _window_h *, const uint32_t, void **, size_t *);
+WININT int __win_win32_paste(struct _window_h *, const uint32_t, uint8_t **, uint64_t *);
 
 /* internal functions (definitions) */
 
@@ -10335,7 +10410,7 @@ WININT int __win_win32_event_wait(struct _window_h *lib) {
 }
 
 
-WININT int __win_win32_copy(struct _window_h *lib, const uint32_t selection, const void *data, const size_t size) {
+WININT int __win_win32_copy(struct _window_h *lib, const uint32_t selection, const uint8_t *data, const uint64_t size) {
     /* null-check */
     if (!lib) { return (0); }
     
@@ -10351,8 +10426,8 @@ WININT int __win_win32_copy(struct _window_h *lib, const uint32_t selection, con
     }
 
     /* get global selection data */
-    void  **d_ptr = &lib->selection.clipboard.data;
-    size_t *s_ptr = &lib->selection.clipboard.size;
+    uint8_t **d_ptr = &lib->selection.clipboard.data;
+    uint64_t *s_ptr = &lib->selection.clipboard.size;
 
     /* alloc new clipboard 'object' */
     HANDLE object = GlobalAlloc(GMEM_MOVEABLE, ((size + 1) / sizeof(char)) * sizeof(WCHAR));
@@ -10389,23 +10464,22 @@ WININT int __win_win32_copy(struct _window_h *lib, const uint32_t selection, con
 
     /* and store 'data' and 'size' in global selection */
     free(*d_ptr);
-    *d_ptr = calloc(size + 1, sizeof(char));
-    *d_ptr = memcpy(*d_ptr, data, size);
+    *d_ptr = (uint8_t *) calloc(size + 1, sizeof(char));
+    *d_ptr = (uint8_t *) memcpy(*d_ptr, data, size);
     *s_ptr = size;
 
     /* operation finished: close clipboard */
     CloseClipboard();
     
     /* send 'copy' event */
-    win_event_send(lib, 0, WINDOW_EVENT_SELECTION_WRITE, lib->selection.clipboard.data,
-                                                           lib->selection.clipboard.size);
+    win_event_send(lib, 0, WINDOW_EVENT_SELECTION_WRITE, *d_ptr, *s_ptr, WINDOW_SELECTION_CLIPBOARD); 
 
     /* success */
     return (1);
 }
 
 
-WININT int __win_win32_paste(struct _window_h *lib, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
+WININT int __win_win32_paste(struct _window_h *lib, const uint32_t selection, uint8_t **d_ptr, uint64_t *s_ptr) {
     /* null-check */
     if (!lib) { return (0); }
     
@@ -10421,8 +10495,8 @@ WININT int __win_win32_paste(struct _window_h *lib, const uint32_t selection, vo
     }
 
     /* get global selection data */
-    void  **data = &lib->selection.clipboard.data;
-    size_t *size = &lib->selection.clipboard.size;
+    uint8_t **data = &lib->selection.clipboard.data;
+    uint64_t *size = &lib->selection.clipboard.size;
 
     /* try to open clipboard */ 
     int retry = 0;
@@ -10454,8 +10528,8 @@ WININT int __win_win32_paste(struct _window_h *lib, const uint32_t selection, vo
     if (bsize) {
         /* if so, proceed to 'paste' */
         free(*data);
-        *size = bsize;
-        *data = calloc(*size + 1, sizeof(char));
+        *size = (uint64_t) bsize;
+        *data = (uint8_t *) calloc(*size + 1, sizeof(char));
         wcstombs((char *) *data, buffer, *size + 1);
 
         /* and return the result */
@@ -10468,8 +10542,7 @@ WININT int __win_win32_paste(struct _window_h *lib, const uint32_t selection, vo
     CloseClipboard();
     
     /* send 'paste' event */
-    win_event_send(lib, 0, WINDOW_EVENT_SELECTION_READ, lib->selection.clipboard.data,
-                                                          lib->selection.clipboard.size);
+    win_event_send(lib, 0, WINDOW_EVENT_SELECTION_READ, *d_ptr, *s_ptr, WINDOW_SELECTION_CLIPBOARD);
 
     /* success */
     return (1);
@@ -11478,8 +11551,8 @@ WINDEF int win_event_send(library_t library, window_t window, uint32_t type, ...
         } break;
 
         case (WINDOW_EVENT_MOUSE_BUTTON): {
-            event.mouse.input.btn   = va_arg(list, int);
-            event.mouse.input.state = va_arg(list, int);
+            event.mouse.input.btn   = va_arg(list, int32_t);
+            event.mouse.input.state = va_arg(list, int32_t);
         } break;
 
         case (WINDOW_EVENT_MOUSE_SCROLL): {
@@ -11490,10 +11563,10 @@ WINDEF int win_event_send(library_t library, window_t window, uint32_t type, ...
         /* Keyboard events */
 
         case (WINDOW_EVENT_KEYBOARD_KEY): {
-            event.keyboard.keysym  = va_arg(list, uint64_t);
-            event.keyboard.keycode = va_arg(list, uint32_t);
-            event.keyboard.keymod  = va_arg(list, uint32_t);
-            event.keyboard.keyraw  = va_arg(list, uint32_t);
+            event.keyboard.key.sym  = va_arg(list, uint32_t);
+            event.keyboard.key.code = va_arg(list, uint32_t);
+            event.keyboard.key.mod  = va_arg(list, uint32_t);
+            event.keyboard.key.raw  = va_arg(list, uint32_t);
             event.keyboard.state   = va_arg(list, uint32_t);
             event.keyboard.repeat  = va_arg(list, uint32_t);
         } break;
@@ -11517,8 +11590,9 @@ WINDEF int win_event_send(library_t library, window_t window, uint32_t type, ...
 
         case (WINDOW_EVENT_SELECTION_COPY):
         case (WINDOW_EVENT_SELECTION_PASTE): {
-            event.clipboard.data = va_arg(list, void *);
-            event.clipboard.size = va_arg(list, size_t);
+            event.selection.data = va_arg(list, uint8_t *);
+            event.selection.size = va_arg(list, uint64_t);
+            event.selection.selection = va_arg(list, uint32_t);
         } break;
 
         /* ... */
@@ -11550,7 +11624,7 @@ WINDEF int win_event_head(library_t library, event_t *event) {
 
 /* clipboard functions */
 
-WINDEF int win_copy(library_t library, const uint32_t selection, const void *data, const size_t size) {
+WINDEF int win_copy(library_t library, const uint32_t selection, const uint8_t *data, const uint64_t size) {
     /* references */
     struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
@@ -11558,7 +11632,7 @@ WINDEF int win_copy(library_t library, const uint32_t selection, const void *dat
     return (lib->platform.copy(lib, selection, data, size));
 }
 
-WINDEF int win_paste(library_t library, const uint32_t selection, void **d_ptr, size_t *s_ptr) {
+WINDEF int win_paste(library_t library, const uint32_t selection, uint8_t **d_ptr, uint64_t *s_ptr) {
     /* references */
     struct _window_h *lib = (struct _window_h *) library;
     if (!lib) { return (0); }
