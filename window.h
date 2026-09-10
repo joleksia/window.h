@@ -1284,6 +1284,8 @@ struct _window_h_window_x11;
 
 struct _window_h_window_win32;
 
+struct _window_h_window_wl;
+
 struct _window_h_window {
 
     /* pointer to the 'next' node in linked-list of window */
@@ -1333,6 +1335,8 @@ struct _window_h_window {
 
     struct _window_h_window_win32 *win32;
 
+    struct _window_h_window_wl *wl;
+
 
     /* struct of window attributes */
     struct {
@@ -1372,6 +1376,8 @@ struct _window_h_context_x11;
 
 struct _window_h_context_win32;
 
+struct _window_h_context_wl;
+
 struct _window_h_context_egl;
 
 struct _window_h_context_wgl;
@@ -1396,6 +1402,9 @@ struct _window_h_context {
     /* WINDOW_API_NATIVE */
     struct _window_h_context_win32 *win32;
 
+    /* WINDOW_API_NATIVE */
+    struct _window_h_context_wl *wl;
+
     /* WINDOW_API_OPENGL */
     struct _window_h_context_glx *glx;
 
@@ -1412,6 +1421,8 @@ struct _window_h_cursor_x11;
 
 struct _window_h_cursor_win32;
 
+struct _window_h_cursor_wl;
+
 struct _window_h_cursor {
 
     /* pointer to the 'next' node in linked-list of cursor */
@@ -1425,12 +1436,16 @@ struct _window_h_cursor {
     struct _window_h_cursor_x11 *x11;
 
     struct _window_h_cursor_win32 *win32;
+
+    struct _window_h_cursor_wl *wl;
 };
 
 
 struct _window_h_x11;
 
 struct _window_h_win32;
+
+struct _window_h_wl;
 
 struct _window_h_glx;
 
@@ -1538,6 +1553,9 @@ struct _window_h {
 
     /* win32-implementation of window.h */
     struct _window_h_win32 *win32;
+
+    /* wayland-implementation of window.h */
+    struct _window_h_wl *wl;
 
     /* glx-implementation of window.h */
     struct _window_h_glx *glx;
@@ -5082,36 +5100,15 @@ struct _window_h_x11 {
 # if defined (WINDOW_BACKEND_WAYLAND)
 /* {{{ */
 
-struct _window_h_window_wl {
-    struct {
-    
-        /* ... */
-
-    } wl;
-
-    /* ... */
-
-};
+struct _window_h_window_wl { };
 
 
-struct _window_h_context_wl {
-    struct {
-    
-        /* ... */
-
-    } wl;
-
-    /* ... */
-
-};
+struct _window_h_context_wl { };
 
 
 struct _window_h_cursor_wl {
-    struct {
-    
-        /* ... */
-
-    } wl;
+    /* cursor handle */
+    struct wl_cursor *handle;
 };
 
 typedef struct _window_h_wl *_window_h_wl;
@@ -5120,13 +5117,14 @@ struct _window_h_wl {
     /* handle do shared object */
     void *handle;
 
-    struct {
-    
-        /* ... */
+    /* main connection handle */
+    struct wl_display *display;
 
-    } wl;
+    /* registry handle */
+    struct wl_registry *registry;
 
-    /* ... */
+    /* compositor handle */
+    struct wl_compositor *compositor;
 };
 
 /* }}} */
@@ -9105,31 +9103,149 @@ WININT int __win_x11_paste(struct _window_h *lib, const uint32_t selection, uint
 # if defined (WINDOW_BACKEND_WAYLAND)
 /* {{{ */
 
-/* internal functions (declarations) */
+/* window.h API (declarations) */
 
-WININT int __winLoadWayland(struct _window_h_wl *);
+WININT int __win_wl_init(struct _window_h *);
 
-WININT int __winUnloadWayland(struct _window_h_wl *);
+WININT int __win_wl_load(struct _window_h *);
 
-/* internal functions (definitions) */
+WININT int __win_wl_quit(struct _window_h *);
 
-WININT int __winLoadWayland(struct _window_h_wl *wl) {
+WININT int __win_wl_unload(struct _window_h *);
+
+WININT void *__win_wl_dlopen(const char *);
+
+WININT void *__win_wl_dlsym(void *, const char *);
+
+WININT int __win_wl_dlclose(void *);
+
+WININT int __win_wl_cursor_create(struct _window_h *, struct _window_h_cursor *, const uint8_t *, const size_t, const size_t, const int, const int);
+
+WININT int __win_wl_cursor_destroy(struct _window_h *, struct _window_h_cursor *);
+
+/* window.h API (declarations) */
+
+WININT int __win_wl_init(struct _window_h *lib) {
     /* null-check */
+    if (!lib) { return (0); }
+
+    /* references */
+    struct _window_h_wl *wl = lib->wl; 
     if (!wl) { return (0); }
+    
+    wl->display = wl_display_connect(0);
+    if (!wl->display) { return (0); }
 
-    /* try to load handle */
-    void *handle  = 0;
-    {
-        /* ... */
-    }
-
-    /* ... */
-
-    /* set 'wl->libwayland_client' member */ 
-    wl->libwayland_client = handle;
+    /* set the 'lib' members */
+    lib->handle = (void *) wl->display;
 
     /* success */
     return (1);
+}
+
+
+WININT int __win_wl_load(struct _window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* init-check */
+    struct _window_h_wl *wl = (struct _window_h_wl *) calloc(1, sizeof(struct _window_h_wl));
+    if (!wl) { return (0); }
+
+    /* return the result */
+    lib->wl = wl;
+    
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_wl_quit(struct _window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_wl_unload(struct _window_h *lib) {
+    /* null-check */
+    if (!lib) { return (0); }
+    
+    /* init-check */
+    struct _window_h_wl *wl = lib->wl;
+    if (!wl) { return (0); }
+
+    wl_display_disconnect(wl->display);
+
+    /* release X11 module */
+    if (wl->handle) { lib->platform.dlclose(wl->handle), wl->handle = 0; }
+
+    /* release 'wl' */
+    free(wl);
+
+    /* success */
+    return (1);
+}
+
+WININT int __win_wl_cursor_create(struct _window_h *lib, struct _window_h_cursor *cur, const uint8_t *data, const size_t width, const size_t height, const int xhot, const int yhot) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!cur) { return (0); }
+
+    /* alloc new 'wl' object */
+    struct _window_h_cursor_wl *wl = (struct _window_h_cursor_wl *) calloc(1, sizeof(struct _window_h_cursor_wl));
+    if (!wl) { return (0); }
+
+    /* create 'handle' */
+    /* ... */
+    (void) data;
+    (void) width; 
+    (void) height; 
+    (void) xhot; 
+    (void) yhot; 
+
+    /* return the result */
+    wl->handle = 0; 
+    cur->wl = wl;
+
+    /* set the 'cur' members */
+    cur->handle = (uint64_t) wl->handle;
+
+    /* success */
+    return (1);
+}
+
+
+WININT int __win_wl_cursor_destroy(struct _window_h *lib, struct _window_h_cursor *cur) {
+    /* null-check */
+    if (!lib) { return (0); }
+    if (!cur) { return (0); }
+
+    /* release 'cursor' */
+    /* ... */
+
+    /* release 'wl' */
+    free(cur->wl);
+
+    /* success */
+    return (1);
+}
+
+
+WININT void *__win_wl_dlopen(const char *path) {
+    return (dlopen(path, RTLD_LAZY | RTLD_LOCAL));
+}
+
+
+WININT void *__win_wl_dlsym(void *handle, const char *symbol) {
+    return (dlsym(handle, symbol));
+}
+
+
+WININT int __win_wl_dlclose(void *handle) {
+    return (dlclose(handle));
 }
 
 /* }}} */
@@ -11793,6 +11909,30 @@ WININT int __win_platform_load(struct _window_h *library, struct _window_h_platf
     
     platform->copy = __win_win32_copy;
     platform->paste = __win_win32_paste;
+
+# elif defined (WINDOW_BACKEND_WAYLAND)
+
+    /* select API function callbacks */
+    
+    platform->id = WINDOW_BACKEND_WAYLAND;
+    
+    /* library functions */
+
+    platform->init = __win_wl_init;
+    platform->load = __win_wl_load;
+    platform->quit = __win_wl_quit;
+    platform->unload = __win_wl_unload;
+
+    /* dynamic loaders */
+    
+    platform->dlopen = __win_wl_dlopen;
+    platform->dlsym = __win_wl_dlsym;
+    platform->dlclose = __win_wl_dlclose;
+    
+    /* cursor functions */
+
+    platform->cursor_create = __win_wl_cursor_create;
+    platform->cursor_destroy = __win_wl_cursor_destroy;
 
 # else
 # endif
