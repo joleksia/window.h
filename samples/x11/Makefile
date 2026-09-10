@@ -51,7 +51,7 @@ $(TARGET) : $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LFLAGS)
 
 $(OBJS) : %.o : %.c
-	$(CC) $(CFLAGS) -o $@ -c $< $(IFLAGS)
+	$(CC) $(CFLAGS) -o $@ -c $< $(IFLAGS) $(DFLAGS)
 
 # ========
 
